@@ -8,6 +8,10 @@ insert_final_newline = true
 # indent_style = tab
 # indent_size = 4
 
-[*.{md,txt,yml,yaml}]
+[*.{ts,tsx}]
+indent_style = tab
+indent_size = 4
+
+[*.{md,txt,json,yaml,yml}]
 indent_style = space
 indent_size = 2
