@@ -20,6 +20,6 @@ jobs:
           path-To-cladocument: "https://github.com/Fortify-Labs/Fortify/blob/master/CLA.md"
           # branch should not be protected
           branch: "master"
-          whitelist: ThomasK33,bot*
+          whitelist: ThomasK33,dependabot*
           empty-commit-flag: false
           blockchain-storage-flag: false
