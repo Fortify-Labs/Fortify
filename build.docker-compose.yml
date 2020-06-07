@@ -1,0 +1,9 @@
+version: "3.7"
+services:
+  backend:
+    image: backend
+    build: ./services/backend
+
+  gsiingress:
+    image: gsiingress
+    build: ./services/gsi-receiver

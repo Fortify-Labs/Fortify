@@ -2,8 +2,8 @@
 
 ## Development environment
 
-- [ ] Local docker-compose
-- [ ] Build docker-compose
+- [x] Local docker-compose
+- [x] Build docker-compose
 
 ## Kubernetes
 
@@ -19,10 +19,10 @@
 
 ## Stream receiver
 
-- [ ] HTTP Server
-- [ ] Validate auth token & scope
-- [ ] Receive incoming traffic and respond with HTTP 200 OK
-- [ ] Pipe data into Kafka
+- [x] HTTP Server
+- [x] Validate auth token & scope
+- [x] Receive incoming traffic and respond with HTTP 200 OK
+- [x] Pipe data into Kafka
 
 ## Finite State Machine
 
