@@ -4,6 +4,10 @@ services:
     image: backend
     build: ./services/backend
 
+  frontend:
+    image: frontend
+    build: ./services/frontend
+
   gsiingress:
     image: gsiingress
     build: ./services/gsi-receiver

@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "dev": "yarn types && next",
-    "build": "yarn types && next build",
+    "build": "next build",
     "start": "next start",
     "sync-dotenv": "sync-dotenv",
     "types": "graphql-let"
