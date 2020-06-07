@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project aims to develop a platform, aggregating and processing game state integration logs in order to extract live information from games played and collect stats from games played.
+This project aims to develop a platform, that is aggregating and processing game state integration logs in order to extract live information from matches and collect stats from played matches.
 
 ## Architecture
 
@@ -10,7 +10,16 @@ This project aims to develop a platform, aggregating and processing game state i
 
 ## Getting started
 
-TODO: Write Getting started section
+### Local Setup
+
+All necessary databases and systems can be started using `docker-compose up -d`.
+
+The corresponding microservices are located in the `services/` directory.
+Those can be started locally by navigating into the service's directory and running `npm run dev`. (Each microservice will have a dedicated Readme explaining necessary setup steps.)
+
+### Kubernetes Setup
+
+TODO: Write Kubernetes setup guide
 
 ## Resources
 
