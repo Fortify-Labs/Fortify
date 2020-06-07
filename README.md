@@ -2,14 +2,11 @@
 
 ## Overview
 
-- This project aims to develop a platform, aggregating and processing game state integration logs
-- asd
+This project aims to develop a platform, aggregating and processing game state integration logs in order to extract live information from games played and collect stats from games played.
 
-## Tech Stack
+## Architecture
 
-- Services: TypeScript (Node.js)
-- Event streaming: Kafka
-- Databases: PostgreSQL + Redis
+![Image of Architecture](resources/architecture.png)
 
 ## Getting started
 

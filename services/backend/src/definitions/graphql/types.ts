@@ -6,7 +6,7 @@ import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from '
 import { Context } from '../backend';
 export type Maybe<T> = T | null;
 
-// Generated on 2020-06-07T03:51:47+02:00
+// Generated on 2020-06-07T16:24:21+02:00
 
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
@@ -32,6 +32,8 @@ export enum Scope {
 
 export type Query = {
   __typename?: 'Query';
+  /** Returns the current jwt */
+  token: Scalars['String'];
   /** Returns the current package.json version */
   version: Scalars['String'];
 };
@@ -153,6 +155,7 @@ export type AuthDirectiveArgs = {   requires?: Maybe<Scope>; };
 export type AuthDirectiveResolver<Result, Parent, ContextType = Context, Args = AuthDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
+  token?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   version?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 }>;
 
