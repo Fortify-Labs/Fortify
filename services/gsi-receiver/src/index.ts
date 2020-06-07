@@ -67,7 +67,7 @@ const {
 		res.status(404).send("Nothing here");
 	});
 
-	const server = app.listen(MY_PORT ?? 8080, () => {
+	const server = app.listen(MY_PORT ?? 4000, () => {
 		debug("app::startup")(
 			"GSI endpoint listening on port " + (MY_PORT ?? 8080) + "!",
 		);
