@@ -24,6 +24,8 @@ openAPI.applyMiddleware({ app, apiPath: "/api", docsPath: "/docs" });
 const server = app.listen(
 	{ port: parseInt(process.env.MY_PORT ?? "8080", 10) },
 	() => {
+		graphQLServer.installSubscriptionHandlers(server);
+
 		const address = server.address();
 
 		if (address instanceof Object) {

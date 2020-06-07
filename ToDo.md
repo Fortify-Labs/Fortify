@@ -32,7 +32,6 @@
   - [ ] Detect a new game
   - [ ] Detect if player is participating in game
   - [ ] Detect a game finishing and store player placement
-- [ ]
 
 ## Backend
 
