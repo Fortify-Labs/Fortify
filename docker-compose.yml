@@ -16,6 +16,20 @@ services:
       - ./devops/local/vault/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh
     cap_add:
       - IPC_LOCK
+    restart: unless-stopped
+
+  postgres:
+    image: "postgres:11"
+    hostname: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: "PG_USER"
+      POSTGRES_PASSWORD: "PG_PASS"
+      POSTGRES_DB: "fortify"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
 
   redis:
     image: redis:latest
@@ -24,6 +38,7 @@ services:
     command: redis-server --appendonly yes
     volumes:
       - redis-data:/data
+    restart: unless-stopped
 
   zookeeper:
     image: wurstmeister/zookeeper:latest
@@ -31,6 +46,7 @@ services:
       - 2181:2181
     volumes:
       - zookeeper-data:/opt/zookeeper-3.4.13/data
+    restart: unless-stopped
 
   kafka:
     image: wurstmeister/kafka:latest
@@ -43,6 +59,7 @@ services:
       KAFKA_LOG_DIRS: /kafka/kafka-logs
     volumes:
       - kafka-data:/kafka
+    restart: unless-stopped
 
   akhq:
     image: tchiotludo/akhq:latest
@@ -54,16 +71,17 @@ services:
               properties:
                 bootstrap.servers: "kafka:9092"
     ports:
-      - 8080:8080
+      - 28080:8080
+    restart: unless-stopped
 
   redis-commander:
     hostname: redis-commander
     image: rediscommander/redis-commander:latest
-    restart: always
     environment:
       - REDIS_HOSTS=local:redis:6379
     ports:
       - "8081:8081"
+    restart: unless-stopped
 
 volumes:
   redis-data:
@@ -71,3 +89,4 @@ volumes:
   zookeeper-data:
   vault-file-data:
   vault-unseal-data:
+  postgres-data:

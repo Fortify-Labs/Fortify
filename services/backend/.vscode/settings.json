@@ -1,0 +1,18 @@
+{
+	"files.associations": { 
+		"*TypeDef.ts": "graphql",
+		"*.nycrc": "json",
+		".dockerignore": "gitignore"
+	},
+	"typescript.tsdk": "node_modules/typescript/lib",
+	"cSpell.words": [
+		"PGDATABASE",
+		"PGHOST",
+		"PGPASSWORD",
+		"PGPORT",
+		"PGUSER",
+		"inversify",
+		"postgres",
+		"typeorm"
+	]
+}

@@ -1,0 +1,18 @@
+overwrite: true
+require:
+  - "ts-node/register"
+  - "tsconfig-paths/register"
+schema: "src/graphql/**/*.ts"
+generates:
+  ./src/definitions/graphql/types.ts:
+    config:
+      contextType: ../backend#Context
+      useIndexSignature: true
+    # hooks:
+    #   afterOneFileWrite:
+    #     - prettier --config prettier.config.js --write
+    plugins:
+      - add: "/**\n * THIS IS A GENERATED FILE, DO NOT MODIFY DIRECTLY\n */\n"
+      - time
+      - "typescript"
+      - "typescript-resolvers"

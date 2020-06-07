@@ -1,0 +1,19 @@
+{
+	"extension": [
+		".ts"
+	],
+	"include": [
+		"src/**/*"
+	],
+	"exclude": [
+		"src/index.ts",
+		"src/graphql/graphql.ts",
+		"src/graphql/base/pubsub.ts",
+		"**/*TypeDef.ts",
+		"**/*.d.ts"
+	],
+	"reporter": [
+		"html"
+	],
+	"all": true
+}
