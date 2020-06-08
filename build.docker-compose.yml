@@ -7,6 +7,10 @@ services:
   frontend:
     image: frontend
     build: ./services/frontend
+  
+  fsm:
+    image: fsm
+    build: ./services/fsm
 
   gsiingress:
     image: gsiingress
