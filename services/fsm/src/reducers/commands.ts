@@ -2,7 +2,7 @@ import {
 	FortifyPlayerState,
 	FortifyFSMCommand,
 	FortifyFSMCommandType,
-} from "../types";
+} from "@shared/state";
 
 export const commandReducer = (
 	state: FortifyPlayerState,

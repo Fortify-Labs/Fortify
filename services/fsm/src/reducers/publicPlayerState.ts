@@ -1,4 +1,4 @@
-import { FortifyPlayerState } from "../types";
+import { FortifyPlayerState } from "@shared/state";
 import { PublicPlayerState } from "../gsiTypes";
 
 export const publicPlayerStateReducer = (

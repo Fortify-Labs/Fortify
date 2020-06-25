@@ -10,7 +10,8 @@ import { createClient } from "redis";
 import { promisify } from "util";
 
 import { Convert } from "./gsiTypes";
-import { Context, FortifyPlayerState, FortifyFSMCommand } from "./types";
+import { Context } from "@shared/auth";
+import { FortifyPlayerState, FortifyFSMCommand } from "@shared/state";
 import { publicPlayerStateReducer } from "./reducers/publicPlayerState";
 import { privatePlayerStateReducer } from "./reducers/privatePlayerState";
 import { commandReducer } from "./reducers/commands";

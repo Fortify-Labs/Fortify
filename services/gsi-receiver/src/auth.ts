@@ -1,5 +1,5 @@
 import { verify } from "jsonwebtoken";
-import { Context, Scope } from "./types";
+import { PermissionScope, Context } from "@shared/auth";
 
 export const verifyGSIAuth = (token: string, JWT_SECRET: string) => {
 	return new Promise<Context & { success: boolean }>((resolve, reject) => {
@@ -12,7 +12,7 @@ export const verifyGSIAuth = (token: string, JWT_SECRET: string) => {
 				const context = decoded as Context;
 
 				const hasPermissionScope = context?.scopes?.includes(
-					Scope.GSI_INGRESS,
+					PermissionScope.GsiIngress,
 				);
 
 				return resolve({

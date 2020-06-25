@@ -3,10 +3,10 @@
  */
 
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
-import { Context } from '../backend';
+import { Context } from '@shared/auth';
 export type Maybe<T> = T | null;
 
-// Generated on 2020-06-07T16:24:21+02:00
+// Generated on 2020-06-25T03:26:12+02:00
 
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
