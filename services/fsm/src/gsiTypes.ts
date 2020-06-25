@@ -6,12 +6,12 @@
 //
 //   import { Convert } from "./file";
 //
-//   const logs = Convert.toLogs(json);
+//   const log = Convert.toLog(json);
 //
 // These functions will throw an error if the JSON doesn't
 // match the expected interface, even if the JSON is valid.
 
-export interface Logs {
+export interface Log {
 	block: Block[];
 	auth: string;
 }
@@ -189,12 +189,16 @@ export interface Position {
 // Converts JSON strings to/from your types
 // and asserts the results of JSON.parse at runtime
 export class Convert {
-	public static toLogs(json: string): Logs {
-		return cast(JSON.parse(json), r("Logs"));
+	public static toLog(json: string): Log {
+		return cast(JSON.parse(json), r("Log"));
 	}
 
-	public static logsToJson(value: Logs): string {
-		return JSON.stringify(uncast(value, r("Logs")), null, 2);
+	public static toLogFromObject(json: object): Log {
+		return cast(json, r("Log"));
+	}
+
+	public static logToJson(value: Log): string {
+		return JSON.stringify(uncast(value, r("Log")), null, 2);
 	}
 }
 
@@ -343,7 +347,7 @@ function r(name: string) {
 }
 
 const typeMap: any = {
-	Logs: o(
+	Log: o(
 		[
 			{ json: "block", js: "block", typ: a(r("Block")) },
 			{ json: "auth", js: "auth", typ: "" },

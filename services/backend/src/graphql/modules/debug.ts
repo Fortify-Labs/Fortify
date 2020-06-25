@@ -1,7 +1,7 @@
-import { GQLModule } from "@src/definitions/module";
+import { GQLModule } from "../../definitions/module";
 import { gql } from "apollo-server-express";
 import { injectable } from "inversify";
-import { Resolvers } from "@src/definitions/graphql/types";
+import { Resolvers } from "../../definitions/graphql/types";
 
 // This module will only be used for debugging purposes and will be removed in the future
 @injectable()

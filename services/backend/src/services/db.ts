@@ -1,7 +1,7 @@
 import { injectable } from "inversify";
 import { createConnection, Connection } from "typeorm";
-import { User } from "@src/entities/User";
 import debug = require("debug");
+import { User } from "../entities/User";
 
 const {
 	PGHOST,

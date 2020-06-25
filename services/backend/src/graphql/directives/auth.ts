@@ -2,9 +2,9 @@ import { injectable } from "inversify";
 import { SchemaDirectiveVisitor } from "graphql-tools";
 import { GraphQLObjectType, GraphQLField } from "graphql";
 
-import { GQLDirective } from "@src/definitions/directive";
+import { GQLDirective } from "../../definitions/directive";
 import { gql, ApolloError } from "apollo-server-express";
-import { Context } from "@src/definitions/backend";
+import { Context } from "../../definitions/backend";
 
 import { defaultFieldResolver } from "graphql";
 

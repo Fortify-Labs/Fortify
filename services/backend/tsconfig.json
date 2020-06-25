@@ -1,8 +1,9 @@
 {
 	"extends": "./node_modules/gts/tsconfig-google.json",
 	"compilerOptions": {
-		"rootDir": ".",
+		"rootDir": "src",
 		"outDir": "build",
+		"baseUrl": ".",
 		
 		"target": "ES2020",
 		"lib": ["ES2020", "ES2018.AsyncIterable"],
@@ -12,24 +13,19 @@
 		"experimentalDecorators": true,
 		"emitDecoratorMetadata": true,
 
-		"baseUrl": "./src",
 		"paths": {
-			"@src/*": [
-				"./*"
-			],
-			"@root/*": [
-				"../*"
-			],
-			"@tests/*": [
-				"../tests/*"
-			]
+			"@root/*": ["./*"],
+      "@shared/*": ["../shared/build/src/*"]
 		},
 
-		"skipLibCheck": true,
-		"resolveJsonModule": true
+    "skipLibCheck": true,
+    "resolveJsonModule": false
 	},
 	"include": [
 		"src/**/*.ts",
 		"test/**/*.ts"
-	]
+  ],
+  "references": [{
+    "path": "../shared"
+  }]
 }

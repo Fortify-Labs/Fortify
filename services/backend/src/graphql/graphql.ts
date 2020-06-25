@@ -1,6 +1,6 @@
 import { ApolloServer } from "apollo-server-express";
 import { injectable } from "inversify";
-import { verifyToken } from "@src/util/jwt";
+import { verifyToken } from "../util/jwt";
 import { schema } from "./schemaLoader";
 
 @injectable()

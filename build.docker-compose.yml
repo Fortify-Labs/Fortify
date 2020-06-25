@@ -1,17 +1,39 @@
 version: "3.7"
+
 services:
   backend:
-    image: backend
-    build: ./services/backend
+    image: backend:${VERSION:-invalidVersion}
+    build:
+      context: ./
+      dockerfile: ./devops/docker/Node.Dockerfile
+
+      args:
+        SERVICE_NAME: backend
 
   frontend:
-    image: frontend
-    build: ./services/frontend
-  
-  fsm:
-    image: fsm
-    build: ./services/fsm
+    image: frontend:${VERSION:-invalidVersion}
+    build:
+      context: ./
+      dockerfile: ./devops/docker/Node.Dockerfile
 
-  gsiingress:
-    image: gsiingress
-    build: ./services/gsi-receiver
+      args:
+        SERVICE_NAME: frontend
+        EXPOSED_PORT: 3000
+
+  fsm:
+    image: fsm:${VERSION:-invalidVersion}
+    build:
+      context: ./
+      dockerfile: ./devops/docker/Node.Dockerfile
+
+      args:
+        SERVICE_NAME: fsm
+
+  gsi-receiver:
+    image: gsi-receiver:${VERSION:-invalidVersion}
+    build:
+      context: ./
+      dockerfile: ./devops/docker/Node.Dockerfile
+
+      args:
+        SERVICE_NAME: gsi-receiver

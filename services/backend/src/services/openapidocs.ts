@@ -3,10 +3,10 @@ import { injectable } from "inversify";
 import { Application } from "express";
 
 import { OpenAPI, useSofa } from "sofa-api";
-import { schema } from "@src/graphql/schemaLoader";
+import { schema } from "../graphql/schemaLoader";
 import * as swaggerUi from "swagger-ui-express";
 
-import { verifyToken } from "@src/util/jwt";
+import { verifyToken } from "../util/jwt";
 
 @injectable()
 export class OpenAPIDocs {

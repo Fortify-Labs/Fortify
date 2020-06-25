@@ -5,11 +5,11 @@
   "author": {
     "name": "Thomas Kosiewski"
   },
-  "main": "build/src/index.js",
-  "types": "build/src/index.d.ts",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
   "private": true,
   "files": [
-    "build/src"
+    "build"
   ],
   "license": "MIT",
   "repository": {
@@ -24,12 +24,12 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "check": "gts check",
     "clean": "gts clean",
-    "compile": "tsc",
+    "compile": "tsc -b",
     "fix": "gts fix",
     "prepare": "npm run compile",
     "pretest": "npm run compile",
     "posttest": "npm run check",
-    "start": "cross-env TS_NODE_PROJECT=build/ NODE_OPTIONS=--trace-warnings node -r tsconfig-paths/register build/src/index.js",
+    "start": "cross-env TS_NODE_PROJECT=./ NODE_OPTIONS=--trace-warnings node -r tsconfig-paths/register build/index.js",
     "start:ts": "cross-env DEBUG=app::* NODE_OPTIONS=--trace-warnings ts-node -r tsconfig-paths/register --files src/index.ts",
     "sync-dotenv": "sync-dotenv"
   },
@@ -40,6 +40,7 @@
     "@types/redis": "^2.8.22",
     "gts": "^2.0.2",
     "sync-dotenv": "^2.6.1",
+    "ts-node": "^8.10.2",
     "typescript": "^3.8.3"
   },
   "dependencies": {

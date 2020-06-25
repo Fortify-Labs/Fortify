@@ -1,7 +1,7 @@
 import { config } from "dotenv";
 config();
 
-import debug = require("debug");
+import * as debug from "debug";
 
 import { verify } from "jsonwebtoken";
 
@@ -10,9 +10,14 @@ import { createClient } from "redis";
 import { promisify } from "util";
 
 import { Convert } from "./gsiTypes";
-import { Context, FortifyPlayerState } from "./types";
+import { Context, FortifyPlayerState, FortifyFSMCommand } from "./types";
 import { publicPlayerStateReducer } from "./reducers/publicPlayerState";
 import { privatePlayerStateReducer } from "./reducers/privatePlayerState";
+import { commandReducer } from "./reducers/commands";
+
+import { testing } from "@shared/index";
+
+testing();
 
 const {
 	JWT_SECRET,
@@ -43,51 +48,72 @@ const {
 		fromBeginning: KAFKA_FROM_START === "true" ?? false,
 	});
 
+	await consumer.subscribe({
+		topic: "fsm-commands",
+	});
+
 	await consumer.run({
 		autoCommit: false,
-		eachMessage: async ({ message }) => {
-			const value = message.value;
+		eachMessage: async ({ message, topic }) => {
+			const value = message.value.toString();
 
-			try {
-				const gsi = Convert.toLogs(value.toString());
+			if (topic === "fsm-commands") {
+				const command: FortifyFSMCommand = JSON.parse(value);
 
-				const jwt = verify(gsi.auth, JWT_SECRET ?? "");
+				const rawState = await getAsync("ps_" + command.steamid);
+				let state: FortifyPlayerState = rawState
+					? JSON.parse(rawState)
+					: new FortifyPlayerState(command.steamid);
 
-				if (jwt instanceof Object) {
-					const { user } = jwt as Context;
+				state = commandReducer(state, command);
 
-					const rawState = await getAsync("ps_" + user.id);
-					let state: FortifyPlayerState = rawState
-						? JSON.parse(rawState)
-						: new FortifyPlayerState(user.id);
+				const stringifiedState = JSON.stringify(state);
+				await setAsync("ps_" + command.steamid, stringifiedState);
+				await publishAsync("ps_" + command.steamid, stringifiedState);
+			}
 
-					for (const { data } of gsi.block) {
-						for (const {
-							public_player_state,
-							private_player_state,
-						} of data) {
-							if (public_player_state) {
-								state = publicPlayerStateReducer(
-									state,
-									public_player_state,
-								);
-							}
+			if (topic === "gsi") {
+				try {
+					const gsi = Convert.toLog(value);
 
-							if (private_player_state) {
-								state = privatePlayerStateReducer(
-									state,
-									private_player_state,
-								);
+					const jwt = verify(gsi.auth, JWT_SECRET ?? "");
+
+					if (jwt instanceof Object) {
+						const { user } = jwt as Context;
+
+						const rawState = await getAsync("ps_" + user.id);
+						let state: FortifyPlayerState = rawState
+							? JSON.parse(rawState)
+							: new FortifyPlayerState(user.id);
+
+						for (const { data } of gsi.block) {
+							for (const {
+								public_player_state,
+								private_player_state,
+							} of data) {
+								if (public_player_state) {
+									state = publicPlayerStateReducer(
+										state,
+										public_player_state,
+									);
+								}
+
+								if (private_player_state) {
+									state = privatePlayerStateReducer(
+										state,
+										private_player_state,
+									);
+								}
 							}
 						}
-					}
 
-					const stringifiedState = JSON.stringify(state);
-					await setAsync("ps_" + user.id, stringifiedState);
-					await publishAsync("ps_" + user.id, stringifiedState);
+						const stringifiedState = JSON.stringify(state);
+						await setAsync("ps_" + user.id, stringifiedState);
+						await publishAsync("ps_" + user.id, stringifiedState);
+					}
+				} catch (e) {
+					debug("app::consumer:eachMessage")(e);
 				}
-			} catch (e) {
-				debug("app::consumer:eachMessage")(e);
 			}
 		},
 	});

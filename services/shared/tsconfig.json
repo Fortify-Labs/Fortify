@@ -1,21 +1,18 @@
 {
   "extends": "./node_modules/gts/tsconfig-google.json",
   "compilerOptions": {
-    "rootDir": "src",
+    "rootDir": ".",
     "outDir": "build",
     "baseUrl": ".",
-    "target": "ES2020",
-    "module": "CommonJS",
+    "composite": true,
+    "strict": true,
     "moduleResolution": "Node",
-    "paths": {
-      "@shared/*": ["../shared/build/src/*"]
-    }
+    "declaration": true,
+    "declarationMap": true
   },
+  "references": [],
   "include": [
     "src/**/*.ts",
     "test/**/*.ts"
-  ],
-  "references": [{
-    "path": "../shared"
-  }]
+  ]
 }

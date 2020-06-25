@@ -1,8 +1,8 @@
 import { makeExecutableSchema, SchemaDirectiveVisitor } from "graphql-tools";
 import { GraphQLSchema } from "graphql";
-import { container } from "@src/inversify.config";
-import { GQLModule } from "@src/definitions/module";
-import { GQLDirective } from "@src/definitions/directive";
+import { container } from "../inversify.config";
+import { GQLModule } from "../definitions/module";
+import { GQLDirective } from "../definitions/directive";
 
 const modules = container.getAll<GQLModule>("module");
 const directives = container.getAll<GQLDirective>("directive");
