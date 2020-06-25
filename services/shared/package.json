@@ -20,8 +20,8 @@
     "posttest": "npm run check"
   },
   "devDependencies": {
+    "@types/node": "^13.13.12",
     "gts": "^2.0.2",
-    "typescript": "^3.8.3",
-    "@types/node": "^13.11.1"
+    "typescript": "^3.8.3"
   }
 }

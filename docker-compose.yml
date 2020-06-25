@@ -69,6 +69,4 @@ volumes:
   redis-data:
   kafka-data:
   zookeeper-data:
-  vault-file-data:
-  vault-unseal-data:
   postgres-data:

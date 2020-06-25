@@ -1,15 +1,14 @@
-import { Construct } from 'constructs';
-import { App, Chart } from 'cdk8s';
+import { Construct } from "constructs";
+import { App, Chart } from "cdk8s";
 
 export class MyChart extends Chart {
-  constructor(scope: Construct, name: string) {
-    super(scope, name);
+	constructor(scope: Construct, name: string) {
+		super(scope, name);
 
-    // define resources here
-
-  }
+		// define resources here
+	}
 }
 
 const app = new App();
-new MyChart(app, 'kubernetes');
+new MyChart(app, "kubernetes");
 app.synth();
