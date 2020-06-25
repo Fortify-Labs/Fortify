@@ -36,7 +36,7 @@
     "url": "git+https://github.com/Fortify-Labs/Fortify.git"
   },
   "author": "Thomas Kosiewski",
-  "license": "MIT",
+  "license": "AGPL-3.0-or-later",
   "bugs": {
     "url": "https://github.com/Fortify-Labs/Fortify/issues"
   },

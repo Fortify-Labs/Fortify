@@ -29,6 +29,6 @@ TODO: Write Kubernetes setup guide
 
 ## Disclaimer
 
-Fortify is a community project and is not affiliated with Valve or Steam.
+Fortify (© 2020 Thomas Kosiewski) is a community project and is not affiliated with Valve or Steam.
 
 Dota Underlords is a registered trademark of Valve Corporation.

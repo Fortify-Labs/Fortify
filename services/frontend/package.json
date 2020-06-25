@@ -2,7 +2,7 @@
   "name": "frontend",
   "version": "0.1.0",
   "author": "Thomas Kosiewski",
-  "license": "MIT",
+  "license": "AGPL-3.0-or-later",
   "private": true,
   "scripts": {
     "dev": "yarn types && next",
