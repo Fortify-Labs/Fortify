@@ -37,3 +37,12 @@ services:
 
       args:
         SERVICE_NAME: gsi-receiver
+
+  15kmmr:
+    image: 15kmmr:${VERSION:-invalidVersion}
+    build:
+      context: ./
+      dockerfile: ./devops/docker/Node.Dockerfile
+
+      args:
+        SERVICE_NAME: 15kmmr

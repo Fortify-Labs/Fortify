@@ -1,3 +1,15 @@
+export enum FortifyGameMode {
+	Invalid = 0,
+	Normal = 1,
+	Turbo = 2,
+	Duos = 3,
+	TechPrototypeA = 4,
+	Sandbox = 5,
+	Puzzle = 6,
+	Tutorial = 7,
+	Streetfight = 8,
+}
+
 export class FortifyPlayerState {
 	constructor(public readonly steamid: string) {}
 
@@ -6,13 +18,15 @@ export class FortifyPlayerState {
 	} = {
 		players: {},
 	};
+
+	public mode: FortifyGameMode = FortifyGameMode.Invalid;
 }
 
-export class FortifyPlayer {
-	public steamid = "";
-	public name = "";
+export interface FortifyPlayer {
+	steamid: string;
+	name: string;
 
-	public final_place? = -1;
+	final_place?: number;
 }
 
 export enum FortifyFSMCommandType {
