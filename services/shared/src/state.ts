@@ -10,12 +10,14 @@ export enum FortifyGameMode {
 	Streetfight = 8,
 }
 
+interface FortifyPlayerStateLobby {
+	players: Record<string, FortifyPlayer>;
+}
+
 export class FortifyPlayerState {
 	constructor(public readonly steamid: string) {}
 
-	public lobby: {
-		players: Record<string, FortifyPlayer>;
-	} = {
+	public lobby: FortifyPlayerStateLobby = {
 		players: {},
 	};
 
@@ -23,10 +25,12 @@ export class FortifyPlayerState {
 }
 
 export interface FortifyPlayer {
-	steamid: string;
 	name: string;
 
 	final_place?: number;
+
+	rank_tier?: number;
+	global_leaderboard_rank?: number;
 }
 
 export enum FortifyFSMCommandType {
@@ -34,8 +38,8 @@ export enum FortifyFSMCommandType {
 	RESET,
 }
 
-export class FortifyFSMCommand {
-	public type = FortifyFSMCommandType.UNDEFINED;
-	public payload: Record<string, unknown> = {};
-	public steamid = "";
+export interface FortifyFSMCommand {
+	type: FortifyFSMCommandType;
+	payload?: Record<string, unknown>;
+	steamid: string;
 }

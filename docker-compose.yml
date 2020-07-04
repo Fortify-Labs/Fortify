@@ -53,7 +53,7 @@ services:
               properties:
                 bootstrap.servers: "kafka:9092"
     ports:
-      - 28080:8080
+      - 8082:8080
     restart: unless-stopped
 
   redis-commander:

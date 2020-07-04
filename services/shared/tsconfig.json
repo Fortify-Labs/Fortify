@@ -8,7 +8,9 @@
     "strict": true,
     "moduleResolution": "Node",
     "declaration": true,
-    "declarationMap": true
+    "declarationMap": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true
   },
   "references": [],
   "include": [

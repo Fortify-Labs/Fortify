@@ -5,11 +5,14 @@
     "outDir": "build",
     "baseUrl": ".",
     "target": "ES2020",
+    "lib": ["ES6"],
     "module": "CommonJS",
     "moduleResolution": "Node",
     "paths": {
       "@shared/*": ["../shared/build/src/*"]
-    }
+    },
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "include": [
     "src/**/*.ts",
