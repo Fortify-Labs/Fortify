@@ -32,9 +32,8 @@ const {
 
 	app.post("/gsi", async (req, res) => {
 		// TODO: Implement rate-limiting so this cannot be abused and spammed with trash
-		// FIXME: Send an unsuccessful response on failed auth
-		res.status(200).contentType("text/html").end("OK");
 
+		// Send an unsuccessful response on failed auth
 		if (req.body && req.body.auth) {
 			try {
 				const { user, success } = await verifyGSIAuth(
@@ -43,6 +42,8 @@ const {
 				);
 
 				if (success) {
+					res.status(200).contentType("text/html").end("OK");
+
 					req.body.block = req.body.block.filter(
 						(block: object) => Object.keys(block).length > 0,
 					);
@@ -56,10 +57,17 @@ const {
 							},
 						],
 					});
+				} else {
+					res.status(401)
+						.contentType("text/html")
+						.end("UNAUTHORIZED");
 				}
 			} catch (e) {
 				debug("app::gsi::exception")(e);
+				res.status(500).contentType("text/html").end("SERVER ERROR");
 			}
+		} else {
+			res.status(401).contentType("text/html").end("UNAUTHORIZED");
 		}
 	});
 

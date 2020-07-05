@@ -52,10 +52,11 @@ export class ExtractorService {
 			const minorRank = (player.rank_tier ?? 0) % 10;
 			const majorRank = ((player.rank_tier ?? 0) - minorRank) / 10;
 
+			// Return the current players rank tier as negative rank
 			return {
 				mmr: rankToMMRMapping[majorRank][minorRank],
 				name: player.name,
-				rank: 0,
+				rank: -(player.rank_tier ?? 0),
 			};
 		}
 
@@ -73,10 +74,11 @@ export class ExtractorService {
 			(entry) => entry.rank === player.global_leaderboard_rank,
 		);
 
+		// If no rank & mmr is found, just default it to 15k and rank 0
 		return {
-			mmr: userEntry?.level_score ?? -1,
+			mmr: userEntry?.level_score ?? 15000,
 			name: player.name,
-			rank: player.global_leaderboard_rank ?? -1,
+			rank: player.global_leaderboard_rank ?? 0,
 		};
 	}
 
@@ -100,17 +102,19 @@ export class ExtractorService {
 		const mmrs =
 			leaderboardEntries?.map((entry) => entry.level_score) ?? [];
 
-		// Interpolate mmr for non lord players
-		const rankTiers = players.map((player) => player.rank_tier).sort();
+		for (const { rank_tier, global_leaderboard_rank } of players) {
+			if (rank_tier) {
+				const minorRank = rank_tier % 10;
+				const majorRank = (rank_tier - minorRank) / 10;
 
-		for (const rankTier of rankTiers) {
-			if (rankTier) {
-				const minorRank = rankTier % 10;
-				const majorRank = (rankTier - minorRank) / 10;
-
-				// I do not want to interpolate lords
-				// Thus everything below lord gets interpolated
-				if (majorRank < 8) {
+				// If we find a lord without a leaderboard rank, assume 15k mmr
+				// For all players below lord, interpolate the mmr
+				if (
+					(majorRank === 8 &&
+						(global_leaderboard_rank === null ||
+							global_leaderboard_rank === undefined)) ||
+					majorRank < 8
+				) {
 					const interpolatedMMR =
 						rankToMMRMapping[majorRank.toString()][
 							minorRank.toString()

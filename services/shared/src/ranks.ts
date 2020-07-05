@@ -9,3 +9,15 @@ export const rankToMMRMapping: Record<string, Record<string, number>> = {
 	"7": { "0": 6005, "1": 6325, "2": 6640, "3": 6955, "4": 7270 },
 	"8": { "0": 7600 },
 };
+
+export const majorRankNameMapping: Record<string, string> = {
+	"0": "Upstart",
+	"1": "Grifter",
+	"2": "Outlaw",
+	"3": "Enforcer",
+	"4": "Smuggler",
+	"5": "Lieutenant",
+	"6": "Boss",
+	"7": "Big Boss",
+	"8": "Lord of White Spire",
+};

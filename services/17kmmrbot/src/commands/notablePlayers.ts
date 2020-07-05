@@ -12,6 +12,8 @@ import { FortifyGameMode } from "@shared/state";
 import { LeaderboardService } from "../services/leaderboard";
 import { ULLeaderboard, LeaderboardType } from "../definitions/leaderboard";
 
+import { majorRankNameMapping } from "@shared/ranks";
+
 @injectable()
 export class NotablePlayersCommand implements TwitchCommand {
 	constructor(
@@ -46,7 +48,7 @@ export class NotablePlayersCommand implements TwitchCommand {
 			// TODO: Refactor this to not re-fetch the leaderboard every time
 			// TODO: Create CRON job fetching the leaderboard
 			// TODO: Insert this into the postgres
-			// TODO: Fetch the corresponding entries by username instead of fetching the leaderboard and then filter
+			// TODO: Fetch the corresponding entries by username instead of fetching the leaderboard and then filter (Update: I don't even know what I mean with this)
 
 			let leaderboard: ULLeaderboard | null = null;
 
@@ -84,12 +86,22 @@ export class NotablePlayersCommand implements TwitchCommand {
 
 			for (const { name, rank, mmr } of players) {
 				try {
-					if (rank > 0) {
-						response += `${name} [Rank: ${rank}, MMR: ${mmr}], `;
+					// Ranks equals and greater than zero will always be lord rankings
+					if (rank >= 0) {
+						response += `${name} [#${rank}, MMR: ${mmr}], `;
 					}
 
-					if (rank === 0) {
-						response += `${name} [MMR: ${mmr}], `;
+					// If the rank is negative, that means that we're dealing with a rank_tier instead of actual rank
+					if (rank < 0) {
+						const minorRank = (-rank ?? 0) % 10;
+						const majorRank = ((-rank ?? 0) - minorRank) / 10;
+
+						const rankName =
+							majorRankNameMapping[majorRank] +
+							" " +
+							(minorRank + 1);
+
+						response += `${name} [${rankName}, MMR: ${mmr}], `;
 					}
 				} catch (e) {
 					continue;
