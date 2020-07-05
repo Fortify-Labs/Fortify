@@ -9,6 +9,8 @@ import { injectable, inject } from "inversify";
 import { PostgresConnector } from "@shared/connectors/postgres";
 import { RedisConnector } from "@shared/connectors/redis";
 
+import { rankToMMRMapping } from "@shared/ranks";
+
 import { ULLeaderboard } from "../definitions/leaderboard";
 
 @injectable()
@@ -45,6 +47,18 @@ export class ExtractorService {
 		player: FortifyPlayer,
 		leaderboard: ULLeaderboard | null,
 	): Promise<Player> {
+		// Interpolate the players mmr if not lord
+		if ((player.rank_tier ?? 0) < 80) {
+			const minorRank = (player.rank_tier ?? 0) % 10;
+			const majorRank = ((player.rank_tier ?? 0) - minorRank) / 10;
+
+			return {
+				mmr: rankToMMRMapping[majorRank][minorRank],
+				name: player.name,
+				rank: 0,
+			};
+		}
+
 		// TODO: Return fortify player name --> Fetch postgres by player id
 		// Only return player names that exist, otherwise throw an exception
 
@@ -71,7 +85,7 @@ export class ExtractorService {
 	}
 
 	getAverageMMR(fsp: FortifyPlayerState, leaderboard: ULLeaderboard | null) {
-		// Fetch all player mmrs by leaderboard rank
+		// Fetch all lord players' mmrs by leaderboard rank
 
 		const players = Object.values(fsp.lobby.players);
 		const ranks = players
@@ -83,7 +97,29 @@ export class ExtractorService {
 			ranks.includes(entry.rank),
 		);
 
-		const mmrs = leaderboardEntries?.map((entry) => entry.level_score);
+		const mmrs =
+			leaderboardEntries?.map((entry) => entry.level_score) ?? [];
+
+		// Interpolate mmr for non lord players
+		const rankTiers = players.map((player) => player.rank_tier).sort();
+
+		for (const rankTier of rankTiers) {
+			if (rankTier) {
+				const minorRank = rankTier % 10;
+				const majorRank = (rankTier - minorRank) / 10;
+
+				// I do not want to interpolate lords
+				// Thus everything below lord gets interpolated
+				if (majorRank < 8) {
+					const interpolatedMMR =
+						rankToMMRMapping[majorRank.toString()][
+							minorRank.toString()
+						];
+
+					mmrs.push(interpolatedMMR);
+				}
+			}
+		}
 
 		const sum = mmrs?.reduce((aggregator, mmr) => aggregator + mmr, 0);
 		const avg = (sum ?? 1) / (mmrs?.length ?? 1);

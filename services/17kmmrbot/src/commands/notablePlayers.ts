@@ -71,30 +71,25 @@ export class NotablePlayersCommand implements TwitchCommand {
 
 			let response = `${gameMode} [${averageMMR} avg MMR]: `;
 
-			// Get players and sort them by leaderboard rank
-			const players = Object.values(fps.lobby.players).sort((a, b) =>
-				(a.global_leaderboard_rank ?? 0) >
-				(b.global_leaderboard_rank ?? 0)
-					? 1
-					: (b.global_leaderboard_rank ?? 0) >
-					  (a.global_leaderboard_rank ?? 0)
-					? -1
-					: 0,
+			// Get players and sort them by mmr rank
+			const playerPromises = Object.values(
+				fps.lobby.players,
+			).map((player) =>
+				this.extractorService.getPlayer(player, leaderboard),
 			);
 
-			for (const player of players) {
-				try {
-					const {
-						name,
-						rank,
-						mmr,
-					} = await this.extractorService.getPlayer(
-						player,
-						leaderboard,
-					);
+			const players = (await Promise.all(playerPromises)).sort((a, b) =>
+				a.mmr > b.mmr ? -1 : b.mmr > a.mmr ? 1 : 0,
+			);
 
+			for (const { name, rank, mmr } of players) {
+				try {
 					if (rank > 0) {
 						response += `${name} [Rank: ${rank}, MMR: ${mmr}], `;
+					}
+
+					if (rank === 0) {
+						response += `${name} [MMR: ${mmr}], `;
 					}
 				} catch (e) {
 					continue;

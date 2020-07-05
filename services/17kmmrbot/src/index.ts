@@ -8,8 +8,13 @@ import { Client, Options } from "tmi.js";
 
 import { container } from "./inversify.config";
 import { PostgresConnector } from "@shared/connectors/postgres";
+import { KafkaConnector } from "@shared/connectors/kafka";
+import { KafkaTopic17kmmrbot } from "@shared/17kmmrbot";
 
 import { TwitchCommand } from "./definitions/twitchCommand";
+import { BotCommandProcessor } from "./services/command";
+
+const { KAFKA_FROM_START } = process.env;
 
 (async () => {
 	const commands = container.getAll<TwitchCommand>("command");
@@ -19,6 +24,15 @@ import { TwitchCommand } from "./definitions/twitchCommand";
 	const channels = await (await userRepo.find({ select: ["twitch_name"] }))
 		.map((channel) => channel.twitch_name ?? "")
 		.filter((value) => value);
+
+	const commandProcessor = container.get(BotCommandProcessor);
+	const kafka = container.get(KafkaConnector);
+	const consumer = kafka.consumer({ groupId: "17kmmrbot-group" });
+
+	consumer.subscribe({
+		fromBeginning: KAFKA_FROM_START !== "true" ?? true,
+		topic: KafkaTopic17kmmrbot,
+	});
 
 	const options: Options = {
 		channels,
@@ -33,6 +47,12 @@ import { TwitchCommand } from "./definitions/twitchCommand";
 	};
 
 	const client = Client(options);
+
+	await consumer.run({
+		autoCommit: KAFKA_FROM_START !== "true" ?? true,
+		eachMessage: async (payload) =>
+			commandProcessor.process(payload, client),
+	});
 
 	client.on("message", async (channel, tags, message, self) => {
 		try {
@@ -68,6 +88,7 @@ import { TwitchCommand } from "./definitions/twitchCommand";
 	async function shutDown() {
 		try {
 			(await postgres.connection).close();
+			consumer.disconnect();
 		} finally {
 			debug("app::shutdown")(
 				"Received kill signal, shutting down gracefully",

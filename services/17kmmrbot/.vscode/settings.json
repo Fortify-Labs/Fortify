@@ -5,6 +5,7 @@
 		"Userstate",
 		"greycodes",
 		"inversify",
+		"kafkajs",
 		"leaderboard",
 		"mmrs",
 		"postgres",
