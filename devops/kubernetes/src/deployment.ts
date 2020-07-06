@@ -40,7 +40,7 @@ export class FortifyDeployment extends Construct {
 		if (options.service) {
 			new Service(this, "service", {
 				metadata: {
-					name: options.service.name,
+					name: options.service.name + "-service",
 				},
 				spec: {
 					type: "ClusterIP",
@@ -56,6 +56,9 @@ export class FortifyDeployment extends Construct {
 		}
 
 		new Deployment(this, "deployment", {
+			metadata: {
+				name: options.name + "-deployment",
+			},
 			spec: {
 				replicas,
 				selector: {

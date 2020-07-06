@@ -4,7 +4,13 @@ import { FortifyDeploymentOptions, FortifyDeployment } from "./deployment";
 import {
 	VirtualService,
 	VirtualServiceSpecHttp,
+	VirtualServiceOptions,
 } from "../imports/networking.istio.io/virtualservice";
+import { ObjectMeta } from "../imports/k8s";
+
+export interface CustomVirtualServiceOptions extends VirtualServiceOptions {
+	metadata?: ObjectMeta;
+}
 
 export interface WebServiceOptions {
 	readonly hosts: string[];
@@ -25,11 +31,14 @@ export class WebService extends Construct {
 		new FortifyDeployment(this, "deployment", options);
 
 		new VirtualService(this, "service", {
+			metadata: {
+				name: options.name + "-virtual-service",
+			},
 			spec: {
 				hosts,
 				gateways,
 				http,
 			},
-		});
+		} as CustomVirtualServiceOptions);
 	}
 }

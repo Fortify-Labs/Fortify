@@ -25,7 +25,7 @@ const {
 	ACME_EMAIL,
 	ACME_CF_EMAIL,
 	CF_TOKEN,
-	DOCKER_CONFIG_JSON,
+	// DOCKER_CONFIG_JSON,
 	STAGING_ACME_SERVER,
 	STAGING_ACME_EMAIL,
 	STAGING_ACME_CF_EMAIL,
@@ -37,16 +37,17 @@ export class MyChart extends Chart {
 
 		// define resources here
 
-		new Secret(this, "regcred", {
-			metadata: {
-				name: "regcred",
-			},
-			data: {
-				".dockerconfigjson": Buffer.from(
-					DOCKER_CONFIG_JSON ?? ""
-				).toString("base64"),
-			},
-		});
+		// I might not even need to enter registry credentials, as the images are hosted publicly
+		// new Secret(this, "regcred", {
+		// 	metadata: {
+		// 		name: "regcred",
+		// 	},
+		// 	data: {
+		// 		".dockerconfigjson": Buffer.from(
+		// 			DOCKER_CONFIG_JSON ?? ""
+		// 		).toString("base64"),
+		// 	},
+		// });
 
 		new Secret(this, "cloudflare-api-token", {
 			metadata: {
@@ -174,7 +175,7 @@ export class MyChart extends Chart {
 								port: {
 									number: 8080,
 								},
-								host: "backend",
+								host: "backend-service",
 							},
 						},
 					],
@@ -187,7 +188,7 @@ export class MyChart extends Chart {
 			service: {
 				name: "frontend",
 				containerPort: 3000,
-				port: 8080,
+				port: 3000,
 			},
 			gateways: ["fortify-gateway"],
 			hosts: ["fortify.gg"],
@@ -197,9 +198,9 @@ export class MyChart extends Chart {
 						{
 							destination: {
 								port: {
-									number: 8080,
+									number: 3000,
 								},
-								host: "frontend",
+								host: "frontend-service",
 							},
 						},
 					],
@@ -224,7 +225,7 @@ export class MyChart extends Chart {
 								port: {
 									number: 8080,
 								},
-								host: "gsi-receiver",
+								host: "gsi-receiver-service",
 							},
 						},
 					],
