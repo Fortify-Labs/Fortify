@@ -1,10 +1,17 @@
-import { MyChart } from "./main";
+import { Fortify, ClusterSetup } from "./main";
 import { Testing } from "cdk8s";
 
 describe("Placeholder", () => {
 	test("Empty", () => {
 		const app = Testing.app();
-		const chart = new MyChart(app, "test-chart");
+		const chart = new Fortify(app, "test-chart");
+		const results = Testing.synth(chart);
+		expect(results).toMatchSnapshot();
+	});
+
+	test("Empty Cluster", () => {
+		const app = Testing.app();
+		const chart = new ClusterSetup(app, "test-cluster");
 		const results = Testing.synth(chart);
 		expect(results).toMatchSnapshot();
 	});

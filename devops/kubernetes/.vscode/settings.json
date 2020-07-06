@@ -1,10 +1,21 @@
 {
 	"cSpell.words": [
+		"CLIENTID",
+		"JBOD",
+		"Postgres",
+		"clusterissuer",
 		"configmap",
 		"configmaps",
+		"crds",
+		"dockerconfigjson",
 		"ingressgateway",
 		"istio",
 		"kmmrbot",
+		"kubedb",
+		"letsencrypt",
+		"regcred",
+		"strimzi",
+		"virtualservice",
 		"webservice"
 	]
 }

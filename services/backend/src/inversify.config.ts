@@ -4,12 +4,12 @@ import { Container } from "inversify";
 import { GQLModule } from "./definitions/module";
 import { GQLDirective } from "./definitions/directive";
 
-import { Database } from "./services/db";
-
 import { AuthDirective } from "./graphql/directives/auth";
 
 import { BaseModule } from "./graphql/modules/base";
 import { DebugModule } from "./graphql/modules/debug";
+
+import { PostgresConnector } from "@shared/connectors/postgres";
 
 const container = new Container({ autoBindInjectable: true });
 
@@ -18,6 +18,6 @@ container.bind<GQLModule>("module").to(DebugModule);
 
 container.bind<GQLDirective>("directive").to(AuthDirective);
 
-container.bind(Database).toConstantValue(new Database());
+container.bind(PostgresConnector).toConstantValue(new PostgresConnector());
 
 export { container };

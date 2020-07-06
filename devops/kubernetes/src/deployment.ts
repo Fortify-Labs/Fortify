@@ -37,6 +37,10 @@ export class FortifyDeployment extends Construct {
 
 		const replicas = options.replicas ?? 1;
 
+		const env: EnvVar[] = options.env
+			? [...options.env, { name: "DEBUG", value: "app::*" }]
+			: [];
+
 		if (options.service) {
 			new Service(this, "service", {
 				metadata: {
@@ -97,7 +101,7 @@ export class FortifyDeployment extends Construct {
 										},
 									})),
 								],
-								env: options.env,
+								env,
 							},
 						],
 					},

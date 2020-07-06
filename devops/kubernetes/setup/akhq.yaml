@@ -1,0 +1,24 @@
+configuration: |
+  akhq:
+    server:
+      access-log:
+        enabled: false
+        name: org.akhq.log.access
+
+secrets: |
+  akhq:
+    connections:
+      my-cluster-plain-text:
+        properties:
+          bootstrap.servers: "kafka-cluster-kafka-bootstrap:9092"
+      kafka-cluster-kafka-bootstrap:
+        properties:
+          bootstrap.servers: "kafka-cluster-kafka-bootstrap:9092"
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi

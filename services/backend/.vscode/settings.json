@@ -12,6 +12,7 @@
 		"PGPORT",
 		"PGUSER",
 		"inversify",
+		"openapidocs",
 		"postgres",
 		"typeorm"
 	]

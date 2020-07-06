@@ -6,9 +6,6 @@ imports:
   - https://raw.githubusercontent.com/istio/istio/master/manifests/charts/base/crds/crd-mixer.yaml
   - https://raw.githubusercontent.com/istio/istio/master/manifests/charts/base/crds/crd-operator.yaml
   - https://github.com/jetstack/cert-manager/releases/download/v0.15.1/cert-manager.crds.yaml
-  - https://raw.githubusercontent.com/kubedb/installer/a770d061bbaf0d9887092ab953d3976a8e9152a6/api/crds/installer.kubedb.com_kubedbcatalogs.v1.yaml
-  - https://raw.githubusercontent.com/kubedb/installer/ee49da506bffcd14e319138cbf6d7508b5a11c10/api/crds/installer.kubedb.com_kubedbcatalogs.yaml
-  - https://raw.githubusercontent.com/kubedb/installer/777b636560693b4f9a6af06a0deb5a81891914a5/api/crds/installer.kubedb.com_kubedboperators.v1.yaml
-  - https://raw.githubusercontent.com/kubedb/installer/777b636560693b4f9a6af06a0deb5a81891914a5/api/crds/installer.kubedb.com_kubedboperators.yaml
-  # - https://raw.githubusercontent.com/kubedb/installer/v0.13.0-rc.0/deploy/kubedb-catalog/postgres.yaml
-  # - https://raw.githubusercontent.com/kubedb/installer/v0.13.0-rc.0/deploy/kubedb-catalog/redis.yaml
+  - https://strimzi.io/install/latest?namespace=fortify
+  - crds/postgres.yaml
+  - crds/redis.yaml

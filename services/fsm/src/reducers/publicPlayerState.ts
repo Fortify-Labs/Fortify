@@ -48,9 +48,17 @@ export class PlayerReducer implements StateReducer<PublicPlayerState> {
 			state = this.sts.resetState(state);
 		}
 
-		// For now we are only going to detect wether the match started is standard or KO
-		// If we get 100 hp, we can be sure that the game mode is standard
+		// If we receive a new account id that we didn't have before and we already have 8 account ids, reset the state
+		if (
+			!Object.keys(state.lobby.players).includes(account_id.toString()) &&
+			Object.keys(state.lobby.players).length > 7
+		) {
+			state = this.sts.resetState(state);
+		}
+
 		if (state.mode === FortifyGameMode.Invalid) {
+			// For now we are only going to detect wether the match started is standard or KO
+			// If we get 100 hp, we can be sure that the game mode is standard
 			if (health === 100) {
 				state.mode = FortifyGameMode.Normal;
 			}

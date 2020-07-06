@@ -45,6 +45,10 @@ export class NotablePlayersCommand implements TwitchCommand {
 
 			const gameMode = await this.extractorService.getGameMode(fps);
 
+			if (gameMode === FortifyGameMode[FortifyGameMode.Invalid]) {
+				return client.say(channel, "No game mode detected");
+			}
+
 			// TODO: Refactor this to not re-fetch the leaderboard every time
 			// TODO: Create CRON job fetching the leaderboard
 			// TODO: Insert this into the postgres

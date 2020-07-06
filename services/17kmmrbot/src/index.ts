@@ -51,6 +51,27 @@ const { KAFKA_FROM_START } = process.env;
 
 	const client = Client(options);
 
+	process.on("SIGTERM", shutDown);
+	process.on("SIGINT", shutDown);
+
+	async function shutDown() {
+		try {
+			(await postgres.connection).close();
+			debug("app::main")("Postgres connection closed");
+			await consumer.disconnect();
+			debug("app::main")("Kafka consumer closed");
+			await client.disconnect();
+			debug("app::main")("Twitch connection closed");
+		} finally {
+			debug("app::shutdown")(
+				"Received kill signal, shutting down gracefully",
+			);
+
+			// eslint-disable-next-line no-process-exit
+			process.exit(0);
+		}
+	}
+
 	await consumer.run({
 		autoCommit: KAFKA_FROM_START !== "true" ?? true,
 		eachMessage: async (payload) =>
@@ -91,21 +112,4 @@ const { KAFKA_FROM_START } = process.env;
 
 	debug("app::main")("Twitch bot connected");
 	debug("app::main")(connected);
-
-	process.on("SIGTERM", shutDown);
-	process.on("SIGINT", shutDown);
-
-	async function shutDown() {
-		try {
-			(await postgres.connection).close();
-			consumer.disconnect();
-		} finally {
-			debug("app::shutdown")(
-				"Received kill signal, shutting down gracefully",
-			);
-
-			// eslint-disable-next-line no-process-exit
-			process.exit(0);
-		}
-	}
 })().catch(debug("app::main"));
