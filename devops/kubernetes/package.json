@@ -11,20 +11,26 @@
     "compile": "tsc",
     "watch": "tsc -w",
     "test": "jest",
-    "build": "npm run compile && npm run test && npm run synth",
+    "build": "npm run compile && npm run test && npm run synth && npm run clean",
     "upgrade": "npm i cdk8s@latest cdk8s-cli@latest",
-    "upgrade:next": "npm i cdk8s@next cdk8s-cli@next"
+    "upgrade:next": "npm i cdk8s@next cdk8s-cli@next",
+    "sync-dotenv": "sync-dotenv",
+    "clean": "rename ./jest.config.js ./jest.config.js.bac && rimraf *.d.ts && rimraf *.js && rimraf src/*.d.ts && rimraf src/*.js && rename ./jest.config.js.bac ./jest.config.js"
   },
   "dependencies": {
-    "cdk8s": "^0.25.0",
-    "constructs": "^2.0.1"
+    "cdk8s": "^0.26.0",
+    "constructs": "^2.0.2",
+    "dotenv": "^8.2.0",
+    "rename-cli": "^6.2.1"
   },
   "devDependencies": {
-    "@types/jest": "^25.2.3",
-    "@types/node": "^14.0.11",
-    "cdk8s-cli": "^0.25.0",
-    "jest": "^26.0.1",
-    "ts-jest": "^26.1.0",
-    "typescript": "^3.9.5"
+    "@types/jest": "^26.0.3",
+    "@types/node": "^14.0.14",
+    "cdk8s-cli": "^0.26.0",
+    "jest": "^26.1.0",
+    "rimraf": "^3.0.2",
+    "sync-dotenv": "^2.6.1",
+    "ts-jest": "^26.1.1",
+    "typescript": "^3.9.6"
   }
 }

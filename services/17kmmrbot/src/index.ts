@@ -61,7 +61,14 @@ const { KAFKA_FROM_START } = process.env;
 
 			for (const command of commands) {
 				if (
-					command.invocations.includes(message.toLowerCase()) &&
+					command.invocations.reduce(
+						(acc, invocation) =>
+							acc ||
+							message
+								.toLowerCase()
+								.startsWith(invocation.toLowerCase()),
+						false,
+					) &&
 					!(command.timeout !== undefined
 						? await command.timeout(channel, tags, message)
 						: false) &&

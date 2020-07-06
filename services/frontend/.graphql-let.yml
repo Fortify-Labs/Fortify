@@ -1,4 +1,4 @@
-schema: http://localhost:8080/graphql
+schema: schema.json
 documents: ["**/*.graphql", "**/*.gql"]
 plugins:
   - typescript
