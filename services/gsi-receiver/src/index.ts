@@ -1,26 +1,21 @@
 import { config } from "dotenv";
 config();
 
+import { sharedSetup } from "@shared/index";
+sharedSetup();
+
 import * as debug from "debug";
 import * as express from "express";
 import { json, urlencoded } from "body-parser";
-import { Kafka } from "kafkajs";
 
 import { verifyGSIAuth } from "./auth";
+import { container } from "./inversify.config";
+import { KafkaConnector } from "@shared/connectors/kafka";
 
-const {
-	KAFKA_CLIENTID,
-	KAFKA_BROKERS,
-	KAFKA_TOPIC,
-	MY_PORT,
-	JWT_SECRET,
-} = process.env;
+const { KAFKA_TOPIC, MY_PORT, JWT_SECRET } = process.env;
 
 (async () => {
-	const kafka = new Kafka({
-		clientId: KAFKA_CLIENTID,
-		brokers: JSON.parse(KAFKA_BROKERS ?? ""),
-	});
+	const kafka = container.get(KafkaConnector);
 
 	const producer = kafka.producer();
 	await producer.connect();

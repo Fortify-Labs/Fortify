@@ -14,6 +14,9 @@ import { KafkaTopic17kmmrbot } from "@shared/17kmmrbot";
 import { TwitchCommand } from "./definitions/twitchCommand";
 import { BotCommandProcessor } from "./services/command";
 
+import { sharedSetup } from "@shared/index";
+sharedSetup();
+
 const { KAFKA_FROM_START } = process.env;
 
 (async () => {

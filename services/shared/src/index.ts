@@ -1,6 +1,7 @@
 import "reflect-metadata";
+import debug = require("debug");
 
 // TODO: Remove this at a future cleanup
-export const testing = () => {
-	console.log("working");
+export const sharedSetup = () => {
+	debug("app::sharedSetup")("Shared setup");
 };

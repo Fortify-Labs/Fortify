@@ -6,7 +6,9 @@
     "baseUrl": ".",
     "paths": {
       "@shared/*": ["../shared/build/src/*"]
-    }
+    },
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
   },
   "include": [
     "src/**/*.ts",

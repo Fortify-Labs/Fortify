@@ -3,6 +3,9 @@ config();
 
 import * as debug from "debug";
 
+import { sharedSetup } from "@shared/index";
+sharedSetup();
+
 import { container } from "./inversify.config";
 
 import { KafkaConnector } from "@shared/connectors/kafka";
@@ -16,10 +19,7 @@ import { Log, PublicPlayerState, PrivatePlayerState } from "./gsiTypes";
 import { Context } from "@shared/auth";
 import { FortifyFSMCommand } from "@shared/state";
 
-import { testing } from "@shared/index";
 import { StateTransformationService } from "./services/stateTransformer";
-
-testing();
 
 const { JWT_SECRET, KAFKA_FROM_START } = process.env;
 
