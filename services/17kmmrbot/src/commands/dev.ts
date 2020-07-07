@@ -63,14 +63,13 @@ export class DevCommands implements TwitchCommand {
 					await client.join(channelName);
 
 					await client.whisper(
-						tags["display-name"]?.toLocaleLowerCase() ??
-							"greycodes",
+						tags.username ?? "GreyCodes",
 						"Joined " + channelName,
 					);
 				} catch (e) {
+					debug("app::devCommands::join")(e);
 					await client.whisper(
-						tags["display-name"]?.toLocaleLowerCase() ??
-							"greycodes",
+						tags.username ?? "GreyCodes",
 						"An error occurred: " + e.toString(),
 					);
 				}
@@ -83,14 +82,13 @@ export class DevCommands implements TwitchCommand {
 					await client.part(channel);
 
 					await client.whisper(
-						tags["display-name"]?.toLocaleLowerCase() ??
-							"greycodes",
+						tags.username ?? "GreyCodes",
 						"Left " + channelName,
 					);
 				} catch (e) {
+					debug("app::devCommands::leave")(e);
 					await client.whisper(
-						tags["display-name"]?.toLocaleLowerCase() ??
-							"greycodes",
+						tags.username ?? "GreyCodes",
 						"An error occurred: " + e.toString(),
 					);
 				}
