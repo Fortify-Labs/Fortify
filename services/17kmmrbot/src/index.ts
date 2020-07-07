@@ -84,23 +84,29 @@ const { KAFKA_FROM_START } = process.env;
 			if (self) return;
 
 			for (const command of commands) {
-				if (
-					command.invocations.reduce(
-						(acc, invocation) =>
-							acc ||
-							message
-								.toLowerCase()
-								.startsWith(invocation.toLowerCase()),
-						false,
-					) &&
-					!(command.timeout !== undefined
-						? await command.timeout(channel, tags, message)
-						: false) &&
-					(command.authorized !== undefined
-						? await command.authorized(channel, tags, message)
-						: true)
-				) {
-					await command.handler(client, channel, tags, message);
+				const invoked = command.invocations.reduce(
+					(acc, invocation) =>
+						acc ||
+						message
+							.toLowerCase()
+							.startsWith(invocation.toLowerCase()),
+					false,
+				);
+
+				if (invoked) {
+					const timedOut =
+						command.timeout !== undefined
+							? await command.timeout(channel, tags, message)
+							: false;
+
+					const authorized =
+						command.authorized !== undefined
+							? await command.authorized(channel, tags, message)
+							: true;
+
+					if (!timedOut && authorized) {
+						await command.handler(client, channel, tags, message);
+					}
 				}
 			}
 		} catch (e) {

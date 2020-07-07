@@ -12,16 +12,16 @@ export enum FortifyGameMode {
 
 interface FortifyPlayerStateLobby {
 	players: Record<string, FortifyPlayer>;
+	mode: FortifyGameMode;
 }
 
 export class FortifyPlayerState {
 	constructor(public readonly steamid: string) {}
 
 	public lobby: FortifyPlayerStateLobby = {
+		mode: FortifyGameMode.Invalid,
 		players: {},
 	};
-
-	public mode: FortifyGameMode = FortifyGameMode.Invalid;
 }
 
 export interface FortifyPlayer {

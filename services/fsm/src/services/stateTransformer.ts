@@ -28,8 +28,14 @@ export class StateTransformationService {
 	}
 
 	resetState(state: FortifyPlayerState): FortifyPlayerState {
+		state = this.resetLobby(state);
+
+		return state;
+	}
+
+	resetLobby(state: FortifyPlayerState): FortifyPlayerState {
 		state.lobby.players = {};
-		state.mode = FortifyGameMode.Invalid;
+		state.lobby.mode = FortifyGameMode.Invalid;
 
 		return state;
 	}

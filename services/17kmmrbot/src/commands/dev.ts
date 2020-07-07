@@ -16,7 +16,8 @@ export class DevCommands implements TwitchCommand {
 		@inject(ExtractorService) private extractorService: ExtractorService,
 	) {}
 
-	invocations = ["!reset"];
+	invocations = ["!reset", "!join"];
+
 	authorized = async (_channel: string, tags: ChatUserstate) =>
 		tags.badges?.broadcaster === "1" ||
 		tags["display-name"]?.toLocaleLowerCase() === "greycodes";
@@ -28,9 +29,14 @@ export class DevCommands implements TwitchCommand {
 		message: string,
 	) => {
 		try {
+			const isAdmin =
+				tags["display-name"]?.toLocaleLowerCase() === "greycodes";
+
 			const { steamid } = await this.extractorService.getUser(channel);
 
-			if (message === "!reset") {
+			const msg = message.trim().toLocaleLowerCase();
+
+			if (msg === "!reset") {
 				const producer = this.kafka.producer();
 				await producer.connect();
 
@@ -48,6 +54,26 @@ export class DevCommands implements TwitchCommand {
 					channel,
 					tags["display-name"] + " reset command sent",
 				);
+			}
+
+			if (isAdmin && msg.startsWith("!join")) {
+				try {
+					const channelName = msg.substr(5, msg.length).trim();
+
+					await client.join(channelName);
+
+					await client.whisper(
+						tags["display-name"]?.toLocaleLowerCase() ??
+							"greycodes",
+						"Joined " + channelName,
+					);
+				} catch (e) {
+					await client.whisper(
+						tags["display-name"]?.toLocaleLowerCase() ??
+							"greycodes",
+						"An error occurred: " + e.toString(),
+					);
+				}
 			}
 		} catch (e) {
 			debug("app::devCommands")(e);

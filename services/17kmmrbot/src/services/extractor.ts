@@ -83,7 +83,7 @@ export class ExtractorService {
 	}
 
 	async getGameMode(fsp: FortifyPlayerState): Promise<string> {
-		return FortifyGameMode[fsp.mode];
+		return FortifyGameMode[fsp.lobby.mode];
 	}
 
 	getAverageMMR(fsp: FortifyPlayerState, leaderboard: ULLeaderboard | null) {
@@ -128,6 +128,6 @@ export class ExtractorService {
 		const sum = mmrs?.reduce((aggregator, mmr) => aggregator + mmr, 0);
 		const avg = (sum ?? 1) / (mmrs?.length ?? 1);
 
-		return avg.toFixed(0);
+		return !isNaN(avg) ? avg.toFixed(0) : 0;
 	}
 }

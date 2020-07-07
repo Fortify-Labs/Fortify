@@ -5,8 +5,8 @@ ARG SERVICE_NAME
 ARG EXPOSED_PORT=8080
 
 WORKDIR /usr/src/app
-COPY services/${SERVICE_NAME} ${SERVICE_NAME}
 COPY services/shared shared
+COPY services/${SERVICE_NAME} ${SERVICE_NAME}
 
 WORKDIR /usr/src/app/${SERVICE_NAME}
 
