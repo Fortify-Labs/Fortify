@@ -82,7 +82,9 @@ export class ExtractorService {
 		};
 	}
 
-	async getGameMode(fsp: FortifyPlayerState): Promise<string> {
+	async getGameMode(
+		fsp: FortifyPlayerState,
+	): Promise<string | undefined | null> {
 		return FortifyGameMode[fsp.lobby.mode];
 	}
 

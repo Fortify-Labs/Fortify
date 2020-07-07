@@ -16,7 +16,7 @@ export class DevCommands implements TwitchCommand {
 		@inject(ExtractorService) private extractorService: ExtractorService,
 	) {}
 
-	invocations = ["!reset", "!join"];
+	invocations = ["!reset", "!join", "!leave"];
 
 	authorized = async (_channel: string, tags: ChatUserstate) =>
 		tags.badges?.broadcaster === "1" ||
@@ -66,6 +66,26 @@ export class DevCommands implements TwitchCommand {
 						tags["display-name"]?.toLocaleLowerCase() ??
 							"greycodes",
 						"Joined " + channelName,
+					);
+				} catch (e) {
+					await client.whisper(
+						tags["display-name"]?.toLocaleLowerCase() ??
+							"greycodes",
+						"An error occurred: " + e.toString(),
+					);
+				}
+			}
+
+			if (isAdmin && msg.startsWith("!leave")) {
+				try {
+					const channelName = msg.substr(5, msg.length).trim();
+
+					await client.part(channel);
+
+					await client.whisper(
+						tags["display-name"]?.toLocaleLowerCase() ??
+							"greycodes",
+						"Left " + channelName,
 					);
 				} catch (e) {
 					await client.whisper(
