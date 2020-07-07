@@ -59,11 +59,17 @@ export class PlayerReducer implements StateReducer<PublicPlayerState> {
 		if (state.lobby.mode === FortifyGameMode.Invalid) {
 			// For now we are only going to detect wether the match started is standard or KO
 			// If we get 100 hp, we can be sure that the game mode is standard
-			if (health === 100) {
-				state.lobby.mode = FortifyGameMode.Normal;
-			}
+
+			// This of course doesn't work if we start spectating a game that is mid way
+			// I'll assume that everything is going to be standard for now until match data can get forwarded from GSI
+
+			// if (health === 100) {
+			state.lobby.mode = FortifyGameMode.Normal;
+			// }
 
 			// TODO: Find out how health is tracked for KO and Duos
+
+			// This will also only work if someone has started a new KO game
 			if (level === 1 && health === 4) {
 				state.lobby.mode = FortifyGameMode.Turbo;
 			}

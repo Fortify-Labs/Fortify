@@ -36,8 +36,8 @@ export class ExtractorService {
 		const player_state = await this.redis.getAsync("ps_" + steamid);
 
 		if (player_state) {
-			const fsp: FortifyPlayerState = JSON.parse(player_state);
-			return fsp;
+			const fps: FortifyPlayerState = JSON.parse(player_state);
+			return fps;
 		} else {
 			return null;
 		}
