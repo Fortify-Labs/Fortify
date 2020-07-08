@@ -18,7 +18,12 @@ export class RedisConnector {
 	async setAsync(key: string, value: string) {
 		return promisify(this.client.set).bind(this.client)(key, value);
 	}
+
 	async publishAsync(key: string, value: string) {
 		return promisify(this.client.publish).bind(this.client)(key, value);
+	}
+
+	async expireAsync(key: string, time: number) {
+		return promisify(this.client.expire).bind(this.client)(key, time);
 	}
 }

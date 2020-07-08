@@ -11,6 +11,7 @@ import { CountdownCommand } from "./commands/countdown";
 import { NotablePlayersCommand } from "./commands/notablePlayers";
 import { DevCommands } from "./commands/dev";
 import { CreditsCommand } from "./commands/credits";
+import { MMRCommand } from "./commands/mmr";
 
 const container = new Container({ autoBindInjectable: true });
 
@@ -18,6 +19,7 @@ container.bind<TwitchCommand>("command").to(CountdownCommand);
 container.bind<TwitchCommand>("command").to(NotablePlayersCommand);
 container.bind<TwitchCommand>("command").to(DevCommands);
 container.bind<TwitchCommand>("command").to(CreditsCommand);
+container.bind<TwitchCommand>("command").to(MMRCommand);
 
 container.bind(KafkaConnector).toConstantValue(new KafkaConnector());
 container.bind(PostgresConnector).toConstantValue(new PostgresConnector());
