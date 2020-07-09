@@ -321,11 +321,12 @@ export class Fortify extends Chart {
 			},
 			env: [
 				{ name: "MY_PORT", value: "8080" },
-				{ name: "NODE_ENV", value: "production" },
+				// TODO: Change this to production once access to gql ui is not needed anymore
+				{ name: "NODE_ENV", value: "development" },
 				{ name: "APP_URL", value: "https://api.fortify.gg" },
 			],
 			secrets: ["postgres-auth", "jwt-secret"],
-			configmaps: ["postgres-config"],
+			configmaps: ["postgres-config", "kafka-config"],
 			gateways: ["fortify-gateway"],
 			hosts: ["api.fortify.gg"],
 			http: [

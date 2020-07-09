@@ -21,3 +21,11 @@ export const majorRankNameMapping: Record<string, string> = {
 	"7": "Big Boss",
 	"8": "Lord of White Spire",
 };
+
+export const adjustedBigBossRanks: Record<string, number> = {
+	"0": 13565,
+	"1": 13884,
+	"2": 14203,
+	"3": 14522,
+	"4": 14841,
+};
