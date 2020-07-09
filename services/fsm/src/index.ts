@@ -21,7 +21,14 @@ import { FortifyFSMCommand } from "@shared/state";
 
 import { StateTransformationService } from "./services/stateTransformer";
 
-const { JWT_SECRET, KAFKA_FROM_START } = process.env;
+const {
+	JWT_SECRET,
+	KAFKA_FROM_START,
+	KAFKA_START_OFFSET,
+	KAFKA_START_OFFSET_PARTITION = "0",
+	KAFKA_AUTO_COMMIT,
+	KAFKA_GROUP_ID = "fsm-group",
+} = process.env;
 
 (async () => {
 	const kafka = container.get(KafkaConnector);
@@ -38,7 +45,7 @@ const { JWT_SECRET, KAFKA_FROM_START } = process.env;
 		StateReducer<PrivatePlayerState>
 	>("private");
 
-	const consumer = kafka.consumer({ groupId: "fsm-group" });
+	const consumer = kafka.consumer({ groupId: KAFKA_GROUP_ID });
 
 	await consumer.subscribe({
 		fromBeginning: KAFKA_FROM_START === "true" ?? false,
@@ -49,8 +56,8 @@ const { JWT_SECRET, KAFKA_FROM_START } = process.env;
 		topic: "fsm-commands",
 	});
 
-	await consumer.run({
-		autoCommit: KAFKA_FROM_START !== "true" ?? true,
+	consumer.run({
+		autoCommit: KAFKA_AUTO_COMMIT !== "false" ?? true,
 		eachMessage: async ({ message, topic }) => {
 			const value = message.value.toString();
 
@@ -116,4 +123,12 @@ const { JWT_SECRET, KAFKA_FROM_START } = process.env;
 			}
 		},
 	});
+
+	if (KAFKA_START_OFFSET) {
+		consumer.seek({
+			offset: KAFKA_START_OFFSET,
+			partition: parseInt(KAFKA_START_OFFSET_PARTITION),
+			topic: "gsi",
+		});
+	}
 })().catch(debug("app::anonymous_function"));

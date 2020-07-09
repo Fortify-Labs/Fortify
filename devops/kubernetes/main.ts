@@ -200,73 +200,6 @@ export class Fortify extends Chart {
 			},
 		});
 
-		// new Secret(this, "cloudflare-api-token", {
-		// 	metadata: {
-		// 		name: "cloudflare-api-token",
-		// 	},
-		// 	type: "Opaque",
-		// 	stringData: {
-		// 		"api-token": CF_TOKEN ?? "",
-		// 	},
-		// });
-
-		// TODO: Fix this at one point; Gonna re-use my old cf based cluster issuers
-		// new ClusterIssuer(this, "f-letsencrypt", {
-		// 	metadata: {
-		// 		name: "f-letsencrypt",
-		// 	},
-		// 	spec: {
-		// 		acme: {
-		// 			server: ACME_SERVER ?? "",
-		// 			email: ACME_EMAIL ?? "",
-		// 			privateKeySecretRef: {
-		// 				name: "issuer-account-key",
-		// 			},
-		// 			solvers: [
-		// 				{
-		// 					dns01: {
-		// 						cloudflare: {
-		// 							email: ACME_CF_EMAIL ?? "",
-		// 							apiTokenSecretRef: {
-		// 								name: "cloudflare-api-token",
-		// 								key: "api-token",
-		// 							},
-		// 						},
-		// 					},
-		// 				},
-		// 			],
-		// 		},
-		// 	},
-		// });
-
-		// new ClusterIssuer(this, "f-letsencrypt-staging", {
-		// 	metadata: {
-		// 		name: "f-letsencrypt-staging",
-		// 	},
-		// 	spec: {
-		// 		acme: {
-		// 			server: STAGING_ACME_SERVER ?? "",
-		// 			email: STAGING_ACME_EMAIL ?? "",
-		// 			privateKeySecretRef: {
-		// 				name: "staging-issuer-account-key",
-		// 			},
-		// 			solvers: [
-		// 				{
-		// 					dns01: {
-		// 						cloudflare: {
-		// 							email: STAGING_ACME_CF_EMAIL ?? "",
-		// 							apiTokenSecretRef: {
-		// 								name: "cloudflare-api-token",
-		// 								key: "api-token",
-		// 							},
-		// 						},
-		// 					},
-		// 				},
-		// 			],
-		// 		},
-		// 	},
-		// });
-
 		new Certificate(this, "fortify-ssl-cert", {
 			metadata: {
 				name: "fortify-ssl-cert",
@@ -321,11 +254,12 @@ export class Fortify extends Chart {
 			},
 			env: [
 				{ name: "MY_PORT", value: "8080" },
-				{ name: "NODE_ENV", value: "production" },
+				// TODO: Change this to production once access to gql ui is not needed anymore
+				{ name: "NODE_ENV", value: "development" },
 				{ name: "APP_URL", value: "https://api.fortify.gg" },
 			],
 			secrets: ["postgres-auth", "jwt-secret"],
-			configmaps: ["postgres-config"],
+			configmaps: ["postgres-config", "kafka-config"],
 			gateways: ["fortify-gateway"],
 			hosts: ["api.fortify.gg"],
 			http: [

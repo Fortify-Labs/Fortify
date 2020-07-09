@@ -107,7 +107,7 @@ export class DebugModule implements GQLModule {
 					// Leave twitch channel
 					if (dbUser && dbUser.twitch_name) {
 						const botCommand: Fortify17kmmrCommand = {
-							type: Fortify17kmmrCommandType.JOIN,
+							type: Fortify17kmmrCommandType.LEAVE,
 							channel: dbUser.twitch_name,
 						};
 

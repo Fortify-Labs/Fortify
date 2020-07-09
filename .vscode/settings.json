@@ -16,5 +16,6 @@
 		"rediscommander",
 		"tchiotludo",
 		"wurstmeister"
-	]
+  ],
+  "githubIssues.workingIssueBranch": "feature/issue-${issueNumber}"
 }
