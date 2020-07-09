@@ -132,7 +132,10 @@ export class ExtractorService {
 							minorRank.toString()
 						];
 				}
-				mmrs.push(interpolatedMMR);
+
+				if (interpolatedMMR > 0) {
+					mmrs.push(interpolatedMMR);
+				}
 			}
 		}
 
