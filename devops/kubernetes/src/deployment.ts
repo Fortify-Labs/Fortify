@@ -1,10 +1,12 @@
 import { Construct, Node } from "constructs";
 import { Service, Deployment, EnvVar } from "../imports/k8s";
 
-const { REGISTRY, VERSION } = process.env;
+const { REGISTRY } = process.env;
 
 export interface FortifyDeploymentOptions {
 	readonly name: string;
+
+	readonly version?: string;
 
 	// Override image incase image shall not be interpolated from name
 	readonly image?: string;
@@ -79,7 +81,7 @@ export class FortifyDeployment extends Construct {
 									(REGISTRY ?? "") +
 										options.name +
 										":" +
-										(VERSION ?? "invalid"),
+										(options.version ?? "invalid"),
 								ports: options.service
 									? [
 											{

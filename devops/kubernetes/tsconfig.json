@@ -22,7 +22,8 @@
     "strictNullChecks": true,
     "strictPropertyInitialization": true,
     "stripInternal": true,
-    "target": "ES2017"
+    "target": "ES2017",
+    "esModuleInterop": true
   },
   "include": [
     "**/*.ts"

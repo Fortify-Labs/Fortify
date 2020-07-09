@@ -26,6 +26,12 @@ import { Postgres } from "./imports/kubedb.com/postgres";
 import { Redis } from "./imports/kubedb.com/redis";
 import { RedisCommander } from "./src/redis-commander";
 
+import backendPackage from "../../services/backend/package.json";
+import frontendPackage from "../../services/frontend/package.json";
+import fsmPackage from "../../services/fsm/package.json";
+import gsiReceiverPackage from "../../services/gsi-receiver/package.json";
+import twitchBotPackage from "../../services/17kmmrbot/package.json";
+
 export interface CustomGatewayOptions extends GatewayOptions {
 	metadata?: ObjectMeta;
 }
@@ -247,6 +253,7 @@ export class Fortify extends Chart {
 
 		new WebService(this, "backend", {
 			name: "backend",
+			version: backendPackage.version,
 			service: {
 				name: "backend",
 				containerPort: 8080,
@@ -280,6 +287,7 @@ export class Fortify extends Chart {
 
 		new WebService(this, "frontend", {
 			name: "frontend",
+			version: frontendPackage.version,
 			env: [
 				{
 					name: "GRAPHQL_URI",
@@ -315,6 +323,7 @@ export class Fortify extends Chart {
 
 		new WebService(this, "gsi-receiver", {
 			name: "gsi-receiver",
+			version: gsiReceiverPackage.version,
 			env: [
 				{ name: "MY_PORT", value: "8080" },
 				{ name: "KAFKA_CLIENTID", value: "gsi-receiver" },
@@ -347,6 +356,7 @@ export class Fortify extends Chart {
 
 		new FortifyDeployment(this, "17kmmrbot", {
 			name: "17kmmrbot",
+			version: twitchBotPackage.version,
 			env: [
 				{ name: "BOT_USERNAME", value: "17kmmrbot" },
 				{ name: "KAFKA_CLIENTID", value: "17kmmrbot" },
@@ -358,6 +368,7 @@ export class Fortify extends Chart {
 
 		new FortifyDeployment(this, "fsm", {
 			name: "fsm",
+			version: fsmPackage.version,
 			env: [{ name: "KAFKA_CLIENT_ID", value: "fsm" }],
 			secrets: ["jwt-secret"],
 			configmaps: ["redis-config", "kafka-config"],
