@@ -9,7 +9,7 @@ import { injectable, inject } from "inversify";
 import { PostgresConnector } from "@shared/connectors/postgres";
 import { RedisConnector } from "@shared/connectors/redis";
 
-import { rankToMMRMapping } from "@shared/ranks";
+import { rankToMMRMapping, adjustedBigBossRanks } from "@shared/ranks";
 
 import { ULLeaderboard } from "../definitions/leaderboard";
 
@@ -94,6 +94,7 @@ export class ExtractorService {
 		const players = Object.values(fsp.lobby.players);
 		const ranks = players
 			.map((player) => player.global_leaderboard_rank)
+			.filter((rank) => rank)
 			.sort();
 
 		// When refactoring to cron job: Only fetch player in lobby from db
@@ -109,21 +110,29 @@ export class ExtractorService {
 				const minorRank = rank_tier % 10;
 				const majorRank = (rank_tier - minorRank) / 10;
 
+				let interpolatedMMR = 0;
+
 				// If we find a lord without a leaderboard rank, assume 15k mmr
 				// For all players below lord, interpolate the mmr
 				if (
-					(majorRank === 8 &&
-						(global_leaderboard_rank === null ||
-							global_leaderboard_rank === undefined)) ||
-					majorRank < 8
+					majorRank === 8 &&
+					(global_leaderboard_rank === null ||
+						global_leaderboard_rank === undefined)
 				) {
-					const interpolatedMMR =
+					interpolatedMMR = 15000;
+				}
+
+				if (majorRank === 7) {
+					interpolatedMMR = adjustedBigBossRanks[minorRank];
+				}
+
+				if (majorRank < 7) {
+					interpolatedMMR =
 						rankToMMRMapping[majorRank.toString()][
 							minorRank.toString()
 						];
-
-					mmrs.push(interpolatedMMR);
 				}
+				mmrs.push(interpolatedMMR);
 			}
 		}
 
