@@ -12,8 +12,10 @@
 		"PGPORT",
 		"PGUSER",
 		"inversify",
+		"kafkajs",
 		"openapidocs",
 		"postgres",
+		"steamid",
 		"typeorm"
 	]
 }

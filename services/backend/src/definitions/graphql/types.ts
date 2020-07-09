@@ -6,8 +6,9 @@ import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from '
 import { Context } from '@shared/auth';
 export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: any }> = { [K in keyof T]: T[K] };
+export type RequireFields<T, K extends keyof T> = { [X in Exclude<keyof T, K>]?: T[X] } & { [P in K]-?: NonNullable<T[P]> };
 
-// Generated on 2020-06-30T11:59:35+02:00
+// Generated on 2020-07-09T02:35:44+02:00
 
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
@@ -43,6 +44,18 @@ export type Mutation = {
   __typename?: 'Mutation';
   /** Used as placeholder as empty types aren't currently supported. Also fires and event to the _base_ subscription. */
   _base_: Scalars['String'];
+  addUser: Scalars['String'];
+  removeUser: Scalars['Boolean'];
+};
+
+
+export type MutationAddUserArgs = {
+  user: UserInput;
+};
+
+
+export type MutationRemoveUserArgs = {
+  steamid: Scalars['String'];
 };
 
 export type Subscription = {
@@ -51,6 +64,12 @@ export type Subscription = {
   _base_: Scalars['String'];
 };
 
+
+export type UserInput = {
+  steamid: Scalars['String'];
+  name: Scalars['String'];
+  twitchName: Scalars['String'];
+};
 
 export type WithIndex<TObject> = TObject & Record<string, any>;
 export type ResolversObject<TObject> = WithIndex<TObject>;
@@ -135,9 +154,10 @@ export type ResolversTypes = ResolversObject<{
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']>;
   Mutation: ResolverTypeWrapper<{}>;
+  Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   Subscription: ResolverTypeWrapper<{}>;
   Date: ResolverTypeWrapper<Scalars['Date']>;
-  Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
+  UserInput: UserInput;
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -145,9 +165,10 @@ export type ResolversParentTypes = ResolversObject<{
   Query: {};
   String: Scalars['String'];
   Mutation: {};
+  Boolean: Scalars['Boolean'];
   Subscription: {};
   Date: Scalars['Date'];
-  Boolean: Scalars['Boolean'];
+  UserInput: UserInput;
 }>;
 
 export type AuthDirectiveArgs = {   requires?: Maybe<Scope>; };
@@ -161,6 +182,8 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   _base_?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  addUser?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationAddUserArgs, 'user'>>;
+  removeUser?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRemoveUserArgs, 'steamid'>>;
 }>;
 
 export type SubscriptionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = ResolversObject<{

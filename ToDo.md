@@ -7,7 +7,7 @@
 
 ## Kubernetes
 
-- [ ] Write kubernetes manifest using [cdk8s](https://cdk8s.io/)
+- [x] Write kubernetes manifest using [cdk8s](https://cdk8s.io/)
 
 ## CI / CD build pipeline
 
@@ -26,20 +26,20 @@
 
 ## Finite State Machine
 
-- [ ] Analyze data stream in Kafka
-- [ ] Construct a possible data type for GSI data
-- [ ] Create FSM
-  - [ ] Detect a new game
-  - [ ] Detect if player is participating in game
-  - [ ] Detect a game finishing and store player placement
+- [x] Analyze data stream in Kafka
+- [x] Construct a possible data type for GSI data
+- [x] Create FSM
+  - [x] Detect a new game
+  - [x] Detect if player is participating in game
+  - [x] Detect a game finishing and store player placement
 
 ## Backend
 
-- [ ] Authentication / Login
-  - [ ] Permission scopes
+- [x] Authentication / Login
+  - [x] Permission scopes
 - [ ] Fetch current game state
 - [ ] Push current game state
-- [ ] Reset FSM / send commands to FSM
+- [x] Reset FSM / send commands to FSM
 
 ## Frontend
 

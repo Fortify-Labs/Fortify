@@ -50,7 +50,7 @@ export class DevCommands implements TwitchCommand {
 					topic: "fsm-commands",
 				});
 
-				client.say(
+				await client.say(
 					channel,
 					tags["display-name"] + " reset command sent",
 				);
@@ -62,16 +62,16 @@ export class DevCommands implements TwitchCommand {
 
 					await client.join(channelName);
 
-					await client.whisper(
-						tags.username ?? "GreyCodes",
-						"Joined " + channelName,
-					);
+					// await client.whisper(
+					// 	tags.username ?? "GreyCodes",
+					// 	"Joined " + channelName,
+					// );
 				} catch (e) {
 					debug("app::devCommands::join")(e);
-					await client.whisper(
-						tags.username ?? "GreyCodes",
-						"An error occurred: " + e.toString(),
-					);
+					// await client.whisper(
+					// 	tags.username ?? "GreyCodes",
+					// 	"An error occurred: " + e.toString(),
+					// );
 				}
 			}
 
@@ -81,16 +81,16 @@ export class DevCommands implements TwitchCommand {
 
 					await client.part(channel);
 
-					await client.whisper(
-						tags.username ?? "GreyCodes",
-						"Left " + channelName,
-					);
+					// await client.whisper(
+					// 	tags.username ?? "GreyCodes",
+					// 	"Left " + channelName,
+					// );
 				} catch (e) {
 					debug("app::devCommands::leave")(e);
-					await client.whisper(
-						tags.username ?? "GreyCodes",
-						"An error occurred: " + e.toString(),
-					);
+					// await client.whisper(
+					// 	tags.username ?? "GreyCodes",
+					// 	"An error occurred: " + e.toString(),
+					// );
 				}
 			}
 		} catch (e) {

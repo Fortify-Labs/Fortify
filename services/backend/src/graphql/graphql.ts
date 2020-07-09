@@ -24,7 +24,7 @@ export class GraphQL {
 
 					const user = await verifyToken(token);
 
-					return { user };
+					return user;
 				} catch (e) {
 					return {};
 				}

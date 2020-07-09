@@ -4,7 +4,7 @@ import { GraphQLObjectType, GraphQLField } from "graphql";
 
 import { GQLDirective } from "../../definitions/directive";
 import { gql, ApolloError } from "apollo-server-express";
-import { Context } from "@shared/auth";
+import { Context, PermissionScope } from "@shared/auth";
 
 import { defaultFieldResolver } from "graphql";
 
@@ -74,7 +74,7 @@ class AuthDirectiveVisitor<TArgs, TContext> extends SchemaDirectiveVisitor<
 					);
 				}
 
-				if (!(requiredRole in Object.values(scopes))) {
+				if (!scopes.includes(requiredRole as PermissionScope)) {
 					throw new ApolloError("Not authorized", "NOT_AUTHORIZED");
 				}
 
