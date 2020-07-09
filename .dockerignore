@@ -26,3 +26,4 @@ gsi.json
 **/*.min.*
 **/*.map
 **/.next/**
+**/.env
