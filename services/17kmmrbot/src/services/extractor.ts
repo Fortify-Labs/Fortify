@@ -88,7 +88,11 @@ export class ExtractorService {
 		return FortifyGameMode[fsp.lobby.mode];
 	}
 
-	getAverageMMR(fsp: FortifyPlayerState, leaderboard: ULLeaderboard | null) {
+	getAverageMMR(
+		fsp: FortifyPlayerState,
+		leaderboard: ULLeaderboard | null,
+		user: FortifyPlayer | null,
+	) {
 		// Fetch all lord players' mmrs by leaderboard rank
 
 		const players = Object.values(fsp.lobby.players);
@@ -105,6 +109,14 @@ export class ExtractorService {
 		const mmrs =
 			leaderboardEntries?.map((entry) => entry.level_score) ?? [];
 
+		// Check if there are any lords in the lobby in case the user is a spectator
+		const lordLobby: boolean =
+			players
+				.map((player) => player.rank_tier)
+				.filter((rank_tier) => rank_tier === 80).length > 0
+				? true
+				: false;
+
 		for (const { rank_tier, global_leaderboard_rank } of players) {
 			if (rank_tier) {
 				const minorRank = rank_tier % 10;
@@ -112,17 +124,36 @@ export class ExtractorService {
 
 				let interpolatedMMR = 0;
 
-				// If we find a lord without a leaderboard rank, do not add them to the average
-				// For all players below lord, interpolate the mmr
-				if (majorRank === 7) {
-					interpolatedMMR = adjustedBigBossRanks[minorRank];
-				}
+				// If they are a lord, scale MMR as necessary to get the average
+				// If the user is not a lord, calculate the average normally
+				if (
+					(user?.rank_tier ?? 0) >= 80 ||
+					((user?.rank_tier === null ||
+						user?.rank_tier === undefined) &&
+						lordLobby)
+				) {
+					// If we find a lord without a leaderboard rank, ignore them in the average
+					// For all Big Boss players, interpolate the mmr
+					// All ranks below big boss are not considered for the average since they do not affect elo
+					if (majorRank === 7) {
+						interpolatedMMR = adjustedBigBossRanks[minorRank];
+					}
+				} else {
+					// Inactive lords are taken as 15k lords since we're looking for a normal average
+					if (
+						majorRank === 8 &&
+						(global_leaderboard_rank === null ||
+							global_leaderboard_rank === undefined)
+					) {
+						interpolatedMMR = 15000;
+					}
 
-				if (majorRank < 7) {
-					interpolatedMMR =
-						rankToMMRMapping[majorRank.toString()][
-							minorRank.toString()
-						];
+					if (majorRank < 8) {
+						interpolatedMMR =
+							rankToMMRMapping[majorRank.toString()][
+								minorRank.toString()
+							];
+					}
 				}
 
 				if (interpolatedMMR > 0) {
