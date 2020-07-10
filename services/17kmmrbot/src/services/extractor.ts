@@ -110,12 +110,12 @@ export class ExtractorService {
 			leaderboardEntries?.map((entry) => entry.level_score) ?? [];
 
 		// Check if there are any lords in the lobby in case the user is a spectator
-		const lordLobby: boolean =
-			players
-				.map((player) => player.rank_tier)
-				.filter((rank_tier) => rank_tier === 80).length > 0
-				? true
-				: false;
+		const lordLobby: boolean = players
+			.map((player) => player.rank_tier)
+			.reduce<boolean>(
+				(acc, rank_tier) => acc || rank_tier === 80,
+				false,
+			);
 
 		for (const { rank_tier, global_leaderboard_rank } of players) {
 			if (rank_tier) {
