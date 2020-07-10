@@ -88,10 +88,10 @@ export class ExtractorService {
 		return FortifyGameMode[fsp.lobby.mode];
 	}
 
-	getAverageMMR(fsp: FortifyPlayerState, leaderboard: ULLeaderboard | null) {
+	getAverageMMR(fps: FortifyPlayerState, leaderboard: ULLeaderboard | null) {
 		// Fetch all lord players' mmrs by leaderboard rank
 
-		const players = Object.values(fsp.lobby.players);
+		const players = Object.values(fps.lobby.players);
 		const ranks = players
 			.map((player) => player.global_leaderboard_rank)
 			.filter((rank) => rank)
