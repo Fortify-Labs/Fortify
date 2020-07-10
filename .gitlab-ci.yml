@@ -1,0 +1,41 @@
+stages:
+  - build
+  - deploy
+
+services:
+  - docker:dind
+
+build:
+  stage: build
+  image: docker
+  before_script:
+    - apk add --update py-pip nodejs nodejs-npm
+    - pip install --upgrade pip
+    - pip install docker-compose
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+  script:
+    - chmod +x ./scripts/build.sh
+    - ./scripts/build.sh
+  only:
+    - master
+
+deploy:
+  stage: deploy
+  image: alpine:latest
+  before_script:
+    # Setup kubectl
+    - apk add --update --no-cache curl
+    - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+    - chmod +x ./kubectl && mv ./kubectl /usr/local/bin/kubectl
+    - mkdir -p $HOME/.kube
+    - echo -n $KUBE_CONFIG | base64 -d > $HOME/.kube/config
+    # Setup node
+    - apk add --update nodejs nodejs-npm
+  script:
+    - cd devops/kubernetes
+    # This step might even be commented out at a later point, not quite sure if it's needed
+    - npm run record
+    - npm run build
+    - kubectl apply -f dist/fortify.k8s.yaml
+  only:
+    - master

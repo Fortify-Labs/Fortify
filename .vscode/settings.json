@@ -5,8 +5,11 @@
 		"Underlords",
 		"akhq",
 		"appendonly",
+		"chmod",
 		"devops",
+		"dind",
 		"entrypoint",
+		"gitlab",
 		"gsiingress",
 		"kmmrbot",
 		"microservice",
@@ -16,6 +19,6 @@
 		"rediscommander",
 		"tchiotludo",
 		"wurstmeister"
-  ],
+	],
   "githubIssues.workingIssueBranch": "feature/issue-${issueNumber}"
 }
