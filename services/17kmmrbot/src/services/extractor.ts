@@ -89,7 +89,7 @@ export class ExtractorService {
 	}
 
 	getAverageMMR(
-		fsp: FortifyPlayerState,
+		fps: FortifyPlayerState,
 		leaderboard: ULLeaderboard | null,
 		user: FortifyPlayer | null,
 	) {
