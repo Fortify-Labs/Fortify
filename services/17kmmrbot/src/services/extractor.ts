@@ -112,16 +112,8 @@ export class ExtractorService {
 
 				let interpolatedMMR = 0;
 
-				// If we find a lord without a leaderboard rank, assume 15k mmr
+				// If we find a lord without a leaderboard rank, do not add them to the average
 				// For all players below lord, interpolate the mmr
-				if (
-					majorRank === 8 &&
-					(global_leaderboard_rank === null ||
-						global_leaderboard_rank === undefined)
-				) {
-					interpolatedMMR = 15000;
-				}
-
 				if (majorRank === 7) {
 					interpolatedMMR = adjustedBigBossRanks[minorRank];
 				}
