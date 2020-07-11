@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   backend:
-    image: registry.gitlab.com/thomask33/fortify/backend:${VERSION:-invalidVersion}
+    image: registry.gitlab.com/thomask33/fortify/backend:${BACKEND_VERSION:-invalidVersion}
     build:
       context: ./
       dockerfile: ./devops/docker/Node.Dockerfile
@@ -11,7 +11,7 @@ services:
         SERVICE_NAME: backend
 
   frontend:
-    image: registry.gitlab.com/thomask33/fortify/frontend:${VERSION:-invalidVersion}
+    image: registry.gitlab.com/thomask33/fortify/frontend:${FRONTEND_VERSION:-invalidVersion}
     build:
       context: ./
       dockerfile: ./devops/docker/Node.Dockerfile
@@ -21,7 +21,7 @@ services:
         EXPOSED_PORT: 3000
 
   fsm:
-    image: registry.gitlab.com/thomask33/fortify/fsm:${VERSION:-invalidVersion}
+    image: registry.gitlab.com/thomask33/fortify/fsm:${FSM_VERSION:-invalidVersion}
     build:
       context: ./
       dockerfile: ./devops/docker/Node.Dockerfile
@@ -30,7 +30,7 @@ services:
         SERVICE_NAME: fsm
 
   gsi-receiver:
-    image: registry.gitlab.com/thomask33/fortify/gsi-receiver:${VERSION:-invalidVersion}
+    image: registry.gitlab.com/thomask33/fortify/gsi-receiver:${GSI_RECEIVER_VERSION:-invalidVersion}
     build:
       context: ./
       dockerfile: ./devops/docker/Node.Dockerfile
@@ -39,7 +39,7 @@ services:
         SERVICE_NAME: gsi-receiver
 
   17kmmrbot:
-    image: registry.gitlab.com/thomask33/fortify/17kmmrbot:${VERSION:-invalidVersion}
+    image: registry.gitlab.com/thomask33/fortify/17kmmrbot:${TWITCHBOT_VERSION:-invalidVersion}
     build:
       context: ./
       dockerfile: ./devops/docker/Node.Dockerfile
