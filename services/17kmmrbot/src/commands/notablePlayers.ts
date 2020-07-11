@@ -76,6 +76,13 @@ export class NotablePlayersCommand implements TwitchCommand {
 			// Get current user to calculate average based on the user (or spectator)
 			const lobbyUser = fps.lobby.players[user.steamid];
 
+			if (Object.keys(fps.lobby.players).length != 8) {
+				return client.say(
+					channel,
+					"Collecting game data, please try again in a little bit",
+				);
+			}
+
 			const averageMMR = this.extractorService.getAverageMMR(
 				fps,
 				leaderboard,

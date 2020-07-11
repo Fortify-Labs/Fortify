@@ -1,55 +1,55 @@
 {
-  "name": "17kmmr",
-  "version": "1.0.1",
-  "description": "Fortify twitch bot",
-  "private": "true",
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/Fortify-Labs/Fortify.git"
-  },
-  "author": "Thomas Kosiewski",
-  "license": "AGPL-3.0-or-later",
-  "bugs": {
-    "url": "https://github.com/Fortify-Labs/Fortify/issues"
-  },
-  "homepage": "https://github.com/Fortify-Labs/Fortify#readme",
-  "devDependencies": {
-    "@types/debug": "^4.1.5",
-    "@types/node": "^14.0.14",
-    "@types/node-fetch": "^2.5.7",
-    "@types/redis": "^2.8.24",
-    "@types/tmi.js": "^1.4.0",
-    "gts": "^2.0.2",
-    "nodemon": "^2.0.4",
-    "sync-dotenv": "^2.6.1",
-    "ts-node": "^8.10.2",
-    "typescript": "^3.9.6"
-  },
-  "scripts": {
-    "check": "gts check",
-    "clean": "gts clean",
-    "compile": "tsc -b",
-    "fix": "gts fix",
-    "prepare": "npm run compile",
-    "pretest": "npm run compile",
-    "posttest": "npm run check",
-    "start": "cross-env TS_NODE_PROJECT=./ NODE_OPTIONS=--trace-warnings node -r tsconfig-paths/register build/index.js",
-    "start:ts": "cross-env DEBUG=app::* NODE_OPTIONS=--trace-warnings ts-node -r tsconfig-paths/register --files src/index.ts",
-    "sync-dotenv": "sync-dotenv",
-    "dev": "DEBUG=app::* nodemon"
-  },
-  "dependencies": {
-    "cross-env": "^7.0.2",
-    "debug": "^4.1.1",
-    "dotenv": "^8.2.0",
-    "inversify": "^5.0.1",
-    "kafkajs": "^1.12.0",
-    "node-fetch": "^2.6.0",
-    "pg": "^8.2.1",
-    "redis": "^3.0.2",
-    "reflect-metadata": "^0.1.13",
-    "tmi.js": "^1.5.0",
-    "tsconfig-paths": "^3.9.0",
-    "typeorm": "^0.2.25"
-  }
+	"name": "17kmmr",
+	"version": "1.0.2",
+	"description": "Fortify twitch bot",
+	"private": "true",
+	"repository": {
+		"type": "git",
+		"url": "git+ssh://git@github.com/Fortify-Labs/Fortify.git"
+	},
+	"author": "Thomas Kosiewski",
+	"license": "AGPL-3.0-or-later",
+	"bugs": {
+		"url": "https://github.com/Fortify-Labs/Fortify/issues"
+	},
+	"homepage": "https://github.com/Fortify-Labs/Fortify#readme",
+	"devDependencies": {
+		"@types/debug": "^4.1.5",
+		"@types/node": "^14.0.14",
+		"@types/node-fetch": "^2.5.7",
+		"@types/redis": "^2.8.24",
+		"@types/tmi.js": "^1.4.0",
+		"gts": "^2.0.2",
+		"nodemon": "^2.0.4",
+		"sync-dotenv": "^2.6.1",
+		"ts-node": "^8.10.2",
+		"typescript": "^3.9.6"
+	},
+	"scripts": {
+		"check": "gts check",
+		"clean": "gts clean",
+		"compile": "tsc -b",
+		"fix": "gts fix",
+		"prepare": "npm run compile",
+		"pretest": "npm run compile",
+		"posttest": "npm run check",
+		"start": "cross-env TS_NODE_PROJECT=./ NODE_OPTIONS=--trace-warnings node -r tsconfig-paths/register build/index.js",
+		"start:ts": "cross-env DEBUG=app::* NODE_OPTIONS=--trace-warnings ts-node -r tsconfig-paths/register --files src/index.ts",
+		"sync-dotenv": "sync-dotenv",
+		"dev": "DEBUG=app::* nodemon"
+	},
+	"dependencies": {
+		"cross-env": "^7.0.2",
+		"debug": "^4.1.1",
+		"dotenv": "^8.2.0",
+		"inversify": "^5.0.1",
+		"kafkajs": "^1.12.0",
+		"node-fetch": "^2.6.0",
+		"pg": "^8.2.1",
+		"redis": "^3.0.2",
+		"reflect-metadata": "^0.1.13",
+		"tmi.js": "^1.5.0",
+		"tsconfig-paths": "^3.9.0",
+		"typeorm": "^0.2.25"
+	}
 }
