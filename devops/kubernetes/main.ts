@@ -40,17 +40,7 @@ export interface CustomKafkaOptions extends KafkaOptions {
 	metadata?: ObjectMeta;
 }
 
-const {
-	// ACME_SERVER,
-	// ACME_EMAIL,
-	// ACME_CF_EMAIL,
-	// CF_TOKEN,
-	JWT_SECRET,
-	OAUTH_TOKEN,
-	// STAGING_ACME_SERVER,
-	// STAGING_ACME_EMAIL,
-	// STAGING_ACME_CF_EMAIL,
-} = process.env;
+const { JWT_SECRET, OAUTH_TOKEN } = process.env;
 
 export class ClusterSetup extends Chart {
 	constructor(scope: Construct, name: string) {
