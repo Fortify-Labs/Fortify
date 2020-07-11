@@ -15,7 +15,7 @@ echo "$DC_PULL"
 
 # Extract the last line, telling which images need to be rebuild
 export DC_BUILD=$(echo "${DC_PULL}" | tail -n1 | xargs)
-export DC_BUILD=$(echo "${DC_BUILD/docker-compose/docker-compose -f build.docker-compose.yml}")
+export DC_BUILD=$(echo "${DC_BUILD/docker-compose/'docker-compose -f build.docker-compose.yml'}")
 echo "$DC_BUILD"
 
 # If that line starts with docker compose, we will build and push new images
