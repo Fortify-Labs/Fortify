@@ -110,7 +110,7 @@ export class NotablePlayersCommand implements TwitchCommand {
 					}
 
 					// If the rank is negative, that means that we're dealing with a rank_tier instead of actual rank
-					if (rank <= 0) {
+					else if (rank <= 0) {
 						const minorRank = (-rank ?? 0) % 10;
 						const majorRank = ((-rank ?? 0) - minorRank) / 10;
 
