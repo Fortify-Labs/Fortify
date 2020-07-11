@@ -76,7 +76,7 @@ export class NotablePlayersCommand implements TwitchCommand {
 			// Get current user to calculate average based on the user (or spectator)
 			const lobbyUser = fps.lobby.players[user.steamid];
 
-			if (Object.keys(fps.lobby.players).length != 8) {
+			if (Object.keys(fps.lobby.players).length !== 8) {
 				return client.say(
 					channel,
 					"Collecting game data, please try again in a little bit",
@@ -105,12 +105,12 @@ export class NotablePlayersCommand implements TwitchCommand {
 			for (const { name, rank, mmr } of players) {
 				try {
 					// Ranks equals and greater than zero will always be lord rankings
-					if (rank >= 0) {
+					if (rank >= 0 && mmr > 0) {
 						response += `${name} [#${rank}, MMR: ${mmr}], `;
 					}
 
 					// If the rank is negative, that means that we're dealing with a rank_tier instead of actual rank
-					if (rank < 0) {
+					if (rank <= 0) {
 						const minorRank = (-rank ?? 0) % 10;
 						const majorRank = ((-rank ?? 0) - minorRank) / 10;
 
