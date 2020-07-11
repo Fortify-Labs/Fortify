@@ -32,6 +32,7 @@ deploy:
   script:
     - cd devops/kubernetes
     # This step might even be commented out at a later point, not quite sure if it's needed
+    - npm ci
     - npm run record
     - npm run build
     - kubectl apply -f dist/fortify.k8s.yaml
