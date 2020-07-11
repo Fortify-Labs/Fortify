@@ -11,19 +11,19 @@ export TWITCHBOT_VERSION=`cd services/17kmmrbot && node -p "require('./package.j
 # Fetch the pull output telling
 echo "docker-compose -f build.docker-compose.yml pull --ignore-pull-failures"
 export DC_PULL=$(docker-compose -f build.docker-compose.yml pull --ignore-pull-failures 2>&1)
-echo $DC_PULL
+echo "$DC_PULL"
 
 # Extract the last line, telling which images need to be rebuild
 export DC_BUILD=$(echo "${DC_PULL}" | tail -n1 | xargs)
 export DC_BUILD=$(echo "${DC_BUILD/docker-compose/docker-compose -f build.docker-compose.yml}")
-echo $DC_BUILD
+echo "$DC_BUILD"
 
 # If that line starts with docker compose, we will build and push new images
 if  [[ $DC_BUILD == docker-compose* ]]  ;
 then
     export DC_BUILD_OUTPUT=$(eval $DC_BUILD 2>&1)
-	echo $DC_BUILD_OUTPUT
+	echo "$DC_BUILD_OUTPUT"
 
 	export DC_PUSH_OUTPUT=$(docker-compose -f build.docker-compose.yml push 2>&1)
-	echo $DC_PUSH_OUTPUT
+	echo "$DC_PUSH_OUTPUT"
 fi
