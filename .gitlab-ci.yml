@@ -7,11 +7,9 @@ services:
 
 build:
   stage: build
-  image: docker
+  image: docker/compose:latest
   before_script:
-    - apk add --update py-pip nodejs nodejs-npm
-    - pip install --upgrade pip
-    - pip install docker-compose
+    - apk add --update nodejs nodejs-npm
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
   script:
     - chmod +x ./scripts/build.sh
