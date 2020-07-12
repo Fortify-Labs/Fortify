@@ -12,13 +12,12 @@ import { KafkaConnector } from "@shared/connectors/kafka";
 
 import { User } from "@shared/db/entities/user";
 
-import {
-	Fortify17kmmrCommand,
-	Fortify17kmmrCommandType,
-	KafkaTopic17kmmrbot,
-} from "@shared/17kmmrbot";
-
 import { Context, PermissionScope } from "@shared/auth";
+
+import {
+	TwitchLinkedEvent,
+	TwitchUnlinkedEvent,
+} from "@shared/events/systemEvents";
 
 const { JWT_SECRET = "" } = process.env;
 
@@ -78,15 +77,15 @@ export class DebugModule implements GQLModule {
 					const userRepo = await self.postgres.getUserRepo();
 					await userRepo.save(dbUser);
 
-					// Send twitch channel join command
-					const botCommand: Fortify17kmmrCommand = {
-						type: Fortify17kmmrCommandType.JOIN,
-						channel: dbUser.twitch_name,
-					};
+					// Send twitch linked event
+					const event = new TwitchLinkedEvent(
+						steamid,
+						dbUser.twitch_name,
+					);
 
 					await self.producer.send({
-						topic: KafkaTopic17kmmrbot,
-						messages: [{ value: JSON.stringify(botCommand) }],
+						topic: event._topic,
+						messages: [{ value: event.serialize() }],
 					});
 
 					// Generate JWT for GSI file
@@ -106,14 +105,14 @@ export class DebugModule implements GQLModule {
 
 					// Leave twitch channel
 					if (dbUser && dbUser.twitch_name) {
-						const botCommand: Fortify17kmmrCommand = {
-							type: Fortify17kmmrCommandType.LEAVE,
-							channel: dbUser.twitch_name,
-						};
+						const event = new TwitchUnlinkedEvent(
+							steamid,
+							dbUser.twitch_name,
+						);
 
 						await self.producer.send({
-							topic: KafkaTopic17kmmrbot,
-							messages: [{ value: JSON.stringify(botCommand) }],
+							topic: event._topic,
+							messages: [{ value: event.serialize() }],
 						});
 					}
 
