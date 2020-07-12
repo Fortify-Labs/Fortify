@@ -19,7 +19,7 @@ jobs:
           path-to-signatures: "signatures/version1/cla.json"
           path-To-cladocument: "https://github.com/Fortify-Labs/Fortify/blob/master/CLA.md"
           # branch should not be protected
-          branch: "master"
+          branch: "develop"
           whitelist: ThomasK33,dependabot*
           empty-commit-flag: false
           blockchain-storage-flag: false
