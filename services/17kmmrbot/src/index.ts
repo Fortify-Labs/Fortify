@@ -9,15 +9,16 @@ import { Client, Options } from "tmi.js";
 import { container } from "./inversify.config";
 import { PostgresConnector } from "@shared/connectors/postgres";
 import { KafkaConnector } from "@shared/connectors/kafka";
-import { KafkaTopic17kmmrbot } from "@shared/17kmmrbot";
 
 import { TwitchCommand } from "./definitions/twitchCommand";
 import { BotCommandProcessor } from "./services/command";
 
+import { FortifyEventTopics } from "@shared/events/events";
+
 import { sharedSetup } from "@shared/index";
 sharedSetup();
 
-const { KAFKA_FROM_START } = process.env;
+const { KAFKA_FROM_START, KAFKA_GROUP_ID = "17kmmrbot-group" } = process.env;
 
 (async () => {
 	const commands = container.getAll<TwitchCommand>("command");
@@ -30,11 +31,11 @@ const { KAFKA_FROM_START } = process.env;
 
 	const commandProcessor = container.get(BotCommandProcessor);
 	const kafka = container.get(KafkaConnector);
-	const consumer = kafka.consumer({ groupId: "17kmmrbot-group" });
+	const consumer = kafka.consumer({ groupId: KAFKA_GROUP_ID });
 
 	consumer.subscribe({
 		fromBeginning: KAFKA_FROM_START !== "true" ?? true,
-		topic: KafkaTopic17kmmrbot,
+		topic: FortifyEventTopics.SYSTEM,
 	});
 
 	const options: Options = {

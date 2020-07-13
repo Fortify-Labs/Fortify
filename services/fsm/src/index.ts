@@ -17,9 +17,11 @@ import { verify } from "jsonwebtoken";
 
 import { Log, PublicPlayerState, PrivatePlayerState } from "./gsiTypes";
 import { Context } from "@shared/auth";
-import { FortifyFSMCommand } from "@shared/state";
 
 import { StateTransformationService } from "./services/stateTransformer";
+
+import { FortifyEventTopics, FortifyEvent } from "@shared/events/events";
+import { SystemEventType } from "@shared/events/systemEvents";
 
 const {
 	JWT_SECRET,
@@ -53,7 +55,7 @@ const {
 	});
 
 	await consumer.subscribe({
-		topic: "fsm-commands",
+		topic: FortifyEventTopics.SYSTEM,
 	});
 
 	consumer.run({
@@ -61,16 +63,19 @@ const {
 		eachMessage: async ({ message, topic }) => {
 			const value = message.value.toString();
 
-			if (topic === "fsm-commands") {
-				const command: FortifyFSMCommand = JSON.parse(value);
+			if (topic === FortifyEventTopics.SYSTEM) {
+				const event: FortifyEvent<SystemEventType> = JSON.parse(value);
+				const steamid = event["steamid"] as string | null;
 
-				let state = await stateTransformer.loadState(command.steamid);
+				if (steamid) {
+					let state = await stateTransformer.loadState(steamid);
 
-				for (const commandReducer of commandReducers) {
-					state = await commandReducer.processor(state, command);
+					for (const commandReducer of commandReducers) {
+						state = await commandReducer.processor(state, event);
+					}
+
+					await stateTransformer.saveState(state, steamid);
 				}
-
-				await stateTransformer.saveState(state, command.steamid);
 			}
 
 			if (topic === "gsi") {

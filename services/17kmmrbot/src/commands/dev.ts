@@ -7,7 +7,7 @@ import { TwitchCommand } from "../definitions/twitchCommand";
 import { KafkaConnector } from "@shared/connectors/kafka";
 import { ExtractorService } from "../services/extractor";
 
-import { FortifyFSMCommand, FortifyFSMCommandType } from "@shared/state";
+import { FSMResetRequestEvent } from "@shared/events/systemEvents";
 
 @injectable()
 export class DevCommands implements TwitchCommand {
@@ -40,14 +40,11 @@ export class DevCommands implements TwitchCommand {
 				const producer = this.kafka.producer();
 				await producer.connect();
 
-				const command: FortifyFSMCommand = {
-					steamid,
-					type: FortifyFSMCommandType.RESET,
-				};
+				const event = new FSMResetRequestEvent(steamid);
 
 				await producer.send({
-					messages: [{ value: JSON.stringify(command) }],
-					topic: "fsm-commands",
+					messages: [{ value: event.serialize() }],
+					topic: event._topic,
 				});
 
 				await client.say(
@@ -61,17 +58,8 @@ export class DevCommands implements TwitchCommand {
 					const channelName = msg.substr(5, msg.length).trim();
 
 					await client.join(channelName);
-
-					// await client.whisper(
-					// 	tags.username ?? "GreyCodes",
-					// 	"Joined " + channelName,
-					// );
 				} catch (e) {
 					debug("app::devCommands::join")(e);
-					// await client.whisper(
-					// 	tags.username ?? "GreyCodes",
-					// 	"An error occurred: " + e.toString(),
-					// );
 				}
 			}
 
@@ -79,18 +67,9 @@ export class DevCommands implements TwitchCommand {
 				try {
 					const channelName = msg.substr(5, msg.length).trim();
 
-					await client.part(channel);
-
-					// await client.whisper(
-					// 	tags.username ?? "GreyCodes",
-					// 	"Left " + channelName,
-					// );
+					await client.part(channelName);
 				} catch (e) {
 					debug("app::devCommands::leave")(e);
-					// await client.whisper(
-					// 	tags.username ?? "GreyCodes",
-					// 	"An error occurred: " + e.toString(),
-					// );
 				}
 			}
 		} catch (e) {
