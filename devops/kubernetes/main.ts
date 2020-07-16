@@ -31,12 +31,20 @@ import frontendPackage from "../../services/frontend/package.json";
 import fsmPackage from "../../services/fsm/package.json";
 import gsiReceiverPackage from "../../services/gsi-receiver/package.json";
 import twitchBotPackage from "../../services/17kmmrbot/package.json";
+import {
+	KafkaTopic,
+	KafkaTopicOptions,
+} from "./imports/kafka.strimzi.io/kafkatopic";
 
 export interface CustomGatewayOptions extends GatewayOptions {
 	metadata?: ObjectMeta;
 }
 
 export interface CustomKafkaOptions extends KafkaOptions {
+	metadata?: ObjectMeta;
+}
+
+export interface CustomKafkaTopicOptions extends KafkaTopicOptions {
 	metadata?: ObjectMeta;
 }
 
@@ -58,7 +66,7 @@ export class ClusterSetup extends Chart {
 
 		new Kafka(this, "kafka", {
 			metadata: {
-				name: "kafka-cluster",
+				name: "fortify",
 			},
 			spec: {
 				kafka: {
@@ -100,6 +108,24 @@ export class ClusterSetup extends Chart {
 				},
 			},
 		} as CustomKafkaOptions);
+
+		new KafkaTopic(this, "gsi-topic", {
+			metadata: {
+				name: "gsi",
+				labels: {
+					"strimzi.io/cluster": "fortify",
+				},
+			},
+			spec: {
+				partitions: 1,
+				replicas: 1,
+				config: {
+					"retention.ms": 3 * 86400000, // 3 * 1 day,
+					"segment.ms": 86400000, // 1 day
+					"segment.bytes": 1073741824, // 1 GB
+				},
+			},
+		} as CustomKafkaTopicOptions);
 
 		new Postgres(this, "postgres", {
 			metadata: {
@@ -172,7 +198,7 @@ export class Fortify extends Chart {
 				name: "kafka-config",
 			},
 			data: {
-				KAFKA_BROKERS: '["kafka-cluster-kafka-bootstrap:9092"]',
+				KAFKA_BROKERS: '["fortify-kafka-bootstrap:9092"]',
 			},
 		});
 
