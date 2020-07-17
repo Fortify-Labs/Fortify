@@ -70,6 +70,7 @@ export class FortifyDeployment extends Construct {
 				selector: {
 					matchLabels: labels,
 				},
+				revisionHistoryLimit: 3,
 				template: {
 					metadata: { labels },
 					spec: {

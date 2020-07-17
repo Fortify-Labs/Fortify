@@ -10,6 +10,7 @@ export enum SystemEventType {
 	FSM_RESET_REQUEST,
 	TWITCH_LINKED,
 	TWITCH_UNLINKED,
+	TWITCH_MESSAGE_BROADCAST,
 }
 
 export class TwitchLinkedEvent extends FortifyEventClass<SystemEventType> {
@@ -64,6 +65,26 @@ export class FSMResetRequestEvent extends FortifyEventClass<SystemEventType> {
 		const steamid = obj["steamid"] as string | null;
 
 		if (steamid) return new this(steamid);
+		else throw new DeserializationError();
+	}
+}
+
+export class TwitchMessageBroadcastEvent extends FortifyEventClass<
+	SystemEventType
+> {
+	public _topic = FortifyEventTopics.SYSTEM;
+	public type = SystemEventType.TWITCH_MESSAGE_BROADCAST;
+
+	constructor(public message: string) {
+		super();
+	}
+
+	public static deserialize<SystemEventType>(
+		obj: FortifyEvent<SystemEventType>,
+	) {
+		const message = obj["message"] as string | null;
+
+		if (message) return new this(message);
 		else throw new DeserializationError();
 	}
 }

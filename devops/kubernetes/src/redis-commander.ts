@@ -20,7 +20,7 @@ export class RedisCommander extends Construct {
 
 		new Service(this, "service", {
 			metadata: {
-				name: "redis-commander-service",
+				name: "redis-commander",
 			},
 			spec: {
 				selector: labels,
@@ -37,7 +37,7 @@ export class RedisCommander extends Construct {
 
 		new Deployment(this, "deployment", {
 			metadata: {
-				name: "redis-commander-deployment",
+				name: "redis-commander",
 			},
 			spec: {
 				replicas: 1,
@@ -62,7 +62,7 @@ export class RedisCommander extends Construct {
 								],
 								ports: [
 									{
-										name: "redis-comander",
+										name: "redis-commander",
 										containerPort: 8081,
 									},
 								],
