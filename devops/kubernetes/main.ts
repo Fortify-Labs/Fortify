@@ -89,7 +89,7 @@ export class ClusterSetup extends Chart {
 								id: 0,
 								type:
 									KafkaSpecKafkaStorageVolumesType.PERSISTENT_CLAIM,
-								size: "10Gi",
+								size: "20Gi",
 								deleteClaim: false,
 							},
 						],
