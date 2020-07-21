@@ -6,6 +6,7 @@
 		"inversify",
 		"kmmr",
 		"kmmrbot",
+		"leaderboard",
 		"steamid",
 		"typeorm"
 	]

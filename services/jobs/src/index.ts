@@ -10,6 +10,7 @@ import { container } from "./inversify.config";
 
 import * as yargs from "yargs";
 import { FortifyScript } from "./scripts";
+import { RedisConnector } from "@shared/connectors/redis";
 
 yargs
 	.command(
@@ -32,6 +33,9 @@ yargs
 			} else {
 				debug("app::run")("No matching script found");
 			}
+
+			// Close connections to gracefully complete
+			container.get(RedisConnector).client.quit();
 		},
 	)
 	.showHelpOnFail(true)
