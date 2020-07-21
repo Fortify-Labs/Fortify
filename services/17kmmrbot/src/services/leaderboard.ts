@@ -2,7 +2,7 @@ import { injectable } from "inversify";
 
 import fetch from "node-fetch";
 
-import { LeaderboardType, ULLeaderboard } from "../definitions/leaderboard";
+import { LeaderboardType, ULLeaderboard } from "@shared/typings/leaderboard";
 
 @injectable()
 export class LeaderboardService {

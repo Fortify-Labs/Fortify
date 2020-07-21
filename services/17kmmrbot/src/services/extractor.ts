@@ -11,7 +11,7 @@ import { RedisConnector } from "@shared/connectors/redis";
 
 import { rankToMMRMapping, adjustedBigBossRanks } from "@shared/ranks";
 
-import { ULLeaderboard } from "../definitions/leaderboard";
+import { ULLeaderboard } from "@shared/typings/leaderboard";
 
 @injectable()
 export class ExtractorService {
