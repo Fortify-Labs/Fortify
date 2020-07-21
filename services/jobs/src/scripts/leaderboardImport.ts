@@ -4,8 +4,11 @@ import debug = require("debug");
 
 import { FortifyScript } from "../scripts";
 
-import { ULLeaderboard } from "@shared/typings/leaderboard";
+import { ULLeaderboard, LeaderboardType } from "@shared/typings/leaderboard";
 import { RedisConnector } from "@shared/connectors/redis";
+import { KafkaConnector } from "@shared/connectors/kafka";
+
+import { ImportCompletedEvent } from "@shared/events/systemEvents";
 
 const { LEADERBOARD_TYPE = "standard" } = process.env;
 
@@ -13,7 +16,10 @@ const { LEADERBOARD_TYPE = "standard" } = process.env;
 export class LeaderboardImportService implements FortifyScript {
 	name = "LeaderboardImportService";
 
-	constructor(@inject(RedisConnector) private redis: RedisConnector) {}
+	constructor(
+		@inject(RedisConnector) private redis: RedisConnector,
+		@inject(KafkaConnector) private kafka: KafkaConnector,
+	) {}
 
 	async handler() {
 		const type = LEADERBOARD_TYPE;
@@ -30,5 +36,19 @@ export class LeaderboardImportService implements FortifyScript {
 		);
 
 		debug("app::leaderboardImport")(`${type} leaderboard stored to redis`);
+
+		const mappedType = type as LeaderboardType;
+		if (Object.values(LeaderboardType).includes(mappedType)) {
+			const finishedEvent = new ImportCompletedEvent(mappedType);
+
+			// Send the event and disconnect afterwards
+			const producer = this.kafka.producer();
+			await producer.connect();
+			await producer.send({
+				messages: [{ value: finishedEvent.serialize() }],
+				topic: finishedEvent._topic,
+			});
+			await producer.disconnect();
+		}
 	}
 }
