@@ -2,6 +2,7 @@ FROM node:14-alpine
 # ENV NODE_ENV production
 
 ARG SERVICE_NAME
+ARG EXPOSED_PORT=8080
 
 # Copy the files necessary for the serivce
 WORKDIR /usr/src/app
@@ -24,4 +25,5 @@ RUN npm run compile &&\
 RUN chown -R node:node /usr/src/app
 USER node
 
+EXPOSE ${EXPOSED_PORT}
 CMD npm run start

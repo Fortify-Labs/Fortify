@@ -7,6 +7,7 @@ export FRONTEND_VERSION=`cd services/frontend && node -p "require('./package.jso
 export FSM_VERSION=`cd services/fsm && node -p "require('./package.json').version"`
 export GSI_RECEIVER_VERSION=`cd services/gsi-receiver && node -p "require('./package.json').version"`
 export TWITCHBOT_VERSION=`cd services/17kmmrbot && node -p "require('./package.json').version"`
+export JOBS_VERSION=`cd services/jobs && node -p "require('./package.json').version"`
 
 # Fetch the pull output telling
 echo "docker-compose -f build.docker-compose.yml pull --ignore-pull-failures"
