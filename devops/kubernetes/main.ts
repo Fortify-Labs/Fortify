@@ -408,13 +408,55 @@ export class Fortify extends Chart {
 
 		// CronJobs
 		new FortifyCronJob(this, "import", {
-			name: "import",
+			name: "import-standard",
 			version: jobsPackage.version,
 
 			schedule: "15 * * * *",
 			script: "import",
 
 			env: [
+				{
+					name: "LEADERBOARD_TYPE",
+					value: "standard",
+				},
+				{
+					name: "KAFKA_CLIENT_ID",
+					valueFrom: { fieldRef: { fieldPath: "metadata.name" } },
+				},
+			],
+			configmaps: ["redis-config", "kafka-config"],
+		});
+		new FortifyCronJob(this, "import", {
+			name: "import-turbo",
+			version: jobsPackage.version,
+
+			schedule: "15 * * * *",
+			script: "import",
+
+			env: [
+				{
+					name: "LEADERBOARD_TYPE",
+					value: "turbo",
+				},
+				{
+					name: "KAFKA_CLIENT_ID",
+					valueFrom: { fieldRef: { fieldPath: "metadata.name" } },
+				},
+			],
+			configmaps: ["redis-config", "kafka-config"],
+		});
+		new FortifyCronJob(this, "import", {
+			name: "import-duos",
+			version: jobsPackage.version,
+
+			schedule: "15 * * * *",
+			script: "import",
+
+			env: [
+				{
+					name: "LEADERBOARD_TYPE",
+					value: "duos",
+				},
 				{
 					name: "KAFKA_CLIENT_ID",
 					valueFrom: { fieldRef: { fieldPath: "metadata.name" } },

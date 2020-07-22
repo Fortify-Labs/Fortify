@@ -31,6 +31,9 @@ export class FortifyCronJob extends Construct {
 			? [...options.env, { name: "DEBUG", value: "app::*" }]
 			: [];
 
+		env.push({ name: "ENVOY_ADMIN_API", value: "http://127.0.0.1:15000" });
+		env.push({ name: "ISTIO_QUIT_API", value: "http://127.0.0.1:15020" });
+
 		const image =
 			options.image ??
 			(REGISTRY ?? "") +

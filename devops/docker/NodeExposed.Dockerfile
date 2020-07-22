@@ -1,4 +1,7 @@
 FROM node:14-alpine
+
+# Below command makes scuttle available in path
+COPY --from=redboxoss/scuttle:latest /scuttle /bin/scuttle
 # ENV NODE_ENV production
 
 ARG SERVICE_NAME
@@ -29,4 +32,4 @@ RUN chown -R node:node /usr/src/app
 USER node
 
 EXPOSE ${EXPOSED_PORT}
-CMD npm run start
+CMD scuttle npm run start
