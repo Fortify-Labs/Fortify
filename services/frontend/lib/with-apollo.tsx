@@ -1,15 +1,21 @@
 import { IncomingMessage, ServerResponse } from "http";
 import { NextPage, NextPageContext } from "next";
 import { ContextFunction } from "apollo-server-core";
+
 import React from "react";
 import Head from "next/head";
-import { ApolloProvider } from "@apollo/react-hooks";
-import { ApolloClient } from "apollo-client";
-import { InMemoryCache, NormalizedCacheObject } from "apollo-cache-inmemory";
 
-import { split } from "apollo-link";
-import { createHttpLink } from "apollo-link-http";
-import { WebSocketLink } from "apollo-link-ws";
+import {
+	ApolloProvider,
+	ApolloClient,
+	InMemoryCache,
+	NormalizedCacheObject,
+	createHttpLink,
+	split,
+} from "@apollo/client";
+
+import { WebSocketLink } from "@apollo/client/link/ws";
+
 import { SubscriptionClient } from "subscriptions-transport-ws";
 import { getOperationAST } from "graphql";
 import { getCookie } from "../utils/cookie";
@@ -59,6 +65,7 @@ export default function withApollo(
 		...pageProps
 	}: InitialProps) => {
 		const client = apolloClient || initApolloClient(apolloState);
+
 		return (
 			<ApolloProvider client={client}>
 				<PageComponent {...pageProps} />
@@ -119,7 +126,7 @@ export default function withApollo(
 						const { AppTree } = ctx;
 						// Run all GraphQL queries
 						const { getDataFromTree } = await import(
-							"@apollo/react-ssr"
+							"@apollo/client/react/ssr"
 						);
 						await getDataFromTree(
 							<AppTree

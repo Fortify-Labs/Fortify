@@ -407,7 +407,7 @@ export class Fortify extends Chart {
 		});
 
 		// CronJobs
-		new FortifyCronJob(this, "import", {
+		new FortifyCronJob(this, "import-standard", {
 			name: "import-standard",
 			version: jobsPackage.version,
 
@@ -426,7 +426,7 @@ export class Fortify extends Chart {
 			],
 			configmaps: ["redis-config", "kafka-config"],
 		});
-		new FortifyCronJob(this, "import", {
+		new FortifyCronJob(this, "import-turbo", {
 			name: "import-turbo",
 			version: jobsPackage.version,
 
@@ -445,7 +445,7 @@ export class Fortify extends Chart {
 			],
 			configmaps: ["redis-config", "kafka-config"],
 		});
-		new FortifyCronJob(this, "import", {
+		new FortifyCronJob(this, "import-duos", {
 			name: "import-duos",
 			version: jobsPackage.version,
 
