@@ -43,10 +43,17 @@ export class FortifyDeployment extends Construct {
 			? [...options.env, { name: "DEBUG", value: "app::*" }]
 			: [];
 
+		const image =
+			options.image ??
+			(REGISTRY ?? "") +
+				options.name +
+				":" +
+				(options.version ?? "invalid");
+
 		if (options.service) {
 			new Service(this, "service", {
 				metadata: {
-					name: options.service.name + "-service",
+					name: options.service.name,
 				},
 				spec: {
 					type: "ClusterIP",
@@ -77,12 +84,7 @@ export class FortifyDeployment extends Construct {
 						containers: [
 							{
 								name: options.name,
-								image:
-									options.image ??
-									(REGISTRY ?? "") +
-										options.name +
-										":" +
-										(options.version ?? "invalid"),
+								image,
 								ports: options.service
 									? [
 											{
