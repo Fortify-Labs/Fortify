@@ -1,7 +1,7 @@
 {
-  "name": "gsi-receiver",
+  "name": "jobs",
   "version": "1.0.0",
-  "description": "Web Endpoint receiving GSI data",
+  "description": "Job scripts and one off scripts",
   "author": {
     "name": "Thomas Kosiewski"
   },
@@ -19,41 +19,47 @@
   "bugs": {
     "url": "https://github.com/Fortify-Labs/Fortify/issues"
   },
+  "keywords": [],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "check": "gts check",
     "clean": "gts clean",
     "compile": "tsc -b",
-    "dev": "DEBUG=app:* PORT=8080 nodemon",
     "fix": "gts fix",
+    "prepare": "npm run compile",
     "pretest": "npm run compile",
     "posttest": "npm run check",
     "start": "cross-env TS_NODE_PROJECT=./ NODE_OPTIONS=--trace-warnings node -r tsconfig-paths/register build/index.js",
     "start:ts": "cross-env DEBUG=app::* NODE_OPTIONS=--trace-warnings ts-node -r tsconfig-paths/register --files src/index.ts",
-    "sync-dotenv": "sync-dotenv"
+    "sync-dotenv": "sync-dotenv",
+    "dev": "DEBUG=app:* nodemon"
   },
   "devDependencies": {
     "@types/debug": "^4.1.5",
-    "@types/express": "^4.17.7",
     "@types/jsonwebtoken": "^8.5.0",
-    "@types/node": "^14.0.23",
-    "@types/request": "^2.48.5",
+    "@types/node": "^14.0.20",
+    "@types/node-fetch": "^2.5.7",
+    "@types/redis": "^2.8.24",
+    "@types/yargs": "^15.0.5",
     "gts": "^2.0.2",
     "nodemon": "^2.0.4",
     "sync-dotenv": "^2.6.1",
     "ts-node": "^8.10.2",
-    "typescript": "^3.9.7"
+    "typescript": "^3.9.6"
   },
   "dependencies": {
-    "body-parser": "^1.19.0",
     "cross-env": "^7.0.2",
     "debug": "^4.1.1",
     "dotenv": "^8.2.0",
-    "express": "^4.17.1",
     "inversify": "^5.0.1",
     "jsonwebtoken": "^8.5.1",
     "kafkajs": "^1.12.0",
+    "node-fetch": "^2.6.0",
+    "pg": "^8.3.0",
+    "redis": "^3.0.2",
     "reflect-metadata": "^0.1.13",
-    "tsconfig-paths": "^3.9.0"
+    "tsconfig-paths": "^3.9.0",
+    "typeorm": "^0.2.25",
+    "yargs": "^15.4.1"
   }
 }

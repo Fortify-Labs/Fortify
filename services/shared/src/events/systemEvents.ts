@@ -4,6 +4,7 @@ import {
 	FortifyEventTopics,
 	DeserializationError,
 } from "./events";
+import { LeaderboardType } from "../typings/leaderboard";
 
 export enum SystemEventType {
 	UNKNOWN,
@@ -11,6 +12,7 @@ export enum SystemEventType {
 	TWITCH_LINKED,
 	TWITCH_UNLINKED,
 	TWITCH_MESSAGE_BROADCAST,
+	IMPORT_COMPLETED,
 }
 
 export class TwitchLinkedEvent extends FortifyEventClass<SystemEventType> {
@@ -85,6 +87,25 @@ export class TwitchMessageBroadcastEvent extends FortifyEventClass<
 		const message = obj["message"] as string | null;
 
 		if (message) return new this(message);
+		else throw new DeserializationError();
+	}
+}
+
+export class ImportCompletedEvent extends FortifyEventClass<SystemEventType> {
+	public _topic = FortifyEventTopics.SYSTEM;
+	public type = SystemEventType.IMPORT_COMPLETED;
+
+	constructor(public leaderboardType: LeaderboardType) {
+		super();
+	}
+
+	public static deserialize<SystemEventType>(
+		obj: FortifyEvent<SystemEventType>,
+	) {
+		const type = obj["leaderboardType"] as LeaderboardType | null;
+
+		if (type && Object.values(LeaderboardType).includes(type))
+			return new this(type);
 		else throw new DeserializationError();
 	}
 }

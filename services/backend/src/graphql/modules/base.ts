@@ -4,7 +4,7 @@ import { injectable } from "inversify";
 import { Resolvers } from "../../definitions/graphql/types";
 import { pubSub } from "../pubsub";
 
-// import packageJSON = require("@root/package.json");
+import packageJSON = require("../../../package.json");
 
 @injectable()
 export class BaseModule implements GQLModule {
@@ -35,10 +35,7 @@ export class BaseModule implements GQLModule {
 		return {
 			Query: {
 				version() {
-					// FIXME: Once I'm going to be motivated to touch this again
-					// return packageJSON.version || "1.0.0";
-
-					return "1.0.0";
+					return packageJSON?.version ?? "1.0.0";
 				},
 			},
 			Mutation: {

@@ -5,16 +5,17 @@ services:
     image: registry.gitlab.com/thomask33/fortify/backend:${BACKEND_VERSION:-invalidVersion}
     build:
       context: ./
-      dockerfile: ./devops/docker/Node.Dockerfile
+      dockerfile: ./devops/docker/NodeExposed.Dockerfile
 
       args:
         SERVICE_NAME: backend
+        EXPOSED_PORT: 8080
 
   frontend:
     image: registry.gitlab.com/thomask33/fortify/frontend:${FRONTEND_VERSION:-invalidVersion}
     build:
       context: ./
-      dockerfile: ./devops/docker/Node.Dockerfile
+      dockerfile: ./devops/docker/NodeExposed.Dockerfile
 
       args:
         SERVICE_NAME: frontend
@@ -33,10 +34,11 @@ services:
     image: registry.gitlab.com/thomask33/fortify/gsi-receiver:${GSI_RECEIVER_VERSION:-invalidVersion}
     build:
       context: ./
-      dockerfile: ./devops/docker/Node.Dockerfile
+      dockerfile: ./devops/docker/NodeExposed.Dockerfile
 
       args:
         SERVICE_NAME: gsi-receiver
+        EXPOSED_PORT: 8080
 
   17kmmrbot:
     image: registry.gitlab.com/thomask33/fortify/17kmmrbot:${TWITCHBOT_VERSION:-invalidVersion}
@@ -46,3 +48,12 @@ services:
 
       args:
         SERVICE_NAME: 17kmmrbot
+
+  jobs:
+    image: registry.gitlab.com/thomask33/fortify/jobs:${JOBS_VERSION:-invalidVersion}
+    build:
+      context: ./
+      dockerfile: ./devops/docker/Node.Dockerfile
+
+      args:
+        SERVICE_NAME: jobs

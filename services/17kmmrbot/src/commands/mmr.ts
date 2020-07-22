@@ -5,7 +5,7 @@ import { Client } from "tmi.js";
 
 import { ExtractorService } from "../services/extractor";
 import { LeaderboardService } from "../services/leaderboard";
-import { LeaderboardType, ULLeaderboard } from "../definitions/leaderboard";
+import { LeaderboardType, ULLeaderboard } from "@shared/typings/leaderboard";
 import { FortifyGameMode } from "@shared/state";
 import debug = require("debug");
 

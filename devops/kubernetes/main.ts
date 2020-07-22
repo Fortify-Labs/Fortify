@@ -31,10 +31,12 @@ import frontendPackage from "../../services/frontend/package.json";
 import fsmPackage from "../../services/fsm/package.json";
 import gsiReceiverPackage from "../../services/gsi-receiver/package.json";
 import twitchBotPackage from "../../services/17kmmrbot/package.json";
+import jobsPackage from "../../services/jobs/package.json";
 import {
 	KafkaTopic,
 	KafkaTopicOptions,
 } from "./imports/kafka.strimzi.io/kafkatopic";
+import { FortifyCronJob } from "./src/cronjob";
 
 export interface CustomGatewayOptions extends GatewayOptions {
 	metadata?: ObjectMeta;
@@ -89,7 +91,7 @@ export class ClusterSetup extends Chart {
 								id: 0,
 								type:
 									KafkaSpecKafkaStorageVolumesType.PERSISTENT_CLAIM,
-								size: "10Gi",
+								size: "20Gi",
 								deleteClaim: false,
 							},
 						],
@@ -175,6 +177,7 @@ export class Fortify extends Chart {
 
 		// define resources here
 
+		// TODO: Move this to vault, once vault is setup
 		new Secret(this, "jwt-secret", {
 			metadata: {
 				name: "jwt-secret",
@@ -193,6 +196,7 @@ export class Fortify extends Chart {
 			},
 		});
 
+		// Default env variables
 		new ConfigMap(this, "kafka-config", {
 			metadata: {
 				name: "kafka-config",
@@ -222,6 +226,7 @@ export class Fortify extends Chart {
 			},
 		});
 
+		// TLS certificate requested via cert-manager
 		new Certificate(this, "fortify-ssl-cert", {
 			metadata: {
 				name: "fortify-ssl-cert",
@@ -238,6 +243,7 @@ export class Fortify extends Chart {
 			},
 		});
 
+		// Istio gateway
 		new Gateway(this, "fortify-gateway", {
 			metadata: {
 				name: "fortify-gateway",
@@ -267,6 +273,7 @@ export class Fortify extends Chart {
 			},
 		} as CustomGatewayOptions);
 
+		// Fortify web services
 		new WebService(this, "backend", {
 			name: "backend",
 			version: backendPackage.version,
@@ -293,7 +300,7 @@ export class Fortify extends Chart {
 								port: {
 									number: 8080,
 								},
-								host: "backend-service",
+								host: "backend",
 							},
 						},
 					],
@@ -329,7 +336,7 @@ export class Fortify extends Chart {
 								port: {
 									number: 3000,
 								},
-								host: "frontend-service",
+								host: "frontend",
 							},
 						},
 					],
@@ -342,7 +349,10 @@ export class Fortify extends Chart {
 			version: gsiReceiverPackage.version,
 			env: [
 				{ name: "MY_PORT", value: "8080" },
-				{ name: "KAFKA_CLIENTID", value: "gsi-receiver" },
+				{
+					name: "KAFKA_CLIENT_ID",
+					valueFrom: { fieldRef: { fieldPath: "metadata.name" } },
+				},
 				{ name: "KAFKA_TOPIC", value: "gsi" },
 			],
 			secrets: ["jwt-secret"],
@@ -362,7 +372,7 @@ export class Fortify extends Chart {
 								port: {
 									number: 8080,
 								},
-								host: "gsi-receiver-service",
+								host: "gsi-receiver",
 							},
 						},
 					],
@@ -370,6 +380,7 @@ export class Fortify extends Chart {
 			],
 		});
 
+		// Deployments that are not exposed to the web
 		new FortifyDeployment(this, "17kmmrbot", {
 			name: "17kmmrbot",
 			version: twitchBotPackage.version,
@@ -385,8 +396,30 @@ export class Fortify extends Chart {
 		new FortifyDeployment(this, "fsm", {
 			name: "fsm",
 			version: fsmPackage.version,
-			env: [{ name: "KAFKA_CLIENT_ID", value: "fsm" }],
+			env: [
+				{
+					name: "KAFKA_CLIENT_ID",
+					valueFrom: { fieldRef: { fieldPath: "metadata.name" } },
+				},
+			],
 			secrets: ["jwt-secret"],
+			configmaps: ["redis-config", "kafka-config"],
+		});
+
+		// CronJobs
+		new FortifyCronJob(this, "import", {
+			name: "import",
+			version: jobsPackage.version,
+
+			schedule: "15 * * * *",
+			script: "import",
+
+			env: [
+				{
+					name: "KAFKA_CLIENT_ID",
+					valueFrom: { fieldRef: { fieldPath: "metadata.name" } },
+				},
+			],
 			configmaps: ["redis-config", "kafka-config"],
 		});
 	}

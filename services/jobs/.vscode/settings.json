@@ -1,13 +1,9 @@
 {
 	"typescript.tsdk": "node_modules/typescript/lib",
 	"cSpell.words": [
-		"Deserialization",
-		"Streetfight",
+		"Postgres",
 		"inversify",
-		"kmmr",
-		"kmmrbot",
 		"leaderboard",
-		"steamid",
-		"typeorm"
+		"steamid"
 	]
 }
