@@ -10,7 +10,10 @@ import { ExtractorService } from "../services/extractor";
 
 import { FortifyGameMode } from "@shared/state";
 import { LeaderboardService } from "../services/leaderboard";
-import { ULLeaderboard, LeaderboardType } from "@shared/typings/leaderboard";
+import {
+	ULLeaderboard,
+	LeaderboardType,
+} from "@shared/definitions/leaderboard";
 
 import { majorRankNameMapping } from "@shared/ranks";
 
