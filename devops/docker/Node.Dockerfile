@@ -3,16 +3,19 @@ FROM node:14-alpine
 
 ARG SERVICE_NAME
 
-# Copy the files necessary for the serivce
+# Copy the shared library
 WORKDIR /usr/src/app
 COPY services/shared shared
-COPY services/${SERVICE_NAME} ${SERVICE_NAME}
 
 # Install all dependencies for the shared library and compile it
 WORKDIR /usr/src/app/shared
 RUN npm ci --silent
 RUN npm run compile &&\
 	rm -rf src tests
+
+# Copy the files necessary for the serivce
+WORKDIR /usr/src/app
+COPY services/${SERVICE_NAME} ${SERVICE_NAME}
 
 # Compile the service
 WORKDIR /usr/src/app/${SERVICE_NAME}

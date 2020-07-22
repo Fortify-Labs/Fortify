@@ -4,7 +4,7 @@ import {
 	FortifyEventTopics,
 	DeserializationError,
 } from "./events";
-import { LeaderboardType } from "../typings/leaderboard";
+import { LeaderboardType } from "../definitions/leaderboard";
 
 export enum SystemEventType {
 	UNKNOWN,

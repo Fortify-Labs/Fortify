@@ -4,7 +4,10 @@ import debug = require("debug");
 
 import { FortifyScript } from "../scripts";
 
-import { ULLeaderboard, LeaderboardType } from "@shared/typings/leaderboard";
+import {
+	ULLeaderboard,
+	LeaderboardType,
+} from "@shared/definitions/leaderboard";
 import { RedisConnector } from "@shared/connectors/redis";
 import { KafkaConnector } from "@shared/connectors/kafka";
 
