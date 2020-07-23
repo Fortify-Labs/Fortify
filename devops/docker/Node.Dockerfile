@@ -1,5 +1,3 @@
-# FROM node:14-alpine
-
 ARG BASE_VERSION=invalidVersion
 FROM registry.gitlab.com/thomask33/fortify/base:$BASE_VERSION
 
