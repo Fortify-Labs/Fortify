@@ -7,6 +7,7 @@
 		"akhq",
 		"appendonly",
 		"chmod",
+		"configmaps",
 		"devops",
 		"dind",
 		"entrypoint",

@@ -1,19 +1,27 @@
-import { injectable } from "inversify";
-
-import fetch from "node-fetch";
+import { injectable, inject } from "inversify";
 
 import {
 	LeaderboardType,
 	ULLeaderboard,
 } from "@shared/definitions/leaderboard";
 
+import { RedisConnector } from "@shared/connectors/redis";
+
 @injectable()
 export class LeaderboardService {
-	// TODO: Rework this to use database instead of fetching the Underlords API every time the leaderboard is requested
+	constructor(@inject(RedisConnector) private redis: RedisConnector) {}
 
-	fetchLeaderboard(type = LeaderboardType.Standard): Promise<ULLeaderboard> {
-		return fetch(
-			"https://underlords.com//leaderboarddata?type=" + type,
-		).then((value) => value.json());
+	async fetchLeaderboard(
+		type = LeaderboardType.Standard,
+	): Promise<ULLeaderboard | null> {
+		const rawLeaderboard = await this.redis.getAsync(
+			`ul_leaderboard_${type}`,
+		);
+
+		if (rawLeaderboard) {
+			return JSON.parse(rawLeaderboard);
+		} else {
+			return null;
+		}
 	}
 }
