@@ -9,6 +9,7 @@ import { Client, Options } from "tmi.js";
 import { container } from "./inversify.config";
 import { PostgresConnector } from "@shared/connectors/postgres";
 import { KafkaConnector } from "@shared/connectors/kafka";
+import { RedisConnector } from "@shared/connectors/redis";
 
 import { TwitchCommand } from "./definitions/twitchCommand";
 import { BotCommandProcessor } from "./services/command";
@@ -57,12 +58,18 @@ const { KAFKA_FROM_START, KAFKA_GROUP_ID = "17kmmrbot-group" } = process.env;
 
 	async function shutDown() {
 		try {
-			(await postgres.connection).close();
+			await Promise.allSettled([
+				(await postgres.connection).close(),
+				consumer.disconnect(),
+				container.get(RedisConnector).client.quit(),
+				client.disconnect(),
+			]);
 			debug("app::main")("Postgres connection closed");
-			await consumer.disconnect();
 			debug("app::main")("Kafka consumer closed");
-			await client.disconnect();
+			debug("app::main")("Redis connection closed");
 			debug("app::main")("Twitch connection closed");
+		} catch (e) {
+			debug("app::shutdown")(e);
 		} finally {
 			debug("app::shutdown")(
 				"Received kill signal, shutting down gracefully",
