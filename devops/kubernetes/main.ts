@@ -386,7 +386,10 @@ export class Fortify extends Chart {
 			version: twitchBotPackage.version,
 			env: [
 				{ name: "BOT_USERNAME", value: "17kmmrbot" },
-				{ name: "KAFKA_CLIENTID", value: "17kmmrbot" },
+				{
+					name: "KAFKA_CLIENT_ID",
+					valueFrom: { fieldRef: { fieldPath: "metadata.name" } },
+				},
 				{ name: "KAFKA_TOPIC", value: "gsi" },
 			],
 			secrets: ["postgres-auth", "twitch-bot-secret"],
