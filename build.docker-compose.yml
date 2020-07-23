@@ -1,6 +1,12 @@
 version: "3.7"
 
 services:
+  base:
+    image: registry.gitlab.com/thomask33/fortify/base:${BASE_VERSION:-invalidVersion}
+    build:
+      context: ./
+      dockerfile: ./devops/docker/Base.Dockerfile
+
   backend:
     image: registry.gitlab.com/thomask33/fortify/backend:${BACKEND_VERSION:-invalidVersion}
     build:
