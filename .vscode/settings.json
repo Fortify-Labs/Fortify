@@ -12,6 +12,7 @@
 		"entrypoint",
 		"gitlab",
 		"gsiingress",
+		"istio",
 		"kmmrbot",
 		"microservice",
 		"microservices",
