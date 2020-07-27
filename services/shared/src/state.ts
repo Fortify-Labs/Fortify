@@ -13,6 +13,7 @@ export enum FortifyGameMode {
 interface FortifyPlayerStateLobby {
 	players: Record<string, FortifyPlayer>;
 	mode: FortifyGameMode;
+	pool: Record<number, number>;
 }
 
 export class FortifyPlayerState {
@@ -21,14 +22,23 @@ export class FortifyPlayerState {
 	public lobby: FortifyPlayerStateLobby = {
 		mode: FortifyGameMode.Invalid,
 		players: {},
+		pool: {},
 	};
 }
 
 export interface FortifyPlayer {
 	name: string;
+	accountID: string;
+	slot: number;
 
 	final_place?: number;
 
 	rank_tier?: number;
 	global_leaderboard_rank?: number;
+
+	units?: Array<{
+		unitID: number;
+		rank: number;
+		draftTier: number;
+	}>;
 }
