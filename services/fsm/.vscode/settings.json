@@ -1,6 +1,10 @@
 {
 	"typescript.tsdk": "node_modules/typescript/lib",
 	"cSpell.words": [
+		"Loadout",
+		"Postgres",
+		"Underlord",
+		"entindex",
 		"inversify",
 		"leaderboard",
 		"steamid"

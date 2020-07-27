@@ -3,8 +3,8 @@ import { injectable } from "inversify";
 import { Context } from "@shared/auth";
 import { FortifyPlayerState } from "@shared/state";
 
-import { PrivatePlayerState } from "../gsiTypes";
-import { StateReducer } from "../definitions/stateReducer";
+import { PrivatePlayerState } from "../../gsiTypes";
+import { StateReducer } from "../../definitions/stateReducer";
 
 @injectable()
 export class DummyPrivateStateReducer
