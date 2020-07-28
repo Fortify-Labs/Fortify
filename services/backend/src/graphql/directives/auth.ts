@@ -8,6 +8,24 @@ import { Context, PermissionScope } from "@shared/auth";
 
 import { defaultFieldResolver } from "graphql";
 
+@injectable()
+export class AuthDirective implements GQLDirective {
+	typeDef = gql`
+		directive @auth(requires: SCOPE = ADMIN) on OBJECT | FIELD_DEFINITION
+
+		enum SCOPE {
+			ADMIN
+			USER
+			GSI_INGRESS
+			UNKNOWN
+		}
+	`;
+
+	schemaVisitor = {
+		auth: AuthDirectiveVisitor,
+	};
+}
+
 interface AuthGraphQLObjectType extends GraphQLObjectType {
 	_requiredAuthRole?: string;
 }
@@ -82,22 +100,4 @@ class AuthDirectiveVisitor<TArgs, TContext> extends SchemaDirectiveVisitor<
 			};
 		});
 	}
-}
-
-@injectable()
-export class AuthDirective implements GQLDirective {
-	typeDef = gql`
-		directive @auth(requires: SCOPE = ADMIN) on OBJECT | FIELD_DEFINITION
-
-		enum SCOPE {
-			ADMIN
-			USER
-			GSI_INGRESS
-			UNKNOWN
-		}
-	`;
-
-	schemaVisitor = {
-		auth: AuthDirectiveVisitor,
-	};
 }

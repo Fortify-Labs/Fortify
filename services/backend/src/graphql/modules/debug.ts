@@ -35,8 +35,8 @@ export class DebugModule implements GQLModule {
 
 	typeDef = gql`
 		extend type Query {
-			"Returns the current jwt"
-			token: String!
+			"Returns the current context"
+			context: String!
 		}
 
 		extend type Mutation {
@@ -56,8 +56,8 @@ export class DebugModule implements GQLModule {
 
 		return {
 			Query: {
-				token(_parent, _args, context) {
-					return JSON.stringify(context.user ?? {});
+				context(_parent, _args, context) {
+					return JSON.stringify(context ?? {});
 				},
 			},
 			Mutation: {
