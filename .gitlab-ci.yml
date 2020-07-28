@@ -16,6 +16,7 @@ build:
     - sh ./scripts/build.sh
   only:
     - master
+    - staging
 
 deploy:
   stage: deploy
@@ -34,6 +35,7 @@ deploy:
     - echo -n $K8S_DOTENV | base64 -d > .env
     # This step might even be commented out at a later point, not quite sure if it's needed
     - npm ci
+    - export DOMAIN=fortify.gg
     - npm run record
     - npm run build
     - kubectl apply -f dist/fortify.k8s.yaml
