@@ -9,6 +9,8 @@ import { ExtractorService } from "../services/extractor";
 
 import { FSMResetRequestEvent } from "@shared/events/systemEvents";
 
+// import packageJSON = require("../../package.json");
+
 @injectable()
 export class DevCommands implements TwitchCommand {
 	constructor(
@@ -17,6 +19,7 @@ export class DevCommands implements TwitchCommand {
 	) {}
 
 	invocations = ["!reset", "!join", "!leave"];
+	// invocations = ["!reset", "!join", "!leave", "!version"];
 
 	authorized = async (_channel: string, tags: ChatUserstate) =>
 		tags.badges?.broadcaster === "1" ||
@@ -72,6 +75,10 @@ export class DevCommands implements TwitchCommand {
 					debug("app::devCommands::leave")(e);
 				}
 			}
+
+			// if (msg.startsWith("!version")) {
+			// 	await client.say(channel, "Version: " + packageJSON.version);
+			// }
 		} catch (e) {
 			debug("app::devCommands")(e);
 		}

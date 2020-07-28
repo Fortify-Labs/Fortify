@@ -1,7 +1,7 @@
 import { config } from "dotenv";
 config();
 
-import * as debug from "debug";
+import debug from "debug";
 
 import { sharedSetup } from "@shared/index";
 sharedSetup();

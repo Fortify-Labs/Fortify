@@ -10,13 +10,17 @@ import { CommandReducer } from "./definitions/commandReducer";
 
 import { PublicPlayerState, PrivatePlayerState } from "./gsiTypes";
 
-import { PlayerReducer } from "./reducers/publicPlayerState";
+import { LobbyPlayerReducer } from "./reducers/public/lobbyReducer";
 import { ResetCommandReducer } from "./reducers/commands";
-import { DummyPrivateStateReducer } from "./reducers/privatePlayerState";
+import { DummyPrivateStateReducer } from "./reducers/private/privatePlayerState";
+import { PoolReducer } from "./reducers/public/poolReducer";
 
 const container = new Container({ autoBindInjectable: true });
 
-container.bind<StateReducer<PublicPlayerState>>("public").to(PlayerReducer);
+container
+	.bind<StateReducer<PublicPlayerState>>("public")
+	.to(LobbyPlayerReducer);
+container.bind<StateReducer<PublicPlayerState>>("public").to(PoolReducer);
 container
 	.bind<StateReducer<PrivatePlayerState>>("private")
 	.to(DummyPrivateStateReducer);

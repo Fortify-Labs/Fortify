@@ -3,18 +3,18 @@ import { FortifyGameMode, FortifyPlayerState } from "@shared/state";
 
 import { Context } from "@shared/auth";
 
-import { PublicPlayerState } from "../gsiTypes";
-import { StateReducer } from "../definitions/stateReducer";
-import { StateTransformationService } from "../services/stateTransformer";
+import { PublicPlayerState } from "../../gsiTypes";
+import { StateReducer } from "../../definitions/stateReducer";
+import { StateTransformationService } from "../../services/stateTransformer";
 
 @injectable()
-export class PlayerReducer implements StateReducer<PublicPlayerState> {
+export class LobbyPlayerReducer implements StateReducer<PublicPlayerState> {
 	constructor(
 		@inject(StateTransformationService)
 		private sts: StateTransformationService,
 	) {}
 
-	name = "PlayerReducer";
+	name = "LobbyPlayerReducer";
 
 	async processor(
 		state: FortifyPlayerState,
@@ -33,6 +33,7 @@ export class PlayerReducer implements StateReducer<PublicPlayerState> {
 
 		const {
 			account_id,
+			player_slot,
 			final_place,
 			health,
 			level,
@@ -76,10 +77,12 @@ export class PlayerReducer implements StateReducer<PublicPlayerState> {
 		}
 
 		state.lobby.players[accountID] = {
+			accountID,
 			final_place,
 			global_leaderboard_rank,
 			name: persona_name ?? "",
 			rank_tier,
+			slot: player_slot,
 		};
 
 		// if (final_place) {
