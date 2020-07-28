@@ -3,8 +3,8 @@ import { injectable, inject } from "inversify";
 import { gql } from "apollo-server-express";
 import { sign } from "jsonwebtoken";
 
-import { GQLModule } from "../../definitions/module";
-import { Resolvers } from "../../definitions/graphql/types";
+import { GQLModule } from "definitions/module";
+import { Resolvers } from "definitions/graphql/types";
 
 import { Producer } from "kafkajs";
 import { PostgresConnector } from "@shared/connectors/postgres";
