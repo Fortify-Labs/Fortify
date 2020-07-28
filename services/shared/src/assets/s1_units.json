@@ -3087,11 +3087,11 @@
 		}
   },
   
-  "enno/jull": {
+  "jull": {
     "draftTier": 0,
     "id": 1002
   },
-  "jull/enno": {
+  "enno": {
     "draftTier": 0,
     "id": 1003
   }

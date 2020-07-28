@@ -39,10 +39,10 @@ export class LeftCommand implements TwitchCommand {
 			);
 		}
 
-		const unitName = message.substr(6);
+		const unitName = message.substr(6).trim();
 		const unit = S1Units[unitName] as S1Unit | null;
 
-		if (!unit) {
+		if (!unit || unit.id >= 1000) {
 			return client.say(
 				channel,
 				`${user.name} no unit called "${unitName}" found`,
@@ -51,7 +51,7 @@ export class LeftCommand implements TwitchCommand {
 
 		const { id, draftTier } = unit;
 		const left = fps.lobby.pool[id];
-		const total = poolSize[draftTier];
+		const total = poolSize[draftTier] ?? 0;
 
 		return client.say(channel, `${unitName}: ${left}/${total} units left`);
 	}
