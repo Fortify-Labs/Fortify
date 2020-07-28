@@ -3,7 +3,7 @@ import { Client, ChatUserstate } from "tmi.js";
 import { injectable, inject } from "inversify";
 import { ExtractorService } from "../services/extractor";
 
-import { S1Units, Unit as S1Unit } from "@shared/units";
+import { S1Units, Unit as S1Unit, unitMappings } from "@shared/units";
 import { poolSize } from "@shared/pool";
 
 @injectable()
@@ -39,8 +39,19 @@ export class LeftCommand implements TwitchCommand {
 			);
 		}
 
-		const unitName = message.substr(6).trim();
-		const unit = S1Units[unitName] as S1Unit | null;
+		const unitName = message.substr(6).trim().toLowerCase();
+
+		// Change aliases to their actual names in code
+
+		let codeName = "";
+
+		for (const [key, value] of Object.entries(unitMappings)) {
+			if (value.includes(unitName) || key === unitName) {
+				codeName = key;
+			}
+		}
+
+		const unit = S1Units[codeName] as S1Unit | null;
 
 		if (!unit || unit.id >= 1000) {
 			return client.say(
