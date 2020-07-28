@@ -48,7 +48,7 @@ export class PoolCalculatorService {
 				// if rank == 2: -1 * 3
 				// if rank == 3: -1 * 3 * 3
 
-				pool[unitID] -= 1 * Math.pow(3, rank - 1);
+				pool[unitID] -= Math.pow(3, rank - 1);
 			}
 		}
 
