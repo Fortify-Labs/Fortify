@@ -52,7 +52,6 @@ export class DebugModule implements GQLModule {
 	`;
 
 	resolver(): Resolvers {
-		// eslint-disable-next-line @typescript-eslint/no-this-alias
 		const self = this;
 
 		return {

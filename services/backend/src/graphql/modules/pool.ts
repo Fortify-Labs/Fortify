@@ -14,6 +14,14 @@ export class PoolModule implements GQLModule {
 	`;
 
 	resolver(): Resolvers {
-		return {};
+		const self = this;
+
+		return {
+			Query: {
+				async pool() {
+					return "";
+				},
+			},
+		};
 	}
 }
