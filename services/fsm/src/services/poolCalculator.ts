@@ -44,11 +44,14 @@ export class PoolCalculatorService {
 		// 2. For each player, remove units from the pool
 		for (const { units } of Object.values(state.lobby.players)) {
 			for (const { unitID, rank } of units ?? []) {
-				// if rank == 1: -1
-				// if rank == 2: -1 * 3
-				// if rank == 3: -1 * 3 * 3
+				// exclude underlords from the pool calculations
+				if (unitID < 1000) {
+					// if rank == 1: -1
+					// if rank == 2: -1 * 3
+					// if rank == 3: -1 * 3 * 3
 
-				pool[unitID] -= Math.pow(3, rank - 1);
+					pool[unitID] -= Math.pow(3, rank - 1);
+				}
 			}
 		}
 
