@@ -102,7 +102,7 @@
 	},
 	"furion": {
 		"displayName": "Nature's Prophet",
-		"alts": ["natures prophet", "np", "prophet"]
+		"alts": ["natures prophet", "np", "natures", "prophet"]
 	},
 	"ogre_magi": {
 		"displayName": "Ogre Magi",
@@ -131,6 +131,7 @@
 			"wind ranger",
 			"wind",
 			"windrunner",
+			"wind runner",
 			"alleria",
 			"wr",
 			"lyralei"
@@ -138,7 +139,7 @@
 	},
 	"witch_doctor": {
 		"displayName": "Witch Doctor",
-		"alts": ["witch doctor", "wd", "doctor", "voljin", "zharvakko"]
+		"alts": ["witch doctor", "wd", "witch", "doctor", "voljin", "zharvakko"]
 	},
 	"abaddon": {
 		"displayName": "Abaddon",
@@ -224,11 +225,26 @@
 	},
 	"keeper_of_the_light": {
 		"displayName": "Keeper of the Light",
-		"alts": ["keeper of the light", "kotl", "keeper", "kotol", "ezalor"]
+		"alts": [
+			"keeper of the light",
+			"kotl",
+			"keeper",
+			"kotol",
+			"kotol of the light",
+			"ezalor"
+		]
 	},
 	"lone_druid": {
 		"displayName": "Lone Druid",
-		"alts": ["lone druid", "ld", "lone", "bear", "syllabear", "sylla"]
+		"alts": [
+			"lone druid",
+			"ld",
+			"lone",
+			"bear",
+			"bulldog",
+			"syllabear",
+			"sylla"
+		]
 	},
 	"mirana": {
 		"displayName": "Mirana",
