@@ -4,30 +4,26 @@ import { poolSize } from "@shared/pool";
 
 import { Unit } from "../gsiTypes";
 
-// import unitsJSON from "../../assets/units.json";
-import unitsJSON from "../assets/s1_units.json";
-const unitEntries = Object.entries(unitsJSON);
-export type unitEntryType = typeof unitEntries[1];
+import { S1Units, Unit as S1Unit } from "@shared/units";
 
 @injectable()
 export class PoolCalculatorService {
-	private mappedUnits: Record<number, unitEntryType>;
+	private mappedUnits: Record<number, S1Unit>;
 
 	constructor() {
-		this.mappedUnits = unitEntries.reduce<Record<number, unitEntryType>>(
-			(acc, entry) => {
-				acc[entry[1].id] = entry;
+		this.mappedUnits = Object.entries(S1Units).reduce<
+			Record<number, S1Unit>
+		>((acc, entry) => {
+			acc[entry[1].id] = entry[1];
 
-				return acc;
-			},
-			{},
-		);
+			return acc;
+		}, {});
 	}
 
 	mapPlayerUnits(units: Unit[]) {
 		return units.map(({ unit_id, rank }) => ({
 			draftTier: this.mappedUnits[unit_id]
-				? this.mappedUnits[unit_id][1].draftTier
+				? this.mappedUnits[unit_id].draftTier
 				: -1,
 			rank,
 			unitID: unit_id,
@@ -41,18 +37,21 @@ export class PoolCalculatorService {
 		const pool: Record<number, number> = {};
 
 		// 1. Reset the unit pool counts
-		for (const [, { id, draftTier }] of Object.values(this.mappedUnits)) {
+		for (const { id, draftTier } of Object.values(this.mappedUnits)) {
 			pool[id] = poolSize[draftTier] ?? 0;
 		}
 
 		// 2. For each player, remove units from the pool
 		for (const { units } of Object.values(state.lobby.players)) {
 			for (const { unitID, rank } of units ?? []) {
-				// if rank == 1: -1
-				// if rank == 2: -1 * 3
-				// if rank == 3: -1 * 3 * 3
+				// exclude underlords from the pool calculations
+				if (unitID < 1000) {
+					// if rank == 1: -1
+					// if rank == 2: -1 * 3
+					// if rank == 3: -1 * 3 * 3
 
-				pool[unitID] -= -1 * Math.pow(3, rank - 1);
+					pool[unitID] -= Math.pow(3, rank - 1);
+				}
 			}
 		}
 
