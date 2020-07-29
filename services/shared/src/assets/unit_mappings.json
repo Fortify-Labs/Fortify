@@ -5,23 +5,30 @@
 	},
 	"bat_rider": {
 		"displayName": "Batrider",
-		"alts": ["batrider", "bat", "bat rider"]
+		"alts": ["batrider", "bat", "bat rider", "jinzakk"]
 	},
 	"bloodseeker": {
 		"displayName": "Bloodseeker",
-		"alts": ["bloodseeker", "seeker", "bs", "blood seeker", "strygwyr"]
+		"alts": ["bloodseeker", "seeker", "bs", "blood seeker", "blood", "strygwyr"]
 	},
 	"crystal_maiden": {
 		"displayName": "Crystal Maiden",
-		"alts": ["crystal maiden", "maiden", "cm", "jaina", "rylai"]
+		"alts": [
+			"crystal maiden",
+			"maiden",
+			"cm",
+			"jaina",
+			"rylai",
+			"rylai crestfall"
+		]
 	},
 	"drow_ranger": {
 		"displayName": "Drow Ranger",
-		"alts": ["drow ranger", "drow", "sylvanas", "traxex"]
+		"alts": ["drow ranger", "drow", "sylvanas", "traxex", "trax"]
 	},
 	"magnus": {
 		"displayName": "Magnus",
-		"alts": ["magnus", "mag"]
+		"alts": ["magnus", "mag", "magnataur", "magnoceros"]
 	},
 	"nyx_assassin": {
 		"displayName": "Nyx Assassin",
@@ -29,19 +36,19 @@
 	},
 	"razor": {
 		"displayName": "Razor",
-		"alts": ["razor"]
+		"alts": ["razor", "lightning revenant"]
 	},
 	"shadow_demon": {
 		"displayName": "Shadow Demon",
-		"alts": ["shadow demon", "sd"]
+		"alts": ["shadow demon", "sd", "eredar"]
 	},
 	"snapfire": {
 		"displayName": "Snapfire",
-		"alts": ["snapfire", "snap", "grandma", "mortimer", "snap fire"]
+		"alts": ["snapfire", "snap", "grandma", "mortimer", "snap fire", "beatrix"]
 	},
 	"tiny": {
 		"displayName": "Tiny",
-		"alts": ["tiny", "little rock"]
+		"alts": ["tiny", "tony", "little rock", "stone giant"]
 	},
 	"tusk": {
 		"displayName": "Tusk",
@@ -49,11 +56,17 @@
 	},
 	"venomancer": {
 		"displayName": "Venomancer",
-		"alts": ["venomancer", "veno"]
+		"alts": [
+			"venomancer",
+			"veno",
+			"lesale",
+			"lesale deathbringer",
+			"bananamancer"
+		]
 	},
 	"warlock": {
 		"displayName": "Mr. Warlock",
-		"alts": ["mr. warlock"]
+		"alts": ["mr. warlock", "demnok", "demnok lamnik"]
 	},
 	"weaver": {
 		"displayName": "Weaver",
@@ -61,11 +74,11 @@
 	},
 	"beastmaster": {
 		"displayName": "Beastmaster",
-		"alts": ["beastmaster", "bm", "beast", "beast master", "rexxar"]
+		"alts": ["beastmaster", "bm", "beast", "beast master", "rexxar", "karroch"]
 	},
 	"bristleback": {
 		"displayName": "Bristleback",
-		"alts": ["bristleback", "bb", "bristle", "bristle back", "brus"]
+		"alts": ["bristleback", "bb", "bristle", "bristle back", "brus", "rigwarl"]
 	},
 	"chaos_knight": {
 		"displayName": "Chaos Knight",
@@ -73,11 +86,11 @@
 	},
 	"dazzle": {
 		"displayName": "Dazzle",
-		"alts": ["dazzle"]
+		"alts": ["dazzle", "shadow priest"]
 	},
 	"earth_spirit": {
 		"displayName": "Earth Spirit",
-		"alts": ["earth spirit", "stone guy", "earth"]
+		"alts": ["earth spirit", "stone guy", "earth", "kaolin"]
 	},
 	"legion_commander": {
 		"displayName": "Legion Commander",
@@ -85,15 +98,15 @@
 	},
 	"luna": {
 		"displayName": "Luna",
-		"alts": ["luna"]
+		"alts": ["luna", "luna moonfang", "moon rider"]
 	},
 	"furion": {
 		"displayName": "Nature's Prophet",
-		"alts": ["nature's prophet", "np"]
+		"alts": ["natures prophet", "np", "prophet"]
 	},
 	"ogre_magi": {
 		"displayName": "Ogre Magi",
-		"alts": ["ogre magi", "ogre", "2head", "aggron"]
+		"alts": ["ogre magi", "ogre", "2head", "aggron", "aggron stonebreak"]
 	},
 	"pudge": {
 		"displayName": "Pudge",
@@ -105,27 +118,41 @@
 	},
 	"slardar": {
 		"displayName": "Slardar",
-		"alts": ["slardar", "fish"]
+		"alts": ["slardar", "fish", "slithereen guard"]
 	},
 	"storm_spirit": {
 		"displayName": "Storm Spirit",
-		"alts": ["storm spirit", "storm", "zip zap", "raijin"]
+		"alts": ["storm spirit", "storm", "zip zap", "raijin", "raijin thunderkeg"]
 	},
 	"wind_ranger": {
 		"displayName": "Windranger",
-		"alts": ["windranger", "wind ranger", "wind", "windrunner", "alleria", "wr"]
+		"alts": [
+			"windranger",
+			"wind ranger",
+			"wind",
+			"windrunner",
+			"alleria",
+			"wr",
+			"lyralei"
+		]
 	},
 	"witch_doctor": {
 		"displayName": "Witch Doctor",
-		"alts": ["witch doctor", "wd", "doctor", "voljin"]
+		"alts": ["witch doctor", "wd", "doctor", "voljin", "zharvakko"]
 	},
 	"abaddon": {
 		"displayName": "Abaddon",
-		"alts": ["abaddon", "abba"]
+		"alts": ["abaddon", "abba", "lord of avernus"]
 	},
 	"broodmother": {
 		"displayName": "Broodmother",
-		"alts": ["broodmother", "brood", "brood mother"]
+		"alts": [
+			"broodmother",
+			"brood",
+			"brood mother",
+			"black arachnia",
+			"broodmama"
+		]
 	},
 	"ember_spirit": {
 		"displayName": "Ember Spirit",
@@ -137,7 +164,7 @@
 	},
 	"wisp": {
 		"displayName": "IO",
-		"alts": ["io"]
+		"alts": ["io", "guardian wisp"]
 	},
 	"juggernaut": {
 		"displayName": "Juggernaut",
@@ -145,11 +172,11 @@
 	},
 	"life_stealer": {
 		"displayName": "Lifestealer",
-		"alts": ["lifestealer", "naix"]
+		"alts": ["lifestealer", "naix", "wifestealer"]
 	},
 	"lycan": {
 		"displayName": "Lycan",
-		"alts": ["lycan", "wolf", "dog", "banehallow"]
+		"alts": ["lycan", "wolf", "dog", "banehallow", "lycanthrope"]
 	},
 	"morphling": {
 		"displayName": "Morphling",
@@ -157,7 +184,7 @@
 	},
 	"omniknight": {
 		"displayName": "Omniknight",
-		"alts": ["omniknight", "omni", "uther"]
+		"alts": ["omniknight", "omni", "uther", "purist", "purist thunderwrath"]
 	},
 	"shadow_fiend": {
 		"displayName": "Shadow Fiend",
@@ -169,7 +196,15 @@
 	},
 	"terrorblade": {
 		"displayName": "Terrorblade",
-		"alts": ["terrorblade", "tb", "terror blade"]
+		"alts": [
+			"terrorblade",
+			"tb",
+			"terror blade",
+			"soul keeper",
+			"demon marauder",
+			"illidan",
+			"illidan stormrage"
+		]
 	},
 	"treant_protector": {
 		"displayName": "Treant Protector",
@@ -177,11 +212,11 @@
 	},
 	"viper": {
 		"displayName": "Viper",
-		"alts": ["viper"]
+		"alts": ["viper", "netherdrake"]
 	},
 	"disruptor": {
 		"displayName": "Disruptor",
-		"alts": ["disruptor", "ruptor", "tractor", "thrall"]
+		"alts": ["disruptor", "ruptor", "tractor", "stormcrafter", "thrall"]
 	},
 	"doom": {
 		"displayName": "Doom",
@@ -193,23 +228,23 @@
 	},
 	"lone_druid": {
 		"displayName": "Lone Druid",
-		"alts": ["lone druid", "ld", "lone", "bear", "syllabear"]
+		"alts": ["lone druid", "ld", "lone", "bear", "syllabear", "sylla"]
 	},
 	"mirana": {
 		"displayName": "Mirana",
-		"alts": ["mirana", "priestess of the moon", "potm"]
+		"alts": ["mirana", "priestess of the moon", "potm", "princess of the moon"]
 	},
 	"necrophos": {
 		"displayName": "Necrophos",
-		"alts": ["necrophos", "necro", "rotundjere"]
+		"alts": ["necrophos", "necro", "rotundjere", "necrolyte"]
 	},
 	"slark": {
 		"displayName": "Slark",
-		"alts": ["slark", "small fish"]
+		"alts": ["slark", "small fish", "nightcrawler", "murloc nightcrawler"]
 	},
 	"sven": {
 		"displayName": "Sven",
-		"alts": ["sven"]
+		"alts": ["sven", "rogue knight"]
 	},
 	"templar_assassin": {
 		"displayName": "Templar Assassin",
@@ -217,15 +252,22 @@
 	},
 	"tidehunter": {
 		"displayName": "Tidehunter",
-		"alts": ["tidehunter", "tide hunter", "tide", "watermelon", "leviathan"]
+		"alts": [
+			"tidehunter",
+			"tide hunter",
+			"tide",
+			"TH",
+			"watermelon",
+			"leviathan"
+		]
 	},
 	"void_spirit": {
 		"displayName": "Void Spirit",
-		"alts": ["void spirit"]
+		"alts": ["void spirit", "inai"]
 	},
 	"axe": {
 		"displayName": "Axe",
-		"alts": ["axe", "mogul khan"]
+		"alts": ["axe", "mogul", "mogul khan"]
 	},
 	"dragon_knight": {
 		"displayName": "Dragon Knight",
@@ -233,15 +275,15 @@
 	},
 	"faceless_void": {
 		"displayName": "Faceless Void",
-		"alts": ["faceless void", "faceless", "fv"]
+		"alts": ["faceless void", "faceless", "fv", "dark terror", "darkterror"]
 	},
 	"lich": {
 		"displayName": "Lich",
-		"alts": ["lich", "kelthuzad"]
+		"alts": ["lich", "kelthuzad", "ethreain"]
 	},
 	"medusa": {
 		"displayName": "Medusa",
-		"alts": ["medusa", "dusa"]
+		"alts": ["medusa", "dusa", "gorgon"]
 	},
 	"sand_king": {
 		"displayName": "Sand King",
