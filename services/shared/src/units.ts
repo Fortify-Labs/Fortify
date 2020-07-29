@@ -7,4 +7,10 @@ export interface Unit {
 }
 
 export const S1Units: Record<string, Unit> = s1UnitsJson;
-export const unitMappings: Record<string, string[]> = aliases;
+
+export interface UnitMapping {
+	displayName: string;
+	alts: string[];
+}
+
+export const unitMappings: Record<string, UnitMapping> = aliases;

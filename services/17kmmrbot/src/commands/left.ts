@@ -46,7 +46,7 @@ export class LeftCommand implements TwitchCommand {
 		let codeName = "";
 
 		for (const [key, value] of Object.entries(unitMappings)) {
-			if (value.includes(unitName) || key === unitName) {
+			if (value.alts.includes(unitName) || key === unitName) {
 				codeName = key;
 			}
 		}
@@ -56,7 +56,7 @@ export class LeftCommand implements TwitchCommand {
 		if (!unit || unit.id >= 1000) {
 			return client.say(
 				channel,
-				`${user.name} no unit called "${unitName}" found`,
+				`${tags.username} no unit called "${unitName}" found`,
 			);
 		}
 
@@ -64,6 +64,9 @@ export class LeftCommand implements TwitchCommand {
 		const left = fps.lobby.pool[id];
 		const total = poolSize[draftTier] ?? 0;
 
-		return client.say(channel, `${unitName}: ${left}/${total} units left`);
+		return client.say(
+			channel,
+			`${unitMappings[codeName].displayName}: ${left}/${total} units left`,
+		);
 	}
 }
