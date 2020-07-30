@@ -4,8 +4,8 @@ config();
 import { sharedSetup } from "@shared/index";
 sharedSetup();
 
-import * as debug from "debug";
-import * as express from "express";
+import debug from "debug";
+import express from "express";
 import { json, urlencoded } from "body-parser";
 
 import { verifyGSIAuth } from "./auth";

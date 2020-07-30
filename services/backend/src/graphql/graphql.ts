@@ -13,7 +13,10 @@ export class GraphQL {
 				try {
 					let token = "";
 					if (req) {
-						token = req.headers.authorization.split("Bearer ")[1];
+						const _token = req.headers.authorization?.split(
+							"Bearer ",
+						)[1];
+						token = _token ?? "";
 					}
 
 					if (connection) {

@@ -1,14 +1,14 @@
 import { config } from "dotenv";
 config();
 
-import * as debug from "debug";
+import debug from "debug";
 
 import { sharedSetup } from "@shared/index";
 sharedSetup();
 
 import { container } from "./inversify.config";
 
-import * as yargs from "yargs";
+import yargs from "yargs";
 import { FortifyScript } from "./scripts";
 import { RedisConnector } from "@shared/connectors/redis";
 
