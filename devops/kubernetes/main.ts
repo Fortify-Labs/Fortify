@@ -326,6 +326,7 @@ export class Fortify extends Chart {
 				name: "backend",
 				containerPort: 8080,
 				port: 8080,
+				portName: "http-backend",
 			},
 			env: [
 				{ name: "MY_PORT", value: "8080" },
@@ -370,6 +371,7 @@ export class Fortify extends Chart {
 				name: "frontend",
 				containerPort: 3000,
 				port: 3000,
+				portName: "http-frontend",
 			},
 			gateways: ["fortify-gateway"],
 			hosts: [DOMAIN],
@@ -406,6 +408,7 @@ export class Fortify extends Chart {
 				name: "gsi-receiver",
 				containerPort: 8080,
 				port: 8080,
+				portName: "http-gsi-ingress",
 			},
 			gateways: ["fortify-gateway"],
 			hosts: [`gsi.${DOMAIN}`],

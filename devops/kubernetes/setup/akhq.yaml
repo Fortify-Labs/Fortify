@@ -10,7 +10,7 @@ secrets: |
     connections:
       kafka-cluster-kafka-bootstrap:
         properties:
-          bootstrap.servers: "fortify-kafka-bootstrap:9092"
+          bootstrap.servers: "fortify-kafka-bootstrap.kafka:9092"
 
 resources:
   limits:

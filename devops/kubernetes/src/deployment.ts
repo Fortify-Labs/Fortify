@@ -15,8 +15,10 @@ export interface FortifyDeploymentOptions {
 
 	readonly service?: {
 		name: string;
+
 		port: number;
 		containerPort: number;
+		portName: string;
 	};
 
 	readonly env?: EnvVar[] | undefined;
@@ -32,7 +34,10 @@ export class FortifyDeployment extends Construct {
 	) {
 		super(scope, ns);
 
-		const labels = { app: Node.of(this).uniqueId };
+		const labels = {
+			app: Node.of(this).uniqueId,
+			version: options.version ?? "invalidVersion",
+		};
 
 		const configmaps = options.configmaps ?? [];
 		const secrets = options.secrets ?? [];
@@ -61,6 +66,7 @@ export class FortifyDeployment extends Construct {
 					type: "ClusterIP",
 					ports: [
 						{
+							name: options.service.portName,
 							port: options.service.port,
 							targetPort: options.service.containerPort,
 						},
