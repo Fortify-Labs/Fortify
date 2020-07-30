@@ -879,7 +879,7 @@ export enum KafkaConnectSpecTracingType {
  */
 export interface KafkaConnectSpecTemplateDeployment {
   /**
-   * Metadata which should be applied to the resource.
+   * Metadata applied to the resource.
    *
    * @schema KafkaConnectSpecTemplateDeployment#metadata
    */
@@ -901,7 +901,7 @@ export interface KafkaConnectSpecTemplatePod {
   readonly metadata?: KafkaConnectSpecTemplatePodMetadata;
 
   /**
-   * List of references to secrets in the same namespace to use for pulling any of the images used by this Pod.
+   * List of references to secrets in the same namespace to use for pulling any of the images used by this Pod. When the `STRIMZI_IMAGE_PULL_SECRETS` environment variable in Cluster Operator and the `imagePullSecrets` option are specified, only the `imagePullSecrets` variable is used and the `STRIMZI_IMAGE_PULL_SECRETS` variable is ignored.
    *
    * @schema KafkaConnectSpecTemplatePod#imagePullSecrets
    */
@@ -915,7 +915,7 @@ export interface KafkaConnectSpecTemplatePod {
   readonly securityContext?: KafkaConnectSpecTemplatePodSecurityContext;
 
   /**
-   * The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process.Value must be non-negative integer. The value zero indicates delete immediately. Defaults to 30 seconds.
+   * The grace period is the duration in seconds after the processes running in the pod are sent a termination signal, and the time when the processes are forcibly halted with a kill signal. Set this value to longer than the expected cleanup time for your process. Value must be a non-negative integer. A zero value indicates delete immediately. You might need to increase the grace period for very large Kafka clusters, so that the Kafka brokers have enough time to transfer their work to another broker before they are terminated. Defaults to 30 seconds.
    *
    * @default 30 seconds.
    * @schema KafkaConnectSpecTemplatePod#terminationGracePeriodSeconds
@@ -930,7 +930,7 @@ export interface KafkaConnectSpecTemplatePod {
   readonly affinity?: KafkaConnectSpecTemplatePodAffinity;
 
   /**
-   * The name of the Priority Class to which these pods will be assigned.
+   * The name of the priority class used to assign priority to the pods. For more information about priority classes, see {K8sPriorityClass}.
    *
    * @schema KafkaConnectSpecTemplatePod#priorityClassName
    */
@@ -959,7 +959,7 @@ export interface KafkaConnectSpecTemplatePod {
  */
 export interface KafkaConnectSpecTemplateApiService {
   /**
-   * Metadata which should be applied to the resource.
+   * Metadata applied to the resource.
    *
    * @schema KafkaConnectSpecTemplateApiService#metadata
    */
@@ -1161,20 +1161,20 @@ export interface KafkaConnectSpecAffinityPodAntiAffinityRequiredDuringScheduling
 }
 
 /**
- * Metadata which should be applied to the resource.
+ * Metadata applied to the resource.
  *
  * @schema KafkaConnectSpecTemplateDeploymentMetadata
  */
 export interface KafkaConnectSpecTemplateDeploymentMetadata {
   /**
-   * Labels which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaConnectSpecTemplateDeploymentMetadata#labels
    */
   readonly labels?: any;
 
   /**
-   * Annotations which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaConnectSpecTemplateDeploymentMetadata#annotations
    */
@@ -1189,14 +1189,14 @@ export interface KafkaConnectSpecTemplateDeploymentMetadata {
  */
 export interface KafkaConnectSpecTemplatePodMetadata {
   /**
-   * Labels which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaConnectSpecTemplatePodMetadata#labels
    */
   readonly labels?: any;
 
   /**
-   * Annotations which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaConnectSpecTemplatePodMetadata#annotations
    */
@@ -1318,20 +1318,20 @@ export interface KafkaConnectSpecTemplatePodTolerations {
 }
 
 /**
- * Metadata which should be applied to the resource.
+ * Metadata applied to the resource.
  *
  * @schema KafkaConnectSpecTemplateApiServiceMetadata
  */
 export interface KafkaConnectSpecTemplateApiServiceMetadata {
   /**
-   * Labels which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaConnectSpecTemplateApiServiceMetadata#labels
    */
   readonly labels?: any;
 
   /**
-   * Annotations which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaConnectSpecTemplateApiServiceMetadata#annotations
    */
@@ -1424,14 +1424,14 @@ export interface KafkaConnectSpecTemplateConnectContainerSecurityContext {
  */
 export interface KafkaConnectSpecTemplatePodDisruptionBudgetMetadata {
   /**
-   * Labels which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaConnectSpecTemplatePodDisruptionBudgetMetadata#labels
    */
   readonly labels?: any;
 
   /**
-   * Annotations which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaConnectSpecTemplatePodDisruptionBudgetMetadata#annotations
    */

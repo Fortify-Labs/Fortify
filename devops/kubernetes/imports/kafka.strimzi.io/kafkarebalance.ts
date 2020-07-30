@@ -50,12 +50,50 @@ export interface KafkaRebalanceSpec {
   readonly goals?: string[];
 
   /**
-   * Whether to allow the hard goals specified in the Kafka CR to be skipped in rebalance proposal generation. This can be useful when some of those hard goals are preventing a balance solution being found. Default is false.
+   * Whether to allow the hard goals specified in the Kafka CR to be skipped in optimization proposal generation. This can be useful when some of those hard goals are preventing a balance solution being found. Default is false.
    *
    * @default false.
    * @schema KafkaRebalanceSpec#skipHardGoalCheck
    */
   readonly skipHardGoalCheck?: boolean;
+
+  /**
+   * A regular expression where any matching topics will be excluded from the calculation of optimization proposals. This expression will be parsed by the java.util.regex.Pattern class; for more information on the supported formar consult the documentation for that class.
+   *
+   * @schema KafkaRebalanceSpec#excludedTopics
+   */
+  readonly excludedTopics?: string;
+
+  /**
+   * The upper bound of ongoing partition replica movements going into/out of each broker. Default is 5.
+   *
+   * @default 5.
+   * @schema KafkaRebalanceSpec#concurrentPartitionMovementsPerBroker
+   */
+  readonly concurrentPartitionMovementsPerBroker?: number;
+
+  /**
+   * The upper bound of ongoing partition replica movements between disks within each broker. Default is 2.
+   *
+   * @default 2.
+   * @schema KafkaRebalanceSpec#concurrentIntraBrokerPartitionMovements
+   */
+  readonly concurrentIntraBrokerPartitionMovements?: number;
+
+  /**
+   * The upper bound of ongoing partition leadership movements. Default is 1000.
+   *
+   * @default 1000.
+   * @schema KafkaRebalanceSpec#concurrentLeaderMovements
+   */
+  readonly concurrentLeaderMovements?: number;
+
+  /**
+   * The upper bound, in bytes per second, on the bandwidth used to move replicas. There is no limit by default.
+   *
+   * @schema KafkaRebalanceSpec#replicationThrottle
+   */
+  readonly replicationThrottle?: number;
 
 }
 

@@ -187,6 +187,11 @@ export interface ServiceEntrySpecPorts {
    */
   readonly protocol?: string;
 
+  /**
+   * @schema ServiceEntrySpecPorts#targetPort
+   */
+  readonly targetPort?: number;
+
 }
 
 /**

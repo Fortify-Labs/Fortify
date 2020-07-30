@@ -1,29 +1,52 @@
-import { createClient, RedisClient } from "redis";
-import { promisify } from "util";
+import Redis from "ioredis";
 
-const { REDIS_URL } = process.env;
+const {
+	// Single node configs
+	REDIS_URL,
+	// Sentinel configs
 
-// TODO: write redis connector
+	// REDIS_SENTINEL format will be: "host1:port1;host2:port2;host3:port3"
+	REDIS_SENTINEL,
+	REDIS_SENTINEL_NAME = "mymaster",
+} = process.env;
+
 export class RedisConnector {
-	client: RedisClient;
+	client: Redis.Redis;
 
 	constructor() {
-		this.client = createClient({ url: REDIS_URL });
+		if (REDIS_SENTINEL) {
+			// The filter is used to remove empty string
+			const hosts = REDIS_SENTINEL.split(";").filter((entry) => entry);
+
+			this.client = new Redis({
+				sentinels: hosts
+					.map((host) => host.split(":"))
+					.map((host) => {
+						return {
+							host: host[0],
+							port: parseInt(host[1]),
+						};
+					}),
+				name: REDIS_SENTINEL_NAME,
+			});
+		} else {
+			this.client = new Redis(REDIS_URL);
+		}
 	}
 
 	async getAsync(key: string): Promise<string | null> {
-		return promisify(this.client.get).bind(this.client)(key);
+		return this.client.get(key);
 	}
 
 	async setAsync(key: string, value: string) {
-		return promisify(this.client.set).bind(this.client)(key, value);
+		return this.client.set(key, value);
 	}
 
 	async publishAsync(key: string, value: string) {
-		return promisify(this.client.publish).bind(this.client)(key, value);
+		return this.client.publish(key, value);
 	}
 
 	async expireAsync(key: string, time: number) {
-		return promisify(this.client.expire).bind(this.client)(key, time);
+		return this.client.expire(key, time);
 	}
 }
