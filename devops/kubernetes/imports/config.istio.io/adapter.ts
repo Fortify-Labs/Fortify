@@ -27,5 +27,10 @@ export class adapter extends ApiObject {
  * @schema adapter
  */
 export interface adapterOptions {
+  /**
+   * @schema adapter#spec
+   */
+  readonly spec?: any;
+
 }
 

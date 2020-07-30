@@ -79,7 +79,7 @@ export class FortifyCronJob extends Construct {
 										],
 									},
 								],
-								restartPolicy: "OnFailure",
+								restartPolicy: "Never",
 							},
 						},
 					},

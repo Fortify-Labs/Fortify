@@ -63,6 +63,13 @@ export interface KafkaUserSpec {
    */
   readonly quotas?: KafkaUserSpecQuotas;
 
+  /**
+   * Template to specify how Kafka User `Secrets` are generated.
+   *
+   * @schema KafkaUserSpec#template
+   */
+  readonly template?: KafkaUserSpecTemplate;
+
 }
 
 /**
@@ -132,6 +139,21 @@ export interface KafkaUserSpecQuotas {
 }
 
 /**
+ * Template to specify how Kafka User `Secrets` are generated.
+ *
+ * @schema KafkaUserSpecTemplate
+ */
+export interface KafkaUserSpecTemplate {
+  /**
+   * Template for KafkaUser resources. The template allows users to specify how the `Secret` with password or TLS certificates is generated.
+   *
+   * @schema KafkaUserSpecTemplate#secret
+   */
+  readonly secret?: KafkaUserSpecTemplateSecret;
+
+}
+
+/**
  * Authentication type.
  *
  * @schema KafkaUserSpecAuthenticationType
@@ -185,6 +207,21 @@ export interface KafkaUserSpecAuthorizationAcls {
 export enum KafkaUserSpecAuthorizationType {
   /** simple */
   SIMPLE = "simple",
+}
+
+/**
+ * Template for KafkaUser resources. The template allows users to specify how the `Secret` with password or TLS certificates is generated.
+ *
+ * @schema KafkaUserSpecTemplateSecret
+ */
+export interface KafkaUserSpecTemplateSecret {
+  /**
+   * Metadata applied to the resource.
+   *
+   * @schema KafkaUserSpecTemplateSecret#metadata
+   */
+  readonly metadata?: KafkaUserSpecTemplateSecretMetadata;
+
 }
 
 /**
@@ -256,6 +293,28 @@ export enum KafkaUserSpecAuthorizationAclsType {
   ALLOW = "allow",
   /** deny */
   DENY = "deny",
+}
+
+/**
+ * Metadata applied to the resource.
+ *
+ * @schema KafkaUserSpecTemplateSecretMetadata
+ */
+export interface KafkaUserSpecTemplateSecretMetadata {
+  /**
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   *
+   * @schema KafkaUserSpecTemplateSecretMetadata#labels
+   */
+  readonly labels?: any;
+
+  /**
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   *
+   * @schema KafkaUserSpecTemplateSecretMetadata#annotations
+   */
+  readonly annotations?: any;
+
 }
 
 /**

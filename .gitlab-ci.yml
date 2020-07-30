@@ -16,6 +16,8 @@ build:
     - sh ./scripts/build.sh
   only:
     - master
+    - staging
+    - /^hotfix-.*$/
 
 deploy:
   stage: deploy
@@ -27,12 +29,13 @@ deploy:
     - chmod +x ./kubectl && mv ./kubectl /usr/local/bin/kubectl
     - mkdir -p $HOME/.kube
     - echo -n $KUBE_CONFIG | base64 -d > $HOME/.kube/config
+    - kubectl config use-context fortify
     # Setup node
     - apk add --update nodejs nodejs-npm
   script:
+    - export DOMAIN=fortify.gg
     - cd devops/kubernetes
     - echo -n $K8S_DOTENV | base64 -d > .env
-    # This step might even be commented out at a later point, not quite sure if it's needed
     - npm ci
     - npm run record
     - npm run build

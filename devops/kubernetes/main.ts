@@ -13,7 +13,6 @@ import {
 import { FortifyDeployment } from "./src/deployment";
 import { WebService } from "./src/webservice";
 import { Certificate } from "./imports/cert-manager.io/certificate";
-// import { ClusterIssuer } from "./imports/cert-manager.io/clusterissuer";
 import { Secret, ObjectMeta, Namespace, ConfigMap } from "./imports/k8s";
 import {
 	Kafka,
@@ -23,7 +22,6 @@ import {
 	KafkaOptions,
 } from "./imports/kafka.strimzi.io/kafka";
 import { Postgres } from "./imports/kubedb.com/postgres";
-import { Redis } from "./imports/kubedb.com/redis";
 import { RedisCommander } from "./src/redis-commander";
 
 import backendPackage from "../../services/backend/package.json";
@@ -37,6 +35,7 @@ import {
 	KafkaTopicOptions,
 } from "./imports/kafka.strimzi.io/kafkatopic";
 import { FortifyCronJob } from "./src/cronjob";
+import { RedisFailover } from "./imports/databases.spotahome.com/redisfailover";
 
 export interface CustomGatewayOptions extends GatewayOptions {
 	metadata?: ObjectMeta;
@@ -50,13 +49,13 @@ export interface CustomKafkaTopicOptions extends KafkaTopicOptions {
 	metadata?: ObjectMeta;
 }
 
-const { JWT_SECRET, OAUTH_TOKEN } = process.env;
+const { JWT_SECRET, OAUTH_TOKEN, DOMAIN = "fortify.gg" } = process.env;
 
 export class ClusterSetup extends Chart {
 	constructor(scope: Construct, name: string) {
 		super(scope, name, { namespace: "fortify" });
 
-		new Namespace(this, "namespace", {
+		new Namespace(this, "fortify-namespace", {
 			metadata: {
 				name: "fortify",
 				namespace: undefined,
@@ -69,11 +68,12 @@ export class ClusterSetup extends Chart {
 		new Kafka(this, "kafka", {
 			metadata: {
 				name: "fortify",
+				namespace: "kafka",
 			},
 			spec: {
 				kafka: {
 					version: "2.5.0",
-					replicas: 1,
+					replicas: 3,
 					listeners: {
 						plain: {},
 						tls: {},
@@ -91,18 +91,27 @@ export class ClusterSetup extends Chart {
 								id: 0,
 								type:
 									KafkaSpecKafkaStorageVolumesType.PERSISTENT_CLAIM,
-								size: "20Gi",
+								size: "100Gi",
 								deleteClaim: false,
 							},
 						],
 					},
 				},
 				zookeeper: {
-					replicas: 1,
+					replicas: 3,
 					storage: {
 						type: KafkaSpecZookeeperStorageType.PERSISTENT_CLAIM,
-						size: "10Gi",
+						size: "100Gi",
 						deleteClaim: false,
+					},
+					template: {
+						pod: {
+							metadata: {
+								annotations: {
+									"sidecar.istio.io/inject": false,
+								},
+							},
+						},
 					},
 				},
 				entityOperator: {
@@ -114,6 +123,7 @@ export class ClusterSetup extends Chart {
 		new KafkaTopic(this, "gsi-topic", {
 			metadata: {
 				name: "gsi",
+				namespace: "kafka",
 				labels: {
 					"strimzi.io/cluster": "fortify",
 				},
@@ -122,52 +132,89 @@ export class ClusterSetup extends Chart {
 				partitions: 1,
 				replicas: 1,
 				config: {
-					"retention.ms": 3 * 86400000, // 3 * 1 day,
+					"retention.ms": 7 * 86400000, // 7 * 1 day,
 					"segment.ms": 86400000, // 1 day
 					"segment.bytes": 1073741824, // 1 GB
 				},
 			},
 		} as CustomKafkaTopicOptions);
 
+		new Namespace(this, "postgres-namespace", {
+			metadata: {
+				name: "postgres",
+				namespace: undefined,
+				labels: {
+					"istio-injection": "enabled",
+				},
+			},
+		});
+
 		new Postgres(this, "postgres", {
 			metadata: {
 				name: "postgres",
+				namespace: "postgres",
 			},
 			spec: {
 				version: "11.2",
+				replicas: 3,
 				storageType: "Durable",
 				storage: {
 					storageClassName: "longhorn",
 					accessModes: ["ReadWriteOnce"],
 					resources: {
 						requests: {
-							storage: "1Gi",
+							storage: "10Gi",
 						},
 					},
 				},
 			},
 		});
 
-		new Redis(this, "redis", {
+		new Namespace(this, "redis-namespace", {
 			metadata: {
 				name: "redis",
+				namespace: undefined,
+				labels: {
+					"istio-injection": "enabled",
+				},
+			},
+		});
+
+		new RedisFailover(this, "redis", {
+			metadata: {
+				name: "redis",
+				namespace: "redis",
 			},
 			spec: {
-				version: "5.0.3-v1",
-				storageType: "Durable",
-				storage: {
-					storageClassName: "longhorn",
-					accessModes: ["ReadWriteOnce"],
-					resources: {
-						requests: {
-							storage: "1Gi",
+				sentinel: {
+					replicas: 3,
+				},
+				redis: {
+					replicas: 3,
+					storage: {
+						keepAfterDeletion: true,
+						persistentVolumeClaim: {
+							metadata: {
+								name: "redisfailover-persistent-keep-data",
+							},
+							spec: {
+								accessModes: ["ReadWriteOnce"],
+								resources: {
+									requests: {
+										storage: "10Gi",
+									},
+								},
+							},
 						},
 					},
 				},
 			},
 		});
 
-		new RedisCommander(this, "redis-commander");
+		new RedisCommander(this, "redis-commander", {
+			SENTINEL_HOST: "rfs-redis.redis",
+			SENTINEL_PORT: "26379",
+		});
 	}
 }
 
@@ -202,7 +249,7 @@ export class Fortify extends Chart {
 				name: "kafka-config",
 			},
 			data: {
-				KAFKA_BROKERS: '["fortify-kafka-bootstrap:9092"]',
+				KAFKA_BROKERS: '["fortify-kafka-bootstrap.kafka:9092"]',
 			},
 		});
 
@@ -211,7 +258,7 @@ export class Fortify extends Chart {
 				name: "postgres-config",
 			},
 			data: {
-				POSTGRES_HOST: "postgres",
+				POSTGRES_HOST: "postgres.postgres",
 				POSTGRES_PORT: "5432",
 				POSTGRES_DATABASE: "postgres",
 			},
@@ -222,7 +269,9 @@ export class Fortify extends Chart {
 				name: "redis-config",
 			},
 			data: {
-				REDIS_URL: "redis://redis:6379",
+				// REDIS_URL: "redis://redis.redis:6379",
+				REDIS_SENTINEL: "rfs-redis.redis:26379",
+				REDIS_SENTINEL_NAME: "mymaster",
 			},
 		});
 
@@ -234,8 +283,8 @@ export class Fortify extends Chart {
 			},
 			spec: {
 				secretName: "fortify-ssl-cert",
-				commonName: "fortify.gg",
-				dnsNames: ["fortify.gg", "api.fortify.gg", "gsi.fortify.gg"],
+				commonName: DOMAIN,
+				dnsNames: [DOMAIN, `api.${DOMAIN}`, `gsi.${DOMAIN}`],
 				issuerRef: {
 					name: "cf-letsencrypt-staging",
 					kind: "ClusterIssuer",
@@ -263,11 +312,7 @@ export class Fortify extends Chart {
 							mode: GatewaySpecServersTlsMode.SIMPLE,
 							credentialName: "fortify-ssl-cert",
 						},
-						hosts: [
-							"fortify.gg",
-							"api.fortify.gg",
-							"gsi.fortify.gg",
-						],
+						hosts: [DOMAIN, `api.${DOMAIN}`, `gsi.${DOMAIN}`],
 					},
 				],
 			},
@@ -291,7 +336,7 @@ export class Fortify extends Chart {
 			secrets: ["postgres-auth", "jwt-secret"],
 			configmaps: ["postgres-config", "kafka-config"],
 			gateways: ["fortify-gateway"],
-			hosts: ["api.fortify.gg"],
+			hosts: [`api.${DOMAIN}`],
 			http: [
 				{
 					route: [
@@ -327,7 +372,7 @@ export class Fortify extends Chart {
 				port: 3000,
 			},
 			gateways: ["fortify-gateway"],
-			hosts: ["fortify.gg"],
+			hosts: [DOMAIN],
 			http: [
 				{
 					route: [
@@ -363,7 +408,7 @@ export class Fortify extends Chart {
 				port: 8080,
 			},
 			gateways: ["fortify-gateway"],
-			hosts: ["gsi.fortify.gg"],
+			hosts: [`gsi.${DOMAIN}`],
 			http: [
 				{
 					route: [
