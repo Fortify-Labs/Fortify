@@ -13,7 +13,6 @@ import {
 import { FortifyDeployment } from "./src/deployment";
 import { WebService } from "./src/webservice";
 import { Certificate } from "./imports/cert-manager.io/certificate";
-// import { ClusterIssuer } from "./imports/cert-manager.io/clusterissuer";
 import { Secret, ObjectMeta, Namespace, ConfigMap } from "./imports/k8s";
 import {
 	Kafka,
@@ -23,7 +22,6 @@ import {
 	KafkaOptions,
 } from "./imports/kafka.strimzi.io/kafka";
 import { Postgres } from "./imports/kubedb.com/postgres";
-import { Redis } from "./imports/kubedb.com/redis";
 import { RedisCommander } from "./src/redis-commander";
 
 import backendPackage from "../../services/backend/package.json";
@@ -37,6 +35,7 @@ import {
 	KafkaTopicOptions,
 } from "./imports/kafka.strimzi.io/kafkatopic";
 import { FortifyCronJob } from "./src/cronjob";
+import { RedisFailover } from "./imports/databases.spotahome.com/redisfailover";
 
 export interface CustomGatewayOptions extends GatewayOptions {
 	metadata?: ObjectMeta;
@@ -181,20 +180,31 @@ export class ClusterSetup extends Chart {
 			},
 		});
 
-		new Redis(this, "redis", {
+		new RedisFailover(this, "redis", {
 			metadata: {
 				name: "redis",
 				namespace: "redis",
 			},
 			spec: {
-				version: "5.0.3-v1",
-				storageType: "Durable",
-				storage: {
-					storageClassName: "longhorn",
-					accessModes: ["ReadWriteOnce"],
-					resources: {
-						requests: {
-							storage: "1Gi",
+				sentinel: {
+					replicas: 3,
+				},
+				redis: {
+					replicas: 3,
+					storage: {
+						keepAfterDeletion: true,
+						persistentVolumeClaim: {
+							metadata: {
+								name: "redisfailover-persistent-keep-data",
+							},
+							spec: {
+								accessModes: ["ReadWriteOnce"],
+								resources: {
+									requests: {
+										storage: "10Gi",
+									},
+								},
+							},
 						},
 					},
 				},
@@ -202,7 +212,8 @@ export class ClusterSetup extends Chart {
 		});
 
 		new RedisCommander(this, "redis-commander", {
-			REDIS_HOST: "redis.redis",
+			SENTINEL_HOST: "rfs-redis.redis",
+			SENTINEL_PORT: "26379",
 		});
 	}
 }
@@ -258,7 +269,9 @@ export class Fortify extends Chart {
 				name: "redis-config",
 			},
 			data: {
-				REDIS_URL: "redis://redis.redis:6379",
+				// REDIS_URL: "redis://redis.redis:6379",
+				REDIS_SENTINEL: "rfs-redis.redis:26379",
+				REDIS_SENTINEL_NAME: "mymaster",
 			},
 		});
 

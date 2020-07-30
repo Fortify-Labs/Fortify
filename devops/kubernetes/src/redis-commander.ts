@@ -4,6 +4,9 @@ import { ConfigMap, Service, Deployment } from "../imports/k8s";
 export interface RedisCommanderConfig {
 	REDIS_HOST?: string;
 	REDIS_PORT?: string;
+
+	SENTINEL_HOST?: string;
+	SENTINEL_PORT?: string;
 }
 
 export class RedisCommander extends Construct {
@@ -12,15 +15,18 @@ export class RedisCommander extends Construct {
 
 		const labels = { app: "redis-commander" };
 
-		const { REDIS_HOST = "redis", REDIS_PORT = "6379" } = config ?? {};
+		const { REDIS_HOST, REDIS_PORT, SENTINEL_HOST, SENTINEL_PORT } =
+			config ?? {};
 
 		new ConfigMap(this, "config", {
 			metadata: {
 				name: "redis-commander-config",
 			},
 			data: {
-				REDIS_HOST,
-				REDIS_PORT,
+				...(REDIS_HOST ? { REDIS_HOST } : {}),
+				...(REDIS_PORT ? { REDIS_PORT } : {}),
+				...(SENTINEL_HOST ? { SENTINEL_HOST } : {}),
+				...(SENTINEL_PORT ? { SENTINEL_PORT } : {}),
 				K8S_SIGTERM: "1",
 			},
 		});

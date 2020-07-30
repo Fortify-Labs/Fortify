@@ -10,7 +10,6 @@ const {
 	REDIS_SENTINEL_NAME = "mymaster",
 } = process.env;
 
-// TODO: write redis connector
 export class RedisConnector {
 	client: Redis.Redis;
 
@@ -30,9 +29,9 @@ export class RedisConnector {
 					}),
 				name: REDIS_SENTINEL_NAME,
 			});
+		} else {
+			this.client = new Redis(REDIS_URL);
 		}
-
-		this.client = new Redis(REDIS_URL);
 	}
 
 	async getAsync(key: string): Promise<string | null> {
