@@ -948,7 +948,7 @@ export class Fortify extends Chart {
 			name: "import-standard",
 			version: jobsPackage.version,
 
-			schedule: "15 * * * *",
+			schedule: "14 * * * *",
 			script: "import",
 
 			env: [
@@ -967,7 +967,7 @@ export class Fortify extends Chart {
 			name: "import-turbo",
 			version: jobsPackage.version,
 
-			schedule: "15 * * * *",
+			schedule: "14 * * * *",
 			script: "import",
 
 			env: [
@@ -986,7 +986,7 @@ export class Fortify extends Chart {
 			name: "import-duos",
 			version: jobsPackage.version,
 
-			schedule: "15 * * * *",
+			schedule: "14 * * * *",
 			script: "import",
 
 			env: [
