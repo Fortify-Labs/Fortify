@@ -22,6 +22,8 @@ import {
 	ClusterRole,
 	ClusterRoleBinding,
 	DaemonSet,
+	StatefulSet,
+	Service,
 } from "./imports/k8s";
 import {
 	Kafka,
@@ -39,6 +41,7 @@ import fsmPackage from "../../services/fsm/package.json";
 import gsiReceiverPackage from "../../services/gsi-receiver/package.json";
 import twitchBotPackage from "../../services/17kmmrbot/package.json";
 import jobsPackage from "../../services/jobs/package.json";
+import historizationPackage from "../../services/historization/package.json";
 import {
 	KafkaTopic,
 	KafkaTopicOptions,
@@ -61,7 +64,14 @@ export interface CustomKafkaTopicOptions extends KafkaTopicOptions {
 	metadata?: ObjectMeta;
 }
 
-const { JWT_SECRET, OAUTH_TOKEN, DOMAIN = "fortify.gg" } = process.env;
+const {
+	JWT_SECRET,
+	OAUTH_TOKEN,
+	DOMAIN = "fortify.gg",
+	POSTGRES_PASSWORD = "",
+	INFLUXDB_TOKEN = "",
+	STEAM_WEB_API_KEY = "",
+} = process.env;
 
 export class ClusterSetup extends Chart {
 	constructor(scope: Construct, name: string) {
@@ -165,6 +175,17 @@ export class ClusterSetup extends Chart {
 			},
 		});
 
+		new Secret(this, "postgres-auth", {
+			metadata: {
+				name: "postgres-auth",
+				namespace: "postgres",
+			},
+			stringData: {
+				POSTGRES_USER: "postgres",
+				POSTGRES_PASSWORD,
+			},
+		});
+
 		new Postgres(this, "postgres", {
 			metadata: {
 				name: "postgres",
@@ -182,6 +203,9 @@ export class ClusterSetup extends Chart {
 							storage: "10Gi",
 						},
 					},
+				},
+				databaseSecret: {
+					secretName: "postgres-auth",
 				},
 			},
 		});
@@ -523,6 +547,95 @@ export class ClusterSetup extends Chart {
 				},
 			},
 		});
+
+		// --- InfluxDB setup ---
+
+		new Namespace(this, "influxdb-namespace", {
+			metadata: {
+				name: "influxdb",
+				labels: {
+					"istio-injection": "enabled",
+				},
+			},
+		});
+
+		const influxdbSSLabels = {
+			app: "influxdb",
+		};
+
+		new StatefulSet(this, "influxdb-statefulset", {
+			metadata: {
+				name: "influxdb",
+				namespace: "influxdb",
+				labels: influxdbSSLabels,
+			},
+			spec: {
+				replicas: 1,
+				selector: {
+					matchLabels: influxdbSSLabels,
+				},
+				serviceName: "influxdb",
+				template: {
+					metadata: {
+						labels: influxdbSSLabels,
+					},
+					spec: {
+						containers: [
+							{
+								image: "quay.io/influxdb/influxdb:2.0.0-beta",
+								name: "influxdb",
+								ports: [
+									{
+										containerPort: 9999,
+										name: "influxdb",
+									},
+								],
+								volumeMounts: [
+									{
+										mountPath: "/root/.influxdbv2",
+										name: "influxdb-data",
+									},
+								],
+							},
+						],
+					},
+				},
+				volumeClaimTemplates: [
+					{
+						metadata: {
+							name: "influxdb-data",
+							namespace: "influxdb",
+						},
+						spec: {
+							accessModes: ["ReadWriteOnce"],
+							resources: {
+								requests: {
+									storage: "100Gi",
+								},
+							},
+						},
+					} as any,
+				],
+			},
+		});
+
+		new Service(this, "influxdb-service", {
+			metadata: {
+				name: "influxdb",
+				namespace: "influxdb",
+			},
+			spec: {
+				ports: [
+					{
+						name: "http-influxdb",
+						port: 9999,
+						targetPort: 9999,
+					},
+				],
+				selector: influxdbSSLabels,
+				type: "ClusterIP",
+			},
+		});
 	}
 }
 
@@ -572,6 +685,16 @@ export class Fortify extends Chart {
 			},
 		});
 
+		new Secret(this, "postgres-auth", {
+			metadata: {
+				name: "postgres-auth",
+			},
+			stringData: {
+				POSTGRES_USER: "postgres",
+				POSTGRES_PASSWORD,
+			},
+		});
+
 		new ConfigMap(this, "redis-config", {
 			metadata: {
 				name: "redis-config",
@@ -580,6 +703,35 @@ export class Fortify extends Chart {
 				// REDIS_URL: "redis://redis.redis:6379",
 				REDIS_SENTINEL: "rfs-redis.redis:26379",
 				REDIS_SENTINEL_NAME: "mymaster",
+			},
+		});
+
+		new ConfigMap(this, "influxdb-config", {
+			metadata: {
+				name: "influxdb-config",
+			},
+			data: {
+				INFLUXDB_ORG: "Fortify",
+				INFLUXDB_BUCKET: "mmr",
+				INFLUXDB_URL: "http://influxdb.influxdb:9999",
+			},
+		});
+
+		new Secret(this, "influxdb-secret", {
+			metadata: {
+				name: "influxdb-token",
+			},
+			stringData: {
+				INFLUXDB_TOKEN,
+			},
+		});
+
+		new Secret(this, "steam-web-api-secret", {
+			metadata: {
+				name: "steam-web-api-secret",
+			},
+			stringData: {
+				STEAM_WEB_API_KEY,
 			},
 		});
 
@@ -765,12 +917,38 @@ export class Fortify extends Chart {
 			configmaps: ["redis-config", "kafka-config"],
 		});
 
+		new FortifyDeployment(this, "historization", {
+			name: "historization",
+			version: historizationPackage.version,
+			env: [
+				{
+					name: "SERVICE_NAME",
+					value: "historization",
+				},
+				{
+					name: "KAFKA_CLIENT_ID",
+					valueFrom: { fieldRef: { fieldPath: "metadata.name" } },
+				},
+			],
+			configmaps: [
+				"redis-config",
+				"kafka-config",
+				"influxdb-config",
+				"postgres-config",
+			],
+			secrets: [
+				"influxdb-secret",
+				"postgres-auth",
+				"steam-web-api-secret",
+			],
+		});
+
 		// CronJobs
 		new FortifyCronJob(this, "import-standard", {
 			name: "import-standard",
 			version: jobsPackage.version,
 
-			schedule: "15 * * * *",
+			schedule: "14 * * * *",
 			script: "import",
 
 			env: [
@@ -789,7 +967,7 @@ export class Fortify extends Chart {
 			name: "import-turbo",
 			version: jobsPackage.version,
 
-			schedule: "15 * * * *",
+			schedule: "14 * * * *",
 			script: "import",
 
 			env: [
@@ -808,7 +986,7 @@ export class Fortify extends Chart {
 			name: "import-duos",
 			version: jobsPackage.version,
 
-			schedule: "15 * * * *",
+			schedule: "14 * * * *",
 			script: "import",
 
 			env: [

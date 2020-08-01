@@ -43,6 +43,14 @@ services:
       - kafka-data:/kafka
     restart: unless-stopped
 
+  influxdb:
+    image: quay.io/influxdb/influxdb:2.0.0-beta
+    ports:
+      - 9999:9999
+    volumes:
+      - influx-data:/root/.influxdbv2
+    restart: unless-stopped
+
   akhq:
     image: tchiotludo/akhq:latest
     environment:
@@ -70,3 +78,4 @@ volumes:
   kafka-data:
   zookeeper-data:
   postgres-data:
+  influx-data:

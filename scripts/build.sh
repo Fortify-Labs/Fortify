@@ -10,6 +10,7 @@ export FSM_VERSION=`cd services/fsm && node -p "require('./package.json').versio
 export GSI_RECEIVER_VERSION=`cd services/gsi-receiver && node -p "require('./package.json').version"`
 export TWITCHBOT_VERSION=`cd services/17kmmrbot && node -p "require('./package.json').version"`
 export JOBS_VERSION=`cd services/jobs && node -p "require('./package.json').version"`
+export HISTORIZATION_VERSION=`cd services/historization && node -p "require('./package.json').version"`
 
 # Build the base image
 export DC_PULL_BASE=$(docker-compose -f build.docker-compose.yml pull --ignore-pull-failures base 2>&1)

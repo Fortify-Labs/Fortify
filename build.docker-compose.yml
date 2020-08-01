@@ -63,3 +63,12 @@ services:
 
       args:
         SERVICE_NAME: jobs
+
+  historization:
+    image: registry.gitlab.com/thomask33/fortify/historization:${HISTORIZATION_VERSION:-invalidVersion}
+    build:
+      context: ./
+      dockerfile: ./devops/docker/Node.Dockerfile
+
+      args:
+        SERVICE_NAME: historization
