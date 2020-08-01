@@ -1,0 +1,26 @@
+{
+  "extends": "./node_modules/gts/tsconfig-google.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "build",
+    "baseUrl": ".",
+    "target": "ES2020",
+    "lib": ["ES2020.Promise"],
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "paths": {
+      "@shared/*": ["../shared/build/src/*"]
+    },
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true
+  },
+  "include": [
+    "src/**/*.ts",
+    "test/**/*.ts"
+  ],
+  "references": [{
+    "path": "../shared"
+  }]
+}

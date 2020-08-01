@@ -13,7 +13,18 @@ import {
 import { FortifyDeployment } from "./src/deployment";
 import { WebService } from "./src/webservice";
 import { Certificate } from "./imports/cert-manager.io/certificate";
-import { Secret, ObjectMeta, Namespace, ConfigMap } from "./imports/k8s";
+import {
+	Secret,
+	ObjectMeta,
+	Namespace,
+	ConfigMap,
+	ServiceAccount,
+	ClusterRole,
+	ClusterRoleBinding,
+	DaemonSet,
+	StatefulSet,
+	Service,
+} from "./imports/k8s";
 import {
 	Kafka,
 	KafkaSpecKafkaStorageType,
@@ -30,12 +41,16 @@ import fsmPackage from "../../services/fsm/package.json";
 import gsiReceiverPackage from "../../services/gsi-receiver/package.json";
 import twitchBotPackage from "../../services/17kmmrbot/package.json";
 import jobsPackage from "../../services/jobs/package.json";
+import historizationPackage from "../../services/historization/package.json";
 import {
 	KafkaTopic,
 	KafkaTopicOptions,
 } from "./imports/kafka.strimzi.io/kafkatopic";
 import { FortifyCronJob } from "./src/cronjob";
 import { RedisFailover } from "./imports/databases.spotahome.com/redisfailover";
+import { Elasticsearch } from "./imports/elasticsearch.k8s.elastic.co/elasticsearch";
+import { Kibana } from "./imports/kibana.k8s.elastic.co/kibana";
+import { kubernetesConf } from "./src/fluentd/config";
 
 export interface CustomGatewayOptions extends GatewayOptions {
 	metadata?: ObjectMeta;
@@ -49,7 +64,14 @@ export interface CustomKafkaTopicOptions extends KafkaTopicOptions {
 	metadata?: ObjectMeta;
 }
 
-const { JWT_SECRET, OAUTH_TOKEN, DOMAIN = "fortify.gg" } = process.env;
+const {
+	JWT_SECRET,
+	OAUTH_TOKEN,
+	DOMAIN = "fortify.gg",
+	POSTGRES_PASSWORD = "",
+	INFLUXDB_TOKEN = "",
+	STEAM_WEB_API_KEY = "",
+} = process.env;
 
 export class ClusterSetup extends Chart {
 	constructor(scope: Construct, name: string) {
@@ -64,6 +86,8 @@ export class ClusterSetup extends Chart {
 				},
 			},
 		});
+
+		// --- Kafka setup ---
 
 		new Kafka(this, "kafka", {
 			metadata: {
@@ -139,6 +163,8 @@ export class ClusterSetup extends Chart {
 			},
 		} as CustomKafkaTopicOptions);
 
+		// --- Postgres setup ---
+
 		new Namespace(this, "postgres-namespace", {
 			metadata: {
 				name: "postgres",
@@ -146,6 +172,17 @@ export class ClusterSetup extends Chart {
 				labels: {
 					"istio-injection": "enabled",
 				},
+			},
+		});
+
+		new Secret(this, "postgres-auth", {
+			metadata: {
+				name: "postgres-auth",
+				namespace: "postgres",
+			},
+			stringData: {
+				POSTGRES_USER: "postgres",
+				POSTGRES_PASSWORD,
 			},
 		});
 
@@ -167,8 +204,13 @@ export class ClusterSetup extends Chart {
 						},
 					},
 				},
+				databaseSecret: {
+					secretName: "postgres-auth",
+				},
 			},
 		});
+
+		// --- Redis setup ---
 
 		new Namespace(this, "redis-namespace", {
 			metadata: {
@@ -214,6 +256,385 @@ export class ClusterSetup extends Chart {
 		new RedisCommander(this, "redis-commander", {
 			SENTINEL_HOST: "rfs-redis.redis",
 			SENTINEL_PORT: "26379",
+		});
+
+		new Namespace(this, "logs-namespace", {
+			metadata: {
+				name: "logs",
+				namespace: undefined,
+				labels: {
+					"istio-injection": "enabled",
+				},
+			},
+		});
+
+		// --- ElasticSearch setup ---
+
+		new Elasticsearch(this, "elasticsearch", {
+			metadata: {
+				name: "elasticsearch",
+				namespace: "logs",
+			},
+			spec: {
+				version: "7.8.1",
+				http: {
+					tls: {
+						selfSignedCertificate: {
+							disabled: true,
+						},
+					},
+				},
+				nodeSets: [
+					{
+						name: "default",
+						count: 3,
+						config: {
+							"node.master": true,
+							"node.data": true,
+							"node.ingest": true,
+						},
+						podTemplate: {
+							metadata: {
+								annotations: {
+									"traffic.sidecar.istio.io/includeInboundPorts":
+										"*",
+									"traffic.sidecar.istio.io/excludeOutboundPorts":
+										"9300",
+									"traffic.sidecar.istio.io/excludeInboundPorts":
+										"9300",
+								},
+							},
+							spec: {
+								automountServiceAccountToken: true,
+								initContainers: [
+									{
+										name: "sysctl",
+										securityContext: {
+											privileged: true,
+										},
+										command: [
+											"sh",
+											"-c",
+											"sysctl -w vm.max_map_count=262144",
+										],
+									},
+								],
+							},
+						},
+						volumeClaimTemplates: [
+							{
+								metadata: {
+									name: "elasticsearch-data",
+								},
+								spec: {
+									accessModes: ["ReadWriteOnce"],
+									resources: {
+										requests: {
+											storage: "100Gi",
+										},
+									},
+								},
+							},
+						],
+					},
+				],
+			},
+		});
+
+		new Kibana(this, "kibana", {
+			metadata: {
+				name: "kibana",
+				namespace: "logs",
+			},
+			spec: {
+				version: "7.8.1",
+				count: 1,
+				elasticsearchRef: {
+					name: "elasticsearch",
+				},
+			},
+		});
+
+		// --- Fluentd setup ---
+
+		new ServiceAccount(this, "fluentd-service-account", {
+			metadata: {
+				name: "fluentd",
+				namespace: "logs",
+			},
+		});
+
+		new ClusterRole(this, "fluentd-cluster-role", {
+			metadata: {
+				name: "fluentd",
+				namespace: "logs",
+			},
+			rules: [
+				{
+					apiGroups: [""],
+					resources: ["pods", "namespaces"],
+					verbs: ["get", "list", "watch"],
+				},
+			],
+		});
+
+		new ClusterRoleBinding(this, "fluentd-cluster-role-binding", {
+			metadata: {
+				name: "fluentd",
+			},
+			roleRef: {
+				kind: "ClusterRole",
+				name: "fluentd",
+				apiGroup: "rbac.authorization.k8s.io",
+			},
+			subjects: [
+				{
+					kind: "ServiceAccount",
+					name: "fluentd",
+					namespace: "logs",
+				},
+			],
+		});
+
+		new ConfigMap(this, "fluentd-config", {
+			metadata: {
+				name: "fluentd-kubernetes-conf",
+				namespace: "logs",
+			},
+			data: {
+				"kubernetes.conf": kubernetesConf,
+			},
+		});
+
+		const fluentDsLabels = {
+			"k8s-app": "fluentd-logging",
+			version: "v1",
+		};
+
+		new DaemonSet(this, "fluentd-ds", {
+			metadata: {
+				name: "fluentd",
+				namespace: "logs",
+				labels: fluentDsLabels,
+			},
+			spec: {
+				selector: {
+					matchLabels: fluentDsLabels,
+				},
+				template: {
+					metadata: {
+						labels: fluentDsLabels,
+						annotations: {
+							"sidecar.istio.io/inject": "false",
+						},
+					},
+					spec: {
+						serviceAccount: "fluentd",
+						serviceAccountName: "fluentd",
+						tolerations: [
+							{
+								key: "node-role.kubernetes.io/master",
+								effect: "NoSchedule",
+							},
+						],
+						containers: [
+							{
+								name: "fluentd",
+								image:
+									"fluent/fluentd-kubernetes-daemonset:v1-debian-elasticsearch",
+								env: [
+									{
+										name: "FLUENT_ELASTICSEARCH_HOST",
+										value: "elasticsearch-es-http",
+									},
+									{
+										name: "FLUENT_ELASTICSEARCH_PORT",
+										value: "9200",
+									},
+									{
+										name: "FLUENT_ELASTICSEARCH_SCHEME",
+										value: "http",
+									},
+									// Option to configure elasticsearch plugin with self signed certs
+									{
+										name: "FLUENT_ELASTICSEARCH_SSL_VERIFY",
+										value: "true",
+									},
+									// Option to configure elasticsearch plugin with tls
+									{
+										name:
+											"FLUENT_ELASTICSEARCH_SSL_VERSION",
+										value: "TLSv1_2",
+									},
+									// X-Pack Authentication
+									{
+										name: "FLUENT_ELASTICSEARCH_USER",
+										value: "elastic",
+									},
+									{
+										name: "FLUENT_ELASTICSEARCH_PASSWORD",
+										valueFrom: {
+											secretKeyRef: {
+												key: "elastic",
+												name:
+													"elasticsearch-es-elastic-user",
+											},
+										},
+									},
+									// Containerd logs format
+									{
+										name:
+											"FLUENT_CONTAINER_TAIL_PARSER_TYPE",
+										value:
+											"/^(?<time>.+) (?<stream>stdout|stderr) (?<logtag>[FP]) (?<log>.+)$/",
+									},
+									{
+										name:
+											"FLUENT_CONTAINER_TAIL_EXCLUDE_PATH",
+										value: `["/var/log/containers/fluentd-*"]`,
+									},
+								],
+								resources: {
+									limits: {
+										memory: "200Mi",
+									},
+									requests: {
+										cpu: "100m",
+										memory: "200Mi",
+									},
+								},
+								volumeMounts: [
+									{
+										name: "varlog",
+										mountPath: "/var/log",
+									},
+									{
+										name: "varlibdockercontainers",
+										mountPath: "/var/lib/docker/containers",
+										readOnly: true,
+									},
+									{
+										name: "config",
+										mountPath:
+											"/fluentd/etc/kubernetes.conf",
+										subPath: "kubernetes.conf",
+									},
+								],
+							},
+						],
+						terminationGracePeriodSeconds: 30,
+						volumes: [
+							{
+								name: "varlog",
+								hostPath: {
+									path: "/var/log",
+								},
+							},
+							{
+								name: "varlibdockercontainers",
+								hostPath: {
+									path: "/var/lib/docker/containers",
+								},
+							},
+							{
+								name: "config",
+								configMap: {
+									name: "fluentd-kubernetes-conf",
+								},
+							},
+						],
+					},
+				},
+			},
+		});
+
+		// --- InfluxDB setup ---
+
+		new Namespace(this, "influxdb-namespace", {
+			metadata: {
+				name: "influxdb",
+				labels: {
+					"istio-injection": "enabled",
+				},
+			},
+		});
+
+		const influxdbSSLabels = {
+			app: "influxdb",
+		};
+
+		new StatefulSet(this, "influxdb-statefulset", {
+			metadata: {
+				name: "influxdb",
+				namespace: "influxdb",
+				labels: influxdbSSLabels,
+			},
+			spec: {
+				replicas: 1,
+				selector: {
+					matchLabels: influxdbSSLabels,
+				},
+				serviceName: "influxdb",
+				template: {
+					metadata: {
+						labels: influxdbSSLabels,
+					},
+					spec: {
+						containers: [
+							{
+								image: "quay.io/influxdb/influxdb:2.0.0-beta",
+								name: "influxdb",
+								ports: [
+									{
+										containerPort: 9999,
+										name: "influxdb",
+									},
+								],
+								volumeMounts: [
+									{
+										mountPath: "/root/.influxdbv2",
+										name: "influxdb-data",
+									},
+								],
+							},
+						],
+					},
+				},
+				volumeClaimTemplates: [
+					{
+						metadata: {
+							name: "influxdb-data",
+							namespace: "influxdb",
+						},
+						spec: {
+							accessModes: ["ReadWriteOnce"],
+							resources: {
+								requests: {
+									storage: "100Gi",
+								},
+							},
+						},
+					} as any,
+				],
+			},
+		});
+
+		new Service(this, "influxdb-service", {
+			metadata: {
+				name: "influxdb",
+				namespace: "influxdb",
+			},
+			spec: {
+				ports: [
+					{
+						name: "http-influxdb",
+						port: 9999,
+						targetPort: 9999,
+					},
+				],
+				selector: influxdbSSLabels,
+				type: "ClusterIP",
+			},
 		});
 	}
 }
@@ -264,6 +685,16 @@ export class Fortify extends Chart {
 			},
 		});
 
+		new Secret(this, "postgres-auth", {
+			metadata: {
+				name: "postgres-auth",
+			},
+			stringData: {
+				POSTGRES_USER: "postgres",
+				POSTGRES_PASSWORD,
+			},
+		});
+
 		new ConfigMap(this, "redis-config", {
 			metadata: {
 				name: "redis-config",
@@ -272,6 +703,35 @@ export class Fortify extends Chart {
 				// REDIS_URL: "redis://redis.redis:6379",
 				REDIS_SENTINEL: "rfs-redis.redis:26379",
 				REDIS_SENTINEL_NAME: "mymaster",
+			},
+		});
+
+		new ConfigMap(this, "influxdb-config", {
+			metadata: {
+				name: "influxdb-config",
+			},
+			data: {
+				INFLUXDB_ORG: "Fortify",
+				INFLUXDB_BUCKET: "mmr",
+				INFLUXDB_URL: "http://influxdb.influxdb:9999",
+			},
+		});
+
+		new Secret(this, "influxdb-secret", {
+			metadata: {
+				name: "influxdb-token",
+			},
+			stringData: {
+				INFLUXDB_TOKEN,
+			},
+		});
+
+		new Secret(this, "steam-web-api-secret", {
+			metadata: {
+				name: "steam-web-api-secret",
+			},
+			stringData: {
+				STEAM_WEB_API_KEY,
 			},
 		});
 
@@ -457,12 +917,38 @@ export class Fortify extends Chart {
 			configmaps: ["redis-config", "kafka-config"],
 		});
 
+		new FortifyDeployment(this, "historization", {
+			name: "historization",
+			version: historizationPackage.version,
+			env: [
+				{
+					name: "SERVICE_NAME",
+					value: "historization",
+				},
+				{
+					name: "KAFKA_CLIENT_ID",
+					valueFrom: { fieldRef: { fieldPath: "metadata.name" } },
+				},
+			],
+			configmaps: [
+				"redis-config",
+				"kafka-config",
+				"influxdb-config",
+				"postgres-config",
+			],
+			secrets: [
+				"influxdb-secret",
+				"postgres-auth",
+				"steam-web-api-secret",
+			],
+		});
+
 		// CronJobs
 		new FortifyCronJob(this, "import-standard", {
 			name: "import-standard",
 			version: jobsPackage.version,
 
-			schedule: "15 * * * *",
+			schedule: "14 * * * *",
 			script: "import",
 
 			env: [
@@ -481,7 +967,7 @@ export class Fortify extends Chart {
 			name: "import-turbo",
 			version: jobsPackage.version,
 
-			schedule: "15 * * * *",
+			schedule: "14 * * * *",
 			script: "import",
 
 			env: [
@@ -500,7 +986,7 @@ export class Fortify extends Chart {
 			name: "import-duos",
 			version: jobsPackage.version,
 
-			schedule: "15 * * * *",
+			schedule: "14 * * * *",
 			script: "import",
 
 			env: [
