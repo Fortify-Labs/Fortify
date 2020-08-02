@@ -27,15 +27,20 @@ echo ""
 echo "docker-compose -f build.docker-compose.yml pull --ignore-pull-failures"
 export DC_PULL=$(docker-compose -f build.docker-compose.yml pull --ignore-pull-failures 2>&1)
 echo -n "$DC_PULL"
+echo ""
+
+echo -n "$DC_PULL" > /tmp/dc_pull
 
 # Extract the last line, telling which images need to be rebuild
-export DC_BUILD=$(echo -n "${DC_PULL}" | tail -n 1 | xargs)
+export DC_BUILD=$(tail -n 1 /tmp/dc_pull | xargs)
 # Add build arg containing the base image version
 export REPLACE_STRING_BASE_VERSION="build --build-arg BASE_VERSION=$BASE_VERSION"
 export DC_BUILD=$(echo -n "${DC_BUILD/build/$REPLACE_STRING_BASE_VERSION}")
 # Add the -f flag to use the build docker compose file
 export REPLACE_STRING="docker-compose -f build.docker-compose.yml"
 export DC_BUILD=$(echo -n "${DC_BUILD/docker-compose/$REPLACE_STRING}")
+
+rm /tmp/dc_pull 
 
 # If that line starts with docker compose, we will build and push new images
 if case $DC_BUILD in "docker-compose"*) true;; *) false;; esac; then
