@@ -33,11 +33,6 @@ const {
 	const leaderboardPersistor = container.get(LeaderboardPersistor);
 
 	await consumer.subscribe({
-		fromBeginning: KAFKA_FROM_START === "true" ?? false,
-		topic: "gsi",
-	});
-
-	await consumer.subscribe({
 		topic: FortifyEventTopics.SYSTEM,
 	});
 

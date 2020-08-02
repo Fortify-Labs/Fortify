@@ -89,6 +89,13 @@ export class ClusterSetup extends Chart {
 
 		// --- Kafka setup ---
 
+		new Namespace(this, "kafka-namespace", {
+			metadata: {
+				name: "kafka",
+				namespace: undefined,
+			},
+		});
+
 		new Kafka(this, "kafka", {
 			metadata: {
 				name: "fortify",
@@ -170,7 +177,7 @@ export class ClusterSetup extends Chart {
 				name: "postgres",
 				namespace: undefined,
 				labels: {
-					"istio-injection": "enabled",
+					// "istio-injection": "enabled",
 				},
 			},
 		});
@@ -217,7 +224,7 @@ export class ClusterSetup extends Chart {
 				name: "redis",
 				namespace: undefined,
 				labels: {
-					"istio-injection": "enabled",
+					// "istio-injection": "enabled",
 				},
 			},
 		});
@@ -258,12 +265,14 @@ export class ClusterSetup extends Chart {
 			SENTINEL_PORT: "26379",
 		});
 
+		// --- Logs ---
+
 		new Namespace(this, "logs-namespace", {
 			metadata: {
 				name: "logs",
 				namespace: undefined,
 				labels: {
-					"istio-injection": "enabled",
+					// "istio-injection": "enabled",
 				},
 			},
 		});
@@ -554,7 +563,7 @@ export class ClusterSetup extends Chart {
 			metadata: {
 				name: "influxdb",
 				labels: {
-					"istio-injection": "enabled",
+					// "istio-injection": "enabled",
 				},
 			},
 		});
@@ -719,7 +728,7 @@ export class Fortify extends Chart {
 
 		new Secret(this, "influxdb-secret", {
 			metadata: {
-				name: "influxdb-token",
+				name: "influxdb-secret",
 			},
 			stringData: {
 				INFLUXDB_TOKEN,

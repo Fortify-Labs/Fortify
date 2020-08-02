@@ -142,7 +142,7 @@ export class LeaderboardPersistor {
 		await this.influx.writePoints(points);
 
 		debug("app::leaderboardPersistor")(
-			`Successfully persisted ${points.length} data points`,
+			`Successfully persisted ${points.length} data points for ${leaderboardType}`,
 		);
 	}
 }

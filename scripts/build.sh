@@ -27,7 +27,6 @@ echo ""
 echo "docker-compose -f build.docker-compose.yml pull --ignore-pull-failures"
 export DC_PULL=$(docker-compose -f build.docker-compose.yml pull --ignore-pull-failures 2>&1)
 echo -n "$DC_PULL"
-echo ""
 
 # Extract the last line, telling which images need to be rebuild
 export DC_BUILD=$(echo -n "${DC_PULL}" | tail -n 1 | xargs)
