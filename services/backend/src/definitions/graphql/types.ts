@@ -5,10 +5,10 @@
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
 import { Context } from '@shared/auth';
 export type Maybe<T> = T | null;
-export type Exact<T extends { [key: string]: any }> = { [K in keyof T]: T[K] };
+export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type RequireFields<T, K extends keyof T> = { [X in Exclude<keyof T, K>]?: T[X] } & { [P in K]-?: NonNullable<T[P]> };
 
-// Generated on 2020-07-29T01:40:03+02:00
+// Generated on 2020-08-03T19:54:48+02:00
 
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
@@ -40,6 +40,11 @@ export type Query = {
   pool?: Maybe<Scalars['String']>;
   /** Returns the current package.json version */
   version: Scalars['String'];
+};
+
+
+export type QueryPoolArgs = {
+  userID?: Maybe<Scalars['ID']>;
 };
 
 export type Mutation = {
@@ -155,6 +160,7 @@ export type ResolversTypes = ResolversObject<{
   SCOPE: Scope;
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']>;
+  ID: ResolverTypeWrapper<Scalars['ID']>;
   Mutation: ResolverTypeWrapper<{}>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   Subscription: ResolverTypeWrapper<{}>;
@@ -166,6 +172,7 @@ export type ResolversTypes = ResolversObject<{
 export type ResolversParentTypes = ResolversObject<{
   Query: {};
   String: Scalars['String'];
+  ID: Scalars['ID'];
   Mutation: {};
   Boolean: Scalars['Boolean'];
   Subscription: {};
@@ -179,7 +186,7 @@ export type AuthDirectiveResolver<Result, Parent, ContextType = Context, Args = 
 
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   context?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  pool?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  pool?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<QueryPoolArgs, never>>;
   version?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 }>;
 

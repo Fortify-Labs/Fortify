@@ -7,6 +7,7 @@ import { gql } from "apollo-server-express";
 
 import { RedisConnector } from "@shared/connectors/redis";
 import { FortifyPlayerState } from "@shared/state";
+import { PermissionScope } from "@shared/auth";
 
 @injectable()
 export class PoolModule implements GQLModule {
@@ -15,25 +16,40 @@ export class PoolModule implements GQLModule {
 	typeDef = gql`
 		extend type Query {
 			"Returns a JSON string containing the current pool counts"
-			pool: String @auth(requires: USER)
+			pool(
+				# Only works for admins
+				userID: ID
+			): String @auth(requires: USER)
 		}
 	`;
 
 	resolver(): Resolvers {
 		const self = this;
 
-		return {
+		const resolvers: Resolvers = {
 			Query: {
-				async pool(_parent, _args, context) {
-					const userID = context.user.id;
+				async pool(_parent, args, context) {
+					let userID = context.user.id;
+
+					// View the pool of other players as admin user
+					if (
+						context.scopes.includes(PermissionScope.Admin) &&
+						args.userID
+					) {
+						userID = args.userID;
+					}
 
 					const rawFPS = await self.redis.getAsync(`ps_${userID}`);
 
-					const fps: FortifyPlayerState = JSON.parse(rawFPS ?? "{}");
+					const fps: FortifyPlayerState = rawFPS
+						? JSON.parse(rawFPS)
+						: new FortifyPlayerState(userID);
 
 					return JSON.stringify(fps.lobby.pool);
 				},
 			},
 		};
+
+		return resolvers;
 	}
 }

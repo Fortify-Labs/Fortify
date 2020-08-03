@@ -1,7 +1,6 @@
 {
   "extends": "./node_modules/gts/",
   "rules": {
-    "quotes": ["warn", "double", { "avoidEscape": true }],
-    "sort-keys": "error"
+    "quotes": ["warn", "double", { "avoidEscape": true }]
   }
 }
