@@ -1,13 +1,13 @@
 {
   "name": "historization",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A historization service responsible for persisting info",
   "author": {
     "name": "Thomas Kosiewski"
   },
   "engines": {
-		"node": ">=12.9.0"
-	},
+    "node": ">=12.9.0"
+  },
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "private": true,
@@ -40,7 +40,7 @@
   "devDependencies": {
     "@types/debug": "^4.1.5",
     "@types/jsonwebtoken": "^8.5.0",
-    "@types/node": "^14.0.26",
+    "@types/node": "^14.0.27",
     "@types/node-fetch": "^2.5.7",
     "@types/redis": "^2.8.25",
     "gts": "^2.0.2",

@@ -40,9 +40,9 @@ export class ClusterIngress extends Construct {
 			});
 		}
 
-		new Ingress(this, `${name}-ingress`, {
+		new Ingress(this, `${name}-${ENVIRONMENT}-ingress`, {
 			metadata: {
-				name: `${name}-ingress`,
+				name: `${name}-${ENVIRONMENT}-ingress`,
 				namespace,
 				annotations: {
 					...(basicAuth
