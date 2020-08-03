@@ -1,7 +1,8 @@
-import { GQLModule } from "../../definitions/module";
-import { gql } from "apollo-server-express";
 import { injectable } from "inversify";
-import { Resolvers } from "../../definitions/graphql/types";
+import { gql } from "apollo-server-express";
+
+import { GQLModule } from "definitions/module";
+import { Resolvers } from "definitions/graphql/types";
 import { pubSub } from "../pubsub";
 
 import packageJSON = require("../../../package.json");

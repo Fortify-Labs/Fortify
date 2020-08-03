@@ -1,0 +1,18 @@
+{
+	"extensions": {
+		"endpoints": {
+			"local": {
+				"url": "http://localhost:8080/graphql",
+				"subscription": {
+					"url": "ws://localhost:8080/graphql"
+				}
+			},
+			"prod": {
+				"url": "https://api.fortify.gg/graphql",
+				"subscription": {
+					"url": "wss://api.fortify.gg/graphql"
+				}
+			}
+		}
+	}
+}

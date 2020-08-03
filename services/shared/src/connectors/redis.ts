@@ -34,7 +34,7 @@ export class RedisConnector {
 		}
 	}
 
-	async getAsync(key: string): Promise<string | null> {
+	async getAsync(key: string) {
 		return this.client.get(key);
 	}
 
