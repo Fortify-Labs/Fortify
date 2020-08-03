@@ -14,6 +14,7 @@ services:
       dockerfile: ./devops/docker/NodeExposed.Dockerfile
 
       args:
+        BASE_VERSION: ${BASE_VERSION:-invalidVersion}
         SERVICE_NAME: backend
         EXPOSED_PORT: 8080
 
@@ -24,6 +25,7 @@ services:
       dockerfile: ./devops/docker/NodeExposed.Dockerfile
 
       args:
+        BASE_VERSION: ${BASE_VERSION:-invalidVersion}
         SERVICE_NAME: frontend
         EXPOSED_PORT: 3000
 
@@ -34,6 +36,7 @@ services:
       dockerfile: ./devops/docker/Node.Dockerfile
 
       args:
+        BASE_VERSION: ${BASE_VERSION:-invalidVersion}
         SERVICE_NAME: fsm
 
   gsi-receiver:
@@ -43,6 +46,7 @@ services:
       dockerfile: ./devops/docker/NodeExposed.Dockerfile
 
       args:
+        BASE_VERSION: ${BASE_VERSION:-invalidVersion}
         SERVICE_NAME: gsi-receiver
         EXPOSED_PORT: 8080
 
@@ -53,6 +57,7 @@ services:
       dockerfile: ./devops/docker/Node.Dockerfile
 
       args:
+        BASE_VERSION: ${BASE_VERSION:-invalidVersion}
         SERVICE_NAME: 17kmmrbot
 
   jobs:
@@ -62,4 +67,15 @@ services:
       dockerfile: ./devops/docker/Node.Dockerfile
 
       args:
+        BASE_VERSION: ${BASE_VERSION:-invalidVersion}
         SERVICE_NAME: jobs
+
+  historization:
+    image: registry.gitlab.com/thomask33/fortify/historization:${HISTORIZATION_VERSION:-invalidVersion}
+    build:
+      context: ./
+      dockerfile: ./devops/docker/Node.Dockerfile
+
+      args:
+        BASE_VERSION: ${BASE_VERSION:-invalidVersion}
+        SERVICE_NAME: historization

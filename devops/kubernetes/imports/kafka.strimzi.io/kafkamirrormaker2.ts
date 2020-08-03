@@ -899,7 +899,7 @@ export enum KafkaMirrorMaker2SpecTracingType {
  */
 export interface KafkaMirrorMaker2SpecTemplateDeployment {
   /**
-   * Metadata which should be applied to the resource.
+   * Metadata applied to the resource.
    *
    * @schema KafkaMirrorMaker2SpecTemplateDeployment#metadata
    */
@@ -921,7 +921,7 @@ export interface KafkaMirrorMaker2SpecTemplatePod {
   readonly metadata?: KafkaMirrorMaker2SpecTemplatePodMetadata;
 
   /**
-   * List of references to secrets in the same namespace to use for pulling any of the images used by this Pod.
+   * List of references to secrets in the same namespace to use for pulling any of the images used by this Pod. When the `STRIMZI_IMAGE_PULL_SECRETS` environment variable in Cluster Operator and the `imagePullSecrets` option are specified, only the `imagePullSecrets` variable is used and the `STRIMZI_IMAGE_PULL_SECRETS` variable is ignored.
    *
    * @schema KafkaMirrorMaker2SpecTemplatePod#imagePullSecrets
    */
@@ -935,7 +935,7 @@ export interface KafkaMirrorMaker2SpecTemplatePod {
   readonly securityContext?: KafkaMirrorMaker2SpecTemplatePodSecurityContext;
 
   /**
-   * The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process.Value must be non-negative integer. The value zero indicates delete immediately. Defaults to 30 seconds.
+   * The grace period is the duration in seconds after the processes running in the pod are sent a termination signal, and the time when the processes are forcibly halted with a kill signal. Set this value to longer than the expected cleanup time for your process. Value must be a non-negative integer. A zero value indicates delete immediately. You might need to increase the grace period for very large Kafka clusters, so that the Kafka brokers have enough time to transfer their work to another broker before they are terminated. Defaults to 30 seconds.
    *
    * @default 30 seconds.
    * @schema KafkaMirrorMaker2SpecTemplatePod#terminationGracePeriodSeconds
@@ -950,7 +950,7 @@ export interface KafkaMirrorMaker2SpecTemplatePod {
   readonly affinity?: KafkaMirrorMaker2SpecTemplatePodAffinity;
 
   /**
-   * The name of the Priority Class to which these pods will be assigned.
+   * The name of the priority class used to assign priority to the pods. For more information about priority classes, see {K8sPriorityClass}.
    *
    * @schema KafkaMirrorMaker2SpecTemplatePod#priorityClassName
    */
@@ -979,7 +979,7 @@ export interface KafkaMirrorMaker2SpecTemplatePod {
  */
 export interface KafkaMirrorMaker2SpecTemplateApiService {
   /**
-   * Metadata which should be applied to the resource.
+   * Metadata applied to the resource.
    *
    * @schema KafkaMirrorMaker2SpecTemplateApiService#metadata
    */
@@ -1354,20 +1354,20 @@ export interface KafkaMirrorMaker2SpecAffinityPodAntiAffinityRequiredDuringSched
 }
 
 /**
- * Metadata which should be applied to the resource.
+ * Metadata applied to the resource.
  *
  * @schema KafkaMirrorMaker2SpecTemplateDeploymentMetadata
  */
 export interface KafkaMirrorMaker2SpecTemplateDeploymentMetadata {
   /**
-   * Labels which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaMirrorMaker2SpecTemplateDeploymentMetadata#labels
    */
   readonly labels?: any;
 
   /**
-   * Annotations which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaMirrorMaker2SpecTemplateDeploymentMetadata#annotations
    */
@@ -1382,14 +1382,14 @@ export interface KafkaMirrorMaker2SpecTemplateDeploymentMetadata {
  */
 export interface KafkaMirrorMaker2SpecTemplatePodMetadata {
   /**
-   * Labels which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaMirrorMaker2SpecTemplatePodMetadata#labels
    */
   readonly labels?: any;
 
   /**
-   * Annotations which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaMirrorMaker2SpecTemplatePodMetadata#annotations
    */
@@ -1511,20 +1511,20 @@ export interface KafkaMirrorMaker2SpecTemplatePodTolerations {
 }
 
 /**
- * Metadata which should be applied to the resource.
+ * Metadata applied to the resource.
  *
  * @schema KafkaMirrorMaker2SpecTemplateApiServiceMetadata
  */
 export interface KafkaMirrorMaker2SpecTemplateApiServiceMetadata {
   /**
-   * Labels which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaMirrorMaker2SpecTemplateApiServiceMetadata#labels
    */
   readonly labels?: any;
 
   /**
-   * Annotations which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaMirrorMaker2SpecTemplateApiServiceMetadata#annotations
    */
@@ -1617,14 +1617,14 @@ export interface KafkaMirrorMaker2SpecTemplateConnectContainerSecurityContext {
  */
 export interface KafkaMirrorMaker2SpecTemplatePodDisruptionBudgetMetadata {
   /**
-   * Labels which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaMirrorMaker2SpecTemplatePodDisruptionBudgetMetadata#labels
    */
   readonly labels?: any;
 
   /**
-   * Annotations which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaMirrorMaker2SpecTemplatePodDisruptionBudgetMetadata#annotations
    */

@@ -2,7 +2,11 @@
 	"typescript.tsdk": "node_modules/typescript/lib",
 	"cSpell.words": [
 		"Deserialization",
+		"HISTORIZATION",
 		"Streetfight",
+		"bignumber",
+		"influxdata",
+		"influxdb",
 		"inversify",
 		"kmmr",
 		"kmmrbot",

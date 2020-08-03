@@ -1,6 +1,6 @@
 {
 	"name": "17kmmrbot",
-	"version": "1.2.1",
+	"version": "1.2.4",
 	"description": "Fortify twitch bot",
 	"private": "true",
 	"engines": {

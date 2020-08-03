@@ -1,19 +1,32 @@
 import { Construct } from "constructs";
 import { ConfigMap, Service, Deployment } from "../imports/k8s";
 
+export interface RedisCommanderConfig {
+	REDIS_HOST?: string;
+	REDIS_PORT?: string;
+
+	SENTINEL_HOST?: string;
+	SENTINEL_PORT?: string;
+}
+
 export class RedisCommander extends Construct {
-	constructor(scope: Construct, ns: string) {
+	constructor(scope: Construct, ns: string, config?: RedisCommanderConfig) {
 		super(scope, ns);
 
 		const labels = { app: "redis-commander" };
+
+		const { REDIS_HOST, REDIS_PORT, SENTINEL_HOST, SENTINEL_PORT } =
+			config ?? {};
 
 		new ConfigMap(this, "config", {
 			metadata: {
 				name: "redis-commander-config",
 			},
 			data: {
-				REDIS_HOST: "redis",
-				REDIS_PORT: "6379",
+				...(REDIS_HOST ? { REDIS_HOST } : {}),
+				...(REDIS_PORT ? { REDIS_PORT } : {}),
+				...(SENTINEL_HOST ? { SENTINEL_HOST } : {}),
+				...(SENTINEL_PORT ? { SENTINEL_PORT } : {}),
 				K8S_SIGTERM: "1",
 			},
 		});

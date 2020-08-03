@@ -1,5 +1,5 @@
 import * as dotenv from "dotenv";
-import * as dotenvExpand from "dotenv-expand";
+import dotenvExpand from "dotenv-expand";
 dotenvExpand(dotenv.config());
 
 import { sharedSetup } from "@shared/index";
@@ -7,11 +7,11 @@ sharedSetup();
 
 import { container } from "./inversify.config";
 import { GraphQL } from "./graphql/graphql";
-import * as debug from "debug";
+import debug from "debug";
 
 import { OpenAPIDocs } from "./services/openapidocs";
 
-import * as express from "express";
+import express from "express";
 import * as bodyParser from "body-parser";
 
 const app = express();

@@ -156,7 +156,7 @@ export interface KafkaSpecKafka {
   readonly authorization?: KafkaSpecKafkaAuthorization;
 
   /**
-   * The kafka broker config. Properties with the following prefixes cannot be set: listeners, advertised., broker., listener., host.name, port, inter.broker.listener.name, sasl., ssl., security., password., principal.builder.class, log.dir, zookeeper.connect, zookeeper.set.acl, authorizer., super.user, cruise.control.metrics.topic, cruise.control.metrics.reporter.bootstrap.servers (with the exception of: zookeeper.connection.timeout.ms, ssl.cipher.suites, ssl.protocol, ssl.enabled.protocols,cruise.control.metrics.topic.num.partitions, cruise.control.metrics.topic.replication.factor, cruise.control.metrics.topic.retention.ms).
+   * Kafka broker config properties with the following prefixes cannot be set: listeners, advertised., broker., listener., host.name, port, inter.broker.listener.name, sasl., ssl., security., password., principal.builder.class, log.dir, zookeeper.connect, zookeeper.set.acl, authorizer., super.user, cruise.control.metrics.topic, cruise.control.metrics.reporter.bootstrap.servers (with the exception of: zookeeper.connection.timeout.ms, ssl.cipher.suites, ssl.protocol, ssl.enabled.protocols,cruise.control.metrics.topic.num.partitions, cruise.control.metrics.topic.replication.factor, cruise.control.metrics.topic.retention.ms,cruise.control.metrics.topic.auto.create.retries, cruise.control.metrics.topic.auto.create.timeout.ms).
    *
    * @schema KafkaSpecKafka#config
    */
@@ -291,7 +291,7 @@ export interface KafkaSpecZookeeper {
   readonly storage: KafkaSpecZookeeperStorage;
 
   /**
-   * The ZooKeeper broker config. Properties with the following prefixes cannot be set: server., dataDir, dataLogDir, clientPort, authProvider, quorum.auth, requireClientAuthScheme, snapshot.trust.empty, standaloneEnabled, reconfigEnabled, 4lw.commands.whitelist, secureClientPort, ssl., serverCnxnFactory, sslQuorum (with the exception of: ssl.protocol, ssl.quorum.protocol, ssl.enabledProtocols, ssl.quorum.enabledProtocols, ssl.ciphersuites, ssl.quorum.ciphersuites).
+   * The ZooKeeper broker config. Properties with the following prefixes cannot be set: server., dataDir, dataLogDir, clientPort, authProvider, quorum.auth, requireClientAuthScheme, snapshot.trust.empty, standaloneEnabled, reconfigEnabled, 4lw.commands.whitelist, secureClientPort, ssl., serverCnxnFactory, sslQuorum (with the exception of: ssl.protocol, ssl.quorum.protocol, ssl.enabledProtocols, ssl.quorum.enabledProtocols, ssl.ciphersuites, ssl.quorum.ciphersuites, ssl.hostnameVerification, ssl.quorum.hostnameVerification).
    *
    * @schema KafkaSpecZookeeper#config
    */
@@ -893,6 +893,14 @@ export interface KafkaSpecKafkaListeners {
  */
 export interface KafkaSpecKafkaAuthorization {
   /**
+   * Defines whether a Kafka client should be allowed or denied by default when the authorizer fails to query the Open Policy Agent, for example, when it is temporarily unavailable). Defaults to `false` - all actions will be denied.
+   *
+   * @default false` - all actions will be denied.
+   * @schema KafkaSpecKafkaAuthorization#allowOnError
+   */
+  readonly allowOnError?: boolean;
+
+  /**
    * OAuth Client ID which the Kafka client can use to authenticate against the OAuth server and use the token endpoint URI.
    *
    * @schema KafkaSpecKafkaAuthorization#clientId
@@ -912,6 +920,30 @@ export interface KafkaSpecKafkaAuthorization {
    * @schema KafkaSpecKafkaAuthorization#disableTlsHostnameVerification
    */
   readonly disableTlsHostnameVerification?: boolean;
+
+  /**
+   * The expiration of the records kept in the local cache to avoid querying the Open Policy Agent for every request. Defines how often the cached authorization decisions are reloaded from the Open Policy Agent server. In milliseconds. Defaults to `3600000`.
+   *
+   * @default 3600000`.
+   * @schema KafkaSpecKafkaAuthorization#expireAfterMs
+   */
+  readonly expireAfterMs?: number;
+
+  /**
+   * Initial capacity of the local cache used by the authorizer to avoid querying the Open Policy Agent for every request Defaults to `5000`.
+   *
+   * @default 5000`.
+   * @schema KafkaSpecKafkaAuthorization#initialCacheCapacity
+   */
+  readonly initialCacheCapacity?: number;
+
+  /**
+   * Maximum capacity of the local cache used by the authorizer to avoid querying the Open Policy Agent for every request. Defaults to `50000`.
+   *
+   * @default 50000`.
+   * @schema KafkaSpecKafkaAuthorization#maximumCacheSize
+   */
+  readonly maximumCacheSize?: number;
 
   /**
    * List of super users. Should contain list of user principals which should get unlimited access rights.
@@ -935,11 +967,18 @@ export interface KafkaSpecKafkaAuthorization {
   readonly tokenEndpointUri?: string;
 
   /**
-   * Authorization type. Currently the only supported type is `simple`. `simple` authorization type uses Kafka's `kafka.security.auth.SimpleAclAuthorizer` class for authorization.
+   * Authorization type. Currently, the supported types are `simple`, `keycloak`, and `opa`. `simple` authorization type uses Kafka's `kafka.security.auth.SimpleAclAuthorizer` class for authorization. `keycloak` authorization type uses Keycloak Authorization Services for authorization. `opa` authorization type uses Open Policy Agent based authorization.
    *
    * @schema KafkaSpecKafkaAuthorization#type
    */
   readonly type: KafkaSpecKafkaAuthorizationType;
+
+  /**
+   * The URL used to connect to the Open Policy Agent server. The URL has to include the policy which will be queried by the authorizer. This option is required.
+   *
+   * @schema KafkaSpecKafkaAuthorization#url
+   */
+  readonly url?: string;
 
 }
 
@@ -3139,13 +3178,15 @@ export interface KafkaSpecKafkaAuthorizationTlsTrustedCertificates {
 }
 
 /**
- * Authorization type. Currently the only supported type is `simple`. `simple` authorization type uses Kafka's `kafka.security.auth.SimpleAclAuthorizer` class for authorization.
+ * Authorization type. Currently, the supported types are `simple`, `keycloak`, and `opa`. `simple` authorization type uses Kafka's `kafka.security.auth.SimpleAclAuthorizer` class for authorization. `keycloak` authorization type uses Keycloak Authorization Services for authorization. `opa` authorization type uses Open Policy Agent based authorization.
  *
  * @schema KafkaSpecKafkaAuthorizationType
  */
 export enum KafkaSpecKafkaAuthorizationType {
   /** simple */
   SIMPLE = "simple",
+  /** opa */
+  OPA = "opa",
   /** keycloak */
   KEYCLOAK = "keycloak",
 }
@@ -3386,7 +3427,7 @@ export interface KafkaSpecKafkaTlsSidecarResources {
  */
 export interface KafkaSpecKafkaTemplateStatefulset {
   /**
-   * Metadata which should be applied to the resource.
+   * Metadata applied to the resource.
    *
    * @schema KafkaSpecKafkaTemplateStatefulset#metadata
    */
@@ -3416,7 +3457,7 @@ export interface KafkaSpecKafkaTemplatePod {
   readonly metadata?: KafkaSpecKafkaTemplatePodMetadata;
 
   /**
-   * List of references to secrets in the same namespace to use for pulling any of the images used by this Pod.
+   * List of references to secrets in the same namespace to use for pulling any of the images used by this Pod. When the `STRIMZI_IMAGE_PULL_SECRETS` environment variable in Cluster Operator and the `imagePullSecrets` option are specified, only the `imagePullSecrets` variable is used and the `STRIMZI_IMAGE_PULL_SECRETS` variable is ignored.
    *
    * @schema KafkaSpecKafkaTemplatePod#imagePullSecrets
    */
@@ -3430,7 +3471,7 @@ export interface KafkaSpecKafkaTemplatePod {
   readonly securityContext?: KafkaSpecKafkaTemplatePodSecurityContext;
 
   /**
-   * The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process.Value must be non-negative integer. The value zero indicates delete immediately. Defaults to 30 seconds.
+   * The grace period is the duration in seconds after the processes running in the pod are sent a termination signal, and the time when the processes are forcibly halted with a kill signal. Set this value to longer than the expected cleanup time for your process. Value must be a non-negative integer. A zero value indicates delete immediately. You might need to increase the grace period for very large Kafka clusters, so that the Kafka brokers have enough time to transfer their work to another broker before they are terminated. Defaults to 30 seconds.
    *
    * @default 30 seconds.
    * @schema KafkaSpecKafkaTemplatePod#terminationGracePeriodSeconds
@@ -3445,7 +3486,7 @@ export interface KafkaSpecKafkaTemplatePod {
   readonly affinity?: KafkaSpecKafkaTemplatePodAffinity;
 
   /**
-   * The name of the Priority Class to which these pods will be assigned.
+   * The name of the priority class used to assign priority to the pods. For more information about priority classes, see {K8sPriorityClass}.
    *
    * @schema KafkaSpecKafkaTemplatePod#priorityClassName
    */
@@ -3474,7 +3515,7 @@ export interface KafkaSpecKafkaTemplatePod {
  */
 export interface KafkaSpecKafkaTemplateBootstrapService {
   /**
-   * Metadata which should be applied to the resource.
+   * Metadata applied to the resource.
    *
    * @schema KafkaSpecKafkaTemplateBootstrapService#metadata
    */
@@ -3489,7 +3530,7 @@ export interface KafkaSpecKafkaTemplateBootstrapService {
  */
 export interface KafkaSpecKafkaTemplateBrokersService {
   /**
-   * Metadata which should be applied to the resource.
+   * Metadata applied to the resource.
    *
    * @schema KafkaSpecKafkaTemplateBrokersService#metadata
    */
@@ -3504,7 +3545,7 @@ export interface KafkaSpecKafkaTemplateBrokersService {
  */
 export interface KafkaSpecKafkaTemplateExternalBootstrapService {
   /**
-   * Metadata which should be applied to the resource.
+   * Metadata applied to the resource.
    *
    * @schema KafkaSpecKafkaTemplateExternalBootstrapService#metadata
    */
@@ -3533,7 +3574,7 @@ export interface KafkaSpecKafkaTemplateExternalBootstrapService {
  */
 export interface KafkaSpecKafkaTemplatePerPodService {
   /**
-   * Metadata which should be applied to the resource.
+   * Metadata applied to the resource.
    *
    * @schema KafkaSpecKafkaTemplatePerPodService#metadata
    */
@@ -3562,7 +3603,7 @@ export interface KafkaSpecKafkaTemplatePerPodService {
  */
 export interface KafkaSpecKafkaTemplateExternalBootstrapRoute {
   /**
-   * Metadata which should be applied to the resource.
+   * Metadata applied to the resource.
    *
    * @schema KafkaSpecKafkaTemplateExternalBootstrapRoute#metadata
    */
@@ -3577,7 +3618,7 @@ export interface KafkaSpecKafkaTemplateExternalBootstrapRoute {
  */
 export interface KafkaSpecKafkaTemplatePerPodRoute {
   /**
-   * Metadata which should be applied to the resource.
+   * Metadata applied to the resource.
    *
    * @schema KafkaSpecKafkaTemplatePerPodRoute#metadata
    */
@@ -3592,7 +3633,7 @@ export interface KafkaSpecKafkaTemplatePerPodRoute {
  */
 export interface KafkaSpecKafkaTemplateExternalBootstrapIngress {
   /**
-   * Metadata which should be applied to the resource.
+   * Metadata applied to the resource.
    *
    * @schema KafkaSpecKafkaTemplateExternalBootstrapIngress#metadata
    */
@@ -3607,7 +3648,7 @@ export interface KafkaSpecKafkaTemplateExternalBootstrapIngress {
  */
 export interface KafkaSpecKafkaTemplatePerPodIngress {
   /**
-   * Metadata which should be applied to the resource.
+   * Metadata applied to the resource.
    *
    * @schema KafkaSpecKafkaTemplatePerPodIngress#metadata
    */
@@ -3622,7 +3663,7 @@ export interface KafkaSpecKafkaTemplatePerPodIngress {
  */
 export interface KafkaSpecKafkaTemplatePersistentVolumeClaim {
   /**
-   * Metadata which should be applied to the resource.
+   * Metadata applied to the resource.
    *
    * @schema KafkaSpecKafkaTemplatePersistentVolumeClaim#metadata
    */
@@ -3838,7 +3879,7 @@ export enum KafkaSpecZookeeperLoggingType {
  */
 export interface KafkaSpecZookeeperTemplateStatefulset {
   /**
-   * Metadata which should be applied to the resource.
+   * Metadata applied to the resource.
    *
    * @schema KafkaSpecZookeeperTemplateStatefulset#metadata
    */
@@ -3868,7 +3909,7 @@ export interface KafkaSpecZookeeperTemplatePod {
   readonly metadata?: KafkaSpecZookeeperTemplatePodMetadata;
 
   /**
-   * List of references to secrets in the same namespace to use for pulling any of the images used by this Pod.
+   * List of references to secrets in the same namespace to use for pulling any of the images used by this Pod. When the `STRIMZI_IMAGE_PULL_SECRETS` environment variable in Cluster Operator and the `imagePullSecrets` option are specified, only the `imagePullSecrets` variable is used and the `STRIMZI_IMAGE_PULL_SECRETS` variable is ignored.
    *
    * @schema KafkaSpecZookeeperTemplatePod#imagePullSecrets
    */
@@ -3882,7 +3923,7 @@ export interface KafkaSpecZookeeperTemplatePod {
   readonly securityContext?: KafkaSpecZookeeperTemplatePodSecurityContext;
 
   /**
-   * The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process.Value must be non-negative integer. The value zero indicates delete immediately. Defaults to 30 seconds.
+   * The grace period is the duration in seconds after the processes running in the pod are sent a termination signal, and the time when the processes are forcibly halted with a kill signal. Set this value to longer than the expected cleanup time for your process. Value must be a non-negative integer. A zero value indicates delete immediately. You might need to increase the grace period for very large Kafka clusters, so that the Kafka brokers have enough time to transfer their work to another broker before they are terminated. Defaults to 30 seconds.
    *
    * @default 30 seconds.
    * @schema KafkaSpecZookeeperTemplatePod#terminationGracePeriodSeconds
@@ -3897,7 +3938,7 @@ export interface KafkaSpecZookeeperTemplatePod {
   readonly affinity?: KafkaSpecZookeeperTemplatePodAffinity;
 
   /**
-   * The name of the Priority Class to which these pods will be assigned.
+   * The name of the priority class used to assign priority to the pods. For more information about priority classes, see {K8sPriorityClass}.
    *
    * @schema KafkaSpecZookeeperTemplatePod#priorityClassName
    */
@@ -3926,7 +3967,7 @@ export interface KafkaSpecZookeeperTemplatePod {
  */
 export interface KafkaSpecZookeeperTemplateClientService {
   /**
-   * Metadata which should be applied to the resource.
+   * Metadata applied to the resource.
    *
    * @schema KafkaSpecZookeeperTemplateClientService#metadata
    */
@@ -3941,7 +3982,7 @@ export interface KafkaSpecZookeeperTemplateClientService {
  */
 export interface KafkaSpecZookeeperTemplateNodesService {
   /**
-   * Metadata which should be applied to the resource.
+   * Metadata applied to the resource.
    *
    * @schema KafkaSpecZookeeperTemplateNodesService#metadata
    */
@@ -3956,7 +3997,7 @@ export interface KafkaSpecZookeeperTemplateNodesService {
  */
 export interface KafkaSpecZookeeperTemplatePersistentVolumeClaim {
   /**
-   * Metadata which should be applied to the resource.
+   * Metadata applied to the resource.
    *
    * @schema KafkaSpecZookeeperTemplatePersistentVolumeClaim#metadata
    */
@@ -4932,7 +4973,7 @@ export interface KafkaSpecEntityOperatorTlsSidecarResources {
  */
 export interface KafkaSpecEntityOperatorTemplateDeployment {
   /**
-   * Metadata which should be applied to the resource.
+   * Metadata applied to the resource.
    *
    * @schema KafkaSpecEntityOperatorTemplateDeployment#metadata
    */
@@ -4954,7 +4995,7 @@ export interface KafkaSpecEntityOperatorTemplatePod {
   readonly metadata?: KafkaSpecEntityOperatorTemplatePodMetadata;
 
   /**
-   * List of references to secrets in the same namespace to use for pulling any of the images used by this Pod.
+   * List of references to secrets in the same namespace to use for pulling any of the images used by this Pod. When the `STRIMZI_IMAGE_PULL_SECRETS` environment variable in Cluster Operator and the `imagePullSecrets` option are specified, only the `imagePullSecrets` variable is used and the `STRIMZI_IMAGE_PULL_SECRETS` variable is ignored.
    *
    * @schema KafkaSpecEntityOperatorTemplatePod#imagePullSecrets
    */
@@ -4968,7 +5009,7 @@ export interface KafkaSpecEntityOperatorTemplatePod {
   readonly securityContext?: KafkaSpecEntityOperatorTemplatePodSecurityContext;
 
   /**
-   * The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process.Value must be non-negative integer. The value zero indicates delete immediately. Defaults to 30 seconds.
+   * The grace period is the duration in seconds after the processes running in the pod are sent a termination signal, and the time when the processes are forcibly halted with a kill signal. Set this value to longer than the expected cleanup time for your process. Value must be a non-negative integer. A zero value indicates delete immediately. You might need to increase the grace period for very large Kafka clusters, so that the Kafka brokers have enough time to transfer their work to another broker before they are terminated. Defaults to 30 seconds.
    *
    * @default 30 seconds.
    * @schema KafkaSpecEntityOperatorTemplatePod#terminationGracePeriodSeconds
@@ -4983,7 +5024,7 @@ export interface KafkaSpecEntityOperatorTemplatePod {
   readonly affinity?: KafkaSpecEntityOperatorTemplatePodAffinity;
 
   /**
-   * The name of the Priority Class to which these pods will be assigned.
+   * The name of the priority class used to assign priority to the pods. For more information about priority classes, see {K8sPriorityClass}.
    *
    * @schema KafkaSpecEntityOperatorTemplatePod#priorityClassName
    */
@@ -5244,7 +5285,7 @@ export interface KafkaSpecCruiseControlTlsSidecarResources {
  */
 export interface KafkaSpecCruiseControlTemplateDeployment {
   /**
-   * Metadata which should be applied to the resource.
+   * Metadata applied to the resource.
    *
    * @schema KafkaSpecCruiseControlTemplateDeployment#metadata
    */
@@ -5266,7 +5307,7 @@ export interface KafkaSpecCruiseControlTemplatePod {
   readonly metadata?: KafkaSpecCruiseControlTemplatePodMetadata;
 
   /**
-   * List of references to secrets in the same namespace to use for pulling any of the images used by this Pod.
+   * List of references to secrets in the same namespace to use for pulling any of the images used by this Pod. When the `STRIMZI_IMAGE_PULL_SECRETS` environment variable in Cluster Operator and the `imagePullSecrets` option are specified, only the `imagePullSecrets` variable is used and the `STRIMZI_IMAGE_PULL_SECRETS` variable is ignored.
    *
    * @schema KafkaSpecCruiseControlTemplatePod#imagePullSecrets
    */
@@ -5280,7 +5321,7 @@ export interface KafkaSpecCruiseControlTemplatePod {
   readonly securityContext?: KafkaSpecCruiseControlTemplatePodSecurityContext;
 
   /**
-   * The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process.Value must be non-negative integer. The value zero indicates delete immediately. Defaults to 30 seconds.
+   * The grace period is the duration in seconds after the processes running in the pod are sent a termination signal, and the time when the processes are forcibly halted with a kill signal. Set this value to longer than the expected cleanup time for your process. Value must be a non-negative integer. A zero value indicates delete immediately. You might need to increase the grace period for very large Kafka clusters, so that the Kafka brokers have enough time to transfer their work to another broker before they are terminated. Defaults to 30 seconds.
    *
    * @default 30 seconds.
    * @schema KafkaSpecCruiseControlTemplatePod#terminationGracePeriodSeconds
@@ -5295,7 +5336,7 @@ export interface KafkaSpecCruiseControlTemplatePod {
   readonly affinity?: KafkaSpecCruiseControlTemplatePodAffinity;
 
   /**
-   * The name of the Priority Class to which these pods will be assigned.
+   * The name of the priority class used to assign priority to the pods. For more information about priority classes, see {K8sPriorityClass}.
    *
    * @schema KafkaSpecCruiseControlTemplatePod#priorityClassName
    */
@@ -5324,7 +5365,7 @@ export interface KafkaSpecCruiseControlTemplatePod {
  */
 export interface KafkaSpecCruiseControlTemplateApiService {
   /**
-   * Metadata which should be applied to the resource.
+   * Metadata applied to the resource.
    *
    * @schema KafkaSpecCruiseControlTemplateApiService#metadata
    */
@@ -5406,7 +5447,7 @@ export interface KafkaSpecCruiseControlTemplateTlsSidecarContainer {
  */
 export interface KafkaSpecJmxTransTemplateDeployment {
   /**
-   * Metadata which should be applied to the resource.
+   * Metadata applied to the resource.
    *
    * @schema KafkaSpecJmxTransTemplateDeployment#metadata
    */
@@ -5428,7 +5469,7 @@ export interface KafkaSpecJmxTransTemplatePod {
   readonly metadata?: KafkaSpecJmxTransTemplatePodMetadata;
 
   /**
-   * List of references to secrets in the same namespace to use for pulling any of the images used by this Pod.
+   * List of references to secrets in the same namespace to use for pulling any of the images used by this Pod. When the `STRIMZI_IMAGE_PULL_SECRETS` environment variable in Cluster Operator and the `imagePullSecrets` option are specified, only the `imagePullSecrets` variable is used and the `STRIMZI_IMAGE_PULL_SECRETS` variable is ignored.
    *
    * @schema KafkaSpecJmxTransTemplatePod#imagePullSecrets
    */
@@ -5442,7 +5483,7 @@ export interface KafkaSpecJmxTransTemplatePod {
   readonly securityContext?: KafkaSpecJmxTransTemplatePodSecurityContext;
 
   /**
-   * The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process.Value must be non-negative integer. The value zero indicates delete immediately. Defaults to 30 seconds.
+   * The grace period is the duration in seconds after the processes running in the pod are sent a termination signal, and the time when the processes are forcibly halted with a kill signal. Set this value to longer than the expected cleanup time for your process. Value must be a non-negative integer. A zero value indicates delete immediately. You might need to increase the grace period for very large Kafka clusters, so that the Kafka brokers have enough time to transfer their work to another broker before they are terminated. Defaults to 30 seconds.
    *
    * @default 30 seconds.
    * @schema KafkaSpecJmxTransTemplatePod#terminationGracePeriodSeconds
@@ -5457,7 +5498,7 @@ export interface KafkaSpecJmxTransTemplatePod {
   readonly affinity?: KafkaSpecJmxTransTemplatePodAffinity;
 
   /**
-   * The name of the Priority Class to which these pods will be assigned.
+   * The name of the priority class used to assign priority to the pods. For more information about priority classes, see {K8sPriorityClass}.
    *
    * @schema KafkaSpecJmxTransTemplatePod#priorityClassName
    */
@@ -5508,7 +5549,7 @@ export interface KafkaSpecJmxTransTemplateContainer {
  */
 export interface KafkaSpecKafkaExporterTemplateDeployment {
   /**
-   * Metadata which should be applied to the resource.
+   * Metadata applied to the resource.
    *
    * @schema KafkaSpecKafkaExporterTemplateDeployment#metadata
    */
@@ -5530,7 +5571,7 @@ export interface KafkaSpecKafkaExporterTemplatePod {
   readonly metadata?: KafkaSpecKafkaExporterTemplatePodMetadata;
 
   /**
-   * List of references to secrets in the same namespace to use for pulling any of the images used by this Pod.
+   * List of references to secrets in the same namespace to use for pulling any of the images used by this Pod. When the `STRIMZI_IMAGE_PULL_SECRETS` environment variable in Cluster Operator and the `imagePullSecrets` option are specified, only the `imagePullSecrets` variable is used and the `STRIMZI_IMAGE_PULL_SECRETS` variable is ignored.
    *
    * @schema KafkaSpecKafkaExporterTemplatePod#imagePullSecrets
    */
@@ -5544,7 +5585,7 @@ export interface KafkaSpecKafkaExporterTemplatePod {
   readonly securityContext?: KafkaSpecKafkaExporterTemplatePodSecurityContext;
 
   /**
-   * The grace period is the duration in seconds after the processes running in the pod are sent a termination signal and the time when the processes are forcibly halted with a kill signal. Set this value longer than the expected cleanup time for your process.Value must be non-negative integer. The value zero indicates delete immediately. Defaults to 30 seconds.
+   * The grace period is the duration in seconds after the processes running in the pod are sent a termination signal, and the time when the processes are forcibly halted with a kill signal. Set this value to longer than the expected cleanup time for your process. Value must be a non-negative integer. A zero value indicates delete immediately. You might need to increase the grace period for very large Kafka clusters, so that the Kafka brokers have enough time to transfer their work to another broker before they are terminated. Defaults to 30 seconds.
    *
    * @default 30 seconds.
    * @schema KafkaSpecKafkaExporterTemplatePod#terminationGracePeriodSeconds
@@ -5559,7 +5600,7 @@ export interface KafkaSpecKafkaExporterTemplatePod {
   readonly affinity?: KafkaSpecKafkaExporterTemplatePodAffinity;
 
   /**
-   * The name of the Priority Class to which these pods will be assigned.
+   * The name of the priority class used to assign priority to the pods. For more information about priority classes, see {K8sPriorityClass}.
    *
    * @schema KafkaSpecKafkaExporterTemplatePod#priorityClassName
    */
@@ -5588,7 +5629,7 @@ export interface KafkaSpecKafkaExporterTemplatePod {
  */
 export interface KafkaSpecKafkaExporterTemplateService {
   /**
-   * Metadata which should be applied to the resource.
+   * Metadata applied to the resource.
    *
    * @schema KafkaSpecKafkaExporterTemplateService#metadata
    */
@@ -6347,20 +6388,20 @@ export enum KafkaSpecKafkaJmxOptionsAuthenticationType {
 }
 
 /**
- * Metadata which should be applied to the resource.
+ * Metadata applied to the resource.
  *
  * @schema KafkaSpecKafkaTemplateStatefulsetMetadata
  */
 export interface KafkaSpecKafkaTemplateStatefulsetMetadata {
   /**
-   * Labels which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecKafkaTemplateStatefulsetMetadata#labels
    */
   readonly labels?: any;
 
   /**
-   * Annotations which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecKafkaTemplateStatefulsetMetadata#annotations
    */
@@ -6388,14 +6429,14 @@ export enum KafkaSpecKafkaTemplateStatefulsetPodManagementPolicy {
  */
 export interface KafkaSpecKafkaTemplatePodMetadata {
   /**
-   * Labels which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecKafkaTemplatePodMetadata#labels
    */
   readonly labels?: any;
 
   /**
-   * Annotations which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecKafkaTemplatePodMetadata#annotations
    */
@@ -6517,20 +6558,20 @@ export interface KafkaSpecKafkaTemplatePodTolerations {
 }
 
 /**
- * Metadata which should be applied to the resource.
+ * Metadata applied to the resource.
  *
  * @schema KafkaSpecKafkaTemplateBootstrapServiceMetadata
  */
 export interface KafkaSpecKafkaTemplateBootstrapServiceMetadata {
   /**
-   * Labels which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecKafkaTemplateBootstrapServiceMetadata#labels
    */
   readonly labels?: any;
 
   /**
-   * Annotations which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecKafkaTemplateBootstrapServiceMetadata#annotations
    */
@@ -6539,20 +6580,20 @@ export interface KafkaSpecKafkaTemplateBootstrapServiceMetadata {
 }
 
 /**
- * Metadata which should be applied to the resource.
+ * Metadata applied to the resource.
  *
  * @schema KafkaSpecKafkaTemplateBrokersServiceMetadata
  */
 export interface KafkaSpecKafkaTemplateBrokersServiceMetadata {
   /**
-   * Labels which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecKafkaTemplateBrokersServiceMetadata#labels
    */
   readonly labels?: any;
 
   /**
-   * Annotations which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecKafkaTemplateBrokersServiceMetadata#annotations
    */
@@ -6561,20 +6602,20 @@ export interface KafkaSpecKafkaTemplateBrokersServiceMetadata {
 }
 
 /**
- * Metadata which should be applied to the resource.
+ * Metadata applied to the resource.
  *
  * @schema KafkaSpecKafkaTemplateExternalBootstrapServiceMetadata
  */
 export interface KafkaSpecKafkaTemplateExternalBootstrapServiceMetadata {
   /**
-   * Labels which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecKafkaTemplateExternalBootstrapServiceMetadata#labels
    */
   readonly labels?: any;
 
   /**
-   * Annotations which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecKafkaTemplateExternalBootstrapServiceMetadata#annotations
    */
@@ -6595,20 +6636,20 @@ export enum KafkaSpecKafkaTemplateExternalBootstrapServiceExternalTrafficPolicy 
 }
 
 /**
- * Metadata which should be applied to the resource.
+ * Metadata applied to the resource.
  *
  * @schema KafkaSpecKafkaTemplatePerPodServiceMetadata
  */
 export interface KafkaSpecKafkaTemplatePerPodServiceMetadata {
   /**
-   * Labels which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecKafkaTemplatePerPodServiceMetadata#labels
    */
   readonly labels?: any;
 
   /**
-   * Annotations which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecKafkaTemplatePerPodServiceMetadata#annotations
    */
@@ -6629,20 +6670,20 @@ export enum KafkaSpecKafkaTemplatePerPodServiceExternalTrafficPolicy {
 }
 
 /**
- * Metadata which should be applied to the resource.
+ * Metadata applied to the resource.
  *
  * @schema KafkaSpecKafkaTemplateExternalBootstrapRouteMetadata
  */
 export interface KafkaSpecKafkaTemplateExternalBootstrapRouteMetadata {
   /**
-   * Labels which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecKafkaTemplateExternalBootstrapRouteMetadata#labels
    */
   readonly labels?: any;
 
   /**
-   * Annotations which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecKafkaTemplateExternalBootstrapRouteMetadata#annotations
    */
@@ -6651,20 +6692,20 @@ export interface KafkaSpecKafkaTemplateExternalBootstrapRouteMetadata {
 }
 
 /**
- * Metadata which should be applied to the resource.
+ * Metadata applied to the resource.
  *
  * @schema KafkaSpecKafkaTemplatePerPodRouteMetadata
  */
 export interface KafkaSpecKafkaTemplatePerPodRouteMetadata {
   /**
-   * Labels which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecKafkaTemplatePerPodRouteMetadata#labels
    */
   readonly labels?: any;
 
   /**
-   * Annotations which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecKafkaTemplatePerPodRouteMetadata#annotations
    */
@@ -6673,20 +6714,20 @@ export interface KafkaSpecKafkaTemplatePerPodRouteMetadata {
 }
 
 /**
- * Metadata which should be applied to the resource.
+ * Metadata applied to the resource.
  *
  * @schema KafkaSpecKafkaTemplateExternalBootstrapIngressMetadata
  */
 export interface KafkaSpecKafkaTemplateExternalBootstrapIngressMetadata {
   /**
-   * Labels which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecKafkaTemplateExternalBootstrapIngressMetadata#labels
    */
   readonly labels?: any;
 
   /**
-   * Annotations which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecKafkaTemplateExternalBootstrapIngressMetadata#annotations
    */
@@ -6695,20 +6736,20 @@ export interface KafkaSpecKafkaTemplateExternalBootstrapIngressMetadata {
 }
 
 /**
- * Metadata which should be applied to the resource.
+ * Metadata applied to the resource.
  *
  * @schema KafkaSpecKafkaTemplatePerPodIngressMetadata
  */
 export interface KafkaSpecKafkaTemplatePerPodIngressMetadata {
   /**
-   * Labels which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecKafkaTemplatePerPodIngressMetadata#labels
    */
   readonly labels?: any;
 
   /**
-   * Annotations which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecKafkaTemplatePerPodIngressMetadata#annotations
    */
@@ -6717,20 +6758,20 @@ export interface KafkaSpecKafkaTemplatePerPodIngressMetadata {
 }
 
 /**
- * Metadata which should be applied to the resource.
+ * Metadata applied to the resource.
  *
  * @schema KafkaSpecKafkaTemplatePersistentVolumeClaimMetadata
  */
 export interface KafkaSpecKafkaTemplatePersistentVolumeClaimMetadata {
   /**
-   * Labels which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecKafkaTemplatePersistentVolumeClaimMetadata#labels
    */
   readonly labels?: any;
 
   /**
-   * Annotations which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecKafkaTemplatePersistentVolumeClaimMetadata#annotations
    */
@@ -6745,14 +6786,14 @@ export interface KafkaSpecKafkaTemplatePersistentVolumeClaimMetadata {
  */
 export interface KafkaSpecKafkaTemplatePodDisruptionBudgetMetadata {
   /**
-   * Labels which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecKafkaTemplatePodDisruptionBudgetMetadata#labels
    */
   readonly labels?: any;
 
   /**
-   * Annotations which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecKafkaTemplatePodDisruptionBudgetMetadata#annotations
    */
@@ -7096,20 +7137,20 @@ export interface KafkaSpecZookeeperAffinityPodAntiAffinityRequiredDuringScheduli
 }
 
 /**
- * Metadata which should be applied to the resource.
+ * Metadata applied to the resource.
  *
  * @schema KafkaSpecZookeeperTemplateStatefulsetMetadata
  */
 export interface KafkaSpecZookeeperTemplateStatefulsetMetadata {
   /**
-   * Labels which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecZookeeperTemplateStatefulsetMetadata#labels
    */
   readonly labels?: any;
 
   /**
-   * Annotations which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecZookeeperTemplateStatefulsetMetadata#annotations
    */
@@ -7137,14 +7178,14 @@ export enum KafkaSpecZookeeperTemplateStatefulsetPodManagementPolicy {
  */
 export interface KafkaSpecZookeeperTemplatePodMetadata {
   /**
-   * Labels which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecZookeeperTemplatePodMetadata#labels
    */
   readonly labels?: any;
 
   /**
-   * Annotations which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecZookeeperTemplatePodMetadata#annotations
    */
@@ -7266,20 +7307,20 @@ export interface KafkaSpecZookeeperTemplatePodTolerations {
 }
 
 /**
- * Metadata which should be applied to the resource.
+ * Metadata applied to the resource.
  *
  * @schema KafkaSpecZookeeperTemplateClientServiceMetadata
  */
 export interface KafkaSpecZookeeperTemplateClientServiceMetadata {
   /**
-   * Labels which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecZookeeperTemplateClientServiceMetadata#labels
    */
   readonly labels?: any;
 
   /**
-   * Annotations which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecZookeeperTemplateClientServiceMetadata#annotations
    */
@@ -7288,20 +7329,20 @@ export interface KafkaSpecZookeeperTemplateClientServiceMetadata {
 }
 
 /**
- * Metadata which should be applied to the resource.
+ * Metadata applied to the resource.
  *
  * @schema KafkaSpecZookeeperTemplateNodesServiceMetadata
  */
 export interface KafkaSpecZookeeperTemplateNodesServiceMetadata {
   /**
-   * Labels which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecZookeeperTemplateNodesServiceMetadata#labels
    */
   readonly labels?: any;
 
   /**
-   * Annotations which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecZookeeperTemplateNodesServiceMetadata#annotations
    */
@@ -7310,20 +7351,20 @@ export interface KafkaSpecZookeeperTemplateNodesServiceMetadata {
 }
 
 /**
- * Metadata which should be applied to the resource.
+ * Metadata applied to the resource.
  *
  * @schema KafkaSpecZookeeperTemplatePersistentVolumeClaimMetadata
  */
 export interface KafkaSpecZookeeperTemplatePersistentVolumeClaimMetadata {
   /**
-   * Labels which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecZookeeperTemplatePersistentVolumeClaimMetadata#labels
    */
   readonly labels?: any;
 
   /**
-   * Annotations which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecZookeeperTemplatePersistentVolumeClaimMetadata#annotations
    */
@@ -7338,14 +7379,14 @@ export interface KafkaSpecZookeeperTemplatePersistentVolumeClaimMetadata {
  */
 export interface KafkaSpecZookeeperTemplatePodDisruptionBudgetMetadata {
   /**
-   * Labels which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecZookeeperTemplatePodDisruptionBudgetMetadata#labels
    */
   readonly labels?: any;
 
   /**
-   * Annotations which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecZookeeperTemplatePodDisruptionBudgetMetadata#annotations
    */
@@ -7776,20 +7817,20 @@ export interface KafkaSpecEntityOperatorAffinityPodAntiAffinityRequiredDuringSch
 }
 
 /**
- * Metadata which should be applied to the resource.
+ * Metadata applied to the resource.
  *
  * @schema KafkaSpecEntityOperatorTemplateDeploymentMetadata
  */
 export interface KafkaSpecEntityOperatorTemplateDeploymentMetadata {
   /**
-   * Labels which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecEntityOperatorTemplateDeploymentMetadata#labels
    */
   readonly labels?: any;
 
   /**
-   * Annotations which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecEntityOperatorTemplateDeploymentMetadata#annotations
    */
@@ -7804,14 +7845,14 @@ export interface KafkaSpecEntityOperatorTemplateDeploymentMetadata {
  */
 export interface KafkaSpecEntityOperatorTemplatePodMetadata {
   /**
-   * Labels which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecEntityOperatorTemplatePodMetadata#labels
    */
   readonly labels?: any;
 
   /**
-   * Annotations which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecEntityOperatorTemplatePodMetadata#annotations
    */
@@ -8167,20 +8208,20 @@ export interface KafkaSpecEntityOperatorTemplateUserOperatorContainerSecurityCon
 }
 
 /**
- * Metadata which should be applied to the resource.
+ * Metadata applied to the resource.
  *
  * @schema KafkaSpecCruiseControlTemplateDeploymentMetadata
  */
 export interface KafkaSpecCruiseControlTemplateDeploymentMetadata {
   /**
-   * Labels which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecCruiseControlTemplateDeploymentMetadata#labels
    */
   readonly labels?: any;
 
   /**
-   * Annotations which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecCruiseControlTemplateDeploymentMetadata#annotations
    */
@@ -8195,14 +8236,14 @@ export interface KafkaSpecCruiseControlTemplateDeploymentMetadata {
  */
 export interface KafkaSpecCruiseControlTemplatePodMetadata {
   /**
-   * Labels which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecCruiseControlTemplatePodMetadata#labels
    */
   readonly labels?: any;
 
   /**
-   * Annotations which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecCruiseControlTemplatePodMetadata#annotations
    */
@@ -8324,20 +8365,20 @@ export interface KafkaSpecCruiseControlTemplatePodTolerations {
 }
 
 /**
- * Metadata which should be applied to the resource.
+ * Metadata applied to the resource.
  *
  * @schema KafkaSpecCruiseControlTemplateApiServiceMetadata
  */
 export interface KafkaSpecCruiseControlTemplateApiServiceMetadata {
   /**
-   * Labels which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecCruiseControlTemplateApiServiceMetadata#labels
    */
   readonly labels?: any;
 
   /**
-   * Annotations which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecCruiseControlTemplateApiServiceMetadata#annotations
    */
@@ -8352,14 +8393,14 @@ export interface KafkaSpecCruiseControlTemplateApiServiceMetadata {
  */
 export interface KafkaSpecCruiseControlTemplatePodDisruptionBudgetMetadata {
   /**
-   * Labels which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecCruiseControlTemplatePodDisruptionBudgetMetadata#labels
    */
   readonly labels?: any;
 
   /**
-   * Annotations which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecCruiseControlTemplatePodDisruptionBudgetMetadata#annotations
    */
@@ -8524,20 +8565,20 @@ export interface KafkaSpecCruiseControlTemplateTlsSidecarContainerSecurityContex
 }
 
 /**
- * Metadata which should be applied to the resource.
+ * Metadata applied to the resource.
  *
  * @schema KafkaSpecJmxTransTemplateDeploymentMetadata
  */
 export interface KafkaSpecJmxTransTemplateDeploymentMetadata {
   /**
-   * Labels which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecJmxTransTemplateDeploymentMetadata#labels
    */
   readonly labels?: any;
 
   /**
-   * Annotations which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecJmxTransTemplateDeploymentMetadata#annotations
    */
@@ -8552,14 +8593,14 @@ export interface KafkaSpecJmxTransTemplateDeploymentMetadata {
  */
 export interface KafkaSpecJmxTransTemplatePodMetadata {
   /**
-   * Labels which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecJmxTransTemplatePodMetadata#labels
    */
   readonly labels?: any;
 
   /**
-   * Annotations which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecJmxTransTemplatePodMetadata#annotations
    */
@@ -8759,20 +8800,20 @@ export interface KafkaSpecJmxTransTemplateContainerSecurityContext {
 }
 
 /**
- * Metadata which should be applied to the resource.
+ * Metadata applied to the resource.
  *
  * @schema KafkaSpecKafkaExporterTemplateDeploymentMetadata
  */
 export interface KafkaSpecKafkaExporterTemplateDeploymentMetadata {
   /**
-   * Labels which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecKafkaExporterTemplateDeploymentMetadata#labels
    */
   readonly labels?: any;
 
   /**
-   * Annotations which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecKafkaExporterTemplateDeploymentMetadata#annotations
    */
@@ -8787,14 +8828,14 @@ export interface KafkaSpecKafkaExporterTemplateDeploymentMetadata {
  */
 export interface KafkaSpecKafkaExporterTemplatePodMetadata {
   /**
-   * Labels which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecKafkaExporterTemplatePodMetadata#labels
    */
   readonly labels?: any;
 
   /**
-   * Annotations which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecKafkaExporterTemplatePodMetadata#annotations
    */
@@ -8916,20 +8957,20 @@ export interface KafkaSpecKafkaExporterTemplatePodTolerations {
 }
 
 /**
- * Metadata which should be applied to the resource.
+ * Metadata applied to the resource.
  *
  * @schema KafkaSpecKafkaExporterTemplateServiceMetadata
  */
 export interface KafkaSpecKafkaExporterTemplateServiceMetadata {
   /**
-   * Labels which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecKafkaExporterTemplateServiceMetadata#labels
    */
   readonly labels?: any;
 
   /**
-   * Annotations which should be added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
    *
    * @schema KafkaSpecKafkaExporterTemplateServiceMetadata#annotations
    */

@@ -1,0 +1,66 @@
+{
+  "name": "historization",
+  "version": "1.0.2",
+  "description": "A historization service responsible for persisting info",
+  "author": {
+    "name": "Thomas Kosiewski"
+  },
+  "engines": {
+    "node": ">=12.9.0"
+  },
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
+  "private": true,
+  "files": [
+    "build"
+  ],
+  "license": "AGPL-3.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Fortify-Labs/Fortify.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Fortify-Labs/Fortify/issues"
+  },
+  "keywords": [],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "check": "gts check",
+    "clean": "gts clean",
+    "compile": "tsc -b",
+    "fix": "gts fix",
+    "prepare": "npm run compile",
+    "pretest": "npm run compile",
+    "posttest": "npm run check",
+    "start": "cross-env TS_NODE_PROJECT=./ NODE_OPTIONS=--trace-warnings node -r tsconfig-paths/register build/index.js",
+    "start:ts": "cross-env DEBUG=app::* NODE_OPTIONS=--trace-warnings ts-node -r tsconfig-paths/register --files src/index.ts",
+    "sync-dotenv": "sync-dotenv",
+    "dev": "DEBUG=app:* nodemon"
+  },
+  "devDependencies": {
+    "@types/debug": "^4.1.5",
+    "@types/jsonwebtoken": "^8.5.0",
+    "@types/node": "^14.0.27",
+    "@types/node-fetch": "^2.5.7",
+    "@types/redis": "^2.8.25",
+    "gts": "^2.0.2",
+    "nodemon": "^2.0.4",
+    "sync-dotenv": "^2.6.1",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.7"
+  },
+  "dependencies": {
+    "@influxdata/influxdb-client": "^1.5.0",
+    "bignumber.js": "^9.0.0",
+    "cross-env": "^7.0.2",
+    "debug": "^4.1.1",
+    "dotenv": "^8.2.0",
+    "inversify": "^5.0.1",
+    "jsonwebtoken": "^8.5.1",
+    "kafkajs": "^1.12.0",
+    "node-fetch": "^2.6.0",
+    "redis": "^3.0.2",
+    "reflect-metadata": "^0.1.13",
+    "tsconfig-paths": "^3.9.0"
+  }
+}

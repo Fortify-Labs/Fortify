@@ -1,5 +1,6 @@
 {
 	"cSpell.words": [
+		"DOTENV",
 		"Deserialization",
 		"Dota",
 		"Persistor",
@@ -13,14 +14,22 @@
 		"entrypoint",
 		"gitlab",
 		"gsiingress",
+		"historization",
+		"hotfix",
+		"influxdb",
 		"istio",
 		"kmmrbot",
+		"kube",
+		"kubectl",
 		"microservice",
 		"microservices",
+		"mkdir",
 		"postgres",
 		"postgresql",
 		"rediscommander",
+		"statefulset",
 		"tchiotludo",
+		"tolerations",
 		"wurstmeister"
 	],
   "githubIssues.workingIssueBranch": "feature/issue-${issueNumber}"

@@ -123,6 +123,11 @@ export interface GatewaySpecServersPort {
    */
   readonly protocol?: string;
 
+  /**
+   * @schema GatewaySpecServersPort#targetPort
+   */
+  readonly targetPort?: number;
+
 }
 
 /**
