@@ -3,7 +3,7 @@ import { injectable, inject } from "inversify";
 import { TwitchCommand } from "../definitions/twitchCommand";
 import { Client } from "tmi.js";
 
-import { ExtractorService } from "../services/extractor";
+import { ExtractorService } from "@shared/services/extractor";
 import { LeaderboardService } from "../services/leaderboard";
 import {
 	LeaderboardType,

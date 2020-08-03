@@ -1,17 +1,13 @@
-import {
-	FortifyPlayerState,
-	FortifyPlayer,
-	FortifyGameMode,
-} from "@shared/state";
+import { FortifyPlayerState, FortifyPlayer, FortifyGameMode } from "../state";
 
 import { injectable, inject } from "inversify";
 
-import { PostgresConnector } from "@shared/connectors/postgres";
-import { RedisConnector } from "@shared/connectors/redis";
+import { PostgresConnector } from "../connectors/postgres";
+import { RedisConnector } from "../connectors/redis";
 
-import { rankToMMRMapping, adjustedBigBossRanks } from "@shared/ranks";
+import { rankToMMRMapping, adjustedBigBossRanks } from "../ranks";
 
-import { ULLeaderboard } from "@shared/definitions/leaderboard";
+import { ULLeaderboard } from "../definitions/leaderboard";
 
 @injectable()
 export class ExtractorService {
