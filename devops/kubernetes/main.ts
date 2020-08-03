@@ -51,6 +51,11 @@ import { RedisFailover } from "./imports/databases.spotahome.com/redisfailover";
 import { Elasticsearch } from "./imports/elasticsearch.k8s.elastic.co/elasticsearch";
 import { Kibana } from "./imports/kibana.k8s.elastic.co/kibana";
 import { kubernetesConf } from "./src/fluentd/config";
+import {
+	VirtualService,
+	VirtualServiceOptions,
+} from "./imports/networking.istio.io/virtualservice";
+import { ClusterIngress } from "./src/cluster/ingress";
 
 export interface CustomGatewayOptions extends GatewayOptions {
 	metadata?: ObjectMeta;
@@ -71,7 +76,18 @@ const {
 	POSTGRES_PASSWORD = "",
 	INFLUXDB_TOKEN = "",
 	STEAM_WEB_API_KEY = "",
+	ENVIRONMENT = "prod",
 } = process.env;
+
+const hosts = [DOMAIN, `api.${DOMAIN}`, `gsi.${DOMAIN}`];
+
+const devHosts = [
+	`akhq-${ENVIRONMENT}.fortify.dev`,
+	`redis-commander-${ENVIRONMENT}.fortify.dev`,
+	`influxdb-${ENVIRONMENT}.fortify.dev`,
+	`kibana-${ENVIRONMENT}.fortify.dev`,
+	`fortify.dev`,
+];
 
 export class ClusterSetup extends Chart {
 	constructor(scope: Construct, name: string) {
@@ -361,6 +377,13 @@ export class ClusterSetup extends Chart {
 				elasticsearchRef: {
 					name: "elasticsearch",
 				},
+				http: {
+					tls: {
+						selfSignedCertificate: {
+							disabled: true,
+						},
+					},
+				},
 			},
 		});
 
@@ -645,6 +668,145 @@ export class ClusterSetup extends Chart {
 				type: "ClusterIP",
 			},
 		});
+
+		// --- Ingress ---
+
+		// TLS certificate requested via cert-manager
+		new Certificate(this, "fortify-ssl-cert", {
+			metadata: {
+				name: "fortify-ssl-cert",
+				namespace: "istio-system",
+			},
+			spec: {
+				secretName: "fortify-ssl-cert",
+				commonName: DOMAIN,
+				dnsNames: [DOMAIN, `api.${DOMAIN}`, `gsi.${DOMAIN}`],
+				issuerRef: {
+					name: "cf-letsencrypt-staging",
+					kind: "ClusterIssuer",
+				},
+			},
+		});
+
+		// TLS certificate requested via cert-manager
+		new Certificate(this, "fortify-cluster-ssl-cert", {
+			metadata: {
+				name: "fortify-cluster-ssl-cert",
+				namespace: "istio-system",
+			},
+			spec: {
+				secretName: "fortify-cluster-ssl-cert",
+				commonName: "fortify.dev",
+				dnsNames: devHosts,
+				issuerRef: {
+					name: "cf-letsencrypt-staging",
+					kind: "ClusterIssuer",
+				},
+			},
+		});
+
+		// Istio gateway
+		new Gateway(this, "fortify-gateway", {
+			metadata: {
+				name: "fortify-gateway",
+			},
+			spec: {
+				selector: {
+					istio: "ingressgateway",
+				},
+				servers: [
+					{
+						port: {
+							number: 443,
+							name: "https",
+							protocol: "HTTPS",
+						},
+						tls: {
+							mode: GatewaySpecServersTlsMode.SIMPLE,
+							credentialName: "fortify-ssl-cert",
+						},
+						hosts,
+					},
+					{
+						port: {
+							number: 443,
+							name: "https-dev",
+							protocol: "HTTPS",
+						},
+						tls: {
+							mode: GatewaySpecServersTlsMode.SIMPLE,
+							credentialName: "fortify-cluster-ssl-cert",
+						},
+						hosts: devHosts,
+					},
+				],
+			},
+		} as CustomGatewayOptions);
+
+		new VirtualService(this, "nginx-ingress-virtual-service", {
+			spec: {
+				hosts: devHosts,
+				gateways: ["fortify-gateway"],
+				http: [
+					{
+						route: [
+							{
+								destination: {
+									host:
+										"ingress-nginx-controller.ingress-nginx.svc.cluster.local",
+									port: {
+										number: 80,
+									},
+								},
+							},
+						],
+					},
+				],
+			},
+		} as VirtualServiceOptions & { metadata: ObjectMeta });
+
+		new ClusterIngress(this, "akhq-ingress", {
+			name: "akhq",
+			namespace: "fortify",
+			serviceName: "akhq",
+			servicePort: 80,
+		});
+
+		new ClusterIngress(this, "redis-commander-ingress", {
+			name: "redis-commander",
+			namespace: "fortify",
+			serviceName: "redis-commander",
+			servicePort: 80,
+		});
+
+		new ClusterIngress(this, "influxdb-ingress", {
+			name: "influxdb",
+			namespace: "influxdb",
+			serviceName: "influxdb",
+			servicePort: 9999,
+
+			// Let's disable it for now. Basic auth is very annoying with influx
+			basicAuth: false,
+		});
+
+		new ClusterIngress(this, "kibana-ingress", {
+			name: "kibana",
+			namespace: "logs",
+			serviceName: "kibana-kb-http",
+			servicePort: 5601,
+
+			basicAuth: false,
+		});
+
+		// Placeholder until the staging cluster arrives
+		new ClusterIngress(this, "frontend-ingress", {
+			name: "frontend",
+			namespace: "fortify",
+			serviceName: "frontend",
+			servicePort: 3000,
+
+			host: "fortify.dev",
+		});
 	}
 }
 
@@ -743,49 +905,6 @@ export class Fortify extends Chart {
 				STEAM_WEB_API_KEY,
 			},
 		});
-
-		// TLS certificate requested via cert-manager
-		new Certificate(this, "fortify-ssl-cert", {
-			metadata: {
-				name: "fortify-ssl-cert",
-				namespace: "istio-system",
-			},
-			spec: {
-				secretName: "fortify-ssl-cert",
-				commonName: DOMAIN,
-				dnsNames: [DOMAIN, `api.${DOMAIN}`, `gsi.${DOMAIN}`],
-				issuerRef: {
-					name: "cf-letsencrypt-staging",
-					kind: "ClusterIssuer",
-				},
-			},
-		});
-
-		// Istio gateway
-		new Gateway(this, "fortify-gateway", {
-			metadata: {
-				name: "fortify-gateway",
-			},
-			spec: {
-				selector: {
-					istio: "ingressgateway",
-				},
-				servers: [
-					{
-						port: {
-							number: 443,
-							name: "https",
-							protocol: "HTTPS",
-						},
-						tls: {
-							mode: GatewaySpecServersTlsMode.SIMPLE,
-							credentialName: "fortify-ssl-cert",
-						},
-						hosts: [DOMAIN, `api.${DOMAIN}`, `gsi.${DOMAIN}`],
-					},
-				],
-			},
-		} as CustomGatewayOptions);
 
 		// Fortify web services
 		new WebService(this, "backend", {
