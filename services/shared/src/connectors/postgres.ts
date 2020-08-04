@@ -1,8 +1,12 @@
 import { injectable } from "inversify";
 
+import debug = require("debug");
+
 import { createConnection, Connection } from "typeorm";
 import { User } from "../db/entities/user";
-import debug = require("debug");
+import { Match } from "../db/entities/match";
+import { MatchPlayer } from "../db/entities/matchPlayer";
+import { MatchSlot } from "../db/entities/matchSlot";
 
 const {
 	POSTGRES_USER,
@@ -34,7 +38,7 @@ export class PostgresConnector {
 			username: POSTGRES_USER,
 			password: POSTGRES_PASSWORD,
 			database: POSTGRES_DATABASE ?? "fortify",
-			entities: [User],
+			entities: [User, Match, MatchSlot, MatchPlayer],
 			synchronize: NODE_ENV !== "production",
 			logging: DB_LOG === "true",
 			poolErrorHandler: debug("app::db"),
@@ -67,6 +71,24 @@ export class PostgresConnector {
 	async getUserRepo() {
 		return this.connection.then((connection) =>
 			connection.getRepository(User),
+		);
+	}
+
+	async getMatchRepo() {
+		return this.connection.then((connection) =>
+			connection.getRepository(Match),
+		);
+	}
+
+	async getMatchSlotRepo() {
+		return this.connection.then((connection) =>
+			connection.getRepository(MatchSlot),
+		);
+	}
+
+	async getMatchPlayerRepo() {
+		return this.connection.then((connection) =>
+			connection.getRepository(MatchPlayer),
 		);
 	}
 }

@@ -35,6 +35,7 @@ export class PoolReducer implements StateReducer<PublicPlayerState> {
 					accountID: (publicPlayerState.account_id ?? "").toString(),
 					name: (publicPlayerState.persona_name ?? "").toString(),
 					slot: publicPlayerState.player_slot,
+					finalPlace: 0,
 				};
 			}
 

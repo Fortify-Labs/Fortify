@@ -97,21 +97,33 @@ const {
 							} of data) {
 								if (public_player_state) {
 									for (const reducer of publicStateReducers) {
-										state = await reducer.processor(
-											state,
-											context,
-											public_player_state,
-										);
+										try {
+											state = await reducer.processor(
+												state,
+												context,
+												public_player_state,
+											);
+										} catch (e) {
+											debug(
+												"app::consumer::public_player_state",
+											)(e);
+										}
 									}
 								}
 
 								if (private_player_state) {
 									for (const reducer of privateStateReducers) {
-										state = await reducer.processor(
-											state,
-											context,
-											private_player_state,
-										);
+										try {
+											state = await reducer.processor(
+												state,
+												context,
+												private_player_state,
+											);
+										} catch (e) {
+											debug(
+												"app::consumer::private_player_state",
+											)(e);
+										}
 									}
 								}
 							}
@@ -123,7 +135,7 @@ const {
 						);
 					}
 				} catch (e) {
-					debug("app::consumer:eachMessage")(e);
+					debug("app::consumer::eachMessage")(e);
 				}
 			}
 		},

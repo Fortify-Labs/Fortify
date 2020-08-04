@@ -5,6 +5,8 @@ import { Container } from "inversify";
 import { KafkaConnector } from "@shared/connectors/kafka";
 import { RedisConnector } from "@shared/connectors/redis";
 
+import { EventService } from "@shared/services/eventService";
+
 import { FortifyScript } from "./scripts";
 
 import { DummyScript } from "./scripts/dummy";
@@ -15,6 +17,8 @@ const container = new Container({ autoBindInjectable: true });
 container.bind(KafkaConnector).toConstantValue(new KafkaConnector());
 // container.bind(PostgresConnector).toConstantValue(new PostgresConnector());
 container.bind(RedisConnector).toConstantValue(new RedisConnector());
+
+container.bind(EventService).to(EventService);
 
 // Scripts are bound to their cli invocable name
 container.bind<FortifyScript>("dummy").to(DummyScript);

@@ -11,6 +11,7 @@
 		"kmmr",
 		"kmmrbot",
 		"leaderboard",
+		"postgres",
 		"steamid",
 		"typeorm"
 	]
