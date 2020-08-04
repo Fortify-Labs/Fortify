@@ -10,7 +10,7 @@ export class EventService {
 	async sendEvent<T>(event: FortifyEventClass<T>, key?: string) {
 		const producer = this.kafka.producer();
 		await producer.connect();
-		producer.send({
+		await producer.send({
 			topic: event._topic,
 			messages: [
 				{
