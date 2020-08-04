@@ -35,6 +35,7 @@ export class StateTransformationService {
 
 	resetLobby(state: FortifyPlayerState): FortifyPlayerState {
 		state.lobby = {
+			id: undefined,
 			players: {},
 			pool: {},
 			mode: FortifyGameMode.Invalid,

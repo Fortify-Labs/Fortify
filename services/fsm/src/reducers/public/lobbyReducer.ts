@@ -6,12 +6,22 @@ import { Context } from "@shared/auth";
 import { PublicPlayerState } from "../../gsiTypes";
 import { StateReducer } from "../../definitions/stateReducer";
 import { StateTransformationService } from "../../services/stateTransformer";
+import { MatchService } from "@shared/services/match";
+
+import {
+	MatchStartedEvent,
+	MatchFinalPlaceEvent,
+	MatchEndedEvent,
+} from "@shared/events/gameEvents";
+import { EventService } from "@shared/services/eventService";
 
 @injectable()
 export class LobbyPlayerReducer implements StateReducer<PublicPlayerState> {
 	constructor(
 		@inject(StateTransformationService)
 		private sts: StateTransformationService,
+		@inject(MatchService) private matchService: MatchService,
+		@inject(EventService) private eventService: EventService,
 	) {}
 
 	name = "LobbyPlayerReducer";
@@ -76,23 +86,67 @@ export class LobbyPlayerReducer implements StateReducer<PublicPlayerState> {
 			}
 		}
 
+		// Once we receive a new final place, send the corresponding event
+		// A new final place = it wasn't stored previously in the player lobby state
+		if (
+			state.lobby.id &&
+			final_place &&
+			state.lobby.players[accountID] &&
+			!state.lobby.players[accountID].finalPlace
+		) {
+			const finalPlaceEvent = new MatchFinalPlaceEvent(
+				state.lobby.id,
+				accountID,
+				final_place,
+			);
+			await this.eventService.sendEvent(finalPlaceEvent);
+		}
+
 		state.lobby.players[accountID] = {
 			accountID,
-			final_place,
+			finalPlace: final_place,
 			global_leaderboard_rank,
 			name: persona_name ?? "",
 			rank_tier,
 			slot: player_slot,
 		};
 
-		// if (final_place) {
-		// 	console.log(`${persona_name} (${account_id}) - ${final_place}`);
-		// }
+		// If we have 8 player, send the match started event, if we didn't create a match id yet
+		if (
+			Object.keys(state.lobby.players).length > 7 &&
+			!state.lobby.id &&
+			// Gotta Flex Tape(tm) this
+			// Apparently we can receive "random" or "old" public player objects with the same slots
+			// Not really great but w/e
+			// TODO: Look for an actual solution to this
+			Object.values(state.lobby.players)
+				.map((player) => player.slot)
+				.sort()
+				.every((value, index) => value === index + 1)
+		) {
+			const lobbyPlayers = Object.values(state.lobby.players).map(
+				({ accountID, slot, finalPlace }) => ({
+					accountID,
+					slot,
+					finalPlace,
+				}),
+			);
 
-		// if (final_place === 1) {
-		// 	console.log(state);
-		// 	console.log("Lobby finished");
-		// }
+			const matchID = await this.matchService.generateMatchID(
+				lobbyPlayers,
+			);
+
+			state.lobby.id = matchID;
+
+			const newMatchEvent = new MatchStartedEvent(matchID, lobbyPlayers);
+			await this.eventService.sendEvent(newMatchEvent);
+		}
+
+		// Once a person gets first place, the match is completed
+		if (final_place === 2 && state.lobby.id) {
+			const matchEndedEvent = new MatchEndedEvent(state.lobby.id);
+			await this.eventService.sendEvent(matchEndedEvent);
+		}
 
 		return state;
 	}

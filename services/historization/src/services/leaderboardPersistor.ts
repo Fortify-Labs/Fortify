@@ -11,11 +11,11 @@ import {
 import { InfluxDBConnector } from "@shared/connectors/influxdb";
 import { RedisConnector } from "@shared/connectors/redis";
 import { PostgresConnector } from "@shared/connectors/postgres";
-import { KafkaConnector } from "@shared/connectors/kafka";
 import { ULLeaderboard } from "@shared/definitions/leaderboard";
 import { GetPlayerSummaries } from "../definitions/playerSummaries";
 
 import { convert32to64SteamId, convert64to32SteamId } from "@shared/steamid";
+import { EventService } from "@shared/services/eventService";
 
 const { STEAM_WEB_API_KEY } = process.env;
 
@@ -25,7 +25,7 @@ export class LeaderboardPersistor {
 		@inject(InfluxDBConnector) private influx: InfluxDBConnector,
 		@inject(RedisConnector) private redis: RedisConnector,
 		@inject(PostgresConnector) private postgres: PostgresConnector,
-		@inject(KafkaConnector) private kafka: KafkaConnector,
+		@inject(EventService) private eventService: EventService,
 	) {}
 
 	async storeLeaderboard(event: ImportCompletedEvent) {
@@ -152,18 +152,10 @@ export class LeaderboardPersistor {
 
 		// Send historization finished event
 		const finishedEvent = new HistorizationCompletedEvent(leaderboardType);
+		await this.eventService.sendEvent(finishedEvent);
 
-		const producer = this.kafka.producer();
-		await producer.connect();
-		producer.send({
-			topic: finishedEvent._topic,
-			messages: [
-				{
-					key: leaderboardType,
-					value: finishedEvent.serialize(),
-				},
-			],
-		});
-		await producer.disconnect();
+		debug("app::leaderboardPersistor")(
+			`Sent HistorizationCompletedEvent for ${leaderboardType}`,
+		);
 	}
 }
