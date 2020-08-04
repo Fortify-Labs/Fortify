@@ -1,17 +1,14 @@
-import {
-	FortifyPlayerState,
-	FortifyPlayer,
-	FortifyGameMode,
-} from "@shared/state";
+import { FortifyPlayerState, FortifyPlayer, FortifyGameMode } from "../state";
 
 import { injectable, inject } from "inversify";
 
-import { PostgresConnector } from "@shared/connectors/postgres";
-import { RedisConnector } from "@shared/connectors/redis";
+import { PostgresConnector } from "../connectors/postgres";
+import { RedisConnector } from "../connectors/redis";
 
-import { rankToMMRMapping, adjustedBigBossRanks } from "@shared/ranks";
+import { rankToMMRMapping, adjustedBigBossRanks } from "../ranks";
 
-import { ULLeaderboard } from "@shared/definitions/leaderboard";
+import { ULLeaderboard } from "../definitions/leaderboard";
+import { Player } from "../definitions/player";
 
 @injectable()
 export class ExtractorService {
@@ -59,16 +56,6 @@ export class ExtractorService {
 				rank: -(player.rank_tier ?? 0),
 			};
 		}
-
-		// TODO: Return fortify player name --> Fetch postgres by player id
-		// Only return player names that exist, otherwise throw an exception
-
-		// TODO: Create CRON Job (potentially in python) that fetches the leaderboard rest api periodically
-		// --> TODO: Save the results in a table in Postgres
-
-		// TODO: Return the current rank of said player
-
-		// TODO: Fetch postgres by player id --> return current MMR
 
 		const userEntry = leaderboard?.leaderboard.find(
 			(entry) => entry.rank === player.global_leaderboard_rank,

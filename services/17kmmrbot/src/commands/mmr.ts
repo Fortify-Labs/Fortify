@@ -1,16 +1,18 @@
 import { injectable, inject } from "inversify";
 
+import debug = require("debug");
+
 import { TwitchCommand } from "../definitions/twitchCommand";
 import { Client } from "tmi.js";
 
-import { ExtractorService } from "../services/extractor";
+import { ExtractorService } from "@shared/services/extractor";
 import { LeaderboardService } from "../services/leaderboard";
 import {
 	LeaderboardType,
 	ULLeaderboard,
 } from "@shared/definitions/leaderboard";
 import { FortifyGameMode } from "@shared/state";
-import debug = require("debug");
+import { Player } from "@shared/definitions/player";
 
 @injectable()
 export class MMRCommand implements TwitchCommand {

@@ -5,7 +5,7 @@ import { ChatUserstate, Client } from "tmi.js";
 
 import { TwitchCommand } from "../definitions/twitchCommand";
 import { KafkaConnector } from "@shared/connectors/kafka";
-import { ExtractorService } from "../services/extractor";
+import { ExtractorService } from "@shared/services/extractor";
 
 import { FSMResetRequestEvent } from "@shared/events/systemEvents";
 

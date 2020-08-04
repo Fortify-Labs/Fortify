@@ -14,6 +14,8 @@ import { CreditsCommand } from "./commands/credits";
 import { MMRCommand } from "./commands/mmr";
 import { LeftCommand } from "./commands/left";
 
+import { ExtractorService } from "@shared/services/extractor";
+
 const container = new Container({ autoBindInjectable: true });
 
 container.bind<TwitchCommand>("command").to(CountdownCommand);
@@ -26,5 +28,7 @@ container.bind<TwitchCommand>("command").to(LeftCommand);
 container.bind(KafkaConnector).toConstantValue(new KafkaConnector());
 container.bind(PostgresConnector).toConstantValue(new PostgresConnector());
 container.bind(RedisConnector).toConstantValue(new RedisConnector());
+
+container.bind(ExtractorService).to(ExtractorService);
 
 export { container };
