@@ -1041,8 +1041,8 @@ export class Fortify extends Chart {
 					valueFrom: { fieldRef: { fieldPath: "metadata.name" } },
 				},
 			],
-			secrets: ["jwt-secret"],
-			configmaps: ["redis-config", "kafka-config"],
+			secrets: ["jwt-secret", "postgres-auth"],
+			configmaps: ["redis-config", "kafka-config", "postgres-config"],
 		});
 
 		new FortifyDeployment(this, "historization", {

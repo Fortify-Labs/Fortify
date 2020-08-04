@@ -1,4 +1,5 @@
-import { PrimaryColumn, Entity, Column } from "typeorm";
+import { PrimaryColumn, Entity, Column, OneToMany } from "typeorm";
+import { MatchSlot } from "./matchSlot";
 
 @Entity()
 export class User {
@@ -18,4 +19,7 @@ export class User {
 		nullable: true,
 	})
 	twitch_id?: string;
+
+	@OneToMany(() => MatchSlot, (slot) => slot.user)
+	matchSlots!: MatchSlot[];
 }
