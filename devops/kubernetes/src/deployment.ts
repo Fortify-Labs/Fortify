@@ -34,8 +34,11 @@ export class FortifyDeployment extends Construct {
 	) {
 		super(scope, ns);
 
-		const labels = {
+		const selectorLabels = {
 			app: Node.of(this).uniqueId,
+		};
+		const labels = {
+			...selectorLabels,
 			version: options.version ?? "invalidVersion",
 		};
 
@@ -71,7 +74,7 @@ export class FortifyDeployment extends Construct {
 							targetPort: options.service.containerPort,
 						},
 					],
-					selector: labels,
+					selector: selectorLabels,
 				},
 			});
 		}
@@ -83,7 +86,7 @@ export class FortifyDeployment extends Construct {
 			spec: {
 				replicas,
 				selector: {
-					matchLabels: labels,
+					matchLabels: selectorLabels,
 				},
 				revisionHistoryLimit: 3,
 				template: {
