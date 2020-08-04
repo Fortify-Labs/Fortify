@@ -1,7 +1,7 @@
 import { TwitchCommand } from "../definitions/twitchCommand";
 import { Client, ChatUserstate } from "tmi.js";
 import { injectable, inject } from "inversify";
-import { ExtractorService } from "../services/extractor";
+import { ExtractorService } from "@shared/services/extractor";
 
 import { S1Units, Unit as S1Unit, unitMappings } from "@shared/units";
 import { poolSize } from "@shared/pool";

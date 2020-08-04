@@ -1,9 +1,11 @@
 import "reflect-metadata";
 import { Container } from "inversify";
 
-// import { PostgresConnector } from "@shared/connectors/postgres";
+import { PostgresConnector } from "@shared/connectors/postgres";
 import { KafkaConnector } from "@shared/connectors/kafka";
 import { RedisConnector } from "@shared/connectors/redis";
+import { MatchService } from "@shared/services/match";
+import { EventService } from "@shared/services/eventService";
 
 import { StateReducer } from "./definitions/stateReducer";
 import { CommandReducer } from "./definitions/commandReducer";
@@ -27,7 +29,10 @@ container
 container.bind<CommandReducer>("command").to(ResetCommandReducer);
 
 container.bind(KafkaConnector).toConstantValue(new KafkaConnector());
-// container.bind(PostgresConnector).toConstantValue(new PostgresConnector());
+container.bind(PostgresConnector).toConstantValue(new PostgresConnector());
 container.bind(RedisConnector).toConstantValue(new RedisConnector());
+
+container.bind(MatchService).to(MatchService);
+container.bind(EventService).to(EventService);
 
 export { container };

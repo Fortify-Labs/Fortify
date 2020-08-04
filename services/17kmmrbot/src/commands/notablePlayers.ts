@@ -6,7 +6,7 @@ import { PostgresConnector } from "@shared/connectors/postgres";
 
 import { Client } from "tmi.js";
 
-import { ExtractorService } from "../services/extractor";
+import { ExtractorService } from "@shared/services/extractor";
 
 import { FortifyGameMode } from "@shared/state";
 import { LeaderboardService } from "../services/leaderboard";

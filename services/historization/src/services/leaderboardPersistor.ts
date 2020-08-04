@@ -4,7 +4,10 @@ import debug from "debug";
 import { Point } from "@influxdata/influxdb-client";
 import fetch from "node-fetch";
 
-import { ImportCompletedEvent } from "@shared/events/systemEvents";
+import {
+	ImportCompletedEvent,
+	HistorizationCompletedEvent,
+} from "@shared/events/systemEvents";
 import { InfluxDBConnector } from "@shared/connectors/influxdb";
 import { RedisConnector } from "@shared/connectors/redis";
 import { PostgresConnector } from "@shared/connectors/postgres";
@@ -12,6 +15,7 @@ import { ULLeaderboard } from "@shared/definitions/leaderboard";
 import { GetPlayerSummaries } from "../definitions/playerSummaries";
 
 import { convert32to64SteamId, convert64to32SteamId } from "@shared/steamid";
+import { EventService } from "@shared/services/eventService";
 
 const { STEAM_WEB_API_KEY } = process.env;
 
@@ -21,6 +25,7 @@ export class LeaderboardPersistor {
 		@inject(InfluxDBConnector) private influx: InfluxDBConnector,
 		@inject(RedisConnector) private redis: RedisConnector,
 		@inject(PostgresConnector) private postgres: PostgresConnector,
+		@inject(EventService) private eventService: EventService,
 	) {}
 
 	async storeLeaderboard(event: ImportCompletedEvent) {
@@ -143,6 +148,14 @@ export class LeaderboardPersistor {
 
 		debug("app::leaderboardPersistor")(
 			`Successfully persisted ${points.length} data points for ${leaderboardType}`,
+		);
+
+		// Send historization finished event
+		const finishedEvent = new HistorizationCompletedEvent(leaderboardType);
+		await this.eventService.sendEvent(finishedEvent);
+
+		debug("app::leaderboardPersistor")(
+			`Sent HistorizationCompletedEvent for ${leaderboardType}`,
 		);
 	}
 }

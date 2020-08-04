@@ -13,6 +13,7 @@ export enum SystemEventType {
 	TWITCH_UNLINKED,
 	TWITCH_MESSAGE_BROADCAST,
 	IMPORT_COMPLETED,
+	HISTORIZATION_COMPLETED,
 }
 
 export class TwitchLinkedEvent extends FortifyEventClass<SystemEventType> {
@@ -94,6 +95,27 @@ export class TwitchMessageBroadcastEvent extends FortifyEventClass<
 export class ImportCompletedEvent extends FortifyEventClass<SystemEventType> {
 	public _topic = FortifyEventTopics.SYSTEM;
 	public type = SystemEventType.IMPORT_COMPLETED;
+
+	constructor(public leaderboardType: LeaderboardType) {
+		super();
+	}
+
+	public static deserialize<SystemEventType>(
+		obj: FortifyEvent<SystemEventType>,
+	) {
+		const type = obj["leaderboardType"] as LeaderboardType | null;
+
+		if (type && Object.values(LeaderboardType).includes(type))
+			return new this(type);
+		else throw new DeserializationError();
+	}
+}
+
+export class HistorizationCompletedEvent extends FortifyEventClass<
+	SystemEventType
+> {
+	public _topic = FortifyEventTopics.SYSTEM;
+	public type = SystemEventType.HISTORIZATION_COMPLETED;
 
 	constructor(public leaderboardType: LeaderboardType) {
 		super();

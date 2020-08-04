@@ -3,8 +3,8 @@ import { injectable, inject } from "inversify";
 import { gql } from "apollo-server-express";
 import { sign } from "jsonwebtoken";
 
-import { GQLModule } from "../../definitions/module";
-import { Resolvers } from "../../definitions/graphql/types";
+import { GQLModule } from "definitions/module";
+import { Resolvers } from "definitions/graphql/types";
 
 import { Producer } from "kafkajs";
 import { PostgresConnector } from "@shared/connectors/postgres";
@@ -35,8 +35,8 @@ export class DebugModule implements GQLModule {
 
 	typeDef = gql`
 		extend type Query {
-			"Returns the current jwt"
-			token: String!
+			"Returns the current context"
+			context: String!
 		}
 
 		extend type Mutation {
@@ -52,13 +52,12 @@ export class DebugModule implements GQLModule {
 	`;
 
 	resolver(): Resolvers {
-		// eslint-disable-next-line @typescript-eslint/no-this-alias
 		const self = this;
 
 		return {
 			Query: {
-				token(_parent, _args, context) {
-					return JSON.stringify(context.user ?? {});
+				context(_parent, _args, context) {
+					return JSON.stringify(context ?? {});
 				},
 			},
 			Mutation: {

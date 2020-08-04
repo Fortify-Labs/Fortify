@@ -2,6 +2,7 @@
   "extends": "./node_modules/gts/",
   "rules": {
     "quotes": ["warn", "double", { "avoidEscape": true }],
-    "@typescript-eslint/explicit-module-boundary-types": 0
+    "@typescript-eslint/explicit-module-boundary-types": 0,
+    "@typescript-eslint/no-this-alias": 0
   }
 }

@@ -9,7 +9,7 @@ import {
 	LeaderboardType,
 } from "@shared/definitions/leaderboard";
 import { RedisConnector } from "@shared/connectors/redis";
-import { KafkaConnector } from "@shared/connectors/kafka";
+import { EventService } from "@shared/services/eventService";
 
 import { ImportCompletedEvent } from "@shared/events/systemEvents";
 
@@ -21,7 +21,7 @@ export class LeaderboardImportService implements FortifyScript {
 
 	constructor(
 		@inject(RedisConnector) private redis: RedisConnector,
-		@inject(KafkaConnector) private kafka: KafkaConnector,
+		@inject(EventService) private eventService: EventService,
 	) {}
 
 	async handler() {
@@ -43,15 +43,11 @@ export class LeaderboardImportService implements FortifyScript {
 		const mappedType = type as LeaderboardType;
 		if (Object.values(LeaderboardType).includes(mappedType)) {
 			const finishedEvent = new ImportCompletedEvent(mappedType);
+			await this.eventService.sendEvent(finishedEvent);
 
-			// Send the event and disconnect afterwards
-			const producer = this.kafka.producer();
-			await producer.connect();
-			await producer.send({
-				messages: [{ value: finishedEvent.serialize() }],
-				topic: finishedEvent._topic,
-			});
-			await producer.disconnect();
+			debug("app::leaderboardImport")(
+				`Sent ImportCompletedEvent for ${type}`,
+			);
 		}
 	}
 }
