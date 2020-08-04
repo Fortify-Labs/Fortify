@@ -99,7 +99,10 @@ export class LobbyPlayerReducer implements StateReducer<PublicPlayerState> {
 				accountID,
 				final_place,
 			);
-			await this.eventService.sendEvent(finalPlaceEvent);
+			await this.eventService.sendEvent(
+				finalPlaceEvent,
+				`userid-${accountID}`,
+			);
 		}
 
 		state.lobby.players[accountID] = {
@@ -139,13 +142,19 @@ export class LobbyPlayerReducer implements StateReducer<PublicPlayerState> {
 			state.lobby.id = matchID;
 
 			const newMatchEvent = new MatchStartedEvent(matchID, lobbyPlayers);
-			await this.eventService.sendEvent(newMatchEvent);
+			await this.eventService.sendEvent(
+				newMatchEvent,
+				`userid-${accountID}`,
+			);
 		}
 
 		// Once a person gets first place, the match is completed
 		if (final_place === 2 && state.lobby.id) {
 			const matchEndedEvent = new MatchEndedEvent(state.lobby.id);
-			await this.eventService.sendEvent(matchEndedEvent);
+			await this.eventService.sendEvent(
+				matchEndedEvent,
+				`userid-${accountID}`,
+			);
 		}
 
 		return state;

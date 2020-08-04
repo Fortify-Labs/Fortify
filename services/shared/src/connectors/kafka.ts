@@ -6,7 +6,7 @@ const { KAFKA_CLIENT_ID, KAFKA_BROKERS } = process.env;
 
 @injectable()
 export class KafkaConnector {
-	private kafka: Kafka;
+	public kafka: Kafka;
 
 	constructor() {
 		this.kafka = new Kafka({
