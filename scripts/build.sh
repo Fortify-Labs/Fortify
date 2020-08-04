@@ -14,8 +14,8 @@ export HISTORIZATION_VERSION=`cd services/historization && node -p "require('./p
 
 # Make sure that the base image exists first
 echo -n "$(docker-compose -f build.docker-compose.yml pull --ignore-pull-failures base)"
-echo -n "$(docker-compose -f build.docker-compose.yml build base)"
-echo -n "$(docker-compose -f build.docker-compose.yml push base)"
+echo -n "$(docker-compose -f build.docker-compose.yml up -d base)"
+echo -n "$(docker-compose -f build.docker-compose.yml down)"
 
 # Pull all already existing images
 echo -n "$(docker-compose -f build.docker-compose.yml pull --ignore-pull-failures)"
