@@ -90,9 +90,9 @@ export class LobbyPlayerReducer implements StateReducer<PublicPlayerState> {
 		// A new final place = it wasn't stored previously in the player lobby state
 		if (
 			state.lobby.id &&
-			final_place &&
+			final_place > 0 &&
 			state.lobby.players[accountID] &&
-			!state.lobby.players[accountID].finalPlace
+			state.lobby.players[accountID].finalPlace != final_place
 		) {
 			const finalPlaceEvent = new MatchFinalPlaceEvent(
 				state.lobby.id,
