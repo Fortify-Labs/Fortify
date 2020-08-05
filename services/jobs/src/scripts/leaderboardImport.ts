@@ -31,6 +31,13 @@ export class LeaderboardImportService implements FortifyScript {
 			"https://underlords.com/leaderboarddata?type=" + type,
 		).then((value) => value.json());
 
+		if ((leaderboard as unknown) === "RequestFailure") {
+			debug("app::leaderboardImport")(
+				`RequestFailure! Could not fetch ${type} leaderboard.`,
+			);
+			return;
+		}
+
 		debug("app::leaderboardImport")(`${type} leaderboard fetched`);
 
 		await this.redis.setAsync(
