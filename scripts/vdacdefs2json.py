@@ -11,7 +11,6 @@ import subprocess
 import json
 
 import vdf
-# import steam
 
 input_file_path = sys.argv[1]
 output_file_path = sys.argv[2]
