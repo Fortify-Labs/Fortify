@@ -9,6 +9,9 @@
 		"appendonly",
 		"chmod",
 		"configmaps",
+		"dacdefs",
+		"decompiled",
+		"decompiler",
 		"devops",
 		"dind",
 		"entrypoint",
@@ -30,7 +33,8 @@
 		"statefulset",
 		"tchiotludo",
 		"tolerations",
+		"vdacdefs",
 		"wurstmeister"
 	],
-  "githubIssues.workingIssueBranch": "feature/issue-${issueNumber}"
+	"githubIssues.workingIssueBranch": "feature/issue-${issueNumber}"
 }
