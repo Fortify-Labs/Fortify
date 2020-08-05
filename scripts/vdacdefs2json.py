@@ -6,6 +6,8 @@
 # - `pip install vdf`
 # - VRF decompiler (vrf_decompiler) in path necessary as well, see https://github.com/SteamDatabase/ValveResourceFormat
 
+from typing import Union
+
 import sys
 import subprocess
 import json
@@ -80,6 +82,41 @@ with open("/tmp/vdacdefs") as vdacdefs_file:
 
     # Parse Valve's KeyValue format
     dacdefs = vdf.loads(vdacdefs_file_content)
+
+
+# Convert every possible float and int value to the corresponding data type
+def _convert_entries_to_numerical(element):
+    # Check if string:
+    if type(element) is str:
+        try:
+            # Try converting to float
+            element = float(element)
+            # if success, check if integer --> if true, convert to integer
+            if element.is_integer():
+                element = int(element)
+        except:
+            pass
+
+    # Check if dict or list
+    elif type(element) in [dict, list]:
+        # call convert_dict_entries_to_numerical recursively
+        element = convert_entries_to_numerical(element)
+
+    return element
+
+
+def convert_entries_to_numerical(element: Union[str, dict, list]):
+    if type(element) is str:
+        return _convert_entries_to_numerical(element)
+    elif type(element) is dict:
+        for key, entry in element.items():
+            element[key] = _convert_entries_to_numerical(entry)
+        return element
+    elif type(element) is list:
+        return [_convert_entries_to_numerical(entry) for entry in element]
+
+
+dacdefs = convert_entries_to_numerical(dacdefs)
 
 # Dump the parsed dict to a JSON file
 with open(output_file_path, "w") as json_file:

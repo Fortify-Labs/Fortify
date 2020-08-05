@@ -6,7 +6,7 @@ export interface Unit {
 	draftTier: number;
 }
 
-export const S1Units: Record<string, Unit> = s1UnitsJson;
+export const S1Units: Record<string, Unit> = s1UnitsJson.set_balance;
 
 export interface UnitMapping {
 	displayName: string;
