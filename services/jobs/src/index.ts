@@ -11,6 +11,7 @@ import { container } from "./inversify.config";
 import yargs from "yargs";
 import { FortifyScript } from "./scripts";
 import { RedisConnector } from "@shared/connectors/redis";
+import { PostgresConnector } from "@shared/connectors/postgres";
 
 yargs
 	.command(
@@ -35,7 +36,8 @@ yargs
 			}
 
 			// Close connections to gracefully complete
-			container.get(RedisConnector).client.quit();
+			await container.get(RedisConnector).client.quit();
+			await (await container.get(PostgresConnector).connection).close();
 		},
 	)
 	.showHelpOnFail(true)

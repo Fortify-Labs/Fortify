@@ -1089,7 +1089,8 @@ export class Fortify extends Chart {
 					valueFrom: { fieldRef: { fieldPath: "metadata.name" } },
 				},
 			],
-			configmaps: ["redis-config", "kafka-config"],
+			secrets: ["postgres-auth"],
+			configmaps: ["redis-config", "kafka-config", "postgres-config"],
 		});
 		new FortifyCronJob(this, "import-turbo", {
 			name: "import-turbo",
@@ -1108,7 +1109,8 @@ export class Fortify extends Chart {
 					valueFrom: { fieldRef: { fieldPath: "metadata.name" } },
 				},
 			],
-			configmaps: ["redis-config", "kafka-config"],
+			secrets: ["postgres-auth"],
+			configmaps: ["redis-config", "kafka-config", "postgres-config"],
 		});
 		new FortifyCronJob(this, "import-duos", {
 			name: "import-duos",
@@ -1127,7 +1129,25 @@ export class Fortify extends Chart {
 					valueFrom: { fieldRef: { fieldPath: "metadata.name" } },
 				},
 			],
-			configmaps: ["redis-config", "kafka-config"],
+			secrets: ["postgres-auth"],
+			configmaps: ["redis-config", "kafka-config", "postgres-config"],
+		});
+		new FortifyCronJob(this, "db-cleanup", {
+			name: "db-cleanup",
+			version: jobsPackage.version,
+
+			// Every hour
+			schedule: "0 * * * *",
+			script: "clean_db",
+
+			env: [
+				{
+					name: "KAFKA_CLIENT_ID",
+					valueFrom: { fieldRef: { fieldPath: "metadata.name" } },
+				},
+			],
+			secrets: ["postgres-auth"],
+			configmaps: ["redis-config", "kafka-config", "postgres-config"],
 		});
 	}
 }
