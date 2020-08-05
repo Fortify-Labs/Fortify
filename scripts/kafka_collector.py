@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # pip install kafka-python
 
 import json

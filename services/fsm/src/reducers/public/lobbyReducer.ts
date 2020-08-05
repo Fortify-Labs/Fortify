@@ -92,7 +92,7 @@ export class LobbyPlayerReducer implements StateReducer<PublicPlayerState> {
 			state.lobby.id &&
 			final_place > 0 &&
 			state.lobby.players[accountID] &&
-			state.lobby.players[accountID].finalPlace != final_place
+			state.lobby.players[accountID].finalPlace !== final_place
 		) {
 			const finalPlaceEvent = new MatchFinalPlaceEvent(
 				state.lobby.id,
