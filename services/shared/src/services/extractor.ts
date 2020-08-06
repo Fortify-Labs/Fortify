@@ -45,27 +45,27 @@ export class ExtractorService {
 		leaderboard: ULLeaderboard | null,
 	): Promise<Player> {
 		// Interpolate the players mmr if not lord
-		if ((player.rank_tier ?? 0) < 80) {
-			const minorRank = (player.rank_tier ?? 0) % 10;
-			const majorRank = ((player.rank_tier ?? 0) - minorRank) / 10;
+		if ((player.rankTier ?? 0) < 80) {
+			const minorRank = (player.rankTier ?? 0) % 10;
+			const majorRank = ((player.rankTier ?? 0) - minorRank) / 10;
 
 			// Return the current players rank tier as negative rank
 			return {
 				mmr: rankToMMRMapping[majorRank][minorRank],
 				name: player.name,
-				rank: -(player.rank_tier ?? 0),
+				rank: -(player.rankTier ?? 0),
 			};
 		}
 
 		const userEntry = leaderboard?.leaderboard.find(
-			(entry) => entry.rank === player.global_leaderboard_rank,
+			(entry) => entry.rank === player.globalLeaderboardRank,
 		);
 
 		// If no rank & mmr is found, just default it to 15k and rank 0
 		return {
 			mmr: userEntry?.level_score ?? 15000,
 			name: player.name,
-			rank: player.global_leaderboard_rank ?? 0,
+			rank: player.globalLeaderboardRank ?? 0,
 		};
 	}
 
@@ -76,15 +76,15 @@ export class ExtractorService {
 	}
 
 	getAverageMMR(
-		fps: FortifyPlayerState,
+		lobbyPlayers: Record<string, FortifyPlayer>,
 		leaderboard: ULLeaderboard | null,
 		user: FortifyPlayer | null,
 	) {
 		// Fetch all lord players' mmrs by leaderboard rank
 
-		const players = Object.values(fps.lobby.players);
+		const players = Object.values(lobbyPlayers);
 		const ranks = players
-			.map((player) => player.global_leaderboard_rank)
+			.map((player) => player.globalLeaderboardRank)
 			.filter((rank) => rank)
 			.sort();
 
@@ -98,25 +98,22 @@ export class ExtractorService {
 
 		// Check if there are any lords in the lobby in case the user is a spectator
 		const lordLobby: boolean = players
-			.map((player) => player.rank_tier)
-			.reduce<boolean>(
-				(acc, rank_tier) => acc || rank_tier === 80,
-				false,
-			);
+			.map((player) => player.rankTier)
+			.reduce<boolean>((acc, rankTier) => acc || rankTier === 80, false);
 
-		for (const { rank_tier, global_leaderboard_rank } of players) {
-			if (rank_tier) {
-				const minorRank = rank_tier % 10;
-				const majorRank = (rank_tier - minorRank) / 10;
+		for (const { rankTier, globalLeaderboardRank } of players) {
+			if (rankTier) {
+				const minorRank = rankTier % 10;
+				const majorRank = (rankTier - minorRank) / 10;
 
 				let interpolatedMMR = 0;
 
 				// If they are a lord, scale MMR as necessary to get the average
 				// If the user is not a lord, calculate the average normally
 				if (
-					(user?.rank_tier ?? 0) >= 80 ||
-					((user?.rank_tier === null ||
-						user?.rank_tier === undefined) &&
+					(user?.rankTier ?? 0) >= 80 ||
+					((user?.rankTier === null ||
+						user?.rankTier === undefined) &&
 						lordLobby)
 				) {
 					// If we find a lord without a leaderboard rank, ignore them in the average
@@ -129,8 +126,8 @@ export class ExtractorService {
 					// Inactive lords are taken as 15k lords since we're looking for a normal average
 					if (
 						majorRank === 8 &&
-						(global_leaderboard_rank === null ||
-							global_leaderboard_rank === undefined)
+						(globalLeaderboardRank === null ||
+							globalLeaderboardRank === undefined)
 					) {
 						interpolatedMMR = 15000;
 					}
@@ -152,6 +149,6 @@ export class ExtractorService {
 		const sum = mmrs?.reduce((aggregator, mmr) => aggregator + mmr, 0);
 		const avg = (sum ?? 1) / (mmrs?.length ?? 1);
 
-		return !isNaN(avg) ? avg.toFixed(0) : 0;
+		return !isNaN(avg) ? avg.toFixed(0) : "0";
 	}
 }

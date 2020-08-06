@@ -15,6 +15,7 @@ import { MMRCommand } from "./commands/mmr";
 import { LeftCommand } from "./commands/left";
 
 import { ExtractorService } from "@shared/services/extractor";
+import { LeaderboardService } from "@shared/services/leaderboard";
 
 const container = new Container({ autoBindInjectable: true });
 
@@ -30,5 +31,6 @@ container.bind(PostgresConnector).toConstantValue(new PostgresConnector());
 container.bind(RedisConnector).toConstantValue(new RedisConnector());
 
 container.bind(ExtractorService).to(ExtractorService);
+container.bind(LeaderboardService).to(LeaderboardService);
 
 export { container };

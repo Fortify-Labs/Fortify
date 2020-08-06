@@ -9,7 +9,7 @@ import { Client } from "tmi.js";
 import { ExtractorService } from "@shared/services/extractor";
 
 import { FortifyGameMode } from "@shared/state";
-import { LeaderboardService } from "../services/leaderboard";
+import { LeaderboardService } from "@shared/services/leaderboard";
 import {
 	ULLeaderboard,
 	LeaderboardType,
@@ -87,7 +87,7 @@ export class NotablePlayersCommand implements TwitchCommand {
 			}
 
 			const averageMMR = this.extractorService.getAverageMMR(
-				fps,
+				fps.lobby.players,
 				leaderboard,
 				lobbyUser,
 			);

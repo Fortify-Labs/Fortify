@@ -8,9 +8,11 @@ import {
 	UpdateDateColumn,
 } from "typeorm";
 import { MatchSlot } from "./matchSlot";
+import { FortifyGameMode } from "../../state";
 
 @Entity()
 export class Match {
+	// Technically this is a lobby fingerprint
 	@PrimaryColumn()
 	id!: string;
 
@@ -29,8 +31,11 @@ export class Match {
 	})
 	matchEndTime?: Date;
 
-	// @Column()
-	// averageMMR!: number;
+	@Column({ default: 0 })
+	averageMMR!: number;
+
+	@Column()
+	gameMode!: FortifyGameMode;
 
 	@OneToMany(() => MatchSlot, (mp) => mp.match, {
 		cascade: true,

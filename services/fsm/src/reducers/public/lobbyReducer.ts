@@ -108,9 +108,9 @@ export class LobbyPlayerReducer implements StateReducer<PublicPlayerState> {
 		state.lobby.players[accountID] = {
 			accountID,
 			finalPlace: final_place,
-			global_leaderboard_rank,
+			globalLeaderboardRank: global_leaderboard_rank,
 			name: persona_name ?? "",
-			rank_tier,
+			rankTier: rank_tier,
 			slot: player_slot,
 		};
 
@@ -128,10 +128,18 @@ export class LobbyPlayerReducer implements StateReducer<PublicPlayerState> {
 				.every((value, index) => value === index + 1)
 		) {
 			const lobbyPlayers = Object.values(state.lobby.players).map(
-				({ accountID, slot, finalPlace }) => ({
+				({
 					accountID,
 					slot,
 					finalPlace,
+					rankTier,
+					globalLeaderboardRank,
+				}) => ({
+					accountID,
+					slot,
+					finalPlace,
+					rankTier,
+					globalLeaderboardRank,
 				}),
 			);
 
@@ -141,7 +149,11 @@ export class LobbyPlayerReducer implements StateReducer<PublicPlayerState> {
 
 			state.lobby.id = matchID;
 
-			const newMatchEvent = new MatchStartedEvent(matchID, lobbyPlayers);
+			const newMatchEvent = new MatchStartedEvent(
+				matchID,
+				lobbyPlayers,
+				state.lobby.mode,
+			);
 			await this.eventService.sendEvent(
 				newMatchEvent,
 				`userid-${accountID}`,

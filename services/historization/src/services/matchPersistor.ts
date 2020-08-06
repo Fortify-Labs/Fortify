@@ -36,6 +36,7 @@ export class MatchPersistor {
 		return this.matchService.storeMatchStart(
 			startedEvent.matchID,
 			startedEvent.players,
+			startedEvent.gameMode,
 		);
 	}
 

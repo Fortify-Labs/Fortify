@@ -5,6 +5,7 @@ import {
 	DeserializationError,
 } from "./events";
 import { MatchServicePlayer } from "../services/match";
+import { FortifyGameMode } from "../state";
 
 export enum GameEventType {
 	UNKNOWN,
@@ -30,6 +31,7 @@ export class MatchStartedEvent extends FortifyEventClass<GameEventType> {
 	constructor(
 		public matchID: string,
 		public players: readonly MatchServicePlayer[],
+		public gameMode: FortifyGameMode,
 	) {
 		super();
 	}
@@ -37,8 +39,10 @@ export class MatchStartedEvent extends FortifyEventClass<GameEventType> {
 	public static deserialize<GameEventType>(obj: FortifyEvent<GameEventType>) {
 		const matchID = obj["matchID"] as string | null;
 		const players = obj["players"] as MatchServicePlayer[] | null;
+		const gameMode = obj["gameMode"] as FortifyGameMode | null;
 
-		if (matchID && players) return new this(matchID, players);
+		if (matchID && players && gameMode)
+			return new this(matchID, players, gameMode);
 		else throw new DeserializationError();
 	}
 }

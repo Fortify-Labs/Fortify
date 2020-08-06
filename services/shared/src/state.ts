@@ -13,6 +13,7 @@ export enum FortifyGameMode {
 interface FortifyPlayerStateLobby {
 	id?: string;
 
+	// the key in this record is the user's account id itself
 	players: Record<string, FortifyPlayer>;
 	mode: FortifyGameMode;
 	pool: Record<number, number>;
@@ -37,8 +38,8 @@ export interface FortifyPlayer {
 
 	finalPlace: number;
 
-	rank_tier?: number;
-	global_leaderboard_rank?: number;
+	rankTier?: number;
+	globalLeaderboardRank?: number;
 
 	units?: Array<{
 		unitID: number;

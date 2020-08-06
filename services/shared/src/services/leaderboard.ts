@@ -1,11 +1,6 @@
 import { injectable, inject } from "inversify";
-
-import {
-	LeaderboardType,
-	ULLeaderboard,
-} from "@shared/definitions/leaderboard";
-
-import { RedisConnector } from "@shared/connectors/redis";
+import { RedisConnector } from "../connectors/redis";
+import { LeaderboardType, ULLeaderboard } from "../definitions/leaderboard";
 
 @injectable()
 export class LeaderboardService {

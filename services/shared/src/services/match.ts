@@ -4,12 +4,19 @@ import { PostgresConnector } from "../connectors/postgres";
 import { Match } from "../db/entities/match";
 import { MatchPlayer } from "../db/entities/matchPlayer";
 import { MatchSlot } from "../db/entities/matchSlot";
+import { ExtractorService } from "./extractor";
+import { FortifyPlayer, FortifyGameMode } from "../state";
+import { LeaderboardService } from "./leaderboard";
+import { LeaderboardType } from "../definitions/leaderboard";
 
 export interface MatchServicePlayer {
 	accountID: string;
 	slot: number;
 
 	finalPlace: number;
+
+	rankTier?: number;
+	globalLeaderboardRank?: number;
 }
 
 export const matchIDGenerator = (
@@ -28,6 +35,9 @@ export const matchIDGenerator = (
 export class MatchService {
 	constructor(
 		@inject(PostgresConnector) private postgres: PostgresConnector,
+		@inject(ExtractorService) private extractorService: ExtractorService,
+		@inject(LeaderboardService)
+		private leaderboardService: LeaderboardService,
 	) {}
 
 	async generateMatchID(players: MatchServicePlayer[]) {
@@ -140,6 +150,7 @@ export class MatchService {
 	async storeMatchStart(
 		matchID: string,
 		players: readonly MatchServicePlayer[],
+		gameMode: FortifyGameMode,
 	) {
 		const matchRepo = await this.postgres.getMatchRepo();
 		const matchPlayerRepo = await this.postgres.getMatchPlayerRepo();
@@ -150,6 +161,39 @@ export class MatchService {
 		const match = new Match();
 		match.id = matchID;
 		match.slots = [];
+		match.gameMode = gameMode;
+
+		const playerRecord = players.reduce<Record<string, FortifyPlayer>>(
+			(acc, player) => {
+				// we can set the name to an empty string here
+				// as the player's name is not needed for mmr average calculations
+				acc[player.accountID] = { ...player, name: "" };
+
+				return acc;
+			},
+			{},
+		);
+
+		if (
+			gameMode === FortifyGameMode.Normal ||
+			gameMode === FortifyGameMode.Turbo ||
+			gameMode === FortifyGameMode.Duos
+		) {
+			const leaderboard = await this.leaderboardService.fetchLeaderboard(
+				gameMode === FortifyGameMode.Normal
+					? LeaderboardType.Standard
+					: gameMode === FortifyGameMode.Turbo
+					? LeaderboardType.Turbo
+					: LeaderboardType.Duos,
+			);
+			match.averageMMR = parseInt(
+				await this.extractorService.getAverageMMR(
+					playerRecord,
+					leaderboard,
+					null,
+				),
+			);
+		}
 
 		// For each player in the lobby
 		for (const { accountID, slot, finalPlace } of players) {
