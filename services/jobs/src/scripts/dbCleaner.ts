@@ -24,8 +24,11 @@ export class DBCleanupScript implements FortifyScript {
 			.createQueryBuilder()
 			.where('"matchStartTime" = "lastMatchUpdateTime"')
 			.andWhere('"matchEndTime" IS NULL')
+			// Do not delete any match entries of the past two hours
+			// The idea behind that is to not accidentally delete started matches
+			.andWhere("\"matchStartTime\" <= (NOW() - INTERVAL '2 HOURS')")
 			.loadAllRelationIds({
-				relations: ["slots", "slots.user", "slots.matchPlayer"],
+				relations: ["slots"],
 			})
 			.getMany();
 
