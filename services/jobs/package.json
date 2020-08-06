@@ -1,6 +1,6 @@
 {
   "name": "jobs",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Job scripts and one off scripts",
   "author": {
     "name": "Thomas Kosiewski"
