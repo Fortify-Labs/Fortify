@@ -7,7 +7,9 @@ import { schema } from "./schemaLoader";
 export class GraphQL {
 	server() {
 		const server = new ApolloServer({
-			tracing: process.env.NODE_ENV !== "production",
+			// TODO: Change this in the future - Disable tracing in production
+			tracing: true,
+			playground: true,
 			schema,
 			async context({ req, connection }) {
 				try {

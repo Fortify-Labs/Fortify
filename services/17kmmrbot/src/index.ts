@@ -17,12 +17,14 @@ import { BotCommandProcessor } from "./services/command";
 import { FortifyEventTopics } from "@shared/events/events";
 
 import { sharedSetup } from "@shared/index";
+import { HelpCommand } from "./commands/help";
 sharedSetup();
 
 const { KAFKA_FROM_START, KAFKA_GROUP_ID = "17kmmrbot-group" } = process.env;
 
 (async () => {
 	const commands = container.getAll<TwitchCommand>("command");
+	const helpCommand = container.get<TwitchCommand>(HelpCommand);
 
 	const postgres = container.get(PostgresConnector);
 	const userRepo = await postgres.getUserRepo();
@@ -91,7 +93,7 @@ const { KAFKA_FROM_START, KAFKA_GROUP_ID = "17kmmrbot-group" } = process.env;
 			// Ignore echoed messages.
 			if (self) return;
 
-			for (const command of commands) {
+			for (const command of [...commands, helpCommand]) {
 				const invoked = command.invocations.reduce(
 					(acc, invocation) =>
 						acc ||

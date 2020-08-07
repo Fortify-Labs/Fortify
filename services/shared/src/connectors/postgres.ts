@@ -38,8 +38,10 @@ export class PostgresConnector {
 			username: POSTGRES_USER,
 			password: POSTGRES_PASSWORD,
 			database: POSTGRES_DATABASE ?? "fortify",
-			entities: [User, Match, MatchSlot, MatchPlayer],
-			synchronize: NODE_ENV !== "production",
+			entities: ["../shared/build/src/db/entities/**/*.js"],
+			migrations: ["../shared/build/src/db/migrations/**/*.js"],
+			migrationsRun: true,
+			synchronize: NODE_ENV === "development",
 			logging: DB_LOG === "true",
 			poolErrorHandler: debug("app::db"),
 		});

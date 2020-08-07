@@ -6,6 +6,8 @@ import { TwitchCommand } from "../definitions/twitchCommand";
 @injectable()
 export class CountdownCommand implements TwitchCommand {
 	invocations = ["!cd", "!countdown"];
+	showInHelp = true;
+	description = "Starts a countdown, counting down from 5 to 1 (+ go).";
 
 	authorized = async (_channel: string, tags: ChatUserstate) =>
 		tags.badges?.broadcaster === "1" ||
