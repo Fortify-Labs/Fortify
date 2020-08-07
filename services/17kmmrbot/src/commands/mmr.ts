@@ -23,6 +23,8 @@ export class MMRCommand implements TwitchCommand {
 	) {}
 
 	invocations = ["!mmr"];
+	showInHelp = true;
+	description = "Displays current mmr";
 
 	handler = async (client: Client, channel: string) => {
 		try {

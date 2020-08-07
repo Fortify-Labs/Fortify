@@ -26,7 +26,9 @@ export class NotablePlayersCommand implements TwitchCommand {
 		private leaderboardService: LeaderboardService,
 	) {}
 
-	invocations = ["!np", "!lobby"];
+	invocations = ["!np"];
+	showInHelp = true;
+	description = "Prints a summary of the lobby.";
 
 	handler = async (client: Client, channel: string) => {
 		try {

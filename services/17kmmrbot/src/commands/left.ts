@@ -9,6 +9,9 @@ import { poolSize } from "@shared/pool";
 @injectable()
 export class LeftCommand implements TwitchCommand {
 	invocations = ["!left"];
+	showInHelp = true;
+	description =
+		"Lists amount of unit left in the unit pool. (Usage: !left [unit name])";
 
 	constructor(
 		@inject(ExtractorService) private extractorService: ExtractorService,
