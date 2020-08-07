@@ -38,7 +38,9 @@ export class PostgresConnector {
 			username: POSTGRES_USER,
 			password: POSTGRES_PASSWORD,
 			database: POSTGRES_DATABASE ?? "fortify",
-			entities: [User, Match, MatchSlot, MatchPlayer],
+			entities: ["../shared/build/src/db/entities/**/*.js"],
+			migrations: ["../shared/build/src/db/migrations/**/*.js"],
+			migrationsRun: true,
 			synchronize: NODE_ENV === "development",
 			logging: DB_LOG === "true",
 			poolErrorHandler: debug("app::db"),
@@ -49,14 +51,6 @@ export class PostgresConnector {
 				debug("app::db")("DB connection established");
 				return db;
 			})
-			.then((db) => db.runMigrations())
-			.then((migrations) =>
-				debug("app::db")(
-					`Successfully ran migrations: ${migrations
-						.map((migration) => migration.name)
-						.join(", ")}`,
-				),
-			)
 			.catch((reason) => {
 				debug("app::db")("Connection rejected");
 				debug("app::db")(reason);

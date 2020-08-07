@@ -1,6 +1,6 @@
 {
   "name": "shared",
-  "version": "1.4.7",
+  "version": "1.4.8",
   "description": "Shared library for fortify micro services",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
@@ -17,13 +17,16 @@
     "fix": "gts fix",
     "prepare": "npm run compile",
     "pretest": "npm run compile",
-    "posttest": "npm run check"
+    "posttest": "npm run check",
+    "typeorm": "ts-node ./node_modules/.bin/typeorm -f ./ormconfig.ts"
   },
   "devDependencies": {
     "@types/debug": "^4.1.5",
     "@types/ioredis": "^4.17.3",
     "@types/node": "^14.0.27",
+    "dotenv": "^8.2.0",
     "gts": "^2.0.2",
+    "ts-node": "^8.10.2",
     "typescript": "^3.9.7"
   },
   "dependencies": {

@@ -8,7 +8,7 @@ export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type RequireFields<T, K extends keyof T> = { [X in Exclude<keyof T, K>]?: T[X] } & { [P in K]-?: NonNullable<T[P]> };
 
-// Generated on 2020-08-03T19:54:48+02:00
+// Generated on 2020-08-08T00:09:01+02:00
 
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
