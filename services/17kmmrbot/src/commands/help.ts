@@ -6,7 +6,7 @@ import { Client, ChatUserstate } from "tmi.js";
 export class HelpCommand implements TwitchCommand {
 	invocations = ["!help"];
 	showInHelp = true;
-	description = "list of all available commands";
+	description = "List of all available commands";
 
 	constructor(@multiInject("command") private commands: TwitchCommand[]) {}
 

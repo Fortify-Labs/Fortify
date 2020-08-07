@@ -11,7 +11,7 @@ export class LeftCommand implements TwitchCommand {
 	invocations = ["!left"];
 	showInHelp = true;
 	description =
-		"Lists amount of unit left in the unit pool. (Usage: !left [unit name])";
+		"Lists the number of copies left in the pool for the requested unit (Usage: !left [unit name])";
 
 	constructor(
 		@inject(ExtractorService) private extractorService: ExtractorService,
