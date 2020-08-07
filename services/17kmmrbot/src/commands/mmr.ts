@@ -53,8 +53,6 @@ export class MMRCommand implements TwitchCommand {
 
 			let player: Player | null = null;
 
-			// TODO: Refactor the following to be more efficient when querying data from postgres
-			// TODO: Refactor this together with the np command
 			if ((lobbyUser.rankTier ?? 0) < 80) {
 				player = await this.extractorService.getPlayer(lobbyUser, null);
 			} else {

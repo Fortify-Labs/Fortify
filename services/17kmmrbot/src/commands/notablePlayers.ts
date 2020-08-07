@@ -47,8 +47,6 @@ export class NotablePlayersCommand implements TwitchCommand {
 				);
 			}
 
-			// TODO: Refactor the following to be more efficient when querying data from postgres
-
 			const gameMode = await this.extractorService.getGameMode(fps);
 
 			if (
@@ -57,11 +55,6 @@ export class NotablePlayersCommand implements TwitchCommand {
 			) {
 				return client.say(channel, "No game mode detected");
 			}
-
-			// TODO: Refactor this to not re-fetch the leaderboard every time
-			// TODO: Create CRON job fetching the leaderboard
-			// TODO: Insert this into the postgres
-			// TODO: Fetch the corresponding entries by username instead of fetching the leaderboard and then filter (Update: I don't even know what I mean with this)
 
 			let leaderboard: ULLeaderboard | null = null;
 
