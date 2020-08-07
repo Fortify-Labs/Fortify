@@ -12,7 +12,8 @@ generates:
     #   afterOneFileWrite:
     #     - prettier --config prettier.config.js --write
     plugins:
-      - add: "/**\n * THIS IS A GENERATED FILE, DO NOT MODIFY DIRECTLY\n */\n"
+      - add:
+          content: "/**\n * THIS IS A GENERATED FILE, DO NOT MODIFY DIRECTLY\n */\n"
       - time
       - "typescript"
       - "typescript-resolvers"
