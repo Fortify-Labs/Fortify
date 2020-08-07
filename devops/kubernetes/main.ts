@@ -923,7 +923,7 @@ export class Fortify extends Chart {
 				{ name: "APP_URL", value: "https://api.fortify.gg" },
 			],
 			secrets: ["postgres-auth", "jwt-secret"],
-			configmaps: ["postgres-config", "kafka-config"],
+			configmaps: ["postgres-config", "kafka-config", "redis-config"],
 			gateways: ["fortify-gateway"],
 			hosts: [`api.${DOMAIN}`],
 			http: [
