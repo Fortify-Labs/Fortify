@@ -6,7 +6,7 @@ import { TwitchCommand } from "../definitions/twitchCommand";
 import { Client } from "tmi.js";
 
 import { ExtractorService } from "@shared/services/extractor";
-import { LeaderboardService } from "../services/leaderboard";
+import { LeaderboardService } from "@shared/services/leaderboard";
 import {
 	LeaderboardType,
 	ULLeaderboard,
@@ -53,7 +53,7 @@ export class MMRCommand implements TwitchCommand {
 
 			// TODO: Refactor the following to be more efficient when querying data from postgres
 			// TODO: Refactor this together with the np command
-			if ((lobbyUser.rank_tier ?? 0) < 80) {
+			if ((lobbyUser.rankTier ?? 0) < 80) {
 				player = await this.extractorService.getPlayer(lobbyUser, null);
 			} else {
 				const gameMode = await this.extractorService.getGameMode(fps);

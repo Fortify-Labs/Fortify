@@ -8,6 +8,7 @@
 		"inversify",
 		"leaderboard",
 		"steamid",
-		"underlords"
+		"underlords",
+		"userid"
 	]
 }
