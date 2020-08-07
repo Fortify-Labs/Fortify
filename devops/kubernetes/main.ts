@@ -919,7 +919,7 @@ export class Fortify extends Chart {
 			env: [
 				{ name: "MY_PORT", value: "8080" },
 				// TODO: Change this to production once access to gql ui is not needed anymore
-				{ name: "NODE_ENV", value: "development" },
+				{ name: "NODE_ENV", value: "production" },
 				{ name: "APP_URL", value: "https://api.fortify.gg" },
 			],
 			secrets: ["postgres-auth", "jwt-secret"],
