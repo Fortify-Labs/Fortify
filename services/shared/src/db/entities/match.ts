@@ -34,7 +34,7 @@ export class Match {
 	@Column({ default: 0 })
 	averageMMR!: number;
 
-	@Column()
+	@Column({ default: 0 })
 	gameMode!: FortifyGameMode;
 
 	@OneToMany(() => MatchSlot, (mp) => mp.match, {
