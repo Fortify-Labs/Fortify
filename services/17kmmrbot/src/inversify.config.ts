@@ -16,6 +16,7 @@ import { LeftCommand } from "./commands/left";
 
 import { ExtractorService } from "@shared/services/extractor";
 import { LeaderboardService } from "@shared/services/leaderboard";
+import { HelpCommand } from "./commands/help";
 
 const container = new Container({ autoBindInjectable: true });
 
@@ -25,6 +26,9 @@ container.bind<TwitchCommand>("command").to(DevCommands);
 container.bind<TwitchCommand>("command").to(CreditsCommand);
 container.bind<TwitchCommand>("command").to(MMRCommand);
 container.bind<TwitchCommand>("command").to(LeftCommand);
+
+// Seperate help command from other commands to avoid a circular dependency
+container.bind<TwitchCommand>(HelpCommand).toSelf();
 
 container.bind(KafkaConnector).toConstantValue(new KafkaConnector());
 container.bind(PostgresConnector).toConstantValue(new PostgresConnector());

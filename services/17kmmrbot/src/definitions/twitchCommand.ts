@@ -2,6 +2,8 @@ import { ChatUserstate, Client } from "tmi.js";
 
 export interface TwitchCommand {
 	invocations: string[];
+	description?: string;
+	showInHelp?: boolean;
 
 	authorized?: (
 		channel: string,
