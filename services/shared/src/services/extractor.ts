@@ -23,7 +23,7 @@ export class ExtractorService {
 		const userRepo = await this.db.getUserRepo();
 
 		const user = await userRepo.findOneOrFail({
-			where: { twitch_name: channelName },
+			where: { twitchName: channelName },
 		});
 
 		return user;

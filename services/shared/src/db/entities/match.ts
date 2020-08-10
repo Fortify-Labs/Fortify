@@ -12,6 +12,8 @@ import { FortifyGameMode } from "../../state";
 
 @Entity()
 export class Match {
+	// --- IDs ---
+
 	// Technically this is a lobby fingerprint
 	@PrimaryColumn()
 	id!: string;
@@ -20,22 +22,29 @@ export class Match {
 	@Column({ generated: "increment" })
 	autoID!: number;
 
+	// --- Dates ---
+
+	@Index()
 	@CreateDateColumn()
-	matchStartTime!: Date;
+	created!: Date;
 
 	@UpdateDateColumn()
-	lastMatchUpdateTime!: Date;
+	updated!: Date;
 
 	@Column({
 		nullable: true,
 	})
-	matchEndTime?: Date;
+	ended?: Date;
+
+	// --- Properties ---
 
 	@Column({ default: 0 })
 	averageMMR!: number;
 
 	@Column({ default: 0 })
 	gameMode!: FortifyGameMode;
+
+	// --- Relations ---
 
 	@OneToMany(() => MatchSlot, (mp) => mp.match, {
 		cascade: true,

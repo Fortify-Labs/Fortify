@@ -8,7 +8,7 @@ export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type RequireFields<T, K extends keyof T> = { [X in Exclude<keyof T, K>]?: T[X] } & { [P in K]-?: NonNullable<T[P]> };
 
-// Generated on 2020-08-08T00:09:01+02:00
+// Generated on 2020-08-10T22:18:02+02:00
 
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
@@ -36,15 +36,27 @@ export type Query = {
   __typename?: 'Query';
   /** Returns the current context */
   context: Scalars['String'];
-  /** Returns a JSON string containing the current pool counts */
-  pool?: Maybe<Scalars['String']>;
+  currentMatches?: Maybe<Array<Maybe<Match>>>;
+  lobby?: Maybe<Lobby>;
+  profile?: Maybe<UserProfile>;
   /** Returns the current package.json version */
   version: Scalars['String'];
 };
 
 
-export type QueryPoolArgs = {
-  userID?: Maybe<Scalars['ID']>;
+export type QueryCurrentMatchesArgs = {
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryLobbyArgs = {
+  id?: Maybe<Scalars['ID']>;
+};
+
+
+export type QueryProfileArgs = {
+  steamid?: Maybe<Scalars['ID']>;
 };
 
 export type Mutation = {
@@ -52,12 +64,18 @@ export type Mutation = {
   /** Used as placeholder as empty types aren't currently supported. Also fires and event to the _base_ subscription. */
   _base_: Scalars['String'];
   addUser: Scalars['String'];
+  generateGsiJwt: Scalars['String'];
   removeUser: Scalars['Boolean'];
 };
 
 
 export type MutationAddUserArgs = {
   user: UserInput;
+};
+
+
+export type MutationGenerateGsiJwtArgs = {
+  id?: Maybe<Scalars['ID']>;
 };
 
 
@@ -69,6 +87,12 @@ export type Subscription = {
   __typename?: 'Subscription';
   /** Used as placeholder as empty types aren't currently supported. */
   _base_: Scalars['String'];
+  lobby?: Maybe<Lobby>;
+};
+
+
+export type SubscriptionLobbyArgs = {
+  id?: Maybe<Scalars['ID']>;
 };
 
 
@@ -76,6 +100,85 @@ export type UserInput = {
   steamid: Scalars['String'];
   name: Scalars['String'];
   twitchName: Scalars['String'];
+};
+
+export type Lobby = {
+  __typename?: 'Lobby';
+  id: Scalars['ID'];
+  averageMMR?: Maybe<Scalars['Int']>;
+  duration?: Maybe<Scalars['String']>;
+  slots?: Maybe<Array<Maybe<LobbySlot>>>;
+  /** Stringified pool snapshot */
+  pool?: Maybe<Scalars['String']>;
+};
+
+export type LobbySlot = {
+  __typename?: 'LobbySlot';
+  lobbySlotId: Scalars['ID'];
+  slot?: Maybe<Scalars['Int']>;
+  /** If no user profile is returned, matchPlayer will be populated instead */
+  user?: Maybe<UserProfile>;
+  matchPlayer?: Maybe<MatchPlayer>;
+};
+
+export type Match = {
+  __typename?: 'Match';
+  id: Scalars['ID'];
+  averageMMR?: Maybe<Scalars['Int']>;
+  duration?: Maybe<Scalars['String']>;
+  slots?: Maybe<Array<Maybe<MatchSlot>>>;
+};
+
+export type MatchSlot = {
+  __typename?: 'MatchSlot';
+  /** Format: matchid#slot */
+  matchSlotID: Scalars['ID'];
+  slot: Scalars['Int'];
+  finalPlace: Scalars['Int'];
+  duration?: Maybe<Scalars['String']>;
+  match?: Maybe<Match>;
+  /** If no user profile is returned, matchPlayer will be populated instead */
+  user?: Maybe<UserProfile>;
+  matchPlayer?: Maybe<MatchPlayer>;
+};
+
+export type MatchPlayer = {
+  __typename?: 'MatchPlayer';
+  steamid: Scalars['ID'];
+};
+
+export type UserProfile = {
+  __typename?: 'UserProfile';
+  steamid: Scalars['ID'];
+  name?: Maybe<Scalars['String']>;
+  profilePicture?: Maybe<Scalars['String']>;
+  mmr?: Maybe<Scalars['Int']>;
+  leaderboardRank?: Maybe<Scalars['Int']>;
+  rank?: Maybe<Scalars['String']>;
+  twitchName?: Maybe<Scalars['String']>;
+  discordName?: Maybe<Scalars['String']>;
+  matches?: Maybe<Array<Maybe<MatchSlot>>>;
+  mmrHistory?: Maybe<Array<Maybe<MmrHistory>>>;
+};
+
+
+export type UserProfileMatchesArgs = {
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+};
+
+
+export type UserProfileMmrHistoryArgs = {
+  startDate?: Maybe<Scalars['Date']>;
+  endDate?: Maybe<Scalars['Date']>;
+  duration?: Maybe<Scalars['Int']>;
+};
+
+export type MmrHistory = {
+  __typename?: 'MMRHistory';
+  date?: Maybe<Scalars['Date']>;
+  mmr?: Maybe<Scalars['Int']>;
+  rank?: Maybe<Scalars['Int']>;
 };
 
 export type WithIndex<TObject> = TObject & Record<string, any>;
@@ -160,24 +263,40 @@ export type ResolversTypes = ResolversObject<{
   SCOPE: Scope;
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']>;
+  Int: ResolverTypeWrapper<Scalars['Int']>;
   ID: ResolverTypeWrapper<Scalars['ID']>;
   Mutation: ResolverTypeWrapper<{}>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']>;
   Subscription: ResolverTypeWrapper<{}>;
   Date: ResolverTypeWrapper<Scalars['Date']>;
   UserInput: UserInput;
+  Lobby: ResolverTypeWrapper<Lobby>;
+  LobbySlot: ResolverTypeWrapper<LobbySlot>;
+  Match: ResolverTypeWrapper<Match>;
+  MatchSlot: ResolverTypeWrapper<MatchSlot>;
+  MatchPlayer: ResolverTypeWrapper<MatchPlayer>;
+  UserProfile: ResolverTypeWrapper<UserProfile>;
+  MMRHistory: ResolverTypeWrapper<MmrHistory>;
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
 export type ResolversParentTypes = ResolversObject<{
   Query: {};
   String: Scalars['String'];
+  Int: Scalars['Int'];
   ID: Scalars['ID'];
   Mutation: {};
   Boolean: Scalars['Boolean'];
   Subscription: {};
   Date: Scalars['Date'];
   UserInput: UserInput;
+  Lobby: Lobby;
+  LobbySlot: LobbySlot;
+  Match: Match;
+  MatchSlot: MatchSlot;
+  MatchPlayer: MatchPlayer;
+  UserProfile: UserProfile;
+  MMRHistory: MmrHistory;
 }>;
 
 export type AuthDirectiveArgs = {   requires?: Maybe<Scope>; };
@@ -186,29 +305,102 @@ export type AuthDirectiveResolver<Result, Parent, ContextType = Context, Args = 
 
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   context?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  pool?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType, RequireFields<QueryPoolArgs, never>>;
+  currentMatches?: Resolver<Maybe<Array<Maybe<ResolversTypes['Match']>>>, ParentType, ContextType, RequireFields<QueryCurrentMatchesArgs, never>>;
+  lobby?: Resolver<Maybe<ResolversTypes['Lobby']>, ParentType, ContextType, RequireFields<QueryLobbyArgs, never>>;
+  profile?: Resolver<Maybe<ResolversTypes['UserProfile']>, ParentType, ContextType, RequireFields<QueryProfileArgs, never>>;
   version?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 }>;
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = ResolversObject<{
   _base_?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   addUser?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationAddUserArgs, 'user'>>;
+  generateGsiJwt?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationGenerateGsiJwtArgs, never>>;
   removeUser?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRemoveUserArgs, 'steamid'>>;
 }>;
 
 export type SubscriptionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = ResolversObject<{
   _base_?: SubscriptionResolver<ResolversTypes['String'], "_base_", ParentType, ContextType>;
+  lobby?: SubscriptionResolver<Maybe<ResolversTypes['Lobby']>, "lobby", ParentType, ContextType, RequireFields<SubscriptionLobbyArgs, never>>;
 }>;
 
 export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Date'], any> {
   name: 'Date';
 }
 
+export type LobbyResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Lobby'] = ResolversParentTypes['Lobby']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  averageMMR?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  duration?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  slots?: Resolver<Maybe<Array<Maybe<ResolversTypes['LobbySlot']>>>, ParentType, ContextType>;
+  pool?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType>;
+}>;
+
+export type LobbySlotResolvers<ContextType = Context, ParentType extends ResolversParentTypes['LobbySlot'] = ResolversParentTypes['LobbySlot']> = ResolversObject<{
+  lobbySlotId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  slot?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  user?: Resolver<Maybe<ResolversTypes['UserProfile']>, ParentType, ContextType>;
+  matchPlayer?: Resolver<Maybe<ResolversTypes['MatchPlayer']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType>;
+}>;
+
+export type MatchResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Match'] = ResolversParentTypes['Match']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  averageMMR?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  duration?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  slots?: Resolver<Maybe<Array<Maybe<ResolversTypes['MatchSlot']>>>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType>;
+}>;
+
+export type MatchSlotResolvers<ContextType = Context, ParentType extends ResolversParentTypes['MatchSlot'] = ResolversParentTypes['MatchSlot']> = ResolversObject<{
+  matchSlotID?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  slot?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  finalPlace?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  duration?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  match?: Resolver<Maybe<ResolversTypes['Match']>, ParentType, ContextType>;
+  user?: Resolver<Maybe<ResolversTypes['UserProfile']>, ParentType, ContextType>;
+  matchPlayer?: Resolver<Maybe<ResolversTypes['MatchPlayer']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType>;
+}>;
+
+export type MatchPlayerResolvers<ContextType = Context, ParentType extends ResolversParentTypes['MatchPlayer'] = ResolversParentTypes['MatchPlayer']> = ResolversObject<{
+  steamid?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType>;
+}>;
+
+export type UserProfileResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UserProfile'] = ResolversParentTypes['UserProfile']> = ResolversObject<{
+  steamid?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  profilePicture?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  mmr?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  leaderboardRank?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  rank?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  twitchName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  discordName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  matches?: Resolver<Maybe<Array<Maybe<ResolversTypes['MatchSlot']>>>, ParentType, ContextType, RequireFields<UserProfileMatchesArgs, never>>;
+  mmrHistory?: Resolver<Maybe<Array<Maybe<ResolversTypes['MMRHistory']>>>, ParentType, ContextType, RequireFields<UserProfileMmrHistoryArgs, never>>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType>;
+}>;
+
+export type MmrHistoryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['MMRHistory'] = ResolversParentTypes['MMRHistory']> = ResolversObject<{
+  date?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  mmr?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  rank?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType>;
+}>;
+
 export type Resolvers<ContextType = Context> = ResolversObject<{
   Query?: QueryResolvers<ContextType>;
   Mutation?: MutationResolvers<ContextType>;
   Subscription?: SubscriptionResolvers<ContextType>;
   Date?: GraphQLScalarType;
+  Lobby?: LobbyResolvers<ContextType>;
+  LobbySlot?: LobbySlotResolvers<ContextType>;
+  Match?: MatchResolvers<ContextType>;
+  MatchSlot?: MatchSlotResolvers<ContextType>;
+  MatchPlayer?: MatchPlayerResolvers<ContextType>;
+  UserProfile?: UserProfileResolvers<ContextType>;
+  MMRHistory?: MmrHistoryResolvers<ContextType>;
 }>;
 
 

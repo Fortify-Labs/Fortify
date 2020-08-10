@@ -32,4 +32,8 @@ export class InfluxDBConnector {
 
 		return writeApi.close();
 	}
+
+	queryApi() {
+		return this.client.getQueryApi(INFLUXDB_ORG);
+	}
 }
