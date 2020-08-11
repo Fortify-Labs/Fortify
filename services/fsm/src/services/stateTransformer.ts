@@ -39,6 +39,9 @@ export class StateTransformationService {
 			players: {},
 			pool: {},
 			mode: FortifyGameMode.Invalid,
+			averageMMR: 0,
+			created: 0,
+			ended: undefined,
 		};
 
 		return state;

@@ -918,9 +918,17 @@ export class Fortify extends Chart {
 			},
 			env: [
 				{ name: "MY_PORT", value: "8080" },
-				// TODO: Change this to production once access to gql ui is not needed anymore
 				{ name: "NODE_ENV", value: "production" },
 				{ name: "APP_URL", value: "https://api.fortify.gg" },
+				{ name: "APP_DOMAIN", value: "fortify.gg" },
+				{
+					name: "APP_SUCCESSFUL_AUTH_RETURN_URL",
+					value: "https://fortify.gg",
+				},
+				{
+					name: "APP_STEAM_RETURN_URL",
+					value: "https://api.fortify.gg/auth/steam/return",
+				},
 			],
 			secrets: ["postgres-auth", "jwt-secret"],
 			configmaps: ["postgres-config", "kafka-config", "redis-config"],

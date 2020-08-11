@@ -12,6 +12,7 @@ export enum GameEventType {
 	MATCH_STARTED,
 	FINAL_PLACE,
 	MATCH_ENDED,
+	RANK_TIER_UPDATE,
 }
 
 export class GameEvent extends FortifyEventClass<GameEventType> {
@@ -82,6 +83,23 @@ export class MatchEndedEvent extends FortifyEventClass<GameEventType> {
 		const matchID = obj["matchID"] as string | null;
 
 		if (matchID) return new this(matchID);
+		else throw new DeserializationError();
+	}
+}
+
+export class RankTierUpdateEvent extends FortifyEventClass<GameEventType> {
+	public _topic = FortifyEventTopics.GAME;
+	public type = GameEventType.RANK_TIER_UPDATE;
+
+	constructor(public accountID: string, public rankTier: number) {
+		super();
+	}
+
+	public static deserialize<GameEventType>(obj: FortifyEvent<GameEventType>) {
+		const accountID = obj["accountID"] as string | null;
+		const rankTier = obj["rankTier"] as number | null;
+
+		if (accountID && rankTier) return new this(accountID, rankTier);
 		else throw new DeserializationError();
 	}
 }

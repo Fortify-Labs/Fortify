@@ -39,9 +39,9 @@ export class BotCommandProcessor {
 
 			const userRepo = await this.postgres.getUserRepo();
 			const channels = await (
-				await userRepo.find({ select: ["twitch_name"] })
+				await userRepo.find({ select: ["twitchName"] })
 			)
-				.map((channel) => channel.twitch_name ?? "")
+				.map((channel) => channel.twitchName ?? "")
 				.filter((value) => value);
 
 			for (const channel of channels) {

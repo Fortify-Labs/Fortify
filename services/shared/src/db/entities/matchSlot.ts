@@ -1,22 +1,36 @@
-import { Entity, PrimaryColumn, ManyToOne, Column } from "typeorm";
+import {
+	Entity,
+	PrimaryColumn,
+	ManyToOne,
+	Column,
+	CreateDateColumn,
+	UpdateDateColumn,
+} from "typeorm";
 import { Match } from "./match";
 import { User } from "./user";
 import { MatchPlayer } from "./matchPlayer";
 
 @Entity()
 export class MatchSlot {
-	// --- id ---
+	// --- IDs ---
 	// We are going to create a composite primary key by using the unique player slot + the match reference
 
 	// The lobby slot of said player
-	// @Column()
 	@PrimaryColumn()
 	slot!: number;
 
 	@ManyToOne(() => Match, (match) => match.slots, { primary: true })
 	match!: Match;
 
-	// --- relations ---
+	// --- Dates ---
+
+	@CreateDateColumn()
+	created!: Date;
+
+	@UpdateDateColumn()
+	updated!: Date;
+
+	// --- Relations ---
 
 	// Will be used if said player has a fortify account
 	@ManyToOne(() => User, (user) => user.matchSlots, { nullable: true })
@@ -29,7 +43,7 @@ export class MatchSlot {
 	})
 	matchPlayer?: MatchPlayer;
 
-	// --- fields ---
+	// --- Fields ---
 
 	// The final place of said player in the lobby
 	@Column()

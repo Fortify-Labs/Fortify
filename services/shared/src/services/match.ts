@@ -111,7 +111,7 @@ export class MatchService {
 					currentDate === 0 ? 23 : currentDate - 1,
 				];
 
-				const matchStartHour = match.matchStartTime.getHours();
+				const matchStartHour = match.created.getHours();
 				// Create a time window of full hours +/-1 match start hour
 				const startHours = [
 					matchStartHour === 23 ? 0 : matchStartHour + 1,
@@ -276,7 +276,7 @@ export class MatchService {
 			return acc;
 		}, []);
 
-		match.matchEndTime = new Date(Date.now());
+		match.ended = new Date(Date.now());
 
 		await matchRepo.save(match);
 	}

@@ -23,22 +23,26 @@ export class DBCleanupScript implements FortifyScript {
 
 		const oldMatches = await matchRepo
 			.createQueryBuilder("matches")
-			.where('"matchStartTime" = "lastMatchUpdateTime"')
-			.andWhere('"matchEndTime" IS NULL')
+			.where('"created" = "updated"')
+			.andWhere('"ended" IS NULL')
 			// Do not delete any match entries of the past two hours
 			// The idea behind that is to not accidentally delete started matches
-			.andWhere("\"matchStartTime\" <= (NOW() - INTERVAL '2 HOURS')")
+			.andWhere("\"created\" <= (NOW() - INTERVAL '2 HOURS')")
 			.leftJoinAndSelect("matches.slots", "slots")
 			// })
 			.getMany();
 
 		const emptyOldMatches = oldMatches.reduce<Match[]>((acc, match) => {
-			const containsFinalPlaces = match.slots?.reduce(
-				(acc, slot) => acc || slot.finalPlace != 0,
+			const containsMatchData = match.slots?.reduce(
+				(acc, slot) => acc || slot.finalPlace !== 0,
+				// This might cause regular matches getting deleted.
+				// Until we find a proper solution, the above is just supposed to be a band aid solution
+
+				// (slot.finalPlace !== 0 && slot.created !== slot.updated),
 				false,
 			);
 
-			if (!containsFinalPlaces) {
+			if (!containsMatchData) {
 				match.slots = match.slots.map((slot) => ({
 					...slot,
 					match,

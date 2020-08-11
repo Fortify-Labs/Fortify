@@ -1,37 +1,29 @@
 import { injectable, inject } from "inversify";
 
 import { gql } from "apollo-server-express";
-import { sign } from "jsonwebtoken";
 
 import { GQLModule } from "definitions/module";
 import { Resolvers } from "definitions/graphql/types";
 
-import { Producer } from "kafkajs";
 import { PostgresConnector } from "@shared/connectors/postgres";
-import { KafkaConnector } from "@shared/connectors/kafka";
+import { EventService } from "@shared/services/eventService";
 
 import { User } from "@shared/db/entities/user";
 
-import { Context, PermissionScope } from "@shared/auth";
+import { Context, PermissionScope, generateJWT } from "@shared/auth";
 
 import {
 	TwitchLinkedEvent,
 	TwitchUnlinkedEvent,
 } from "@shared/events/systemEvents";
 
-const { JWT_SECRET = "" } = process.env;
-
 // This module will only be used for debugging purposes and will be removed in the future
 @injectable()
 export class DebugModule implements GQLModule {
-	producer: Producer;
-
 	constructor(
 		@inject(PostgresConnector) private postgres: PostgresConnector,
-		@inject(KafkaConnector) private kafka: KafkaConnector,
-	) {
-		this.producer = kafka.producer();
-	}
+		@inject(EventService) private eventService: EventService,
+	) {}
 
 	typeDef = gql`
 		extend type Query {
@@ -52,7 +44,7 @@ export class DebugModule implements GQLModule {
 	`;
 
 	resolver(): Resolvers {
-		const self = this;
+		const { postgres, eventService } = this;
 
 		return {
 			Query: {
@@ -68,24 +60,21 @@ export class DebugModule implements GQLModule {
 					const dbUser = new User();
 					dbUser.steamid = steamid;
 					dbUser.name = name;
-					dbUser.twitch_name =
+					dbUser.twitchName =
 						twitchName.substr(0, 1) === "#"
 							? twitchName
 							: "#" + twitchName;
 
-					const userRepo = await self.postgres.getUserRepo();
+					const userRepo = await postgres.getUserRepo();
 					await userRepo.save(dbUser);
 
 					// Send twitch linked event
 					const event = new TwitchLinkedEvent(
 						steamid,
-						dbUser.twitch_name,
+						dbUser.twitchName,
 					);
 
-					await self.producer.send({
-						topic: event._topic,
-						messages: [{ value: event.serialize() }],
-					});
+					await eventService.sendEvent(event);
 
 					// Generate JWT for GSI file
 					const gsiToken: Context = {
@@ -95,24 +84,21 @@ export class DebugModule implements GQLModule {
 						scopes: [PermissionScope.GsiIngress],
 					};
 
-					return sign(gsiToken, JWT_SECRET);
+					return generateJWT(gsiToken);
 				},
 				async removeUser(parent, { steamid }) {
 					// Find user in database
-					const repo = await self.postgres.getUserRepo();
+					const repo = await postgres.getUserRepo();
 					const dbUser = await repo.findOne({ where: { steamid } });
 
 					// Leave twitch channel
-					if (dbUser && dbUser.twitch_name) {
+					if (dbUser && dbUser.twitchName) {
 						const event = new TwitchUnlinkedEvent(
 							steamid,
-							dbUser.twitch_name,
+							dbUser.twitchName,
 						);
 
-						await self.producer.send({
-							topic: event._topic,
-							messages: [{ value: event.serialize() }],
-						});
+						await eventService.sendEvent(event);
 					}
 
 					// Delete user from database

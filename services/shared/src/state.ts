@@ -17,6 +17,10 @@ interface FortifyPlayerStateLobby {
 	players: Record<string, FortifyPlayer>;
 	mode: FortifyGameMode;
 	pool: Record<number, number>;
+
+	averageMMR: number;
+	created: number;
+	ended?: number;
 }
 
 export class FortifyPlayerState {
@@ -28,6 +32,11 @@ export class FortifyPlayerState {
 		mode: FortifyGameMode.Invalid,
 		players: {},
 		pool: {},
+
+		averageMMR: 0,
+
+		created: 0,
+		ended: undefined,
 	};
 }
 

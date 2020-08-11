@@ -28,8 +28,8 @@ const { KAFKA_FROM_START, KAFKA_GROUP_ID = "17kmmrbot-group" } = process.env;
 
 	const postgres = container.get(PostgresConnector);
 	const userRepo = await postgres.getUserRepo();
-	const channels = await (await userRepo.find({ select: ["twitch_name"] }))
-		.map((channel) => channel.twitch_name ?? "")
+	const channels = await (await userRepo.find({ select: ["twitchName"] }))
+		.map((channel) => channel.twitchName ?? "")
 		.filter((value) => value);
 
 	const commandProcessor = container.get(BotCommandProcessor);

@@ -1,4 +1,4 @@
-import { ApolloServer } from "apollo-server-express";
+import { ApolloServer, ApolloError } from "apollo-server-express";
 import { injectable } from "inversify";
 import { verifyToken } from "../util/jwt";
 import { schema } from "./schemaLoader";
@@ -22,9 +22,12 @@ export class GraphQL {
 					}
 
 					if (connection) {
-						token = connection.context.Authorization.split(
-							"Bearer ",
-						)[1];
+						token = (connection.context.authorization
+							? connection.context.authorization
+							: connection.context.Authorization
+							? connection.context.Authorization
+							: ""
+						).split("Bearer ")[1];
 					}
 
 					const user = await verifyToken(token);
@@ -33,6 +36,19 @@ export class GraphQL {
 				} catch (e) {
 					return {};
 				}
+			},
+			subscriptions: {
+				onConnect: (connectionParams) => {
+					//
+					if (
+						!("authorization" in connectionParams) &&
+						!("Authorization" in connectionParams)
+					) {
+						throw new ApolloError("Missing auth token");
+					}
+
+					return connectionParams;
+				},
 			},
 		});
 

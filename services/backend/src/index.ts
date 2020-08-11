@@ -10,6 +10,7 @@ import { GraphQL } from "./graphql/graphql";
 import debug from "debug";
 
 import { OpenAPIDocs } from "./services/openapidocs";
+import { SteamAuthMiddleware } from "./services/steamAuth";
 
 import express from "express";
 import * as bodyParser from "body-parser";
@@ -23,6 +24,9 @@ graphQLServer.applyMiddleware({ app, path: "/graphql" });
 
 const openAPI = container.get(OpenAPIDocs);
 openAPI.applyMiddleware({ app, apiPath: "/api", docsPath: "/docs" });
+
+const authMiddleware = container.get(SteamAuthMiddleware);
+authMiddleware.applyMiddleware({ app });
 
 const server = app.listen(
 	{ port: parseInt(process.env.MY_PORT ?? "8080", 10) },
