@@ -8,6 +8,7 @@ import { ExtractorService } from "./extractor";
 import { FortifyPlayer, FortifyGameMode } from "../state";
 import { LeaderboardService } from "./leaderboard";
 import { LeaderboardType } from "../definitions/leaderboard";
+import { currentSeason } from "../units";
 
 export interface MatchServicePlayer {
 	accountID: string;
@@ -162,6 +163,7 @@ export class MatchService {
 		match.id = matchID;
 		match.slots = [];
 		match.gameMode = gameMode;
+		match.season = currentSeason;
 
 		const playerRecord = players.reduce<Record<string, FortifyPlayer>>(
 			(acc, player) => {

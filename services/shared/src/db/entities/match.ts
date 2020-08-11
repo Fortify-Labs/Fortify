@@ -44,6 +44,9 @@ export class Match {
 	@Column({ default: 0 })
 	gameMode!: FortifyGameMode;
 
+	@Column({ default: "" })
+	season!: string;
+
 	// --- Relations ---
 
 	@OneToMany(() => MatchSlot, (mp) => mp.match, {
