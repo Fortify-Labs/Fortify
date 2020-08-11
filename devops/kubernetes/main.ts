@@ -999,7 +999,7 @@ export class Fortify extends Chart {
 				{ name: "KAFKA_TOPIC", value: "gsi" },
 			],
 			secrets: ["jwt-secret"],
-			configmaps: ["kafka-config"],
+			configmaps: ["kafka-config", "redis-config"],
 			service: {
 				name: "gsi-receiver",
 				containerPort: 8080,
