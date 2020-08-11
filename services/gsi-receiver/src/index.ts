@@ -8,33 +8,45 @@ import debug from "debug";
 import express from "express";
 import { json, urlencoded } from "body-parser";
 
-import { verifyGSIAuth } from "./auth";
+import rateLimit from "express-rate-limit";
+import RedisStore from "rate-limit-redis";
+
 import { container } from "./inversify.config";
 import { KafkaConnector } from "@shared/connectors/kafka";
+import { RedisConnector } from "@shared/connectors/redis";
 
-const { KAFKA_TOPIC, MY_PORT, JWT_SECRET } = process.env;
+import { verifyJWT, PermissionScope } from "@shared/auth";
+
+const { KAFKA_TOPIC, MY_PORT } = process.env;
 
 (async () => {
 	const kafka = container.get(KafkaConnector);
+	const redis = container.get(RedisConnector);
 
 	const producer = kafka.producer();
 	await producer.connect();
+
+	const apiLimiter = rateLimit({
+		max: 120,
+		store: new RedisStore({
+			client: redis.createClient(),
+			prefix: "rl:api:",
+		}),
+	});
 
 	const app = express();
 
 	app.use(urlencoded({ extended: true, limit: "10mb" }));
 	app.use(json({ limit: "10mb" }));
 
-	app.post("/gsi", async (req, res) => {
-		// TODO: Implement rate-limiting so this cannot be abused and spammed with trash
-
+	// Rate-limited to 120 requests per minute
+	app.post("/gsi", apiLimiter, async (req, res) => {
 		// Send an unsuccessful response on failed auth
 		if (req.body && req.body.auth) {
 			try {
-				const { user, success } = await verifyGSIAuth(
-					req.body.auth,
-					JWT_SECRET ?? "",
-				);
+				const { user, success } = await verifyJWT(req.body.auth, [
+					PermissionScope.GsiIngress,
+				]);
 
 				if (success) {
 					res.status(200).contentType("text/html").end("OK");
