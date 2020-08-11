@@ -3,7 +3,12 @@ import { Client, ChatUserstate } from "tmi.js";
 import { injectable, inject } from "inversify";
 import { ExtractorService } from "@shared/services/extractor";
 
-import { S1Units, Unit as S1Unit, unitMappings } from "@shared/units";
+import {
+	units,
+	currentSeason,
+	Unit as SeasonUnit,
+	unitMappings,
+} from "@shared/units";
 import { poolSize } from "@shared/pool";
 
 @injectable()
@@ -54,7 +59,7 @@ export class LeftCommand implements TwitchCommand {
 			}
 		}
 
-		const unit = S1Units[codeName] as S1Unit | null;
+		const unit = units[currentSeason][codeName] as SeasonUnit | null;
 
 		if (!unit || unit.id >= 1000) {
 			return client.say(
