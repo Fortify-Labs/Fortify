@@ -16,13 +16,13 @@ export const setCookie = (key: string, value: string) => {
 export const removeCookie = (key: string, domain?: string) => {
 	const ssrMode = typeof window === "undefined";
 
-	if (ssrMode) {
-		cookie.remove(key, {
-			expires: 1,
-			path: "/",
-			domain,
-		});
-	}
+	// if (ssrMode) {
+	cookie.remove(key, {
+		expires: 1,
+		path: "/",
+		domain,
+	});
+	// }
 };
 
 export const getCookie = (key: string, req: any) => {

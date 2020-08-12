@@ -29,6 +29,9 @@ export class DebugModule implements GQLModule {
 		extend type Query {
 			"Returns the current context"
 			context: String!
+
+			"Returns wether the current bearer token is valid or not"
+			authenticated: AuthenticatedObject!
 		}
 
 		extend type Mutation {
@@ -41,6 +44,11 @@ export class DebugModule implements GQLModule {
 			name: String!
 			twitchName: String!
 		}
+
+		type AuthenticatedObject {
+			authenticated: Boolean!
+			user: UserProfile
+		}
 	`;
 
 	resolver(): Resolvers {
@@ -50,6 +58,11 @@ export class DebugModule implements GQLModule {
 			Query: {
 				context(_parent, _args, context) {
 					return JSON.stringify(context ?? {});
+				},
+				authenticated(parent, args, context) {
+					return {
+						authenticated: context && !!context.user,
+					};
 				},
 			},
 			Mutation: {
@@ -105,6 +118,12 @@ export class DebugModule implements GQLModule {
 					await repo.delete({ steamid });
 
 					return true;
+				},
+			},
+			AuthenticatedObject: {
+				async user(parent, args, context) {
+					const userRepo = await postgres.getUserRepo();
+					return userRepo.findOneOrFail(context.user.id);
 				},
 			},
 		};

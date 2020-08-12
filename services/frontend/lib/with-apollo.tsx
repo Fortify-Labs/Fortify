@@ -205,8 +205,10 @@ function createApolloClient(
 }
 
 const createLink = (resolverContext?: ResolverContext) => {
-	const wsUri = process.env.GRAPHQL_WS_URI ?? "ws://localhost:8080/graphql";
-	const uri = process.env.GRAPHQL_URI ?? "http://localhost:8080/graphql";
+	const wsUri =
+		process.env.NEXT_PUBLIC_GRAPHQL_WS_URI ?? "ws://localhost:8080/graphql";
+	const uri =
+		process.env.NEXT_PUBLIC_GRAPHQL_URI ?? "http://localhost:8080/graphql";
 
 	const ssrMode = typeof window === "undefined";
 
