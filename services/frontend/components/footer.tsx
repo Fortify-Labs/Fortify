@@ -1,21 +1,40 @@
+import Link from "next/link";
+
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faDiscord, faGithub } from "@fortawesome/free-brands-svg-icons";
+
 export const Footer = () => {
 	return (
 		<footer className="footer">
-			<div className="content has-text-centered">
+			<div className="content is-pulled-left">
 				<p>
-					{/* TODO: Fill footer */}
-					<strong>Bulma</strong> by{" "}
-					<a href="https://jgthms.com">Jeremy Thomas</a>. The source
-					code is licensed
-					<a href="http://opensource.org/licenses/mit-license.php">
-						MIT
-					</a>
-					. The website content is licensed{" "}
-					<a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">
-						CC BY NC SA 4.0
-					</a>
-					.
+					<strong>℗ Fortify Project, 2020</strong> <br />
+					<div style={{ marginTop: "4px" }}>
+						<a
+							href="https://discord.gg/u9qJxzQ"
+							target="_blank"
+							style={{ color: "white" }}
+						>
+							<FontAwesomeIcon icon={faDiscord} size="2x" />
+						</a>{" "}
+						<a
+							href="https://github.com/Fortify-Labs/Fortify"
+							target="_blank"
+							style={{ color: "white" }}
+						>
+							<FontAwesomeIcon icon={faGithub} size="2x" />
+						</a>{" "}
+					</div>
 				</p>
+			</div>
+			<div className="content is-pulled-right">
+				<Link href="/privacy" passHref>
+					<a>Privacy Policy</a>
+				</Link>{" "}
+				|{" "}
+				<Link href="/imprint" passHref>
+					<a>Imprint</a>
+				</Link>
 			</div>
 		</footer>
 	);
