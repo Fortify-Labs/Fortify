@@ -8,7 +8,7 @@ export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type RequireFields<T, K extends keyof T> = { [X in Exclude<keyof T, K>]?: T[X] } & { [P in K]-?: NonNullable<T[P]> };
 
-// Generated on 2020-08-10T22:18:02+02:00
+// Generated on 2020-08-12T19:50:04+02:00
 
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
@@ -34,6 +34,8 @@ export enum Scope {
 
 export type Query = {
   __typename?: 'Query';
+  /** Returns wether the current bearer token is valid or not */
+  authenticated: AuthenticatedObject;
   /** Returns the current context */
   context: Scalars['String'];
   currentMatches?: Maybe<Array<Maybe<Match>>>;
@@ -100,6 +102,12 @@ export type UserInput = {
   steamid: Scalars['String'];
   name: Scalars['String'];
   twitchName: Scalars['String'];
+};
+
+export type AuthenticatedObject = {
+  __typename?: 'AuthenticatedObject';
+  authenticated: Scalars['Boolean'];
+  user?: Maybe<UserProfile>;
 };
 
 export type Lobby = {
@@ -270,6 +278,7 @@ export type ResolversTypes = ResolversObject<{
   Subscription: ResolverTypeWrapper<{}>;
   Date: ResolverTypeWrapper<Scalars['Date']>;
   UserInput: UserInput;
+  AuthenticatedObject: ResolverTypeWrapper<AuthenticatedObject>;
   Lobby: ResolverTypeWrapper<Lobby>;
   LobbySlot: ResolverTypeWrapper<LobbySlot>;
   Match: ResolverTypeWrapper<Match>;
@@ -290,6 +299,7 @@ export type ResolversParentTypes = ResolversObject<{
   Subscription: {};
   Date: Scalars['Date'];
   UserInput: UserInput;
+  AuthenticatedObject: AuthenticatedObject;
   Lobby: Lobby;
   LobbySlot: LobbySlot;
   Match: Match;
@@ -304,6 +314,7 @@ export type AuthDirectiveArgs = {   requires?: Maybe<Scope>; };
 export type AuthDirectiveResolver<Result, Parent, ContextType = Context, Args = AuthDirectiveArgs> = DirectiveResolverFn<Result, Parent, ContextType, Args>;
 
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
+  authenticated?: Resolver<ResolversTypes['AuthenticatedObject'], ParentType, ContextType>;
   context?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   currentMatches?: Resolver<Maybe<Array<Maybe<ResolversTypes['Match']>>>, ParentType, ContextType, RequireFields<QueryCurrentMatchesArgs, never>>;
   lobby?: Resolver<Maybe<ResolversTypes['Lobby']>, ParentType, ContextType, RequireFields<QueryLobbyArgs, never>>;
@@ -326,6 +337,12 @@ export type SubscriptionResolvers<ContextType = Context, ParentType extends Reso
 export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Date'], any> {
   name: 'Date';
 }
+
+export type AuthenticatedObjectResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AuthenticatedObject'] = ResolversParentTypes['AuthenticatedObject']> = ResolversObject<{
+  authenticated?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  user?: Resolver<Maybe<ResolversTypes['UserProfile']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType>;
+}>;
 
 export type LobbyResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Lobby'] = ResolversParentTypes['Lobby']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
@@ -394,6 +411,7 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   Mutation?: MutationResolvers<ContextType>;
   Subscription?: SubscriptionResolvers<ContextType>;
   Date?: GraphQLScalarType;
+  AuthenticatedObject?: AuthenticatedObjectResolvers<ContextType>;
   Lobby?: LobbyResolvers<ContextType>;
   LobbySlot?: LobbySlotResolvers<ContextType>;
   Match?: MatchResolvers<ContextType>;

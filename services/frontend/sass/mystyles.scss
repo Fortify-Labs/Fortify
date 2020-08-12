@@ -1,0 +1,7 @@
+@charset "utf-8";
+
+$navbar-item-img-max-height: 3rem;
+
+@import "darkly/variables";
+@import "../node_modules/bulma/bulma.sass";
+@import "darkly/overrides";
