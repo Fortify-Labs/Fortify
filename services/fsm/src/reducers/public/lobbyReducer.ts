@@ -136,11 +136,18 @@ export class LobbyPlayerReducer implements StateReducer<PublicPlayerState> {
 				.every((value, index) => value === index + 1)
 		) {
 			const lobbyPlayers = Object.values(state.lobby.players).map(
-				({ accountID, slot, finalPlace, globalLeaderboardRank }) => ({
+				({
 					accountID,
 					slot,
 					finalPlace,
 					globalLeaderboardRank,
+					name,
+				}) => ({
+					accountID,
+					slot,
+					finalPlace,
+					globalLeaderboardRank,
+					name,
 				}),
 			);
 

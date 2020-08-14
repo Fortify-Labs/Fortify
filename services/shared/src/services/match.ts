@@ -14,6 +14,8 @@ export interface MatchServicePlayer {
 	accountID: string;
 	slot: number;
 
+	name: string;
+
 	finalPlace: number;
 
 	rankTier?: number;
@@ -198,7 +200,7 @@ export class MatchService {
 		}
 
 		// For each player in the lobby
-		for (const { accountID, slot, finalPlace } of players) {
+		for (const { accountID, slot, finalPlace, name } of players) {
 			const matchSlot = new MatchSlot();
 
 			// Link their slot to a match
@@ -211,6 +213,9 @@ export class MatchService {
 			// Check if player is a fortify user
 			const user = await userRepo.findOne(accountID);
 			if (user) {
+				user.name = name;
+				await userRepo.save(user);
+
 				// if true, use the User entity in the match slot
 				matchSlot.user = user;
 			} else {
@@ -221,9 +226,9 @@ export class MatchService {
 				if (!matchPlayer) {
 					matchPlayer = new MatchPlayer();
 					matchPlayer.steamid = accountID;
-
-					await matchPlayerRepo.save(matchPlayer);
 				}
+				matchPlayer.name = name;
+				await matchPlayerRepo.save(matchPlayer);
 
 				matchSlot.matchPlayer = matchPlayer;
 			}

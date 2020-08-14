@@ -1,6 +1,6 @@
 {
   "name": "shared",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "description": "Shared library for fortify micro services",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
@@ -31,7 +31,7 @@
     "typescript": "^3.9.7"
   },
   "dependencies": {
-    "@influxdata/influxdb-client": "^1.5.0",
+    "@influxdata/influxdb-client": "^1.6.0",
     "bignumber.js": "^9.0.0",
     "debug": "^4.1.1",
     "inversify": "^5.0.1",
