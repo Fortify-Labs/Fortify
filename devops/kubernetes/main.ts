@@ -319,16 +319,16 @@ export class ClusterSetup extends Chart {
 							"node.ingest": true,
 						},
 						podTemplate: {
-							metadata: {
-								annotations: {
-									"traffic.sidecar.istio.io/includeInboundPorts":
-										"*",
-									"traffic.sidecar.istio.io/excludeOutboundPorts":
-										"9300",
-									"traffic.sidecar.istio.io/excludeInboundPorts":
-										"9300",
-								},
-							},
+							// metadata: {
+							// 	annotations: {
+							// 		"traffic.sidecar.istio.io/includeInboundPorts":
+							// 			"*",
+							// 		"traffic.sidecar.istio.io/excludeOutboundPorts":
+							// 			"9300",
+							// 		"traffic.sidecar.istio.io/excludeInboundPorts":
+							// 			"9300",
+							// 	},
+							// },
 							spec: {
 								automountServiceAccountToken: true,
 								initContainers: [
