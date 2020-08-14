@@ -9,6 +9,9 @@ export class MatchPlayer {
 	steamid!: string;
 
 	// --- Properties ---
+	@Column({ default: "" })
+	name!: string;
+
 	@Column({
 		nullable: true,
 	})

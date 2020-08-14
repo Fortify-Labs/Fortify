@@ -1,0 +1,18 @@
+query CurrentMatches($limit: Int, $offset: Int) {
+	currentMatches(limit: $limit, offset: $offset) {
+		id
+		averageMMR
+		duration
+
+		slots {
+			matchSlotID
+			slot
+			user {
+				name
+			}
+			matchPlayer {
+				name
+			}
+		}
+	}
+}

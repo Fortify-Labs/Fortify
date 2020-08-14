@@ -1,3 +1,5 @@
+import "reflect-metadata";
+
 import { injectable, inject } from "inversify";
 
 import { RedisPubSub } from "graphql-redis-subscriptions";

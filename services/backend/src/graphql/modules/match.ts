@@ -1,6 +1,6 @@
 import { GQLModule } from "definitions/module";
 import { gql } from "apollo-server-express";
-import { Resolvers } from "definitions/graphql/types";
+import { Resolvers, Match } from "definitions/graphql/types";
 import { injectable, inject } from "inversify";
 import { PostgresConnector } from "@shared/connectors/postgres";
 
@@ -48,6 +48,7 @@ export class MatchModule implements GQLModule {
 
 		type MatchPlayer {
 			steamid: ID!
+			name: String
 		}
 	`;
 
@@ -72,18 +73,35 @@ export class MatchModule implements GQLModule {
 						skip: offset,
 					});
 
-					return currentMatches.map((match) => ({
-						...match,
-						slots: match.slots.map(
-							({ slot, finalPlace, user, matchPlayer }) => ({
-								matchSlotID: match.id + "#" + slot,
-								slot,
-								finalPlace,
-								user,
-								matchPlayer,
-							}),
-						),
-					}));
+					const now = new Date();
+					const utc = new Date(
+						now.getTime() + now.getTimezoneOffset() * 60000,
+					).getTime();
+
+					return currentMatches.reduce<Match[]>((acc, match) => {
+						// If the match started <1h ago, return it as a current match
+						if (utc - match.created.getTime() < 60 * 60 * 1000) {
+							acc.push({
+								...match,
+								slots: match.slots.map(
+									({
+										slot,
+										finalPlace,
+										user,
+										matchPlayer,
+									}) => ({
+										matchSlotID: match.id + "#" + slot,
+										slot,
+										finalPlace,
+										user,
+										matchPlayer,
+									}),
+								),
+							});
+						}
+
+						return acc;
+					}, []);
 				},
 			},
 			Match: {

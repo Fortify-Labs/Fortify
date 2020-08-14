@@ -8,7 +8,7 @@ export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type RequireFields<T, K extends keyof T> = { [X in Exclude<keyof T, K>]?: T[X] } & { [P in K]-?: NonNullable<T[P]> };
 
-// Generated on 2020-08-12T19:50:04+02:00
+// Generated on 2020-08-14T19:32:25+02:00
 
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
@@ -153,6 +153,7 @@ export type MatchSlot = {
 export type MatchPlayer = {
   __typename?: 'MatchPlayer';
   steamid: Scalars['ID'];
+  name?: Maybe<Scalars['String']>;
 };
 
 export type UserProfile = {
@@ -382,6 +383,7 @@ export type MatchSlotResolvers<ContextType = Context, ParentType extends Resolve
 
 export type MatchPlayerResolvers<ContextType = Context, ParentType extends ResolversParentTypes['MatchPlayer'] = ResolversParentTypes['MatchPlayer']> = ResolversObject<{
   steamid?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType>;
 }>;
 
