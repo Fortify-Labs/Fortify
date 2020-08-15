@@ -4,11 +4,11 @@ import { Navbar } from "../components/navbar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faOsi } from "@fortawesome/free-brands-svg-icons";
 import { faStream, faHandHoldingUsd } from "@fortawesome/free-solid-svg-icons";
-import { HStack } from "../components/hstack";
 import { VStack } from "../components/vstack";
 import classNames from "classnames";
 
 import styles from "../css/index.module.css";
+import { HStack } from "../components/hstack";
 
 const Index = () => {
 	return (
@@ -36,7 +36,7 @@ const Index = () => {
 				</div>
 				<div className={classNames("columns", styles.columns)}>
 					<div className="column is-half is-offset-one-quarter">
-						<VStack
+						<HStack
 							style={{ alignItems: "center" }}
 							fullWidth={true}
 						>
@@ -45,7 +45,7 @@ const Index = () => {
 								size="5x"
 								style={{ marginRight: "16px" }}
 							/>
-							<HStack>
+							<VStack>
 								<h1
 									className="title is-2"
 									style={{ marginBottom: "4px" }}
@@ -69,13 +69,13 @@ const Index = () => {
 									request, feel free to reach out and
 									contribute.
 								</p>
-							</HStack>
-						</VStack>
+							</VStack>
+						</HStack>
 					</div>
 				</div>
 				<div className={classNames("columns", styles.columns)}>
 					<div className="column is-half is-offset-one-quarter">
-						<VStack
+						<HStack
 							style={{ alignItems: "center" }}
 							fullWidth={true}
 						>
@@ -84,7 +84,7 @@ const Index = () => {
 								size="5x"
 								style={{ marginRight: "16px" }}
 							/>
-							<HStack>
+							<VStack>
 								<h1
 									className="title is-2"
 									style={{ marginBottom: "4px" }}
@@ -104,8 +104,8 @@ const Index = () => {
 								chances of finding that 3* unit you are rolling
 								for, or the strength of your lobby in terms of
 								their ranks and MMR, Fortify has you covered.
-							</HStack>
-						</VStack>
+							</VStack>
+						</HStack>
 					</div>
 				</div>
 				<div
@@ -113,7 +113,7 @@ const Index = () => {
 					style={{ marginBottom: "4px" }}
 				>
 					<div className="column is-half is-offset-one-quarter">
-						<VStack
+						<HStack
 							style={{ alignItems: "center" }}
 							fullWidth={true}
 						>
@@ -122,7 +122,7 @@ const Index = () => {
 								size="5x"
 								style={{ marginRight: "16px" }}
 							/>
-							<HStack>
+							<VStack>
 								<h1
 									className="title is-2"
 									style={{ marginBottom: "4px" }}
@@ -143,8 +143,8 @@ const Index = () => {
 								the features we have to offer, and witness the
 								power of what Fortify can do to improve your
 								gameplay experience.
-							</HStack>
-						</VStack>
+							</VStack>
+						</HStack>
 					</div>
 				</div>
 			</div>

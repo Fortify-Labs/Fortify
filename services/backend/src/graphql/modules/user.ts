@@ -116,9 +116,9 @@ export class UserModule implements GQLModule {
 
 					const rows = await queryApi.collectRows(fluxQuery);
 
-					const lastRow = rows[0] as InfluxMMRQueryRow;
+					const lastRow = rows[0] as InfluxMMRQueryRow | undefined;
 
-					if (lastRow._value !== null) {
+					if (lastRow && lastRow._value !== null) {
 						return parseInt(lastRow._value);
 					}
 
@@ -143,9 +143,9 @@ export class UserModule implements GQLModule {
 
 					const rows = await queryApi.collectRows(fluxQuery);
 
-					const lastRow = rows[0] as InfluxMMRQueryRow;
+					const lastRow = rows[0] as InfluxMMRQueryRow | undefined;
 
-					if (lastRow._value !== null) {
+					if (lastRow && lastRow._value !== null) {
 						return parseInt(lastRow._value);
 					}
 

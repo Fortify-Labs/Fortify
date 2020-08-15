@@ -3,7 +3,6 @@ import React, { FunctionComponent, CSSProperties } from "react";
 interface HStackProps {
 	style?: CSSProperties;
 	fullWidth?: boolean;
-
 	onClick?: () => unknown;
 }
 
@@ -17,7 +16,7 @@ export const HStack: FunctionComponent<HStackProps> = ({
 		<div
 			onClick={onClick}
 			style={{
-				display: "inline-grid",
+				display: "inline-flex",
 				...(fullWidth ? { width: "100%" } : {}),
 				...style,
 			}}
