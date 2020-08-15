@@ -3,12 +3,17 @@
 		"Dota",
 		"Underlords",
 		"Unmount",
+		"bignumber",
 		"bulma",
 		"fontawesome",
 		"fortawesome",
 		"fullwidth",
 		"hoverable",
+		"hstack",
 		"inmemory",
-		"steamid"
+		"leaderboard",
+		"linechart",
+		"steamid",
+		"vstack"
 	]
 }

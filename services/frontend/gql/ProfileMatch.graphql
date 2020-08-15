@@ -1,0 +1,16 @@
+query ProfileMatch($steamid: ID) {
+	profile(steamid: $steamid) {
+		steamid
+
+		matches {
+			matchSlotID
+
+			finalPlace
+			duration
+
+			match {
+				averageMMR
+			}
+		}
+	}
+}

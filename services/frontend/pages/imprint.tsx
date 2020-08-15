@@ -8,10 +8,10 @@ const Imprint = () => {
 
 			<div style={{ margin: "1rem" }}>
 				<h1 className="title is-1">Imprint</h1>
-				Da es sich bei vorliegender Webseite um eine nicht kommerzielle
-				und rein privat, persönlich & familiär genutzte Webseite
-				handelt, ist eine Impressum mit Angaben nach §5 TMG
-				nichtzutreffend. <br />
+				Da es sich bei vorliegender Webseite um eine nicht kommerzielle,
+				nicht gewerbliche und rein privat, persönlich & familiär
+				genutzte Webseite handelt, ist eine Impressum mit Angaben nach
+				§5 TMG nichtzutreffend. <br />
 				<br />
 				Jeweiligen, folgende Angaben sind auf rein freiwilliger Basis:
 				<br /> <br />

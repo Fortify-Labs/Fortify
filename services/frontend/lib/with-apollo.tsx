@@ -195,7 +195,16 @@ function createApolloClient(
 	resolverContext?: ResolverContext
 ) {
 	const ssrMode = typeof window === "undefined";
-	const cache = new InMemoryCache().restore(initialState);
+	const cache = new InMemoryCache({
+		typePolicies: {
+			UserProfile: {
+				keyFields: ["steamid"],
+			},
+			MatchSlot: {
+				keyFields: ["matchSlotID"],
+			},
+		},
+	}).restore(initialState);
 
 	return new ApolloClient({
 		ssrMode,

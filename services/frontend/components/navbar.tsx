@@ -100,6 +100,13 @@ export const Navbar = () => {
 								</a>
 								<a
 									className="navbar-item"
+									target="_blank"
+									href="https://discord.gg/M2rD7fD"
+								>
+									Need help?
+								</a>
+								<a
+									className="navbar-item"
 									onClick={() => {
 										removeCookie("auth");
 										document.location.href = "/";

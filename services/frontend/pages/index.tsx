@@ -4,7 +4,6 @@ import { Navbar } from "../components/navbar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faOsi } from "@fortawesome/free-brands-svg-icons";
 import { faStream, faHandHoldingUsd } from "@fortawesome/free-solid-svg-icons";
-import { HStack } from "../components/hstack";
 import { VStack } from "../components/vstack";
 import classNames from "classnames";
 
@@ -45,7 +44,7 @@ const Index = () => {
 								size="5x"
 								style={{ marginRight: "16px" }}
 							/>
-							<HStack>
+							<VStack>
 								<h1
 									className="title is-2"
 									style={{ marginBottom: "4px" }}
@@ -69,7 +68,7 @@ const Index = () => {
 									justo accumsan hendrerit. Sed semper iaculis
 									purus sit amet tincidunt.
 								</p>
-							</HStack>
+							</VStack>
 						</VStack>
 					</div>
 				</div>
@@ -84,7 +83,7 @@ const Index = () => {
 								size="5x"
 								style={{ marginRight: "16px" }}
 							/>
-							<HStack>
+							<VStack>
 								<h1
 									className="title is-2"
 									style={{ marginBottom: "4px" }}
@@ -105,7 +104,7 @@ const Index = () => {
 								lacinia. Vestibulum fringilla leo eu justo
 								accumsan hendrerit. Sed semper iaculis purus sit
 								amet tincidunt.
-							</HStack>
+							</VStack>
 						</VStack>
 					</div>
 				</div>
@@ -123,7 +122,7 @@ const Index = () => {
 								size="5x"
 								style={{ marginRight: "16px" }}
 							/>
-							<HStack>
+							<VStack>
 								<h1
 									className="title is-2"
 									style={{ marginBottom: "4px" }}
@@ -144,7 +143,7 @@ const Index = () => {
 								lacinia. Vestibulum fringilla leo eu justo
 								accumsan hendrerit. Sed semper iaculis purus sit
 								amet tincidunt.
-							</HStack>
+							</VStack>
 						</VStack>
 					</div>
 				</div>

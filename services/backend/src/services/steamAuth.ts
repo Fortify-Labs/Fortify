@@ -63,9 +63,16 @@ export class SteamAuthMiddleware {
 			// Store user to DB
 			const userRepo = await this.postgres.getUserRepo();
 
-			const dbUser = new User();
-			dbUser.steamid = convert64to32SteamId(user.id).toString();
-			dbUser.name = user.displayName;
+			const steamID = convert64to32SteamId(user.id).toString();
+
+			let dbUser = await userRepo.findOne(steamID);
+
+			if (!dbUser) {
+				dbUser = new User();
+
+				dbUser.steamid = steamID;
+				dbUser.name = user.displayName;
+			}
 
 			dbUser.profilePicture = user._json.avatarfull;
 
