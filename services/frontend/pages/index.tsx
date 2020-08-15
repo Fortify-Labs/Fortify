@@ -52,21 +52,21 @@ const Index = () => {
 									Open Source
 								</h1>
 								<p className="is-size-6">
-									Lorem ipsum dolor sit amet, consectetur
-									adipiscing elit. Maecenas nulla nisl,
-									aliquet nec efficitur vitae, iaculis
-									placerat lorem. Integer tempus lorem quis
-									metus tincidunt bibendum. Maecenas eget urna
-									sem. Sed efficitur, ex vitae fringilla
-									vestibulum, nisi nisl eleifend est, sed
-									pharetra ipsum ante eu dolor. Nullam
-									imperdiet sit amet orci imperdiet sodales.
-									Proin sed magna non odio ullamcorper
-									consequat non sed sem. Etiam eget erat
-									lectus. Vestibulum placerat eros dictum quam
-									aliquam lacinia. Vestibulum fringilla leo eu
-									justo accumsan hendrerit. Sed semper iaculis
-									purus sit amet tincidunt.
+									Fortify is completely open source and is
+									signed under the AGPL license, as the
+									project is being developed by and for the
+									community. This means all of the code is
+									openly available for anyone to use, modify
+									and redistribute. This also means that
+									everyone is welcome to contribute and help
+									in the development of the project, as we
+									move towards the common goal of providing
+									useful tools for the community. Whether you
+									are a skilled developer looking to
+									contribute by fixing bugs or helping with
+									new features, or a person with a feature
+									request, feel free to reach out and
+									contribute.
 								</p>
 							</VStack>
 						</VStack>
@@ -90,21 +90,20 @@ const Index = () => {
 								>
 									Real Time Data Processing
 								</h1>
-								Lorem ipsum dolor sit amet, consectetur
-								adipiscing elit. Maecenas nulla nisl, aliquet
-								nec efficitur vitae, iaculis placerat lorem.
-								Integer tempus lorem quis metus tincidunt
-								bibendum. Maecenas eget urna sem. Sed efficitur,
-								ex vitae fringilla vestibulum, nisi nisl
-								eleifend est, sed pharetra ipsum ante eu dolor.
-								Nullam imperdiet sit amet orci imperdiet
-								sodales. Proin sed magna non odio ullamcorper
-								consequat non sed sem. Etiam eget erat lectus.
-								Vestibulum placerat eros dictum quam aliquam
-								lacinia. Vestibulum fringilla leo eu justo
-								accumsan hendrerit. Sed semper iaculis purus sit
-								amet tincidunt.
-							</VStack>
+								All of your data from the game is processed in
+								real time - while you are in a match, or
+								spectating a friend's game. The game broadcasts
+								the details pertaining to the match like the
+								units on the board, names and ranks of your
+								opponents and a lot of other lobby related
+								information. This data is sent to our servers,
+								which is processed immediately and displayed to
+								you with relevant metrics that will help enhance
+								your gameplay experience. Be it knowing the
+								chances of finding that 3* unit you are rolling
+								for, or the strength of your lobby in terms of
+								their ranks and MMR, Fortify has you covered.
+							</HStack>
 						</VStack>
 					</div>
 				</div>
@@ -129,21 +128,21 @@ const Index = () => {
 								>
 									Free Of Charge
 								</h1>
-								Lorem ipsum dolor sit amet, consectetur
-								adipiscing elit. Maecenas nulla nisl, aliquet
-								nec efficitur vitae, iaculis placerat lorem.
-								Integer tempus lorem quis metus tincidunt
-								bibendum. Maecenas eget urna sem. Sed efficitur,
-								ex vitae fringilla vestibulum, nisi nisl
-								eleifend est, sed pharetra ipsum ante eu dolor.
-								Nullam imperdiet sit amet orci imperdiet
-								sodales. Proin sed magna non odio ullamcorper
-								consequat non sed sem. Etiam eget erat lectus.
-								Vestibulum placerat eros dictum quam aliquam
-								lacinia. Vestibulum fringilla leo eu justo
-								accumsan hendrerit. Sed semper iaculis purus sit
-								amet tincidunt.
-							</VStack>
+								And here's the icing on the cake, it's
+								completely free of charge! This follows from the
+								fact that the plaform is being developed by the
+								community, for the benefit of the community.
+								Locking it behind a paywall defeats the purpose
+								of doing something for the community, so the
+								project is entirely free for just about anyone
+								who plays Underlords. All you have to do is
+								signup, follow the instructions to set it up and
+								you're good to go! No hidden charges, and no
+								features locked behind a paywall. Experience all
+								the features we have to offer, and witness the
+								power of what Fortify can do to improve your
+								gameplay experience.
+							</HStack>
 						</VStack>
 					</div>
 				</div>
