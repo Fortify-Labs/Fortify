@@ -8,6 +8,7 @@ import { VStack } from "../components/vstack";
 import classNames from "classnames";
 
 import styles from "../css/index.module.css";
+import { HStack } from "../components/hstack";
 
 const Index = () => {
 	return (
@@ -35,7 +36,7 @@ const Index = () => {
 				</div>
 				<div className={classNames("columns", styles.columns)}>
 					<div className="column is-half is-offset-one-quarter">
-						<VStack
+						<HStack
 							style={{ alignItems: "center" }}
 							fullWidth={true}
 						>
@@ -69,12 +70,12 @@ const Index = () => {
 									contribute.
 								</p>
 							</VStack>
-						</VStack>
+						</HStack>
 					</div>
 				</div>
 				<div className={classNames("columns", styles.columns)}>
 					<div className="column is-half is-offset-one-quarter">
-						<VStack
+						<HStack
 							style={{ alignItems: "center" }}
 							fullWidth={true}
 						>
@@ -103,8 +104,8 @@ const Index = () => {
 								chances of finding that 3* unit you are rolling
 								for, or the strength of your lobby in terms of
 								their ranks and MMR, Fortify has you covered.
-							</HStack>
-						</VStack>
+							</VStack>
+						</HStack>
 					</div>
 				</div>
 				<div
@@ -112,7 +113,7 @@ const Index = () => {
 					style={{ marginBottom: "4px" }}
 				>
 					<div className="column is-half is-offset-one-quarter">
-						<VStack
+						<HStack
 							style={{ alignItems: "center" }}
 							fullWidth={true}
 						>
@@ -142,8 +143,8 @@ const Index = () => {
 								the features we have to offer, and witness the
 								power of what Fortify can do to improve your
 								gameplay experience.
-							</HStack>
-						</VStack>
+							</VStack>
+						</HStack>
 					</div>
 				</div>
 			</div>
