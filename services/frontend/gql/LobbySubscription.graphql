@@ -1,0 +1,8 @@
+subscription Lobby($id: ID) {
+	lobby(id: $id) {
+		id
+
+		duration
+		pool
+	}
+}

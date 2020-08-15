@@ -45,9 +45,7 @@ export class LobbyModule implements GQLModule {
 			# "Not yet implemented"
 			# vsCount: Int
 
-			"If no user profile is returned, matchPlayer will be populated instead"
 			user: UserProfile
-			matchPlayer: MatchPlayer
 		}
 	`;
 
@@ -146,14 +144,13 @@ export class LobbyModule implements GQLModule {
 				async slots({ id }) {
 					const matchRepo = await postgres.getMatchRepo();
 					const match = await matchRepo.findOneOrFail(id, {
-						relations: ["slots", "slots.user", "slots.matchPlayer"],
+						relations: ["slots", "slots.user"],
 					});
 
-					return match.slots.map(({ slot, user, matchPlayer }) => ({
+					return match.slots.map(({ slot, user }) => ({
 						lobbySlotId: id + "#" + slot,
 						slot,
 						user,
-						matchPlayer,
 					}));
 				},
 				async pool(parent, _args, context) {
@@ -181,7 +178,6 @@ export class LobbyModule implements GQLModule {
 			LobbySlot: {
 				async user(parent) {
 					if (parent.user) return parent.user;
-					if (!parent.user && parent.matchPlayer) return null;
 
 					// resolve LobbySlot user
 
@@ -197,25 +193,6 @@ export class LobbyModule implements GQLModule {
 					});
 
 					return lobbySlot.user ?? null;
-				},
-				async matchPlayer(parent) {
-					if (parent.matchPlayer) return parent.matchPlayer;
-					if (!parent.matchPlayer && parent.user) return null;
-
-					// resolve LobbySlot matchPlayer
-
-					const [id, slot] = parent.lobbySlotId.split("#");
-
-					const slotRepo = await postgres.getMatchSlotRepo();
-					const lobbySlot = await slotRepo.findOneOrFail({
-						where: {
-							match: { id },
-							slot,
-						},
-						relations: ["matchPlayer"],
-					});
-
-					return lobbySlot.matchPlayer ?? null;
 				},
 			},
 		};

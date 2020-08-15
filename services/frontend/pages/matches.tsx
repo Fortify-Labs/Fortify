@@ -18,13 +18,9 @@ const Matches = () => {
 		<>
 			<Navbar />
 
-			{loading && <p>Loading...</p>}
-
 			<div
 				style={{
-					marginLeft: "1rem",
-					marginRight: "1rem",
-					marginTop: "1rem",
+					margin: "1rem",
 				}}
 			>
 				<div className="tabs">
@@ -67,9 +63,7 @@ const Matches = () => {
 									<th>{match?.duration}</th>
 									<th>
 										{match?.slots?.map((slot) => {
-											const name =
-												slot?.user?.name ??
-												slot?.matchPlayer?.name;
+											const name = slot?.user?.name ?? "";
 											return `${name ?? ""}${
 												name ? "; " : ""
 											}`;

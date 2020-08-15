@@ -12,33 +12,35 @@ export const MmrHistory: FunctionComponent<{
 
 	if (error) console.error(error);
 
+	const mmrData =
+		mmrHistory?.map((entry) => ({
+			date: entry?.date ?? 0,
+			value: entry?.mmr ?? 0,
+		})) ?? [];
+
+	const rankData =
+		mmrHistory?.map((entry) => ({
+			date: entry?.date ?? 0,
+			value: entry?.rank ?? 0,
+		})) ?? [];
+
 	return (
 		<div>
 			{loading && <p>Loading...</p>}
 
 			{!loading && (
 				<>
-					<LineChart
-						yName="MMR"
-						xName="Date"
-						data={
-							mmrHistory?.map((entry) => ({
-								date: entry?.date ?? 0,
-								value: entry?.mmr ?? 0,
-							})) ?? []
-						}
-					/>{" "}
-					<br />
-					<LineChart
-						yName="Rank"
-						xName="Date"
-						data={
-							mmrHistory?.map((entry) => ({
-								date: entry?.date ?? 0,
-								value: entry?.rank ?? 0,
-							})) ?? []
-						}
-					/>
+					{mmrData.length > 0 ? (
+						<LineChart yName="MMR" xName="Date" data={mmrData} />
+					) : (
+						<p>No MMR data points recorded</p>
+					)}{" "}
+					<hr />
+					{rankData.length > 0 ? (
+						<LineChart yName="Rank" xName="Date" data={rankData} />
+					) : (
+						<p>No rank data points recorded</p>
+					)}
 				</>
 			)}
 		</div>

@@ -10,10 +10,14 @@ import { FortifyEvent } from "@shared/events/events";
 import { MatchService } from "@shared/services/match";
 import debug from "debug";
 import { PostgresConnector } from "@shared/connectors/postgres";
-import { MatchPlayer } from "@shared/db/entities/matchPlayer";
 import { InfluxDBConnector } from "@shared/connectors/influxdb";
 import { Point } from "@influxdata/influxdb-client";
 import { rankToMMRMapping } from "@shared/ranks";
+import { User } from "@shared/db/entities/user";
+import fetch from "node-fetch";
+import { GetPlayerSummaries } from "../definitions/playerSummaries";
+
+const { STEAM_WEB_API_KEY } = process.env;
 
 @injectable()
 export class MatchPersistor {
@@ -70,27 +74,30 @@ export class MatchPersistor {
 
 	async updateRankTier({ accountID, rankTier }: RankTierUpdateEvent) {
 		const userRepo = await this.postgres.getUserRepo();
-		const user = await userRepo.findOne(accountID);
+		let user = await userRepo.findOne(accountID);
 
-		if (user) {
-			user.rankTier = rankTier;
-			await userRepo.save(user);
+		if (!user) {
+			user = new User();
+			user.steamid = accountID;
+		}
+		user.rankTier = rankTier;
+
+		// Fetch personaname from steam web api
+		const playerSummaries = await fetch(
+			`http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${STEAM_WEB_API_KEY}&steamids=${accountID}`,
+		).then((res) => res.json() as Promise<GetPlayerSummaries>);
+		if (playerSummaries.response.players.length > 0) {
+			const player = playerSummaries.response.players[0];
+			user.name = player.personaname;
+			user.profilePicture = player.avatarfull;
 		} else {
-			const matchPlayerRepo = await this.postgres.getMatchPlayerRepo();
-			let matchPlayer = await matchPlayerRepo.findOne(accountID);
-
-			if (!matchPlayer) {
-				matchPlayer = new MatchPlayer();
-				matchPlayer.steamid = accountID;
-			}
-
-			matchPlayer.rankTier = rankTier;
-
-			await matchPlayerRepo.save(matchPlayer);
+			user.name = "";
 		}
 
+		await userRepo.save(user);
+
 		// Convert all rank tiers below Lord to mmr
-		if (rankTier < 80) {
+		if (rankTier < 80 && user.registered) {
 			// Insert interpolated mmr into influxdb
 			const minorRank = rankTier % 10;
 			const majorRank = (rankTier - minorRank) / 10;

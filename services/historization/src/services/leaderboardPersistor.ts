@@ -45,9 +45,13 @@ export class LeaderboardPersistor {
 
 		// Fetch current users from postgres
 		const userRepo = await this.postgres.getUserRepo();
-		const steamids = (await userRepo.find({ select: ["steamid"] })).map(
-			(channel) => channel.steamid,
-		);
+		const steamids = (
+			await userRepo.find({
+				select: ["steamid"],
+				// Fetch for all registered lords; This is to avoid privacy infringements
+				where: { rankTier: 80, registered: true },
+			})
+		).map((channel) => channel.steamid);
 
 		// Create an array containing arrays of steamids which at max have 100 steamids, as this is a limitation of the steam web api
 

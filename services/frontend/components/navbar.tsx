@@ -12,6 +12,7 @@ import { removeCookie } from "../utils/cookie";
 import packageJSON from "../package.json";
 
 import { useAuthenticatedQuery } from "../gql/Authenticated.graphql";
+import { useVersionQuery } from "../gql/Version.graphql";
 
 const { NEXT_PUBLIC_LOGIN_URL = "/" } = process.env;
 
@@ -20,6 +21,8 @@ export const Navbar = () => {
 
 	const { data } = useAuthenticatedQuery();
 	const { authenticated, user } = data?.authenticated ?? {};
+
+	const { data: versionData } = useVersionQuery();
 
 	return (
 		<nav className="navbar" role="navigation" aria-label="main navigation">
@@ -116,7 +119,10 @@ export const Navbar = () => {
 								</a>
 								<hr className="navbar-divider" />
 								<div className="navbar-item">
-									Version {packageJSON.version}
+									Frontend Version {packageJSON.version}
+								</div>
+								<div className="navbar-item">
+									Backend Version {versionData?.version}
 								</div>
 							</div>
 						</div>
