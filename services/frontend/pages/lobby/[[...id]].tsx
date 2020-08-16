@@ -14,7 +14,7 @@ const Lobby = () => {
 	const { id: queryID, tab: queryTab } = router.query;
 	const id = queryID?.toString();
 
-	useLobbySubscription({ variables: { id } });
+	useLobbySubscription({ variables: { id }, shouldResubscribe: true });
 
 	const tabContents = {
 		lobby: <LobbySummary />,
@@ -27,6 +27,7 @@ const Lobby = () => {
 	return (
 		<>
 			<Navbar />
+
 			<div style={{ margin: "1rem" }}>
 				<div className="tabs">
 					<ul>
@@ -74,7 +75,6 @@ const Lobby = () => {
 						</li>
 					</ul>
 				</div>
-
 				<div style={{ marginTop: "1rem" }}>{tabContents[tab]}</div>
 			</div>
 		</>

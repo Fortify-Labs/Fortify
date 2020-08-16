@@ -8,11 +8,13 @@
 		"fontawesome",
 		"fortawesome",
 		"fullwidth",
+		"gamestate",
 		"hoverable",
 		"hstack",
 		"inmemory",
 		"leaderboard",
 		"linechart",
+		"occured",
 		"steamid",
 		"vstack"
 	]

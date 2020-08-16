@@ -3,7 +3,9 @@ import { useLobbyQuery } from "../../gql/Lobby.graphql";
 import { HStack } from "../hstack";
 
 export const LobbySummary: FunctionComponent<{ id?: string }> = ({ id }) => {
-	const { data, loading, error } = useLobbyQuery({ variables: { id } });
+	const { data, loading, error, refetch } = useLobbyQuery({
+		variables: { id },
+	});
 	const { lobby } = data ?? {};
 
 	if (loading) return <p>Loading...</p>;
@@ -15,11 +17,18 @@ export const LobbySummary: FunctionComponent<{ id?: string }> = ({ id }) => {
 					{error.name} - {error.message}
 				</p>
 			)}
-			<HStack>
+			<HStack fullWidth={true} style={{ alignItems: "center" }}>
 				<p>Average MMR: {lobby?.averageMMR ?? 0}</p>
 				<p style={{ marginLeft: "2rem" }}>
 					Duration: {lobby?.duration}
 				</p>
+				<button
+					className="button"
+					style={{ marginLeft: "auto" }}
+					onClick={() => refetch({ id })}
+				>
+					Refresh
+				</button>
 			</HStack>{" "}
 			<div style={{ overflowX: "auto" }}>
 				<table
