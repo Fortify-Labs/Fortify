@@ -20,6 +20,9 @@ import { HStack } from "../components/hstack";
 import { useAuthenticatedQuery } from "gql/Authenticated.graphql";
 import { GSIModal } from "components/gsiModal";
 import { useState } from "react";
+import { NextSeo } from "next-seo";
+
+const { NEXT_PUBLIC_URL } = process.env;
 
 const Index = () => {
 	const { data } = useAuthenticatedQuery();
@@ -29,6 +32,16 @@ const Index = () => {
 
 	return (
 		<>
+			<NextSeo
+				title="Fortify"
+				description="Open Source Dota Underlords Data Platform"
+				openGraph={{
+					url: `${NEXT_PUBLIC_URL}`,
+					title: "Fortify",
+					description: "Open Source Dota Underlords Data Platform",
+				}}
+			/>
+
 			<Navbar />
 
 			<div

@@ -11,6 +11,9 @@ import { BigNumber } from "bignumber.js";
 import classNames from "classnames";
 import { RecentMatchesTable } from "../../components/profile/recentMatches";
 import { MmrHistory } from "../../components/profile/mmrHistory";
+import { NextSeo } from "next-seo";
+
+const { NEXT_PUBLIC_URL } = process.env;
 
 const Profile = () => {
 	const router = useRouter();
@@ -32,6 +35,20 @@ const Profile = () => {
 
 	return (
 		<>
+			<NextSeo
+				title={`${profile?.name ?? "Private"} Profile | Fortify`}
+				description={`Rank: ${profile?.rank ?? 0}; MMR: ${
+					profile?.mmr ?? 0
+				}; Leaderboard Rank: ${profile?.leaderboardRank ?? 0}`}
+				openGraph={{
+					url: `${NEXT_PUBLIC_URL}/profile/${profile?.steamid}`,
+					title: `${profile?.name ?? "Private"} Profile | Fortify`,
+					description: `Rank: ${profile?.rank ?? 0}; MMR: ${
+						profile?.mmr ?? 0
+					}; Leaderboard Rank: ${profile?.leaderboardRank ?? 0}`,
+				}}
+			/>
+
 			<Navbar />
 
 			{loading && <div>Loading...</div>}

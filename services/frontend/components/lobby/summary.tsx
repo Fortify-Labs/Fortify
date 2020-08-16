@@ -1,6 +1,7 @@
 import { FunctionComponent } from "react";
 import { useLobbyQuery } from "../../gql/Lobby.graphql";
 import { HStack } from "../hstack";
+import { NextSeo } from "next-seo";
 
 export const LobbySummary: FunctionComponent<{ id?: string }> = ({ id }) => {
 	const { data, loading, error, refetch } = useLobbyQuery({
@@ -12,6 +13,20 @@ export const LobbySummary: FunctionComponent<{ id?: string }> = ({ id }) => {
 
 	return (
 		<>
+			<NextSeo
+				description={`Average MMR: ${
+					lobby?.averageMMR ?? 0
+				}; Duration: ${lobby?.duration ?? 0}; Players: ${
+					lobby?.slots?.map((slot) => slot?.user?.name) ?? ""
+				}`}
+				openGraph={{
+					description: `Average MMR: ${
+						lobby?.averageMMR ?? 0
+					}; Duration: ${lobby?.duration ?? 0}; Players: ${
+						lobby?.slots?.map((slot) => slot?.user?.name) ?? ""
+					}`,
+				}}
+			/>
 			{error && (
 				<p>
 					{error.name} - {error.message}
