@@ -16,10 +16,13 @@ export class User {
 	@PrimaryColumn()
 	steamid!: string;
 
-	// --- Registration Status ---
+	// --- User Status ---
 
 	@Column({ default: false })
 	registered!: boolean;
+
+	@Column({ default: false })
+	suspended!: boolean;
 
 	// --- Properties ---
 

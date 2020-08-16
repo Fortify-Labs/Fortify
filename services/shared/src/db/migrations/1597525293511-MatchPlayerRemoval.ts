@@ -5,6 +5,11 @@ export class MatchPlayerRemoval1597525293511 implements MigrationInterface {
 
 	public async up(queryRunner: QueryRunner): Promise<void> {
 		await queryRunner.query(
+			'ALTER TABLE "user" ADD "registered" boolean NOT NULL DEFAULT false',
+		);
+		await queryRunner.query('UPDATE "user" SET "registered" = TRUE');
+
+		await queryRunner.query(
 			'ALTER TABLE "match_slot" DROP CONSTRAINT "FK_c7ab41979bb4f8442caf3282413"',
 		);
 
@@ -19,10 +24,6 @@ export class MatchPlayerRemoval1597525293511 implements MigrationInterface {
 		);
 		await queryRunner.query(
 			'ALTER TABLE "match_slot" DROP COLUMN "matchPlayerSteamid"',
-		);
-
-		await queryRunner.query(
-			'ALTER TABLE "user" ADD "registered" boolean NOT NULL DEFAULT false',
 		);
 	}
 
