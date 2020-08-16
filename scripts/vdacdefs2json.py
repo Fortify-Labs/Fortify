@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Usage: ./vdacdefs2json.py ~/Steam/steamapps/common/Underlords/game/dac/scripts/units.vdacdefs_c ./units.json
+# Usage: ./vdacdefs2json.py [...]/Steam/steamapps/common/Underlords/game/dac/scripts/units.vdacdefs_c ./units.json
 
 # Dependencies:
 # - `pip install vdf`
@@ -85,7 +85,7 @@ with open("/tmp/vdacdefs") as vdacdefs_file:
 
 
 # Convert every possible float and int value to the corresponding data type
-def convert_entries_to_numerical(element: Union[str, dict, list]):
+def convert_entries_to_numerical(element: Union[str, dict, list, float, int]):
     if type(element) is str:
         try:
             # Try converting to float

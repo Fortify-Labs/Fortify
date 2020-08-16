@@ -8,7 +8,7 @@ export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type RequireFields<T, K extends keyof T> = { [X in Exclude<keyof T, K>]?: T[X] } & { [P in K]-?: NonNullable<T[P]> };
 
-// Generated on 2020-08-14T19:32:25+02:00
+// Generated on 2020-08-16T00:01:49+02:00
 
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
@@ -124,9 +124,7 @@ export type LobbySlot = {
   __typename?: 'LobbySlot';
   lobbySlotId: Scalars['ID'];
   slot?: Maybe<Scalars['Int']>;
-  /** If no user profile is returned, matchPlayer will be populated instead */
   user?: Maybe<UserProfile>;
-  matchPlayer?: Maybe<MatchPlayer>;
 };
 
 export type Match = {
@@ -147,13 +145,6 @@ export type MatchSlot = {
   match?: Maybe<Match>;
   /** If no user profile is returned, matchPlayer will be populated instead */
   user?: Maybe<UserProfile>;
-  matchPlayer?: Maybe<MatchPlayer>;
-};
-
-export type MatchPlayer = {
-  __typename?: 'MatchPlayer';
-  steamid: Scalars['ID'];
-  name?: Maybe<Scalars['String']>;
 };
 
 export type UserProfile = {
@@ -284,7 +275,6 @@ export type ResolversTypes = ResolversObject<{
   LobbySlot: ResolverTypeWrapper<LobbySlot>;
   Match: ResolverTypeWrapper<Match>;
   MatchSlot: ResolverTypeWrapper<MatchSlot>;
-  MatchPlayer: ResolverTypeWrapper<MatchPlayer>;
   UserProfile: ResolverTypeWrapper<UserProfile>;
   MMRHistory: ResolverTypeWrapper<MmrHistory>;
 }>;
@@ -305,7 +295,6 @@ export type ResolversParentTypes = ResolversObject<{
   LobbySlot: LobbySlot;
   Match: Match;
   MatchSlot: MatchSlot;
-  MatchPlayer: MatchPlayer;
   UserProfile: UserProfile;
   MMRHistory: MmrHistory;
 }>;
@@ -358,7 +347,6 @@ export type LobbySlotResolvers<ContextType = Context, ParentType extends Resolve
   lobbySlotId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   slot?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   user?: Resolver<Maybe<ResolversTypes['UserProfile']>, ParentType, ContextType>;
-  matchPlayer?: Resolver<Maybe<ResolversTypes['MatchPlayer']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType>;
 }>;
 
@@ -377,13 +365,6 @@ export type MatchSlotResolvers<ContextType = Context, ParentType extends Resolve
   duration?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   match?: Resolver<Maybe<ResolversTypes['Match']>, ParentType, ContextType>;
   user?: Resolver<Maybe<ResolversTypes['UserProfile']>, ParentType, ContextType>;
-  matchPlayer?: Resolver<Maybe<ResolversTypes['MatchPlayer']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType>;
-}>;
-
-export type MatchPlayerResolvers<ContextType = Context, ParentType extends ResolversParentTypes['MatchPlayer'] = ResolversParentTypes['MatchPlayer']> = ResolversObject<{
-  steamid?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType>;
 }>;
 
@@ -418,7 +399,6 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   LobbySlot?: LobbySlotResolvers<ContextType>;
   Match?: MatchResolvers<ContextType>;
   MatchSlot?: MatchSlotResolvers<ContextType>;
-  MatchPlayer?: MatchPlayerResolvers<ContextType>;
   UserProfile?: UserProfileResolvers<ContextType>;
   MMRHistory?: MmrHistoryResolvers<ContextType>;
 }>;

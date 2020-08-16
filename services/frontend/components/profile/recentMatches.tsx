@@ -9,10 +9,8 @@ export const RecentMatchesTable: FunctionComponent<{
 	});
 	const { profile } = data ?? {};
 
-	if (error) console.error(error);
-
 	return (
-		<table className="table is-fullwidth is-hoverable is-striped">
+		<table className="table is-fullwidth is-hoverable">
 			<thead>
 				<tr>
 					<th>Placement</th>
@@ -29,7 +27,13 @@ export const RecentMatchesTable: FunctionComponent<{
 						<td>Loading...</td>
 					</tr>
 				)}
+				{error && (
+					<p>
+						{error.name} - {error.message}
+					</p>
+				)}
 				{!loading &&
+					!error &&
 					profile &&
 					profile.matches?.map((match) => (
 						<tr key={match?.matchSlotID}>

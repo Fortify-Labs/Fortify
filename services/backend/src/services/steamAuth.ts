@@ -71,9 +71,9 @@ export class SteamAuthMiddleware {
 				dbUser = new User();
 
 				dbUser.steamid = steamID;
-				dbUser.name = user.displayName;
+				dbUser.registered = true;
 			}
-
+			dbUser.name = user.displayName;
 			dbUser.profilePicture = user._json.avatarfull;
 
 			await userRepo.save(dbUser);

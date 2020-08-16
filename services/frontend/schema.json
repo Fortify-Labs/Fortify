@@ -831,57 +831,6 @@
             },
             "isDeprecated": false,
             "deprecationReason": null
-          },
-          {
-            "name": "matchPlayer",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "OBJECT",
-              "name": "MatchPlayer",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          }
-        ],
-        "inputFields": null,
-        "interfaces": [],
-        "enumValues": null,
-        "possibleTypes": null
-      },
-      {
-        "kind": "OBJECT",
-        "name": "MatchPlayer",
-        "description": null,
-        "fields": [
-          {
-            "name": "steamid",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "NON_NULL",
-              "name": null,
-              "ofType": {
-                "kind": "SCALAR",
-                "name": "ID",
-                "ofType": null
-              }
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "name",
-            "description": null,
-            "args": [],
-            "type": {
-              "kind": "SCALAR",
-              "name": "String",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
           }
         ],
         "inputFields": null,
@@ -1003,23 +952,11 @@
           },
           {
             "name": "user",
-            "description": "If no user profile is returned, matchPlayer will be populated instead",
-            "args": [],
-            "type": {
-              "kind": "OBJECT",
-              "name": "UserProfile",
-              "ofType": null
-            },
-            "isDeprecated": false,
-            "deprecationReason": null
-          },
-          {
-            "name": "matchPlayer",
             "description": null,
             "args": [],
             "type": {
               "kind": "OBJECT",
-              "name": "MatchPlayer",
+              "name": "UserProfile",
               "ofType": null
             },
             "isDeprecated": false,

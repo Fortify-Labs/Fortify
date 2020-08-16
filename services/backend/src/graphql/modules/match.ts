@@ -43,12 +43,6 @@ export class MatchModule implements GQLModule {
 			match: Match
 			"If no user profile is returned, matchPlayer will be populated instead"
 			user: UserProfile
-			matchPlayer: MatchPlayer
-		}
-
-		type MatchPlayer {
-			steamid: ID!
-			name: String
 		}
 	`;
 
@@ -68,7 +62,7 @@ export class MatchModule implements GQLModule {
 						order: {
 							created: "DESC",
 						},
-						relations: ["slots", "slots.user", "slots.matchPlayer"],
+						relations: ["slots", "slots.user"],
 						take: limit,
 						skip: offset,
 					});
@@ -84,17 +78,11 @@ export class MatchModule implements GQLModule {
 							acc.push({
 								...match,
 								slots: match.slots.map(
-									({
-										slot,
-										finalPlace,
-										user,
-										matchPlayer,
-									}) => ({
+									({ slot, finalPlace, user }) => ({
 										matchSlotID: match.id + "#" + slot,
 										slot,
 										finalPlace,
 										user,
-										matchPlayer,
 									}),
 								),
 							});
@@ -162,7 +150,7 @@ export class MatchModule implements GQLModule {
 
 					const matchRepo = await postgres.getMatchRepo();
 					const match = await matchRepo.findOneOrFail(matchID, {
-						relations: ["slots", "slots.user", "slots.matchPlayer"],
+						relations: ["slots", "slots.user"],
 					});
 
 					return {
@@ -176,7 +164,6 @@ export class MatchModule implements GQLModule {
 				},
 				async user(parent) {
 					if (parent.user) return parent.user;
-					if (!parent.user && parent.matchPlayer) return null;
 
 					const [matchID, slot] = parent.matchSlotID.split("#");
 
@@ -190,23 +177,6 @@ export class MatchModule implements GQLModule {
 					});
 
 					return matchSlot.user ?? null;
-				},
-				async matchPlayer(parent) {
-					if (parent.matchPlayer) return parent.matchPlayer;
-					if (!parent.matchPlayer && parent.user) return null;
-
-					const [matchID, slot] = parent.matchSlotID.split("#");
-
-					const matchSlotRepo = await postgres.getMatchSlotRepo();
-					const matchSlot = await matchSlotRepo.findOneOrFail({
-						where: {
-							match: { id: matchID },
-							slot,
-						},
-						relations: ["matchPlayer"],
-					});
-
-					return matchSlot.matchPlayer ?? null;
 				},
 			},
 		};

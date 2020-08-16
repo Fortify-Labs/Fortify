@@ -8,7 +8,6 @@ import {
 } from "typeorm";
 import { Match } from "./match";
 import { User } from "./user";
-import { MatchPlayer } from "./matchPlayer";
 
 @Entity()
 export class MatchSlot {
@@ -33,15 +32,11 @@ export class MatchSlot {
 	// --- Relations ---
 
 	// Will be used if said player has a fortify account
-	@ManyToOne(() => User, (user) => user.matchSlots, { nullable: true })
-	user?: User;
-
-	// Will be used if a player / steam id has no fortify account
-	@ManyToOne(() => MatchPlayer, (player) => player.matchSlots, {
+	@ManyToOne(() => User, (user) => user.matchSlots, {
 		nullable: true,
 		cascade: true,
 	})
-	matchPlayer?: MatchPlayer;
+	user?: User;
 
 	// --- Fields ---
 
