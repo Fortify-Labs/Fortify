@@ -67,6 +67,11 @@ export class SteamAuthMiddleware {
 
 			let dbUser = await userRepo.findOne(steamID);
 
+			// If a user account is suspended, do not proceed with authentication
+			if (dbUser?.suspended) {
+				return res.redirect(APP_SUCCESSFUL_AUTH_RETURN_URL);
+			}
+
 			if (!dbUser) {
 				dbUser = new User();
 
