@@ -122,7 +122,7 @@ export const PoolViewer: FunctionComponent<{ id?: string }> = ({ id }) => {
 															/>
 														</figure>
 														{unit.name} <br />
-														{pool[unit.id]}/
+														{pool[unit.id] ?? 0}/
 														{
 															poolSize[
 																unit.draftTier
