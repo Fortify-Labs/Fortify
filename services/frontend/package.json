@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "dev": "next",
-    "compile": "graphql-let && next build",
+    "compile": "graphql-let && tsc -b && next build",
     "start": "next start",
     "sync-dotenv": "sync-dotenv",
     "types": "npm run download-schema && graphql-let",

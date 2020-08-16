@@ -30,17 +30,19 @@ const Profile = () => {
 		? (router.query.tab?.toString() as keyof typeof tabContents)
 		: "matches";
 
-	if (error) {
-		console.error(error);
-	}
-
 	return (
 		<>
 			<Navbar />
 
 			{loading && <div>Loading...</div>}
 
-			{!loading && (
+			{error && (
+				<p>
+					{error.name} - {error.message}
+				</p>
+			)}
+
+			{!loading && !error && (
 				<div style={{ margin: "1rem" }}>
 					<div className="columns">
 						<div className="column is-narrow">

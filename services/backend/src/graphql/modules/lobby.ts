@@ -156,15 +156,15 @@ export class LobbyModule implements GQLModule {
 				async pool(parent, _args, context) {
 					if (parent.pool) return parent.pool;
 
-					let userID = context.user.id;
+					const userID = context.user.id;
 
 					// View the pool of other players as admin user
-					if (
-						context.scopes.includes(PermissionScope.Admin) &&
-						parent.id
-					) {
-						userID = parent.id;
-					}
+					// if (
+					// 	context.scopes.includes(PermissionScope.Admin) &&
+					// 	parent.id
+					// ) {
+					// 	userID = parent.id;
+					// }
 
 					const rawFPS = await redis.getAsync(`ps_${userID}`);
 

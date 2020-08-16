@@ -16,8 +16,16 @@
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "strict": true,
-    "target": "esnext"
+    "target": "esnext",
+
+    "baseUrl": ".",
+    "paths": {
+      "@shared/*": ["../shared/build/src/*"]
+		},
   },
   "exclude": ["node_modules"],
-  "include": ["**/*.ts", "**/*.tsx"]
+  "include": ["**/*.ts", "**/*.tsx"],
+  "references": [{
+    "path": "../shared"
+  }]
 }

@@ -10,8 +10,6 @@ export const MmrHistory: FunctionComponent<{
 	});
 	const { mmrHistory } = data?.profile ?? {};
 
-	if (error) console.error(error);
-
 	const mmrData =
 		mmrHistory?.map((entry) => ({
 			date: entry?.date ?? 0,
@@ -28,7 +26,13 @@ export const MmrHistory: FunctionComponent<{
 		<div>
 			{loading && <p>Loading...</p>}
 
-			{!loading && (
+			{error && (
+				<p>
+					{error.name} - {error.message}
+				</p>
+			)}
+
+			{!loading && !error && (
 				<>
 					{mmrData.length > 0 ? (
 						<LineChart yName="MMR" xName="Date" data={mmrData} />

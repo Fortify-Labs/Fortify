@@ -4,6 +4,8 @@ import aliases from "./assets/unit_mappings.json";
 export interface Unit {
 	id: number;
 	draftTier: number;
+	dota_unit_name: string;
+	content_enable_group?: string;
 }
 
 export const currentSeason = "s1";
