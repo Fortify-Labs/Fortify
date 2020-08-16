@@ -1,8 +1,21 @@
 subscription Lobby($id: ID) {
 	lobby(id: $id) {
 		id
-
+		averageMMR
 		duration
 		pool
+
+		slots {
+			lobbySlotId
+			slot
+
+			user {
+				steamid
+				name
+				rank
+				leaderboardRank
+				mmr
+			}
+		}
 	}
 }
