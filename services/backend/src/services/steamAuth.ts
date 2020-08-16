@@ -9,6 +9,7 @@ import { PostgresConnector } from "@shared/connectors/postgres";
 import { User } from "@shared/db/entities/user";
 
 import { convert64to32SteamId } from "@shared/steamid";
+import { RedisConnector } from "@shared/connectors/redis";
 
 const {
 	APP_URL = "",
@@ -54,6 +55,7 @@ export interface NodeSteamPassportProfile {
 export class SteamAuthMiddleware {
 	constructor(
 		@inject(PostgresConnector) private postgres: PostgresConnector,
+		@inject(RedisConnector) private redis: RedisConnector,
 	) {}
 
 	async handleAuth(req: Request, res: Response) {
@@ -69,10 +71,18 @@ export class SteamAuthMiddleware {
 
 			// If a user account is suspended, do not proceed with authentication
 			if (dbUser?.suspended) {
+				res.cookie("suspended", true);
 				return res.redirect(APP_SUCCESSFUL_AUTH_RETURN_URL);
 			}
 
 			if (!dbUser) {
+				// If new account sign up is disabled, do not proceed with user sign up
+				if (
+					(await this.redis.getAsync("backend:signupDisabled")) ===
+					"true"
+				)
+					return res.redirect(APP_SUCCESSFUL_AUTH_RETURN_URL);
+
 				dbUser = new User();
 
 				dbUser.steamid = steamID;
@@ -126,7 +136,21 @@ export class SteamAuthMiddleware {
 
 		const authRouter: Router = Router();
 		authRouter.use(passport.initialize());
-		authRouter.get("/", passport.authenticate("steam"));
+		authRouter.get(
+			"/",
+			async (req, res, next) => {
+				const loginDisabled =
+					(await this.redis.getAsync("backend:loginDisabled")) ===
+					"true";
+
+				if (loginDisabled) {
+					res.json({ login: "disabled" });
+				} else {
+					next();
+				}
+			},
+			passport.authenticate("steam"),
+		);
 		authRouter.get(
 			"/return",
 			passport.authenticate("steam", {

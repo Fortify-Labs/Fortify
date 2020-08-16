@@ -16,6 +16,7 @@ import {
 	TwitchLinkedEvent,
 	TwitchUnlinkedEvent,
 } from "@shared/events/systemEvents";
+import { RedisConnector } from "@shared/connectors/redis";
 
 // This module will only be used for debugging purposes and will be removed in the future
 @injectable()
@@ -23,6 +24,7 @@ export class DebugModule implements GQLModule {
 	constructor(
 		@inject(PostgresConnector) private postgres: PostgresConnector,
 		@inject(EventService) private eventService: EventService,
+		@inject(RedisConnector) private redis: RedisConnector,
 	) {}
 
 	typeDef = gql`
@@ -32,6 +34,8 @@ export class DebugModule implements GQLModule {
 
 			"Returns wether the current bearer token is valid or not"
 			authenticated: AuthenticatedObject!
+
+			status: SystemStatus
 		}
 
 		extend type Mutation {
@@ -49,10 +53,15 @@ export class DebugModule implements GQLModule {
 			authenticated: Boolean!
 			user: UserProfile
 		}
+
+		type SystemStatus {
+			loginDisabled: Boolean
+			signupDisabled: Boolean
+		}
 	`;
 
 	resolver(): Resolvers {
-		const { postgres, eventService } = this;
+		const { postgres, eventService, redis } = this;
 
 		return {
 			Query: {
@@ -63,6 +72,9 @@ export class DebugModule implements GQLModule {
 					return {
 						authenticated: context && !!context.user,
 					};
+				},
+				status() {
+					return {};
 				},
 			},
 			Mutation: {
@@ -124,6 +136,20 @@ export class DebugModule implements GQLModule {
 				async user(parent, args, context) {
 					const userRepo = await postgres.getUserRepo();
 					return userRepo.findOneOrFail(context.user.id);
+				},
+			},
+			SystemStatus: {
+				async loginDisabled() {
+					return (
+						(await redis.getAsync("backend:loginDisabled")) ===
+						"true"
+					);
+				},
+				async signupDisabled() {
+					return (
+						(await redis.getAsync("backend:signupDisabled")) ===
+						"true"
+					);
 				},
 			},
 		};

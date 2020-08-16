@@ -8,7 +8,7 @@ export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type RequireFields<T, K extends keyof T> = { [X in Exclude<keyof T, K>]?: T[X] } & { [P in K]-?: NonNullable<T[P]> };
 
-// Generated on 2020-08-16T00:01:49+02:00
+// Generated on 2020-08-17T00:27:43+02:00
 
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
@@ -41,6 +41,7 @@ export type Query = {
   currentMatches?: Maybe<Array<Maybe<Match>>>;
   lobby?: Maybe<Lobby>;
   profile?: Maybe<UserProfile>;
+  status?: Maybe<SystemStatus>;
   /** Returns the current package.json version */
   version: Scalars['String'];
 };
@@ -108,6 +109,12 @@ export type AuthenticatedObject = {
   __typename?: 'AuthenticatedObject';
   authenticated: Scalars['Boolean'];
   user?: Maybe<UserProfile>;
+};
+
+export type SystemStatus = {
+  __typename?: 'SystemStatus';
+  loginDisabled?: Maybe<Scalars['Boolean']>;
+  signupDisabled?: Maybe<Scalars['Boolean']>;
 };
 
 export type Lobby = {
@@ -271,6 +278,7 @@ export type ResolversTypes = ResolversObject<{
   Date: ResolverTypeWrapper<Scalars['Date']>;
   UserInput: UserInput;
   AuthenticatedObject: ResolverTypeWrapper<AuthenticatedObject>;
+  SystemStatus: ResolverTypeWrapper<SystemStatus>;
   Lobby: ResolverTypeWrapper<Lobby>;
   LobbySlot: ResolverTypeWrapper<LobbySlot>;
   Match: ResolverTypeWrapper<Match>;
@@ -291,6 +299,7 @@ export type ResolversParentTypes = ResolversObject<{
   Date: Scalars['Date'];
   UserInput: UserInput;
   AuthenticatedObject: AuthenticatedObject;
+  SystemStatus: SystemStatus;
   Lobby: Lobby;
   LobbySlot: LobbySlot;
   Match: Match;
@@ -309,6 +318,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   currentMatches?: Resolver<Maybe<Array<Maybe<ResolversTypes['Match']>>>, ParentType, ContextType, RequireFields<QueryCurrentMatchesArgs, never>>;
   lobby?: Resolver<Maybe<ResolversTypes['Lobby']>, ParentType, ContextType, RequireFields<QueryLobbyArgs, never>>;
   profile?: Resolver<Maybe<ResolversTypes['UserProfile']>, ParentType, ContextType, RequireFields<QueryProfileArgs, never>>;
+  status?: Resolver<Maybe<ResolversTypes['SystemStatus']>, ParentType, ContextType>;
   version?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 }>;
 
@@ -331,6 +341,12 @@ export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
 export type AuthenticatedObjectResolvers<ContextType = Context, ParentType extends ResolversParentTypes['AuthenticatedObject'] = ResolversParentTypes['AuthenticatedObject']> = ResolversObject<{
   authenticated?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   user?: Resolver<Maybe<ResolversTypes['UserProfile']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType>;
+}>;
+
+export type SystemStatusResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SystemStatus'] = ResolversParentTypes['SystemStatus']> = ResolversObject<{
+  loginDisabled?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  signupDisabled?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType>;
 }>;
 
@@ -395,6 +411,7 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   Subscription?: SubscriptionResolvers<ContextType>;
   Date?: GraphQLScalarType;
   AuthenticatedObject?: AuthenticatedObjectResolvers<ContextType>;
+  SystemStatus?: SystemStatusResolvers<ContextType>;
   Lobby?: LobbyResolvers<ContextType>;
   LobbySlot?: LobbySlotResolvers<ContextType>;
   Match?: MatchResolvers<ContextType>;
