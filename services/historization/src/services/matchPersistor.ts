@@ -14,10 +14,6 @@ import { InfluxDBConnector } from "@shared/connectors/influxdb";
 import { Point } from "@influxdata/influxdb-client";
 import { rankToMMRMapping } from "@shared/ranks";
 import { User } from "@shared/db/entities/user";
-import fetch from "node-fetch";
-import { GetPlayerSummaries } from "../definitions/playerSummaries";
-
-const { STEAM_WEB_API_KEY } = process.env;
 
 @injectable()
 export class MatchPersistor {
@@ -79,20 +75,9 @@ export class MatchPersistor {
 		if (!user) {
 			user = new User();
 			user.steamid = accountID;
-		}
-		user.rankTier = rankTier;
-
-		// Fetch personaname from steam web api
-		const playerSummaries = await fetch(
-			`http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${STEAM_WEB_API_KEY}&steamids=${accountID}`,
-		).then((res) => res.json() as Promise<GetPlayerSummaries>);
-		if (playerSummaries.response.players.length > 0) {
-			const player = playerSummaries.response.players[0];
-			user.name = player.personaname;
-			user.profilePicture = player.avatarfull;
-		} else {
 			user.name = "";
 		}
+		user.rankTier = rankTier;
 
 		await userRepo.save(user);
 

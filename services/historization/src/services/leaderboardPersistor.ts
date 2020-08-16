@@ -12,7 +12,7 @@ import { InfluxDBConnector } from "@shared/connectors/influxdb";
 import { RedisConnector } from "@shared/connectors/redis";
 import { PostgresConnector } from "@shared/connectors/postgres";
 import { ULLeaderboard } from "@shared/definitions/leaderboard";
-import { GetPlayerSummaries } from "../definitions/playerSummaries";
+import { GetPlayerSummaries } from "@shared/definitions/playerSummaries";
 
 import { convert32to64SteamId, convert64to32SteamId } from "@shared/steamid";
 import { EventService } from "@shared/services/eventService";

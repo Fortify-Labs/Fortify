@@ -9,6 +9,12 @@ import { LeaderboardService } from "./leaderboard";
 import { LeaderboardType } from "../definitions/leaderboard";
 import { currentSeason } from "../units";
 import { User } from "../db/entities/user";
+import { GetPlayerSummaries } from "../definitions/playerSummaries";
+import fetch from "node-fetch";
+import debug from "debug";
+import { convert32to64SteamId } from "../steamid";
+
+const { STEAM_WEB_API_KEY } = process.env;
 
 export interface MatchServicePlayer {
 	accountID: string;
@@ -215,6 +221,24 @@ export class MatchService {
 				user.steamid = accountID;
 			}
 			user.name = name;
+
+			try {
+				// TODO: Refactor this to be one request getting all 8 images instead of 8 requests getting one image
+
+				// Fetch image from steam web api
+				const playerSummaries = await fetch(
+					`http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${STEAM_WEB_API_KEY}&steamids=${convert32to64SteamId(
+						accountID,
+					)}`,
+				).then((res) => res.json() as Promise<GetPlayerSummaries>);
+				if (playerSummaries.response.players.length > 0) {
+					const player = playerSummaries.response.players[0];
+					user.profilePicture = player.avatarfull;
+				}
+			} catch (e) {
+				debug("app::services::match")(e);
+			}
+
 			await userRepo.save(user);
 
 			matchSlot.user = user;
