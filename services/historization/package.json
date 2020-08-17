@@ -1,6 +1,6 @@
 {
   "name": "historization",
-  "version": "1.1.4",
+  "version": "1.3.0",
   "description": "A historization service responsible for persisting info",
   "author": {
     "name": "Thomas Kosiewski"
@@ -50,7 +50,7 @@
     "typescript": "^3.9.7"
   },
   "dependencies": {
-    "@influxdata/influxdb-client": "^1.5.0",
+    "@influxdata/influxdb-client": "^1.6.0",
     "bignumber.js": "^9.0.0",
     "cross-env": "^7.0.2",
     "debug": "^4.1.1",

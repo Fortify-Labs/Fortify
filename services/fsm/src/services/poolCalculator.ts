@@ -4,14 +4,14 @@ import { poolSize } from "@shared/pool";
 
 import { Unit } from "../gsiTypes";
 
-import { S1Units, Unit as S1Unit } from "@shared/units";
+import { units, currentSeason, Unit as S1Unit } from "@shared/units";
 
 @injectable()
 export class PoolCalculatorService {
 	private mappedUnits: Record<number, S1Unit>;
 
 	constructor() {
-		this.mappedUnits = Object.entries(S1Units).reduce<
+		this.mappedUnits = Object.entries(units[currentSeason]).reduce<
 			Record<number, S1Unit>
 		>((acc, entry) => {
 			acc[entry[1].id] = entry[1];

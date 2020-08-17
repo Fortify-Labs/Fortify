@@ -14,6 +14,9 @@ import {
 	MatchEndedEvent,
 } from "@shared/events/gameEvents";
 import { EventService } from "@shared/services/eventService";
+import { ExtractorService } from "@shared/services/extractor";
+import { LeaderboardService } from "@shared/services/leaderboard";
+import { LeaderboardType } from "@shared/definitions/leaderboard";
 
 @injectable()
 export class LobbyPlayerReducer implements StateReducer<PublicPlayerState> {
@@ -22,6 +25,9 @@ export class LobbyPlayerReducer implements StateReducer<PublicPlayerState> {
 		private sts: StateTransformationService,
 		@inject(MatchService) private matchService: MatchService,
 		@inject(EventService) private eventService: EventService,
+		@inject(ExtractorService) private extractorService: ExtractorService,
+		@inject(LeaderboardService)
+		private leaderboardService: LeaderboardService,
 	) {}
 
 	name = "LobbyPlayerReducer";
@@ -48,7 +54,6 @@ export class LobbyPlayerReducer implements StateReducer<PublicPlayerState> {
 			health,
 			level,
 			persona_name,
-			rank_tier,
 			global_leaderboard_rank,
 		} = publicPlayerState;
 
@@ -58,13 +63,14 @@ export class LobbyPlayerReducer implements StateReducer<PublicPlayerState> {
 		// Checking wether a level 1 information has been received and the player state object contains more than 8 player information
 		// Gonna use <= comparator as I'm not sure wether levels start at 1 or 0
 		if (level <= 1 && playerIDs.length > 7) {
-			// if (level <= 1) {
 			state = this.sts.resetState(state);
+			await this.sts.saveState(state, state.steamid);
 		}
 
 		// If we receive a new account id that we didn't have before and we already have 8 account ids, reset the state
 		if (!playerIDs.includes(accountID) && playerIDs.length > 7) {
 			state = this.sts.resetState(state);
+			await this.sts.saveState(state, state.steamid);
 		}
 
 		if (state.lobby.mode === FortifyGameMode.Invalid) {
@@ -106,11 +112,13 @@ export class LobbyPlayerReducer implements StateReducer<PublicPlayerState> {
 		}
 
 		state.lobby.players[accountID] = {
+			...(state.lobby.players[accountID]
+				? state.lobby.players[accountID]
+				: {}),
 			accountID,
 			finalPlace: final_place,
 			globalLeaderboardRank: global_leaderboard_rank,
 			name: persona_name ?? "",
-			rankTier: rank_tier,
 			slot: player_slot,
 		};
 
@@ -132,14 +140,14 @@ export class LobbyPlayerReducer implements StateReducer<PublicPlayerState> {
 					accountID,
 					slot,
 					finalPlace,
-					rankTier,
 					globalLeaderboardRank,
+					name,
 				}) => ({
 					accountID,
 					slot,
 					finalPlace,
-					rankTier,
 					globalLeaderboardRank,
+					name,
 				}),
 			);
 
@@ -147,7 +155,35 @@ export class LobbyPlayerReducer implements StateReducer<PublicPlayerState> {
 				lobbyPlayers,
 			);
 
+			// Store match id
 			state.lobby.id = matchID;
+
+			// Store average mmr
+			const leaderboardType =
+				state.lobby.mode === FortifyGameMode.Normal
+					? LeaderboardType.Standard
+					: state.lobby.mode === FortifyGameMode.Turbo
+					? LeaderboardType.Turbo
+					: state.lobby.mode === FortifyGameMode.Duos
+					? LeaderboardType.Duos
+					: undefined;
+			const leaderboard = await this.leaderboardService.fetchLeaderboard(
+				leaderboardType,
+			);
+			state.lobby.averageMMR = parseFloat(
+				this.extractorService.getAverageMMR(
+					state.lobby.players,
+					leaderboard,
+					null,
+				),
+			);
+
+			// Store creation date
+			const now = new Date();
+			state.lobby.created =
+				now.getTime() + now.getTimezoneOffset() * 60000;
+
+			await this.sts.saveState(state, state.steamid);
 
 			const newMatchEvent = new MatchStartedEvent(
 				matchID,
@@ -156,7 +192,7 @@ export class LobbyPlayerReducer implements StateReducer<PublicPlayerState> {
 			);
 			await this.eventService.sendEvent(
 				newMatchEvent,
-				`userid-${accountID}`,
+				`userid-${state.steamid}`,
 			);
 		}
 
@@ -165,8 +201,11 @@ export class LobbyPlayerReducer implements StateReducer<PublicPlayerState> {
 			const matchEndedEvent = new MatchEndedEvent(state.lobby.id);
 			await this.eventService.sendEvent(
 				matchEndedEvent,
-				`userid-${accountID}`,
+				`userid-${state.steamid}`,
 			);
+
+			const now = new Date();
+			state.lobby.ended = now.getTime() + now.getTimezoneOffset() * 60000;
 		}
 
 		return state;

@@ -12,10 +12,10 @@
 ## CI / CD build pipeline
 
 - [ ] Run unit tests
-- [ ] Build docker images
-- [ ] Push to registry
-- [ ] Build k8s manifests
-- [ ] Apply k8s manifests
+- [x] Build docker images
+- [x] Push to registry
+- [x] Build k8s manifests
+- [x] Apply k8s manifests
 
 ## Stream receiver
 
@@ -37,8 +37,8 @@
 
 - [x] Authentication / Login
   - [x] Permission scopes
-- [ ] Fetch current game state
-- [ ] Push current game state
+- [x] Fetch current game state
+- [x] Push current game state
 - [x] Reset FSM / send commands to FSM
 
 ## Frontend
@@ -47,4 +47,4 @@
 
 ## State Persistor
 
-- [ ] Detect game finish and store player placement
+- [x] Detect game finish and store player placement

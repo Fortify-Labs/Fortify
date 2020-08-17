@@ -1,0 +1,6 @@
+mutation UpdateProfile($profile: ProfileInput!) {
+	updateProfile(profile: $profile) {
+		steamid
+		publicProfile
+	}
+}

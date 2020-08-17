@@ -16,6 +16,7 @@ import { LobbyPlayerReducer } from "./reducers/public/lobbyReducer";
 import { ResetCommandReducer } from "./reducers/commands";
 import { DummyPrivateStateReducer } from "./reducers/private/privatePlayerState";
 import { PoolReducer } from "./reducers/public/poolReducer";
+import { RankTierReducer } from "./reducers/public/rankTierReducer";
 
 const container = new Container({ autoBindInjectable: true });
 
@@ -23,6 +24,7 @@ container
 	.bind<StateReducer<PublicPlayerState>>("public")
 	.to(LobbyPlayerReducer);
 container.bind<StateReducer<PublicPlayerState>>("public").to(PoolReducer);
+container.bind<StateReducer<PublicPlayerState>>("public").to(RankTierReducer);
 container
 	.bind<StateReducer<PrivatePlayerState>>("private")
 	.to(DummyPrivateStateReducer);

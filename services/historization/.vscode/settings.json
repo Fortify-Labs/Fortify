@@ -1,16 +1,19 @@
 {
 	"typescript.tsdk": "node_modules/typescript/lib",
 	"cSpell.words": [
+		"Deserialization",
 		"Loadout",
 		"Persistor",
 		"Postgres",
 		"Underlord",
+		"avatarfull",
 		"entindex",
 		"historization",
 		"influxdata",
 		"influxdb",
 		"inversify",
 		"leaderboard",
+		"personaname",
 		"steamid",
 		"underlords"
 	]

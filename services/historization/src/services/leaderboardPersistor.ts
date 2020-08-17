@@ -12,7 +12,7 @@ import { InfluxDBConnector } from "@shared/connectors/influxdb";
 import { RedisConnector } from "@shared/connectors/redis";
 import { PostgresConnector } from "@shared/connectors/postgres";
 import { ULLeaderboard } from "@shared/definitions/leaderboard";
-import { GetPlayerSummaries } from "../definitions/playerSummaries";
+import { GetPlayerSummaries } from "@shared/definitions/playerSummaries";
 
 import { convert32to64SteamId, convert64to32SteamId } from "@shared/steamid";
 import { EventService } from "@shared/services/eventService";
@@ -32,7 +32,7 @@ export class LeaderboardPersistor {
 		// Fetch corresponding leaderboard from redis
 		const leaderboardType = event.leaderboardType;
 		const rawLeaderboard = await this.redis.getAsync(
-			`ul_leaderboard_${leaderboardType}`,
+			`ul:leaderboard:${leaderboardType}`,
 		);
 
 		if (!rawLeaderboard) {
@@ -45,9 +45,13 @@ export class LeaderboardPersistor {
 
 		// Fetch current users from postgres
 		const userRepo = await this.postgres.getUserRepo();
-		const steamids = (await userRepo.find({ select: ["steamid"] })).map(
-			(channel) => channel.steamid,
-		);
+		const steamids = (
+			await userRepo.find({
+				select: ["steamid"],
+				// Fetch for all registered lords; This is to avoid privacy infringements
+				where: { rankTier: 80, registered: true },
+			})
+		).map((channel) => channel.steamid);
 
 		// Create an array containing arrays of steamids which at max have 100 steamids, as this is a limitation of the steam web api
 

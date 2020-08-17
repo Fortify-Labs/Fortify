@@ -6,15 +6,23 @@
 	},
 	"typescript.tsdk": "node_modules/typescript/lib",
 	"cSpell.words": [
+		"APIKEY",
 		"PGDATABASE",
 		"PGHOST",
 		"PGPASSWORD",
 		"PGPORT",
 		"PGUSER",
+		"avatarfull",
+		"influxdata",
+		"influxdb",
 		"inversify",
 		"kafkajs",
+		"leaderboard",
+		"matchid",
+		"mmrs",
 		"openapidocs",
 		"postgres",
+		"signup",
 		"steamid",
 		"typeorm"
 	]

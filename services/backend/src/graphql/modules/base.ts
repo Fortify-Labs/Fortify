@@ -1,14 +1,16 @@
-import { injectable } from "inversify";
+import { injectable, inject } from "inversify";
 import { gql } from "apollo-server-express";
 
 import { GQLModule } from "definitions/module";
 import { Resolvers } from "definitions/graphql/types";
-import { pubSub } from "../pubsub";
 
 import packageJSON = require("../../../package.json");
+import { GQLPubSub } from "../pubsub";
 
 @injectable()
 export class BaseModule implements GQLModule {
+	constructor(@inject(GQLPubSub) public pubSub: GQLPubSub) {}
+
 	typeDef = gql`
 		type Query {
 			"Returns the current package.json version"
@@ -33,6 +35,8 @@ export class BaseModule implements GQLModule {
 	`;
 
 	resolver(): Resolvers {
+		const { pubSub } = this.pubSub;
+
 		return {
 			Query: {
 				version() {
@@ -40,8 +44,8 @@ export class BaseModule implements GQLModule {
 				},
 			},
 			Mutation: {
-				_base_() {
-					pubSub.publish("_base_", {
+				async _base_() {
+					await pubSub.publish("_base_", {
 						_base_: "_base_ --- " + new Date().toString(),
 					});
 

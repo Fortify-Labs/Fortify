@@ -23,14 +23,14 @@ export class ExtractorService {
 		const userRepo = await this.db.getUserRepo();
 
 		const user = await userRepo.findOneOrFail({
-			where: { twitch_name: channelName },
+			where: { twitchName: channelName },
 		});
 
 		return user;
 	}
 
 	async getPlayerState(steamid: string): Promise<FortifyPlayerState | null> {
-		const player_state = await this.redis.getAsync("ps_" + steamid);
+		const player_state = await this.redis.getAsync("ps:" + steamid);
 
 		if (player_state) {
 			const fps: FortifyPlayerState = JSON.parse(player_state);

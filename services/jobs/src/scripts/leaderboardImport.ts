@@ -41,7 +41,7 @@ export class LeaderboardImportService implements FortifyScript {
 		debug("app::leaderboardImport")(`${type} leaderboard fetched`);
 
 		await this.redis.setAsync(
-			"ul_leaderboard_" + type.toLowerCase(),
+			"ul:leaderboard:" + type.toLowerCase(),
 			JSON.stringify(leaderboard),
 		);
 

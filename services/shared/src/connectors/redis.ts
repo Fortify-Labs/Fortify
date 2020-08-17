@@ -14,11 +14,15 @@ export class RedisConnector {
 	client: Redis.Redis;
 
 	constructor() {
+		this.client = this.createClient();
+	}
+
+	createClient() {
 		if (REDIS_SENTINEL) {
 			// The filter is used to remove empty string
 			const hosts = REDIS_SENTINEL.split(";").filter((entry) => entry);
 
-			this.client = new Redis({
+			return new Redis({
 				sentinels: hosts
 					.map((host) => host.split(":"))
 					.map((host) => {
@@ -30,7 +34,7 @@ export class RedisConnector {
 				name: REDIS_SENTINEL_NAME,
 			});
 		} else {
-			this.client = new Redis(REDIS_URL);
+			return new Redis(REDIS_URL);
 		}
 	}
 

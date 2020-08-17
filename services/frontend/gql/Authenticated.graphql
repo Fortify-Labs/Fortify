@@ -1,0 +1,9 @@
+query Authenticated {
+	authenticated {
+		authenticated
+
+		user {
+			steamid
+		}
+	}
+}

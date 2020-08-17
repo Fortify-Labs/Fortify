@@ -1,0 +1,11 @@
+query ProfileMmrHistory($steamid: ID) {
+	profile(steamid: $steamid) {
+		steamid
+
+		mmrHistory(duration: 30) {
+			date
+			mmr
+			rank
+		}
+	}
+}

@@ -319,16 +319,16 @@ export class ClusterSetup extends Chart {
 							"node.ingest": true,
 						},
 						podTemplate: {
-							metadata: {
-								annotations: {
-									"traffic.sidecar.istio.io/includeInboundPorts":
-										"*",
-									"traffic.sidecar.istio.io/excludeOutboundPorts":
-										"9300",
-									"traffic.sidecar.istio.io/excludeInboundPorts":
-										"9300",
-								},
-							},
+							// metadata: {
+							// 	annotations: {
+							// 		"traffic.sidecar.istio.io/includeInboundPorts":
+							// 			"*",
+							// 		"traffic.sidecar.istio.io/excludeOutboundPorts":
+							// 			"9300",
+							// 		"traffic.sidecar.istio.io/excludeInboundPorts":
+							// 			"9300",
+							// 	},
+							// },
 							spec: {
 								automountServiceAccountToken: true,
 								initContainers: [
@@ -918,12 +918,30 @@ export class Fortify extends Chart {
 			},
 			env: [
 				{ name: "MY_PORT", value: "8080" },
-				// TODO: Change this to production once access to gql ui is not needed anymore
 				{ name: "NODE_ENV", value: "production" },
-				{ name: "APP_URL", value: "https://api.fortify.gg" },
+				{ name: "APP_URL", value: `https://api.${DOMAIN}` },
+				{ name: "APP_DOMAIN", value: DOMAIN },
+				{
+					name: "APP_SUCCESSFUL_AUTH_RETURN_URL",
+					value: `https://${DOMAIN}`,
+				},
+				{
+					name: "APP_STEAM_RETURN_URL",
+					value: `https://api.${DOMAIN}/auth/steam/return`,
+				},
 			],
-			secrets: ["postgres-auth", "jwt-secret"],
-			configmaps: ["postgres-config", "kafka-config", "redis-config"],
+			secrets: [
+				"postgres-auth",
+				"jwt-secret",
+				"influxdb-secret",
+				"steam-web-api-secret",
+			],
+			configmaps: [
+				"postgres-config",
+				"kafka-config",
+				"redis-config",
+				"influxdb-config",
+			],
 			gateways: ["fortify-gateway"],
 			hosts: [`api.${DOMAIN}`],
 			http: [
@@ -948,11 +966,19 @@ export class Fortify extends Chart {
 			env: [
 				{
 					name: "GRAPHQL_URI",
-					value: "https://api.fortify.gg/graphql",
+					value: `https://api.${DOMAIN}/graphql`,
 				},
 				{
 					name: "GRAPHQL_WS_URI",
-					value: "wss://api.fortify.gg/graphql",
+					value: `wss://api.${DOMAIN}/graphql`,
+				},
+				{
+					name: "NEXT_PUBLIC_LOGIN_URL",
+					value: `https://api.${DOMAIN}/auth/steam`,
+				},
+				{
+					name: "NEXT_PUBLIC_URL",
+					value: `https://${DOMAIN}`,
 				},
 			],
 			service: {
@@ -991,7 +1017,7 @@ export class Fortify extends Chart {
 				{ name: "KAFKA_TOPIC", value: "gsi" },
 			],
 			secrets: ["jwt-secret"],
-			configmaps: ["kafka-config"],
+			configmaps: ["kafka-config", "redis-config"],
 			service: {
 				name: "gsi-receiver",
 				containerPort: 8080,
@@ -1144,6 +1170,29 @@ export class Fortify extends Chart {
 				{
 					name: "KAFKA_CLIENT_ID",
 					valueFrom: { fieldRef: { fieldPath: "metadata.name" } },
+				},
+			],
+			secrets: ["postgres-auth"],
+			configmaps: ["redis-config", "kafka-config", "postgres-config"],
+		});
+
+		// Promo CronJob - Delete after launch
+		new FortifyCronJob(this, "promo", {
+			name: "promo",
+			version: jobsPackage.version,
+
+			// Every hour
+			schedule: "0 */3 * * *",
+			script: "broadcast",
+
+			env: [
+				{
+					name: "KAFKA_CLIENT_ID",
+					valueFrom: { fieldRef: { fieldPath: "metadata.name" } },
+				},
+				{
+					name: "MESSAGE",
+					value: "3",
 				},
 			],
 			secrets: ["postgres-auth"],

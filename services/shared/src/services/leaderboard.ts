@@ -10,7 +10,7 @@ export class LeaderboardService {
 		type = LeaderboardType.Standard,
 	): Promise<ULLeaderboard | null> {
 		const rawLeaderboard = await this.redis.getAsync(
-			`ul_leaderboard_${type}`,
+			`ul:leaderboard:${type}`,
 		);
 
 		if (rawLeaderboard) {

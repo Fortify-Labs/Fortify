@@ -2,16 +2,25 @@ import { createHash } from "crypto";
 import { injectable, inject } from "inversify";
 import { PostgresConnector } from "../connectors/postgres";
 import { Match } from "../db/entities/match";
-import { MatchPlayer } from "../db/entities/matchPlayer";
 import { MatchSlot } from "../db/entities/matchSlot";
 import { ExtractorService } from "./extractor";
 import { FortifyPlayer, FortifyGameMode } from "../state";
 import { LeaderboardService } from "./leaderboard";
 import { LeaderboardType } from "../definitions/leaderboard";
+import { currentSeason } from "../units";
+import { User } from "../db/entities/user";
+import { GetPlayerSummaries } from "../definitions/playerSummaries";
+import fetch from "node-fetch";
+import debug from "debug";
+import { convert32to64SteamId } from "../steamid";
+
+const { STEAM_WEB_API_KEY } = process.env;
 
 export interface MatchServicePlayer {
 	accountID: string;
 	slot: number;
+
+	name: string;
 
 	finalPlace: number;
 
@@ -62,7 +71,7 @@ export class MatchService {
 			// Generate ID based on steamid and slot
 			matchID = matchIDGenerator(players, nonce);
 			match = await matchRepo.findOne(matchID, {
-				relations: ["slots", "slots.user", "slots.matchPlayer"],
+				relations: ["slots", "slots.user"],
 			});
 
 			if (match) {
@@ -81,8 +90,7 @@ export class MatchService {
 						const matchSlot = match?.slots.find(
 							(matchSlot) =>
 								matchSlot.slot === slot &&
-								(matchSlot.matchPlayer?.steamid === accountID ||
-									matchSlot.user?.steamid === accountID),
+								matchSlot.user?.steamid === accountID,
 						);
 
 						// No match slot could be found for said user
@@ -111,7 +119,7 @@ export class MatchService {
 					currentDate === 0 ? 23 : currentDate - 1,
 				];
 
-				const matchStartHour = match.matchStartTime.getHours();
+				const matchStartHour = match.created.getHours();
 				// Create a time window of full hours +/-1 match start hour
 				const startHours = [
 					matchStartHour === 23 ? 0 : matchStartHour + 1,
@@ -153,7 +161,6 @@ export class MatchService {
 		gameMode: FortifyGameMode,
 	) {
 		const matchRepo = await this.postgres.getMatchRepo();
-		const matchPlayerRepo = await this.postgres.getMatchPlayerRepo();
 		// const matchSlotsRepo = await this.postgres.getMatchSlotRepo();
 		const userRepo = await this.postgres.getUserRepo();
 
@@ -162,6 +169,7 @@ export class MatchService {
 		match.id = matchID;
 		match.slots = [];
 		match.gameMode = gameMode;
+		match.season = currentSeason;
 
 		const playerRecord = players.reduce<Record<string, FortifyPlayer>>(
 			(acc, player) => {
@@ -196,7 +204,7 @@ export class MatchService {
 		}
 
 		// For each player in the lobby
-		for (const { accountID, slot, finalPlace } of players) {
+		for (const { accountID, slot, finalPlace, name } of players) {
 			const matchSlot = new MatchSlot();
 
 			// Link their slot to a match
@@ -207,25 +215,33 @@ export class MatchService {
 			matchSlot.finalPlace = finalPlace;
 
 			// Check if player is a fortify user
-			const user = await userRepo.findOne(accountID);
-			if (user) {
-				// if true, use the User entity in the match slot
-				matchSlot.user = user;
-			} else {
-				// else use the MatchPlayer entity
-				let matchPlayer = await matchPlayerRepo.findOne(accountID);
+			let user = await userRepo.findOne(accountID);
+			if (!user) {
+				user = new User();
+				user.steamid = accountID;
+			}
+			user.name = name;
 
-				// if a MatchPlayer cannot be found, create one in-place
-				if (!matchPlayer) {
-					matchPlayer = new MatchPlayer();
-					matchPlayer.steamid = accountID;
+			try {
+				// TODO: Refactor this to be one request getting all 8 images instead of 8 requests getting one image
 
-					await matchPlayerRepo.save(matchPlayer);
+				// Fetch image from steam web api
+				const playerSummaries = await fetch(
+					`http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${STEAM_WEB_API_KEY}&steamids=${convert32to64SteamId(
+						accountID,
+					)}`,
+				).then((res) => res.json() as Promise<GetPlayerSummaries>);
+				if (playerSummaries.response.players.length > 0) {
+					const player = playerSummaries.response.players[0];
+					user.profilePicture = player.avatarfull;
 				}
-
-				matchSlot.matchPlayer = matchPlayer;
+			} catch (e) {
+				debug("app::services::match")(e);
 			}
 
+			await userRepo.save(user);
+
+			matchSlot.user = user;
 			match.slots.push(matchSlot);
 		}
 
@@ -240,14 +256,11 @@ export class MatchService {
 		const matchRepo = await this.postgres.getMatchRepo();
 
 		const match = await matchRepo.findOneOrFail(matchID, {
-			relations: ["slots", "slots.user", "slots.matchPlayer"],
+			relations: ["slots", "slots.user"],
 		});
 
 		match.slots = match.slots.reduce<MatchSlot[]>((acc, slot) => {
-			if (
-				slot.user?.steamid === steamID ||
-				slot.matchPlayer?.steamid === steamID
-			) {
+			if (slot.user?.steamid === steamID) {
 				slot.finalPlace = finalPlace;
 			}
 
@@ -263,7 +276,7 @@ export class MatchService {
 		const matchRepo = await this.postgres.getMatchRepo();
 
 		const match = await matchRepo.findOneOrFail(matchID, {
-			relations: ["slots", "slots.user", "slots.matchPlayer"],
+			relations: ["slots", "slots.user"],
 		});
 
 		match.slots = match.slots.reduce<MatchSlot[]>((acc, slot) => {
@@ -276,7 +289,7 @@ export class MatchService {
 			return acc;
 		}, []);
 
-		match.matchEndTime = new Date(Date.now());
+		match.ended = new Date(Date.now());
 
 		await matchRepo.save(match);
 	}

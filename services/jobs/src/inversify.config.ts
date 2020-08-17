@@ -12,6 +12,7 @@ import { FortifyScript } from "./scripts";
 import { DummyScript } from "./scripts/dummy";
 import { LeaderboardImportService } from "./scripts/leaderboardImport";
 import { DBCleanupScript } from "./scripts/dbCleaner";
+import { BroadcastNotificationScript } from "./scripts/broadcastNotifications";
 
 const container = new Container({ autoBindInjectable: true });
 
@@ -25,5 +26,6 @@ container.bind(EventService).to(EventService);
 container.bind<FortifyScript>("dummy").to(DummyScript);
 container.bind<FortifyScript>("import").to(LeaderboardImportService);
 container.bind<FortifyScript>("clean_db").to(DBCleanupScript);
+container.bind<FortifyScript>("broadcast").to(BroadcastNotificationScript);
 
 export { container };

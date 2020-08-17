@@ -1,0 +1,13 @@
+query Profile($steamid: ID) {
+	profile(steamid: $steamid) {
+		steamid
+		name
+		profilePicture
+		publicProfile
+		mmr
+		leaderboardRank
+		rank
+		twitchName
+		discordName
+	}
+}
