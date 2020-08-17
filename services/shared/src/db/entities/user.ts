@@ -27,6 +27,9 @@ export class User {
 	@Column({ default: false })
 	tosAccepted!: boolean;
 
+	@Column({ default: false })
+	publicProfile!: boolean;
+
 	// --- Properties ---
 
 	@Column({ default: "" })
