@@ -41,10 +41,16 @@ export class UserModule implements GQLModule {
 			profile(steamid: ID): UserProfile
 		}
 
+		extend type Mutation {
+			updateProfile(profile: ProfileInput!): Boolean
+		}
+
 		type UserProfile {
 			steamid: ID!
 			name: String
 			profilePicture: String
+
+			publicProfile: Boolean
 
 			mmr: Int
 			leaderboardRank: Int
@@ -74,6 +80,11 @@ export class UserModule implements GQLModule {
 			date: Date
 			mmr: Int
 			rank: Int
+		}
+
+		input ProfileInput {
+			steamid: ID
+			public: Boolean
 		}
 	`;
 
@@ -105,6 +116,32 @@ export class UserModule implements GQLModule {
 					}
 
 					return user;
+				},
+			},
+			Mutation: {
+				async updateProfile(parent, { profile }, context) {
+					let userID = context.user.id;
+
+					if (
+						profile.steamid &&
+						context.scopes.includes(PermissionScope.Admin)
+					) {
+						userID = profile.steamid;
+					}
+
+					const userRepo = await postgres.getUserRepo();
+					const user = await userRepo.findOneOrFail(userID);
+
+					if (
+						profile.public !== null &&
+						profile.public !== undefined
+					) {
+						user.publicProfile = profile.public;
+					}
+
+					await userRepo.save(user);
+
+					return true;
 				},
 			},
 			UserProfile: {
