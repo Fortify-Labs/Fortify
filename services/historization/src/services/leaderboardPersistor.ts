@@ -32,7 +32,7 @@ export class LeaderboardPersistor {
 		// Fetch corresponding leaderboard from redis
 		const leaderboardType = event.leaderboardType;
 		const rawLeaderboard = await this.redis.getAsync(
-			`ul_leaderboard_${leaderboardType}`,
+			`ul:leaderboard:${leaderboardType}`,
 		);
 
 		if (!rawLeaderboard) {
