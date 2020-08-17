@@ -8,7 +8,7 @@ export class BackendRework1597095518930 implements MigrationInterface {
 			'ALTER TABLE "user" RENAME COLUMN "twitch_name" TO "twitchName"',
 		);
 		await queryRunner.query(
-			'ALTER TABLE "user" RENAME COLUMN "twitch_id" TO "twitchID"',
+			'ALTER TABLE "user" RENAME COLUMN "twitch_id" TO "twitchId"',
 		);
 		await queryRunner.query(
 			'ALTER TABLE "match" RENAME COLUMN "matchStartTime" TO "created"',

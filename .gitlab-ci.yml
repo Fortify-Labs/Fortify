@@ -12,11 +12,11 @@ build:
     - apk add --update nodejs nodejs-npm
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
   script:
+    - echo -n $BUILD_DOTENV | base64 -d > .env
     - chmod +x ./scripts/build.sh
     - sh ./scripts/build.sh
   only:
     - master
-    - staging
     - /^hotfix-.*$/
 
 deploy:

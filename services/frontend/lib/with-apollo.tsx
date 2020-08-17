@@ -20,6 +20,12 @@ import { SubscriptionClient } from "subscriptions-transport-ws";
 import { getOperationAST } from "graphql";
 import { getCookie } from "../utils/cookie";
 
+const {
+	NODE_ENV,
+	NEXT_PUBLIC_GRAPHQL_WS_URI = "ws://localhost:8080/graphql",
+	NEXT_PUBLIC_GRAPHQL_URI = "http://localhost:8080/graphql",
+} = process.env;
+
 type TApolloClient = ApolloClient<NormalizedCacheObject>;
 
 type InitialProps = {
@@ -74,7 +80,7 @@ export default function withApollo(
 	};
 
 	// Set the correct displayName in development
-	if (process.env.NODE_ENV !== "production") {
+	if (NODE_ENV !== "production") {
 		const displayName =
 			PageComponent.displayName || PageComponent.name || "Component";
 
@@ -214,11 +220,6 @@ function createApolloClient(
 }
 
 const createLink = (resolverContext?: ResolverContext) => {
-	const wsUri =
-		process.env.NEXT_PUBLIC_GRAPHQL_WS_URI ?? "ws://localhost:8080/graphql";
-	const uri =
-		process.env.NEXT_PUBLIC_GRAPHQL_URI ?? "http://localhost:8080/graphql";
-
 	const ssrMode = typeof window === "undefined";
 
 	const jwt = getCookie("auth", resolverContext?.req);
@@ -228,7 +229,7 @@ const createLink = (resolverContext?: ResolverContext) => {
 	};
 
 	const httpLink = createHttpLink({
-		uri,
+		uri: NEXT_PUBLIC_GRAPHQL_URI,
 		credentials: "same-origin",
 		headers,
 	});
@@ -247,7 +248,7 @@ const createLink = (resolverContext?: ResolverContext) => {
 					);
 				},
 				new WebSocketLink(
-					new SubscriptionClient(wsUri, {
+					new SubscriptionClient(NEXT_PUBLIC_GRAPHQL_WS_URI, {
 						reconnect: true,
 						connectionParams: {
 							...headers,
