@@ -1,14 +1,15 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
-import classNames from "classnames";
-
-import withApollo from "../../lib/with-apollo";
-
-import { LobbySummary } from "../../components/lobby/summary";
-import { PoolViewer } from "../../components/lobby/pool";
-import { Navbar } from "../../components/navbar";
-import { useLobbySubscription } from "../../gql/LobbySubscription.graphql";
 import { NextSeo } from "next-seo";
+import classNames from "classnames";
+import withApollo from "lib/with-apollo";
+
+import { Navbar } from "components/navbar";
+import { LobbySummary } from "components/lobby/summary";
+import { PoolViewer } from "components/lobby/pool";
+
+import { useLobbySubscription } from "gql/LobbySubscription.graphql";
+
 const { NEXT_PUBLIC_URL } = process.env;
 
 const Lobby = () => {

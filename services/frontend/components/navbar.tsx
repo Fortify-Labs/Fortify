@@ -58,7 +58,11 @@ export const Navbar = () => {
 				<div className="navbar-start">
 					<NavbarLink href="/matches" value="Matches" />
 					{authenticated && (
-						<NavbarLink href="/lobby" value="My Lobby" />
+						<NavbarLink
+							href="/lobby/[[...id]]"
+							as="/lobby"
+							value="My Lobby"
+						/>
 					)}
 				</div>
 
