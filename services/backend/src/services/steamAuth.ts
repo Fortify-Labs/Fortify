@@ -1,6 +1,9 @@
 import { injectable, inject } from "inversify";
 import { Application, Router, Request, Response } from "express";
 
+import rateLimit from "express-rate-limit";
+import RedisStore from "rate-limit-redis";
+
 import passport from "passport";
 import { Strategy as SteamStrategy } from "passport-steam";
 
@@ -53,10 +56,20 @@ export interface NodeSteamPassportProfile {
 
 @injectable()
 export class SteamAuthMiddleware {
+	authLimiter: rateLimit.RateLimit;
+
 	constructor(
 		@inject(PostgresConnector) private postgres: PostgresConnector,
 		@inject(RedisConnector) private redis: RedisConnector,
-	) {}
+	) {
+		this.authLimiter = rateLimit({
+			max: 120,
+			store: new RedisStore({
+				client: redis.createClient(),
+				prefix: "rl:api:steamAuth:",
+			}),
+		});
+	}
 
 	async handleAuth(req: Request, res: Response) {
 		const user = req.user as NodeSteamPassportProfile | undefined;
@@ -157,9 +170,10 @@ export class SteamAuthMiddleware {
 				failureRedirect: "/fail",
 				session: false,
 			}),
+			this.authLimiter,
 			(req, res) => this.handleAuth(req, res),
 		);
 
-		app.use("/auth/steam", authRouter);
+		app.use("/auth/steam", this.authLimiter, authRouter);
 	}
 }

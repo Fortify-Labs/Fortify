@@ -30,7 +30,7 @@ const { KAFKA_TOPIC, MY_PORT } = process.env;
 		max: 120,
 		store: new RedisStore({
 			client: redis.createClient(),
-			prefix: "rl:api:",
+			prefix: "rl:gsi:",
 		}),
 	});
 

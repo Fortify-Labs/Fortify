@@ -123,6 +123,7 @@ const Profile = () => {
 												profile?.steamid ?? ""
 											).plus("76561197960265728")}`}
 											target="_blank"
+											rel="noopener noreferrer"
 										>
 											<FontAwesomeIcon
 												icon={faSteam}
@@ -139,6 +140,7 @@ const Profile = () => {
 														""
 													)}`}
 													target="_blank"
+													rel="noopener noreferrer"
 												>
 													<FontAwesomeIcon
 														icon={faTwitch}
@@ -152,6 +154,7 @@ const Profile = () => {
 										{/* <a
 											href=""
 											target="_blank"
+											rel="noopener noreferrer"
 											style={{
 												marginLeft: "1rem",
 											}}

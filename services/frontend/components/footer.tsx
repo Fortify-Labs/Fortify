@@ -14,6 +14,7 @@ export const Footer = () => {
 					<a
 						href="https://discord.gg/u9qJxzQ"
 						target="_blank"
+						rel="noopener noreferrer"
 						style={{ color: "white" }}
 					>
 						<FontAwesomeIcon icon={faDiscord} size="2x" />
@@ -21,6 +22,7 @@ export const Footer = () => {
 					<a
 						href="https://github.com/Fortify-Labs/Fortify"
 						target="_blank"
+						rel="noopener noreferrer"
 						style={{ color: "white" }}
 					>
 						<FontAwesomeIcon icon={faGithub} size="2x" />
