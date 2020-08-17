@@ -19,7 +19,7 @@ const Imprint = () => {
 
 			<Navbar />
 
-			<div style={{ margin: "1rem" }}>
+			<div style={{ margin: "1rem" }} className="content">
 				<h1 className="title is-1">Imprint</h1>
 				Da es sich bei vorliegender Webseite um eine nicht kommerzielle,
 				nicht gewerbliche und rein privat, persönlich & familiär

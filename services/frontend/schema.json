@@ -298,8 +298,8 @@
               }
             ],
             "type": {
-              "kind": "SCALAR",
-              "name": "Boolean",
+              "kind": "OBJECT",
+              "name": "UserProfile",
               "ofType": null
             },
             "isDeprecated": false,

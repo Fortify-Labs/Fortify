@@ -56,7 +56,7 @@ export const PoolViewer: FunctionComponent<{ id?: string }> = ({ id }) => {
 	return (
 		<>
 			{error && (
-				<p>
+				<p style={{ margin: "1rem" }}>
 					{error.name} - {error.message}
 				</p>
 			)}
@@ -64,7 +64,7 @@ export const PoolViewer: FunctionComponent<{ id?: string }> = ({ id }) => {
 			{loading && <p>Loading...</p>}
 
 			{!loading && (
-				<>
+				<div className="content">
 					<h4 className="title is-4" style={{ margin: "1rem" }}>
 						Total Pool Size: {remainingUnits}/{totalPoolSize}
 					</h4>{" "}
@@ -137,7 +137,7 @@ export const PoolViewer: FunctionComponent<{ id?: string }> = ({ id }) => {
 							);
 						})}
 					</div>
-				</>
+				</div>
 			)}
 		</>
 	);

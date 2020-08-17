@@ -21,7 +21,7 @@ const { NEXT_PUBLIC_URL } = process.env;
 const Profile = () => {
 	const router = useRouter();
 	const { id } = router.query;
-	const { data, loading, error, refetch } = useProfileQuery({
+	const { data, loading, error } = useProfileQuery({
 		variables: { steamid: id?.toString() },
 	});
 	const { profile } = data ?? {};
@@ -99,6 +99,7 @@ const Profile = () => {
 													profile?.publicProfile ??
 													false
 												}
+												disabled={loading}
 												onChange={async (event) => {
 													const checked =
 														event.target.checked;
@@ -112,8 +113,6 @@ const Profile = () => {
 															},
 														}
 													);
-
-													await refetch();
 												}}
 											/>{" "}
 											Public Player Profile
@@ -198,7 +197,7 @@ const Profile = () => {
 									</ul>
 								</div>
 
-								<div className="container">
+								<div className="content">
 									{tabContents[tab]}
 								</div>
 							</div>

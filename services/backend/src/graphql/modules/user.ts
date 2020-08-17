@@ -42,7 +42,7 @@ export class UserModule implements GQLModule {
 		}
 
 		extend type Mutation {
-			updateProfile(profile: ProfileInput!): Boolean
+			updateProfile(profile: ProfileInput!): UserProfile
 		}
 
 		type UserProfile {
@@ -141,7 +141,7 @@ export class UserModule implements GQLModule {
 
 					await userRepo.save(user);
 
-					return true;
+					return user;
 				},
 			},
 			UserProfile: {
