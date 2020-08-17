@@ -1175,6 +1175,29 @@ export class Fortify extends Chart {
 			secrets: ["postgres-auth"],
 			configmaps: ["redis-config", "kafka-config", "postgres-config"],
 		});
+
+		// Promo CronJob - Delete after launch
+		new FortifyCronJob(this, "promo", {
+			name: "promo",
+			version: jobsPackage.version,
+
+			// Every hour
+			schedule: "0 */3 * * *",
+			script: "broadcast",
+
+			env: [
+				{
+					name: "KAFKA_CLIENT_ID",
+					valueFrom: { fieldRef: { fieldPath: "metadata.name" } },
+				},
+				{
+					name: "MESSAGE",
+					value: "3",
+				},
+			],
+			secrets: ["postgres-auth"],
+			configmaps: ["redis-config", "kafka-config", "postgres-config"],
+		});
 	}
 }
 
