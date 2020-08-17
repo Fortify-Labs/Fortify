@@ -11,14 +11,22 @@ import { BigNumber } from "bignumber.js";
 import classNames from "classnames";
 import { RecentMatchesTable } from "../../components/profile/recentMatches";
 import { MmrHistory } from "../../components/profile/mmrHistory";
+import { NextSeo } from "next-seo";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSteam, faTwitch } from "@fortawesome/free-brands-svg-icons";
+import { useUpdateProfileMutation } from "gql/UpdateProfile.graphql";
+
+const { NEXT_PUBLIC_URL } = process.env;
 
 const Profile = () => {
 	const router = useRouter();
 	const { id } = router.query;
-	const { data, loading, error } = useProfileQuery({
+	const { data, loading, error, refetch } = useProfileQuery({
 		variables: { steamid: id?.toString() },
 	});
 	const { profile } = data ?? {};
+
+	const [updateProfileMutation] = useUpdateProfileMutation();
 
 	const tabContents = {
 		matches: <RecentMatchesTable steamid={id?.toString()} />,
@@ -30,17 +38,33 @@ const Profile = () => {
 		? (router.query.tab?.toString() as keyof typeof tabContents)
 		: "matches";
 
-	if (error) {
-		console.error(error);
-	}
-
 	return (
 		<>
+			<NextSeo
+				title={`${profile?.name ?? "Private"} Profile | Fortify`}
+				description={`Rank: ${profile?.rank ?? 0}; MMR: ${
+					profile?.mmr ?? 0
+				}; Leaderboard Rank: ${profile?.leaderboardRank ?? 0}`}
+				openGraph={{
+					url: `${NEXT_PUBLIC_URL}/profile/${profile?.steamid}`,
+					title: `${profile?.name ?? "Private"} Profile | Fortify`,
+					description: `Rank: ${profile?.rank ?? 0}; MMR: ${
+						profile?.mmr ?? 0
+					}; Leaderboard Rank: ${profile?.leaderboardRank ?? 0}`,
+				}}
+			/>
+
 			<Navbar />
 
 			{loading && <div>Loading...</div>}
 
-			{!loading && (
+			{error && (
+				<p>
+					{error.name} - {error.message}
+				</p>
+			)}
+
+			{!loading && !error && (
 				<div style={{ margin: "1rem" }}>
 					<div className="columns">
 						<div className="column is-narrow">
@@ -65,19 +89,51 @@ const Profile = () => {
 										Rank: {profile?.leaderboardRank}
 									</HStack>
 
+									<hr />
+
 									<div className="content">
-										<ul style={{ marginLeft: "1rem" }}>
-											<a
-												href={`https://steamcommunity.com/profiles/${new BigNumber(
-													profile?.steamid ?? ""
-												).plus("76561197960265728")}`}
-												target="_blank"
-											>
-												Steam
-											</a>
-										</ul>
+										<label className="checkbox">
+											<input
+												type="checkbox"
+												checked={
+													profile?.publicProfile ??
+													false
+												}
+												onChange={async (event) => {
+													const checked =
+														event.target.checked;
+
+													await updateProfileMutation(
+														{
+															variables: {
+																profile: {
+																	public: checked,
+																},
+															},
+														}
+													);
+
+													await refetch();
+												}}
+											/>{" "}
+											Public Player Profile
+										</label>{" "}
+										<hr />
+										<a
+											href={`https://steamcommunity.com/profiles/${new BigNumber(
+												profile?.steamid ?? ""
+											).plus("76561197960265728")}`}
+											target="_blank"
+										>
+											<FontAwesomeIcon
+												icon={faSteam}
+												size="1x"
+											/>{" "}
+											Steam
+										</a>{" "}
+										<br /> <br />
 										{profile?.twitchName && (
-											<ul style={{ marginLeft: "1rem" }}>
+											<>
 												<a
 													href={`https://twitch.tv/${profile?.twitchName.replace(
 														"#",
@@ -85,15 +141,24 @@ const Profile = () => {
 													)}`}
 													target="_blank"
 												>
+													<FontAwesomeIcon
+														icon={faTwitch}
+														size="1x"
+													/>{" "}
 													Twitch
 												</a>
-											</ul>
+												<br />
+											</>
 										)}
-										{/* <ul style={{ marginLeft: "1rem" }}>
-											<a href="" target="_blank">
-												Discord
-											</a>
-										</ul> */}
+										{/* <a
+											href=""
+											target="_blank"
+											style={{
+												marginLeft: "1rem",
+											}}
+										>
+											Discord
+										</a> */}
 									</div>
 								</VStack>
 							</div>

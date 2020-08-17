@@ -14,7 +14,7 @@ export const setCookie = (key: string, value: string) => {
 };
 
 export const removeCookie = (key: string, domain?: string) => {
-	const ssrMode = typeof window === "undefined";
+	// const ssrMode = typeof window === "undefined";
 
 	// if (ssrMode) {
 	cookie.remove(key, {

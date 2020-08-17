@@ -1,12 +1,12 @@
 {
   "name": "frontend",
-  "version": "1.1.3",
+  "version": "1.1.6",
   "author": "Thomas Kosiewski",
   "license": "AGPL-3.0-or-later",
   "private": true,
   "scripts": {
     "dev": "next",
-    "compile": "graphql-let && next build",
+    "compile": "graphql-let && tsc -b && next build",
     "start": "next start",
     "sync-dotenv": "sync-dotenv",
     "types": "npm run download-schema && graphql-let",
@@ -29,7 +29,9 @@
     "graphql": "^15.3.0",
     "js-cookie": "^2.2.1",
     "next": "^9.5.2",
+    "next-seo": "^4.7.3",
     "react": "^16.13.1",
+    "react-cookie-consent": "^5.1.3",
     "react-dom": "^16.13.1",
     "sass": "^1.26.10",
     "subscriptions-transport-ws": "^0.9.17"

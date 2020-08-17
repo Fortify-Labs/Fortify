@@ -1,6 +1,9 @@
 import withApollo from "../lib/with-apollo";
 import { Navbar } from "../components/navbar";
 import { useCurrentMatchesQuery } from "../gql/CurrentMatches.graphql";
+import { NextSeo } from "next-seo";
+
+const { NEXT_PUBLIC_URL } = process.env;
 
 const Matches = () => {
 	const { loading, data, error } = useCurrentMatchesQuery({
@@ -10,21 +13,23 @@ const Matches = () => {
 		},
 	});
 
-	if (error) {
-		console.error(error);
-	}
-
 	return (
 		<>
-			<Navbar />
+			<NextSeo
+				title="Matches | Fortify"
+				description="Currently ongoing Dota Underlords matches"
+				openGraph={{
+					url: `${NEXT_PUBLIC_URL}/matches`,
+					title: "Matches | Fortify",
+					description: "Currently ongoing Dota Underlords matches",
+				}}
+			/>
 
-			{loading && <p>Loading...</p>}
+			<Navbar />
 
 			<div
 				style={{
-					marginLeft: "1rem",
-					marginRight: "1rem",
-					marginTop: "1rem",
+					margin: "1rem",
 				}}
 			>
 				<div className="tabs">
@@ -40,46 +45,52 @@ const Matches = () => {
 					</ul>
 				</div>
 
-				<table className="table is-fullwidth is-hoverable is-striped">
-					<thead>
-						<tr>
-							<th>Average MMR</th>
-							<th style={{ textDecoration: "line-through" }}>
-								Round
-							</th>
-							<th>Duration</th>
-							<th>Notable Players</th>
-						</tr>
-					</thead>
-					{loading && (
-						<tbody>
+				<div style={{ overflowX: "auto" }}>
+					<table className="table is-fullwidth is-hoverable is-striped">
+						<thead>
 							<tr>
-								<th>Loading...</th>
+								<th>Average MMR</th>
+								<th style={{ textDecoration: "line-through" }}>
+									Round
+								</th>
+								<th>Duration</th>
+								<th>Notable Players</th>
 							</tr>
-						</tbody>
-					)}
-					{!loading && (
-						<tbody>
-							{data?.currentMatches?.map((match) => (
-								<tr key={match?.id}>
-									<th>{match?.averageMMR}</th>
-									<th></th>
-									<th>{match?.duration}</th>
-									<th>
-										{match?.slots?.map((slot) => {
-											const name =
-												slot?.user?.name ??
-												slot?.matchPlayer?.name;
-											return `${name ?? ""}${
-												name ? "; " : ""
-											}`;
-										})}
-									</th>
+						</thead>
+						{loading && (
+							<tbody>
+								<tr>
+									<th>Loading...</th>
 								</tr>
-							))}
-						</tbody>
-					)}
-				</table>
+							</tbody>
+						)}
+						{error && (
+							<p>
+								{error.name} - {error.message}
+							</p>
+						)}
+						{!loading && !error && (
+							<tbody>
+								{data?.currentMatches?.map((match) => (
+									<tr key={match?.id}>
+										<th>{match?.averageMMR}</th>
+										<th></th>
+										<th>{match?.duration}</th>
+										<th>
+											{match?.slots?.map((slot) => {
+												const name =
+													slot?.user?.name ?? "";
+												return `${name ?? ""}${
+													name ? "; " : ""
+												}`;
+											})}
+										</th>
+									</tr>
+								))}
+							</tbody>
+						)}
+					</table>
+				</div>
 			</div>
 		</>
 	);

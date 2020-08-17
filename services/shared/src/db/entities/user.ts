@@ -16,9 +16,23 @@ export class User {
 	@PrimaryColumn()
 	steamid!: string;
 
+	// --- User Status ---
+
+	@Column({ default: false })
+	registered!: boolean;
+
+	@Column({ default: false })
+	suspended!: boolean;
+
+	@Column({ default: false })
+	tosAccepted!: boolean;
+
+	@Column({ default: false })
+	publicProfile!: boolean;
+
 	// --- Properties ---
 
-	@Column()
+	@Column({ default: "" })
 	name!: string;
 
 	@Column({ nullable: true })

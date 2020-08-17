@@ -1,7 +1,7 @@
 import { injectable, inject } from "inversify";
 
 import { GQLModule } from "definitions/module";
-import { gql } from "apollo-server-express";
+import { gql, ApolloError } from "apollo-server-express";
 import { Resolvers, MmrHistory } from "definitions/graphql/types";
 import { PostgresConnector } from "@shared/connectors/postgres";
 import { InfluxDBConnector } from "@shared/connectors/influxdb";
@@ -38,13 +38,19 @@ export class UserModule implements GQLModule {
 
 	typeDef = gql`
 		extend type Query {
-			profile(steamid: ID): UserProfile @auth(requires: USER)
+			profile(steamid: ID): UserProfile
+		}
+
+		extend type Mutation {
+			updateProfile(profile: ProfileInput!): Boolean
 		}
 
 		type UserProfile {
 			steamid: ID!
 			name: String
 			profilePicture: String
+
+			publicProfile: Boolean
 
 			mmr: Int
 			leaderboardRank: Int
@@ -75,6 +81,11 @@ export class UserModule implements GQLModule {
 			mmr: Int
 			rank: Int
 		}
+
+		input ProfileInput {
+			steamid: ID
+			public: Boolean
+		}
 	`;
 
 	resolver(): Resolvers {
@@ -83,17 +94,54 @@ export class UserModule implements GQLModule {
 		return {
 			Query: {
 				async profile(_parent, { steamid }, context) {
-					let userID = context.user.id;
+					let userID = context.user?.id;
 
-					if (
-						context.scopes.includes(PermissionScope.Admin) &&
-						steamid
-					) {
+					if (steamid) {
 						userID = steamid;
 					}
 
 					const userRepo = await postgres.getUserRepo();
-					return userRepo.findOneOrFail(userID);
+					const user = await userRepo.findOneOrFail(userID);
+
+					const allowed =
+						user.publicProfile ||
+						context.scopes?.includes(PermissionScope.Admin) ||
+						userID === context.user?.id;
+
+					if (!allowed) {
+						throw new ApolloError(
+							"Unauthorized to view player profile",
+							"QUERY_PROFILE_NOT_ALLOWED",
+						);
+					}
+
+					return user;
+				},
+			},
+			Mutation: {
+				async updateProfile(parent, { profile }, context) {
+					let userID = context.user.id;
+
+					if (
+						profile.steamid &&
+						context.scopes.includes(PermissionScope.Admin)
+					) {
+						userID = profile.steamid;
+					}
+
+					const userRepo = await postgres.getUserRepo();
+					const user = await userRepo.findOneOrFail(userID);
+
+					if (
+						profile.public !== null &&
+						profile.public !== undefined
+					) {
+						user.publicProfile = profile.public;
+					}
+
+					await userRepo.save(user);
+
+					return true;
 				},
 			},
 			UserProfile: {

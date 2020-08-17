@@ -12,14 +12,17 @@
 		"PGPASSWORD",
 		"PGPORT",
 		"PGUSER",
+		"avatarfull",
 		"influxdata",
 		"influxdb",
 		"inversify",
 		"kafkajs",
 		"leaderboard",
+		"matchid",
 		"mmrs",
 		"openapidocs",
 		"postgres",
+		"signup",
 		"steamid",
 		"typeorm"
 	]

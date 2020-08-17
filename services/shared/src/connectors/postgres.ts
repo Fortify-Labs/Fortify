@@ -5,7 +5,6 @@ import debug = require("debug");
 import { createConnection, Connection } from "typeorm";
 import { User } from "../db/entities/user";
 import { Match } from "../db/entities/match";
-import { MatchPlayer } from "../db/entities/matchPlayer";
 import { MatchSlot } from "../db/entities/matchSlot";
 
 const {
@@ -18,7 +17,6 @@ const {
 	DB_LOG,
 } = process.env;
 
-// TODO: Refactor this to take dynamic entities
 // This way each service could specify the entities needed instead of all
 @injectable()
 export class PostgresConnector {
@@ -85,12 +83,6 @@ export class PostgresConnector {
 	async getMatchSlotRepo() {
 		return this.connection.then((connection) =>
 			connection.getRepository(MatchSlot),
-		);
-	}
-
-	async getMatchPlayerRepo() {
-		return this.connection.then((connection) =>
-			connection.getRepository(MatchPlayer),
 		);
 	}
 }

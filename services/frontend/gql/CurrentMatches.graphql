@@ -8,9 +8,7 @@ query CurrentMatches($limit: Int, $offset: Int) {
 			matchSlotID
 			slot
 			user {
-				name
-			}
-			matchPlayer {
+				steamid
 				name
 			}
 		}

@@ -8,7 +8,7 @@ export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type RequireFields<T, K extends keyof T> = { [X in Exclude<keyof T, K>]?: T[X] } & { [P in K]-?: NonNullable<T[P]> };
 
-// Generated on 2020-08-14T19:32:25+02:00
+// Generated on 2020-08-17T19:21:59+02:00
 
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
@@ -41,6 +41,7 @@ export type Query = {
   currentMatches?: Maybe<Array<Maybe<Match>>>;
   lobby?: Maybe<Lobby>;
   profile?: Maybe<UserProfile>;
+  status?: Maybe<SystemStatus>;
   /** Returns the current package.json version */
   version: Scalars['String'];
 };
@@ -68,6 +69,7 @@ export type Mutation = {
   addUser: Scalars['String'];
   generateGsiJwt: Scalars['String'];
   removeUser: Scalars['Boolean'];
+  updateProfile?: Maybe<Scalars['Boolean']>;
 };
 
 
@@ -83,6 +85,11 @@ export type MutationGenerateGsiJwtArgs = {
 
 export type MutationRemoveUserArgs = {
   steamid: Scalars['String'];
+};
+
+
+export type MutationUpdateProfileArgs = {
+  profile: ProfileInput;
 };
 
 export type Subscription = {
@@ -110,6 +117,12 @@ export type AuthenticatedObject = {
   user?: Maybe<UserProfile>;
 };
 
+export type SystemStatus = {
+  __typename?: 'SystemStatus';
+  loginDisabled?: Maybe<Scalars['Boolean']>;
+  signupDisabled?: Maybe<Scalars['Boolean']>;
+};
+
 export type Lobby = {
   __typename?: 'Lobby';
   id: Scalars['ID'];
@@ -124,9 +137,7 @@ export type LobbySlot = {
   __typename?: 'LobbySlot';
   lobbySlotId: Scalars['ID'];
   slot?: Maybe<Scalars['Int']>;
-  /** If no user profile is returned, matchPlayer will be populated instead */
   user?: Maybe<UserProfile>;
-  matchPlayer?: Maybe<MatchPlayer>;
 };
 
 export type Match = {
@@ -147,13 +158,6 @@ export type MatchSlot = {
   match?: Maybe<Match>;
   /** If no user profile is returned, matchPlayer will be populated instead */
   user?: Maybe<UserProfile>;
-  matchPlayer?: Maybe<MatchPlayer>;
-};
-
-export type MatchPlayer = {
-  __typename?: 'MatchPlayer';
-  steamid: Scalars['ID'];
-  name?: Maybe<Scalars['String']>;
 };
 
 export type UserProfile = {
@@ -161,6 +165,7 @@ export type UserProfile = {
   steamid: Scalars['ID'];
   name?: Maybe<Scalars['String']>;
   profilePicture?: Maybe<Scalars['String']>;
+  publicProfile?: Maybe<Scalars['Boolean']>;
   mmr?: Maybe<Scalars['Int']>;
   leaderboardRank?: Maybe<Scalars['Int']>;
   rank?: Maybe<Scalars['String']>;
@@ -188,6 +193,11 @@ export type MmrHistory = {
   date?: Maybe<Scalars['Date']>;
   mmr?: Maybe<Scalars['Int']>;
   rank?: Maybe<Scalars['Int']>;
+};
+
+export type ProfileInput = {
+  steamid?: Maybe<Scalars['ID']>;
+  public?: Maybe<Scalars['Boolean']>;
 };
 
 export type WithIndex<TObject> = TObject & Record<string, any>;
@@ -280,13 +290,14 @@ export type ResolversTypes = ResolversObject<{
   Date: ResolverTypeWrapper<Scalars['Date']>;
   UserInput: UserInput;
   AuthenticatedObject: ResolverTypeWrapper<AuthenticatedObject>;
+  SystemStatus: ResolverTypeWrapper<SystemStatus>;
   Lobby: ResolverTypeWrapper<Lobby>;
   LobbySlot: ResolverTypeWrapper<LobbySlot>;
   Match: ResolverTypeWrapper<Match>;
   MatchSlot: ResolverTypeWrapper<MatchSlot>;
-  MatchPlayer: ResolverTypeWrapper<MatchPlayer>;
   UserProfile: ResolverTypeWrapper<UserProfile>;
   MMRHistory: ResolverTypeWrapper<MmrHistory>;
+  ProfileInput: ProfileInput;
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -301,13 +312,14 @@ export type ResolversParentTypes = ResolversObject<{
   Date: Scalars['Date'];
   UserInput: UserInput;
   AuthenticatedObject: AuthenticatedObject;
+  SystemStatus: SystemStatus;
   Lobby: Lobby;
   LobbySlot: LobbySlot;
   Match: Match;
   MatchSlot: MatchSlot;
-  MatchPlayer: MatchPlayer;
   UserProfile: UserProfile;
   MMRHistory: MmrHistory;
+  ProfileInput: ProfileInput;
 }>;
 
 export type AuthDirectiveArgs = {   requires?: Maybe<Scope>; };
@@ -320,6 +332,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   currentMatches?: Resolver<Maybe<Array<Maybe<ResolversTypes['Match']>>>, ParentType, ContextType, RequireFields<QueryCurrentMatchesArgs, never>>;
   lobby?: Resolver<Maybe<ResolversTypes['Lobby']>, ParentType, ContextType, RequireFields<QueryLobbyArgs, never>>;
   profile?: Resolver<Maybe<ResolversTypes['UserProfile']>, ParentType, ContextType, RequireFields<QueryProfileArgs, never>>;
+  status?: Resolver<Maybe<ResolversTypes['SystemStatus']>, ParentType, ContextType>;
   version?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 }>;
 
@@ -328,6 +341,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   addUser?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationAddUserArgs, 'user'>>;
   generateGsiJwt?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationGenerateGsiJwtArgs, never>>;
   removeUser?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRemoveUserArgs, 'steamid'>>;
+  updateProfile?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationUpdateProfileArgs, 'profile'>>;
 }>;
 
 export type SubscriptionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = ResolversObject<{
@@ -345,6 +359,12 @@ export type AuthenticatedObjectResolvers<ContextType = Context, ParentType exten
   __isTypeOf?: IsTypeOfResolverFn<ParentType>;
 }>;
 
+export type SystemStatusResolvers<ContextType = Context, ParentType extends ResolversParentTypes['SystemStatus'] = ResolversParentTypes['SystemStatus']> = ResolversObject<{
+  loginDisabled?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  signupDisabled?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType>;
+}>;
+
 export type LobbyResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Lobby'] = ResolversParentTypes['Lobby']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   averageMMR?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
@@ -358,7 +378,6 @@ export type LobbySlotResolvers<ContextType = Context, ParentType extends Resolve
   lobbySlotId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   slot?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   user?: Resolver<Maybe<ResolversTypes['UserProfile']>, ParentType, ContextType>;
-  matchPlayer?: Resolver<Maybe<ResolversTypes['MatchPlayer']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType>;
 }>;
 
@@ -377,13 +396,6 @@ export type MatchSlotResolvers<ContextType = Context, ParentType extends Resolve
   duration?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   match?: Resolver<Maybe<ResolversTypes['Match']>, ParentType, ContextType>;
   user?: Resolver<Maybe<ResolversTypes['UserProfile']>, ParentType, ContextType>;
-  matchPlayer?: Resolver<Maybe<ResolversTypes['MatchPlayer']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType>;
-}>;
-
-export type MatchPlayerResolvers<ContextType = Context, ParentType extends ResolversParentTypes['MatchPlayer'] = ResolversParentTypes['MatchPlayer']> = ResolversObject<{
-  steamid?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
-  name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType>;
 }>;
 
@@ -391,6 +403,7 @@ export type UserProfileResolvers<ContextType = Context, ParentType extends Resol
   steamid?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   profilePicture?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  publicProfile?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   mmr?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   leaderboardRank?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   rank?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
@@ -414,11 +427,11 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   Subscription?: SubscriptionResolvers<ContextType>;
   Date?: GraphQLScalarType;
   AuthenticatedObject?: AuthenticatedObjectResolvers<ContextType>;
+  SystemStatus?: SystemStatusResolvers<ContextType>;
   Lobby?: LobbyResolvers<ContextType>;
   LobbySlot?: LobbySlotResolvers<ContextType>;
   Match?: MatchResolvers<ContextType>;
   MatchSlot?: MatchSlotResolvers<ContextType>;
-  MatchPlayer?: MatchPlayerResolvers<ContextType>;
   UserProfile?: UserProfileResolvers<ContextType>;
   MMRHistory?: MmrHistoryResolvers<ContextType>;
 }>;

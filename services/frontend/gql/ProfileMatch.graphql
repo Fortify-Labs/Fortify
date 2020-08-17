@@ -9,6 +9,7 @@ query ProfileMatch($steamid: ID) {
 			duration
 
 			match {
+				id
 				averageMMR
 			}
 		}
