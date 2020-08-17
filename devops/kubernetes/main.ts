@@ -965,11 +965,11 @@ export class Fortify extends Chart {
 			version: frontendPackage.version,
 			env: [
 				{
-					name: "GRAPHQL_URI",
+					name: "NEXT_PUBLIC_GRAPHQL_URI",
 					value: `https://api.${DOMAIN}/graphql`,
 				},
 				{
-					name: "GRAPHQL_WS_URI",
+					name: "NEXT_PUBLIC_GRAPHQL_WS_URI",
 					value: `wss://api.${DOMAIN}/graphql`,
 				},
 				{
