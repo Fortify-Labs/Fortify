@@ -12,6 +12,8 @@ import classNames from "classnames";
 import { RecentMatchesTable } from "../../components/profile/recentMatches";
 import { MmrHistory } from "../../components/profile/mmrHistory";
 import { NextSeo } from "next-seo";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSteam, faTwitch } from "@fortawesome/free-brands-svg-icons";
 
 const { NEXT_PUBLIC_URL } = process.env;
 
@@ -92,6 +94,10 @@ const Profile = () => {
 												).plus("76561197960265728")}`}
 												target="_blank"
 											>
+												<FontAwesomeIcon
+													icon={faSteam}
+													size="1x"
+												/>{" "}
 												Steam
 											</a>
 										</ul>
@@ -104,6 +110,10 @@ const Profile = () => {
 													)}`}
 													target="_blank"
 												>
+													<FontAwesomeIcon
+														icon={faTwitch}
+														size="1x"
+													/>{" "}
 													Twitch
 												</a>
 											</ul>
