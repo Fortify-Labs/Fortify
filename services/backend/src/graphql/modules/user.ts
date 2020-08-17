@@ -1,7 +1,7 @@
 import { injectable, inject } from "inversify";
 
 import { GQLModule } from "definitions/module";
-import { gql } from "apollo-server-express";
+import { gql, ApolloError } from "apollo-server-express";
 import { Resolvers, MmrHistory } from "definitions/graphql/types";
 import { PostgresConnector } from "@shared/connectors/postgres";
 import { InfluxDBConnector } from "@shared/connectors/influxdb";
@@ -38,7 +38,7 @@ export class UserModule implements GQLModule {
 
 	typeDef = gql`
 		extend type Query {
-			profile(steamid: ID): UserProfile @auth(requires: USER)
+			profile(steamid: ID): UserProfile
 		}
 
 		type UserProfile {
@@ -83,17 +83,28 @@ export class UserModule implements GQLModule {
 		return {
 			Query: {
 				async profile(_parent, { steamid }, context) {
-					let userID = context.user.id;
+					let userID = context.user?.id;
 
-					if (
-						context.scopes.includes(PermissionScope.Admin) &&
-						steamid
-					) {
+					if (steamid) {
 						userID = steamid;
 					}
 
 					const userRepo = await postgres.getUserRepo();
-					return userRepo.findOneOrFail(userID);
+					const user = await userRepo.findOneOrFail(userID);
+
+					const allowed =
+						user.publicProfile ||
+						context.scopes?.includes(PermissionScope.Admin) ||
+						userID === context.user?.id;
+
+					if (!allowed) {
+						throw new ApolloError(
+							"Unauthorized to view player profile",
+							"QUERY_PROFILE_NOT_ALLOWED",
+						);
+					}
+
+					return user;
 				},
 			},
 			UserProfile: {
