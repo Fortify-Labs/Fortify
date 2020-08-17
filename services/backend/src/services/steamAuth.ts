@@ -20,7 +20,7 @@ const {
 	APP_SUCCESSFUL_AUTH_RETURN_URL = "/",
 	APP_STEAM_RETURN_URL,
 	JWT_SECRET,
-	STEAM_APIKEY,
+	STEAM_WEB_API_KEY,
 } = process.env;
 
 export interface NodeSteamPassportProfileJSON {
@@ -129,7 +129,7 @@ export class SteamAuthMiddleware {
 		passport.use(
 			new SteamStrategy(
 				{
-					apiKey: STEAM_APIKEY,
+					apiKey: STEAM_WEB_API_KEY,
 					realm: APP_URL,
 					returnURL: APP_STEAM_RETURN_URL,
 				},
