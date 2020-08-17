@@ -14,16 +14,19 @@ import { MmrHistory } from "../../components/profile/mmrHistory";
 import { NextSeo } from "next-seo";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSteam, faTwitch } from "@fortawesome/free-brands-svg-icons";
+import { useUpdateProfileMutation } from "gql/UpdateProfile.graphql";
 
 const { NEXT_PUBLIC_URL } = process.env;
 
 const Profile = () => {
 	const router = useRouter();
 	const { id } = router.query;
-	const { data, loading, error } = useProfileQuery({
+	const { data, loading, error, refetch } = useProfileQuery({
 		variables: { steamid: id?.toString() },
 	});
 	const { profile } = data ?? {};
+
+	const [updateProfileMutation] = useUpdateProfileMutation();
 
 	const tabContents = {
 		matches: <RecentMatchesTable steamid={id?.toString()} />,
@@ -86,23 +89,51 @@ const Profile = () => {
 										Rank: {profile?.leaderboardRank}
 									</HStack>
 
+									<hr />
+
 									<div className="content">
-										<ul style={{ marginLeft: "1rem" }}>
-											<a
-												href={`https://steamcommunity.com/profiles/${new BigNumber(
-													profile?.steamid ?? ""
-												).plus("76561197960265728")}`}
-												target="_blank"
-											>
-												<FontAwesomeIcon
-													icon={faSteam}
-													size="1x"
-												/>{" "}
-												Steam
-											</a>
-										</ul>
+										<label className="checkbox">
+											<input
+												type="checkbox"
+												checked={
+													profile?.publicProfile ??
+													false
+												}
+												onChange={async (event) => {
+													const checked =
+														event.target.checked;
+
+													await updateProfileMutation(
+														{
+															variables: {
+																profile: {
+																	public: checked,
+																},
+															},
+														}
+													);
+
+													await refetch();
+												}}
+											/>{" "}
+											Public Player Profile
+										</label>{" "}
+										<hr />
+										<a
+											href={`https://steamcommunity.com/profiles/${new BigNumber(
+												profile?.steamid ?? ""
+											).plus("76561197960265728")}`}
+											target="_blank"
+										>
+											<FontAwesomeIcon
+												icon={faSteam}
+												size="1x"
+											/>{" "}
+											Steam
+										</a>{" "}
+										<br /> <br />
 										{profile?.twitchName && (
-											<ul style={{ marginLeft: "1rem" }}>
+											<>
 												<a
 													href={`https://twitch.tv/${profile?.twitchName.replace(
 														"#",
@@ -116,13 +147,18 @@ const Profile = () => {
 													/>{" "}
 													Twitch
 												</a>
-											</ul>
+												<br />
+											</>
 										)}
-										{/* <ul style={{ marginLeft: "1rem" }}>
-											<a href="" target="_blank">
-												Discord
-											</a>
-										</ul> */}
+										{/* <a
+											href=""
+											target="_blank"
+											style={{
+												marginLeft: "1rem",
+											}}
+										>
+											Discord
+										</a> */}
 									</div>
 								</VStack>
 							</div>

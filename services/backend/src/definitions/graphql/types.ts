@@ -8,7 +8,7 @@ export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type RequireFields<T, K extends keyof T> = { [X in Exclude<keyof T, K>]?: T[X] } & { [P in K]-?: NonNullable<T[P]> };
 
-// Generated on 2020-08-17T00:27:43+02:00
+// Generated on 2020-08-17T19:21:59+02:00
 
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
@@ -69,6 +69,7 @@ export type Mutation = {
   addUser: Scalars['String'];
   generateGsiJwt: Scalars['String'];
   removeUser: Scalars['Boolean'];
+  updateProfile?: Maybe<Scalars['Boolean']>;
 };
 
 
@@ -84,6 +85,11 @@ export type MutationGenerateGsiJwtArgs = {
 
 export type MutationRemoveUserArgs = {
   steamid: Scalars['String'];
+};
+
+
+export type MutationUpdateProfileArgs = {
+  profile: ProfileInput;
 };
 
 export type Subscription = {
@@ -159,6 +165,7 @@ export type UserProfile = {
   steamid: Scalars['ID'];
   name?: Maybe<Scalars['String']>;
   profilePicture?: Maybe<Scalars['String']>;
+  publicProfile?: Maybe<Scalars['Boolean']>;
   mmr?: Maybe<Scalars['Int']>;
   leaderboardRank?: Maybe<Scalars['Int']>;
   rank?: Maybe<Scalars['String']>;
@@ -186,6 +193,11 @@ export type MmrHistory = {
   date?: Maybe<Scalars['Date']>;
   mmr?: Maybe<Scalars['Int']>;
   rank?: Maybe<Scalars['Int']>;
+};
+
+export type ProfileInput = {
+  steamid?: Maybe<Scalars['ID']>;
+  public?: Maybe<Scalars['Boolean']>;
 };
 
 export type WithIndex<TObject> = TObject & Record<string, any>;
@@ -285,6 +297,7 @@ export type ResolversTypes = ResolversObject<{
   MatchSlot: ResolverTypeWrapper<MatchSlot>;
   UserProfile: ResolverTypeWrapper<UserProfile>;
   MMRHistory: ResolverTypeWrapper<MmrHistory>;
+  ProfileInput: ProfileInput;
 }>;
 
 /** Mapping between all available schema types and the resolvers parents */
@@ -306,6 +319,7 @@ export type ResolversParentTypes = ResolversObject<{
   MatchSlot: MatchSlot;
   UserProfile: UserProfile;
   MMRHistory: MmrHistory;
+  ProfileInput: ProfileInput;
 }>;
 
 export type AuthDirectiveArgs = {   requires?: Maybe<Scope>; };
@@ -327,6 +341,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
   addUser?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationAddUserArgs, 'user'>>;
   generateGsiJwt?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<MutationGenerateGsiJwtArgs, never>>;
   removeUser?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<MutationRemoveUserArgs, 'steamid'>>;
+  updateProfile?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationUpdateProfileArgs, 'profile'>>;
 }>;
 
 export type SubscriptionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = ResolversObject<{
@@ -388,6 +403,7 @@ export type UserProfileResolvers<ContextType = Context, ParentType extends Resol
   steamid?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   profilePicture?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  publicProfile?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   mmr?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   leaderboardRank?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   rank?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;

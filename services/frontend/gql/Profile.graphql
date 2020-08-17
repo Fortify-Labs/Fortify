@@ -3,6 +3,7 @@ query Profile($steamid: ID) {
 		steamid
 		name
 		profilePicture
+		publicProfile
 		mmr
 		leaderboardRank
 		rank
