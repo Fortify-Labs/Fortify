@@ -9,7 +9,7 @@ export class StateTransformationService {
 
 	async loadState(steamid: string): Promise<FortifyPlayerState> {
 		// Fetch player state from redis
-		const rawState = await this.redis.getAsync("ps_" + steamid);
+		const rawState = await this.redis.getAsync("ps:" + steamid);
 
 		// Check for null
 		const state: FortifyPlayerState = rawState
@@ -21,8 +21,8 @@ export class StateTransformationService {
 
 	async saveState(state: FortifyPlayerState, steamid: string) {
 		const stringifiedState = JSON.stringify(state);
-		await this.redis.setAsync("ps_" + steamid, stringifiedState);
-		await this.redis.publishAsync("ps_" + steamid, stringifiedState);
+		await this.redis.setAsync("ps:" + steamid, stringifiedState);
+		await this.redis.publishAsync("ps:" + steamid, stringifiedState);
 
 		return true;
 	}

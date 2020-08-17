@@ -65,7 +65,7 @@ export class LobbyModule implements GQLModule {
 						id = args.id;
 					}
 
-					const rawFPS = await redis.getAsync(`ps_${id}`);
+					const rawFPS = await redis.getAsync(`ps:${id}`);
 					if (!rawFPS) {
 						throw new ApolloError(
 							`Could not find player state for ${id}`,
@@ -111,7 +111,7 @@ export class LobbyModule implements GQLModule {
 							id = args.id;
 						}
 
-						return pubSub.asyncIterator(`ps_${id}`);
+						return pubSub.asyncIterator(`ps:${id}`);
 					},
 					async resolve(
 						payload: FortifyPlayerState,
@@ -166,7 +166,7 @@ export class LobbyModule implements GQLModule {
 					// 	userID = parent.id;
 					// }
 
-					const rawFPS = await redis.getAsync(`ps_${userID}`);
+					const rawFPS = await redis.getAsync(`ps:${userID}`);
 
 					const fps: FortifyPlayerState = rawFPS
 						? JSON.parse(rawFPS)

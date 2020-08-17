@@ -30,7 +30,7 @@ export class ExtractorService {
 	}
 
 	async getPlayerState(steamid: string): Promise<FortifyPlayerState | null> {
-		const player_state = await this.redis.getAsync("ps_" + steamid);
+		const player_state = await this.redis.getAsync("ps:" + steamid);
 
 		if (player_state) {
 			const fps: FortifyPlayerState = JSON.parse(player_state);
