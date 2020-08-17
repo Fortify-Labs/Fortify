@@ -66,7 +66,13 @@ const Index = () => {
 
 				{!authenticated && (
 					<>
-						<div className={classNames("columns", styles.columns)}>
+						<div
+							className={classNames(
+								"columns",
+								"content",
+								styles.columns
+							)}
+						>
 							<div className="column is-half is-offset-one-quarter">
 								<HStack
 									style={{ alignItems: "center" }}
@@ -193,7 +199,11 @@ const Index = () => {
 
 				{authenticated && (
 					<div
-						className={classNames("columns", styles.columns)}
+						className={classNames(
+							"columns",
+							"content",
+							styles.columns
+						)}
 						style={{ margin: "1rem" }}
 					>
 						<div
