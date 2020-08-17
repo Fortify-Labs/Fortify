@@ -24,7 +24,7 @@
 	},
 	"drow_ranger": {
 		"displayName": "Drow Ranger",
-		"alts": ["drow ranger", "drow", "sylvanas", "traxex", "trax"]
+		"alts": ["drow ranger", "drow", "dr", "sylvanas", "traxex", "trax"]
 	},
 	"magnus": {
 		"displayName": "Magnus",
@@ -32,7 +32,7 @@
 	},
 	"nyx_assassin": {
 		"displayName": "Nyx Assassin",
-		"alts": ["nyx assassin", "nyx", "nix", "anubarak"]
+		"alts": ["nyx assassin", "nyx", "nix", "bug", "anubarak"]
 	},
 	"razor": {
 		"displayName": "Razor",
@@ -48,11 +48,11 @@
 	},
 	"tiny": {
 		"displayName": "Tiny",
-		"alts": ["tiny", "tony", "little rock", "stone giant"]
+		"alts": ["tiny", "tony", "little rock", "stone giant", "rock", "stone"]
 	},
 	"tusk": {
 		"displayName": "Tusk",
-		"alts": ["tusk", "walrus", "tuskarr", "ymir"]
+		"alts": ["tusk", "walrus", "one punch man", "tuskarr", "ymir"]
 	},
 	"venomancer": {
 		"displayName": "Venomancer",
@@ -66,11 +66,11 @@
 	},
 	"warlock": {
 		"displayName": "Mr. Warlock",
-		"alts": ["mr. warlock", "demnok", "demnok lamnik"]
+		"alts": ["mr. warlock", "demnok", "demnok lannik"]
 	},
 	"weaver": {
 		"displayName": "Weaver",
-		"alts": ["weaver", "anubseran", "skitskurr"]
+		"alts": ["weaver", "anubseran", "cockroach", "skitskurr"]
 	},
 	"beastmaster": {
 		"displayName": "Beastmaster",
@@ -78,7 +78,17 @@
 	},
 	"bristleback": {
 		"displayName": "Bristleback",
-		"alts": ["bristleback", "bb", "bristle", "bristle back", "brus", "rigwarl"]
+		"alts": [
+			"bristleback",
+			"bb",
+			"bristle",
+			"bristle back",
+			"pig",
+			"brus",
+			"rigwarl",
+			"bristlebok",
+			"bristlebog"
+		]
 	},
 	"chaos_knight": {
 		"displayName": "Chaos Knight",
@@ -110,11 +120,11 @@
 	},
 	"pudge": {
 		"displayName": "Pudge",
-		"alts": ["pudge", "butcher", "fresh meat"]
+		"alts": ["pudge", "butcher", "patches", "stitches", "fresh meat"]
 	},
 	"queen_of_pain": {
 		"displayName": "Queen of Pain",
-		"alts": ["queen of pain", "qop", "queen", "akasha"]
+		"alts": ["queen of pain", "qop", "queen", "qop of pain", "akasha"]
 	},
 	"slardar": {
 		"displayName": "Slardar",
@@ -122,7 +132,14 @@
 	},
 	"storm_spirit": {
 		"displayName": "Storm Spirit",
-		"alts": ["storm spirit", "storm", "zip zap", "raijin", "raijin thunderkeg"]
+		"alts": [
+			"storm spirit",
+			"storm",
+			"zip zap",
+			"handsome devil",
+			"raijin",
+			"raijin thunderkeg"
+		]
 	},
 	"wind_ranger": {
 		"displayName": "Windranger",
@@ -152,12 +169,15 @@
 			"brood",
 			"brood mother",
 			"black arachnia",
-			"broodmama"
+			"broodmama",
+			"brood mama",
+			"mother comes",
+			"spider"
 		]
 	},
 	"ember_spirit": {
 		"displayName": "Ember Spirit",
-		"alts": ["ember spirit", "ember", "xin"]
+		"alts": ["ember spirit", "ember", "imba", "imba spirit", "xin"]
 	},
 	"enigma": {
 		"displayName": "Enigma",
@@ -209,7 +229,14 @@
 	},
 	"treant_protector": {
 		"displayName": "Treant Protector",
-		"alts": ["treant protector", "treant", "tree", "tp", "rooftrellen"]
+		"alts": [
+			"treant protector",
+			"treant",
+			"tree",
+			"tp",
+			"tree daddy",
+			"rooftrellen"
+		]
 	},
 	"viper": {
 		"displayName": "Viper",
@@ -221,7 +248,7 @@
 	},
 	"doom": {
 		"displayName": "Doom",
-		"alts": ["doom", "doombringer", "lucifer"]
+		"alts": ["doom", "doombringer", "doom bringer", "lucifer"]
 	},
 	"keeper_of_the_light": {
 		"displayName": "Keeper of the Light",
@@ -231,6 +258,10 @@
 			"keeper",
 			"kotol",
 			"kotol of the light",
+			"kotl of the light",
+			"kotol of the light",
+			"kontol",
+			"giff me mana",
 			"ezalor"
 		]
 	},
@@ -248,7 +279,13 @@
 	},
 	"mirana": {
 		"displayName": "Mirana",
-		"alts": ["mirana", "priestess of the moon", "potm", "princess of the moon"]
+		"alts": [
+			"mirana",
+			"priestess of the moon",
+			"potm",
+			"princess of the moon",
+			"potm of the moon"
+		]
 	},
 	"necrophos": {
 		"displayName": "Necrophos",
@@ -256,11 +293,17 @@
 	},
 	"slark": {
 		"displayName": "Slark",
-		"alts": ["slark", "small fish", "nightcrawler", "murloc nightcrawler"]
+		"alts": [
+			"slark",
+			"small fish",
+			"murloc",
+			"nightcrawler",
+			"murloc nightcrawler"
+		]
 	},
 	"sven": {
 		"displayName": "Sven",
-		"alts": ["sven", "rogue knight"]
+		"alts": ["sven", "rogue knight", "rk"]
 	},
 	"templar_assassin": {
 		"displayName": "Templar Assassin",
@@ -274,6 +317,9 @@
 			"tide",
 			"TH",
 			"watermelon",
+			"big fish",
+			"melon",
+			"kraken",
 			"leviathan"
 		]
 	},
@@ -303,7 +349,7 @@
 	},
 	"sand_king": {
 		"displayName": "Sand King",
-		"alts": ["sand king", "sk", "crixalis"]
+		"alts": ["sand king", "sk", "scorpion", "crixalis"]
 	},
 	"troll_warlord": {
 		"displayName": "Troll Warlord",
