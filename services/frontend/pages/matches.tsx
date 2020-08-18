@@ -3,8 +3,6 @@ import { Navbar } from "../components/navbar";
 import { useCurrentMatchesQuery } from "../gql/CurrentMatches.graphql";
 import { NextSeo } from "next-seo";
 
-const { NEXT_PUBLIC_URL } = process.env;
-
 const Matches = () => {
 	const { loading, data, error } = useCurrentMatchesQuery({
 		variables: {
@@ -19,7 +17,7 @@ const Matches = () => {
 				title="Matches | Fortify"
 				description="Currently ongoing Dota Underlords matches"
 				openGraph={{
-					url: `${NEXT_PUBLIC_URL}/matches`,
+					url: `${process.env.NEXT_PUBLIC_URL}/matches`,
 					title: "Matches | Fortify",
 					description: "Currently ongoing Dota Underlords matches",
 				}}

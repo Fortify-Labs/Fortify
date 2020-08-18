@@ -16,8 +16,6 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSteam, faTwitch } from "@fortawesome/free-brands-svg-icons";
 import { useUpdateProfileMutation } from "gql/UpdateProfile.graphql";
 
-const { NEXT_PUBLIC_URL } = process.env;
-
 const Profile = () => {
 	const router = useRouter();
 	const { id } = router.query;
@@ -46,7 +44,7 @@ const Profile = () => {
 					profile?.mmr ?? 0
 				}; Leaderboard Rank: ${profile?.leaderboardRank ?? 0}`}
 				openGraph={{
-					url: `${NEXT_PUBLIC_URL}/profile/${profile?.steamid}`,
+					url: `${process.env.NEXT_PUBLIC_URL}/profile/${profile?.steamid}`,
 					title: `${profile?.name ?? "Private"} Profile | Fortify`,
 					description: `Rank: ${profile?.rank ?? 0}; MMR: ${
 						profile?.mmr ?? 0

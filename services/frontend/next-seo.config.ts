@@ -1,7 +1,5 @@
 import { DefaultSeoProps } from "next-seo";
 
-const { NEXT_PUBLIC_URL } = process.env;
-
 export default {
 	openGraph: {
 		type: "website",
@@ -9,7 +7,7 @@ export default {
 		site_name: "Fortify",
 		images: [
 			{
-				url: `${NEXT_PUBLIC_URL}/favicon.ico`,
+				url: `${process.env.NEXT_PUBLIC_URL}/favicon.ico`,
 			},
 		],
 	},

@@ -22,8 +22,6 @@ import { GSIModal } from "components/gsiModal";
 import { useState } from "react";
 import { NextSeo } from "next-seo";
 
-const { NEXT_PUBLIC_URL } = process.env;
-
 const Index = () => {
 	const { data } = useAuthenticatedQuery();
 	const { authenticated, user } = data?.authenticated ?? {};
@@ -36,7 +34,7 @@ const Index = () => {
 				title="Fortify"
 				description="Open Source Dota Underlords Data Platform"
 				openGraph={{
-					url: `${NEXT_PUBLIC_URL}`,
+					url: `${process.env.NEXT_PUBLIC_URL}`,
 					title: "Fortify",
 					description: "Open Source Dota Underlords Data Platform",
 				}}
