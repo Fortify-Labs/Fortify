@@ -126,6 +126,12 @@ const { KAFKA_FROM_START, KAFKA_GROUP_ID = "17kmmrbot-group" } = process.env;
 
 	const connected = await client.connect();
 
+	client.on("disconnected", async (reason) => {
+		debug("app::main::disconnected")(reason);
+
+		await client.connect();
+	});
+
 	debug("app::main")("Twitch bot connected");
 	debug("app::main")(connected);
 })().catch(debug("app::main"));

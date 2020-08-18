@@ -1,20 +1,21 @@
-import withApollo from "../../lib/with-apollo";
-import { Navbar } from "../../components/navbar";
 import { useRouter } from "next/router";
-import { useProfileQuery } from "../../gql/Profile.graphql";
-import { VStack } from "../../components/vstack";
-import { HStack } from "../../components/hstack";
-
 import Link from "next/link";
+import { NextSeo } from "next-seo";
+import withApollo from "lib/with-apollo";
 
 import { BigNumber } from "bignumber.js";
 import classNames from "classnames";
-import { RecentMatchesTable } from "../../components/profile/recentMatches";
-import { MmrHistory } from "../../components/profile/mmrHistory";
-import { NextSeo } from "next-seo";
+
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSteam, faTwitch } from "@fortawesome/free-brands-svg-icons";
+import { Navbar } from "components/navbar";
+import { VStack } from "components/vstack";
+import { HStack } from "components/hstack";
+import { RecentMatchesTable } from "components/profile/recentMatches";
+import { MmrHistory } from "components/profile/mmrHistory";
+
 import { useUpdateProfileMutation } from "gql/UpdateProfile.graphql";
+import { useProfileQuery } from "gql/Profile.graphql";
 
 const Profile = () => {
 	const router = useRouter();
@@ -49,6 +50,13 @@ const Profile = () => {
 					description: `Rank: ${profile?.rank ?? 0}; MMR: ${
 						profile?.mmr ?? 0
 					}; Leaderboard Rank: ${profile?.leaderboardRank ?? 0}`,
+					images: [
+						{
+							url:
+								profile?.profilePicture ??
+								`${process.env.NEXT_PUBLIC_URL}/favicon.ico`,
+						},
+					],
 				}}
 			/>
 
@@ -107,6 +115,7 @@ const Profile = () => {
 															variables: {
 																profile: {
 																	public: checked,
+																	steamid: id?.toString(),
 																},
 															},
 														}

@@ -23,11 +23,11 @@ export class DBCleanupScript implements FortifyScript {
 
 		const oldMatches = await matchRepo
 			.createQueryBuilder("matches")
-			.where('"created" = "updated"')
-			.andWhere('"ended" IS NULL')
+			.where('"matches"."created" = "matches"."updated"')
+			.andWhere('"matches"."ended" IS NULL')
 			// Do not delete any match entries of the past two hours
 			// The idea behind that is to not accidentally delete started matches
-			.andWhere("\"created\" <= (NOW() - INTERVAL '2 HOURS')")
+			.andWhere('"matches"."created" <= (NOW() - INTERVAL \'2 HOURS\')')
 			.leftJoinAndSelect("matches.slots", "slots")
 			// })
 			.getMany();
