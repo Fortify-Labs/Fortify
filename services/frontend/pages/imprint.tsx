@@ -2,8 +2,6 @@ import { Navbar } from "../components/navbar";
 import withApollo from "../lib/with-apollo";
 import { NextSeo } from "next-seo";
 
-const { NEXT_PUBLIC_URL } = process.env;
-
 const Imprint = () => {
 	return (
 		<>
@@ -11,7 +9,7 @@ const Imprint = () => {
 				title="Imprint | Fortify"
 				description="Imprint Fortify"
 				openGraph={{
-					url: `${NEXT_PUBLIC_URL}/imprint`,
+					url: `${process.env.NEXT_PUBLIC_URL}/imprint`,
 					title: "Imprint | Fortify",
 					description: "Imprint Fortify",
 				}}

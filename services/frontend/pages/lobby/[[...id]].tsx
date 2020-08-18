@@ -10,8 +10,6 @@ import { PoolViewer } from "components/lobby/pool";
 
 import { useLobbySubscription } from "gql/LobbySubscription.graphql";
 
-const { NEXT_PUBLIC_URL } = process.env;
-
 const Lobby = () => {
 	const router = useRouter();
 	const { id: queryID, tab: queryTab } = router.query;
@@ -32,7 +30,7 @@ const Lobby = () => {
 			<NextSeo
 				title="Match Lobby | Fortify"
 				openGraph={{
-					url: `${NEXT_PUBLIC_URL}/lobby/${id}`,
+					url: `${process.env.NEXT_PUBLIC_URL}/lobby/${id}`,
 					title: "Match Lobby | Fortify",
 				}}
 			/>

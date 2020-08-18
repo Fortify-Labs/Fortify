@@ -14,8 +14,6 @@ import packageJSON from "../package.json";
 import { useAuthenticatedQuery } from "../gql/Authenticated.graphql";
 import { useVersionQuery } from "../gql/Version.graphql";
 
-const { NEXT_PUBLIC_LOGIN_URL = "/" } = process.env;
-
 export const Navbar = () => {
 	const [isActive, setIsActive] = useState(false);
 
@@ -79,7 +77,7 @@ export const Navbar = () => {
 							<div className="buttons">
 								<a
 									className="button is-primary is-inverted"
-									href={NEXT_PUBLIC_LOGIN_URL}
+									href={process.env.NEXT_PUBLIC_LOGIN_URL}
 								>
 									Log in
 								</a>
