@@ -1182,8 +1182,8 @@ export class Fortify extends Chart {
 			name: "promo",
 			version: jobsPackage.version,
 
-			// Every hour
-			schedule: "0 */3 * * *",
+			// Every other hour
+			schedule: "0 */2 * * *",
 			script: "broadcast",
 
 			env: [
@@ -1193,7 +1193,7 @@ export class Fortify extends Chart {
 				},
 				{
 					name: "MESSAGE",
-					value: "3",
+					value: "2",
 				},
 			],
 			secrets: ["postgres-auth"],
