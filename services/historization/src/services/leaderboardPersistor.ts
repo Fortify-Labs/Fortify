@@ -48,8 +48,8 @@ export class LeaderboardPersistor {
 		const steamids = (
 			await userRepo.find({
 				select: ["steamid"],
-				// Fetch for all registered lords; This is to avoid privacy infringements
-				where: { rankTier: 80, registered: true },
+				// Fetch all lords
+				where: { rankTier: 80 },
 			})
 		).map((channel) => channel.steamid);
 
