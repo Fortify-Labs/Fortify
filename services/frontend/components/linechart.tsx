@@ -1,6 +1,7 @@
 import { FunctionComponent, useRef, useEffect } from "react";
 
 import * as d3 from "d3";
+import { useWindowSize } from "lib/useWindowSize";
 
 export const LineChart: FunctionComponent<{
 	yName?: string;
@@ -21,6 +22,7 @@ export const LineChart: FunctionComponent<{
 	yName,
 	margin = { top: 20, right: 30, bottom: 30, left: 40 },
 }) => {
+	const windowSize = useWindowSize();
 	const ref = useRef<SVGSVGElement>(null);
 
 	useEffect(() => {
@@ -28,6 +30,8 @@ export const LineChart: FunctionComponent<{
 		const height = ref.current?.clientHeight ?? 0;
 
 		const svg = d3.select(ref.current);
+
+		svg.selectAll("*").remove();
 
 		const dateExtent = d3.extent(data, (d) => new Date(d.date));
 
@@ -97,7 +101,7 @@ export const LineChart: FunctionComponent<{
 			.attr("stroke-linejoin", "round")
 			.attr("stroke-linecap", "round")
 			.attr("d", line);
-	}, [data]);
+	}, [data, windowSize]);
 
 	return <svg ref={ref} style={{ width: "100%", height: "40vh" }} />;
 };
