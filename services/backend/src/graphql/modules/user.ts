@@ -43,6 +43,7 @@ export class UserModule implements GQLModule {
 
 		extend type Mutation {
 			updateProfile(profile: ProfileInput!): UserProfile
+				@auth(requires: USER)
 		}
 
 		type UserProfile {
