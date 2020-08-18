@@ -47,7 +47,7 @@ export class BotCommandProcessor {
 				.filter((value) => value);
 
 			for (const channel of channels) {
-				if (BOT_BROADCAST_DISABLED === "true") {
+				if (BOT_BROADCAST_DISABLED !== "true") {
 					await client.say(channel, event.message);
 				}
 				await sleep(1000);
