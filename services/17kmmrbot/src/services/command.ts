@@ -11,6 +11,8 @@ import {
 } from "@shared/events/systemEvents";
 import { PostgresConnector } from "@shared/connectors/postgres";
 
+const { BOT_BROADCAST_DISABLED } = process.env;
+
 @injectable()
 export class BotCommandProcessor {
 	constructor(
@@ -45,7 +47,9 @@ export class BotCommandProcessor {
 				.filter((value) => value);
 
 			for (const channel of channels) {
-				await client.say(channel, event.message);
+				if (BOT_BROADCAST_DISABLED === "true") {
+					await client.say(channel, event.message);
+				}
 				await sleep(1000);
 			}
 		}

@@ -1053,6 +1053,7 @@ export class Fortify extends Chart {
 					valueFrom: { fieldRef: { fieldPath: "metadata.name" } },
 				},
 				{ name: "KAFKA_TOPIC", value: "gsi" },
+				{ name: "BOT_BROADCAST_DISABLED", value: "true" },
 			],
 			secrets: ["postgres-auth", "twitch-bot-secret"],
 			configmaps: ["postgres-config", "redis-config", "kafka-config"],
