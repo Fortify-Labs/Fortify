@@ -87,8 +87,13 @@ const {
 
 	await consumer.run({
 		autoCommit: KAFKA_FROM_START !== "true",
-		eachMessage: async (payload) =>
-			commandProcessor.process(payload, client),
+		eachMessage: async (payload) => {
+			commandProcessor
+				.process(payload, client)
+				.catch(debug("app::consumerRun"));
+
+			return;
+		},
 	});
 
 	client.on("message", async (channel, tags, message, self) => {

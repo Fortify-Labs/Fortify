@@ -60,85 +60,93 @@ const {
 
 	consumer.run({
 		autoCommit: KAFKA_AUTO_COMMIT !== "false" ?? true,
-		eachMessage: async ({ message, topic }) => {
-			const value = message.value.toString();
+		eachMessage: async ({ message, topic }) =>
+			new Promise<void>(async (resolve) => {
+				resolve();
 
-			if (topic === FortifyEventTopics.SYSTEM) {
-				const event: FortifyEvent<SystemEventType> = JSON.parse(value);
-				const steamid = event["steamid"] as string | null;
+				const value = message.value.toString();
 
-				if (steamid) {
-					let state = await stateTransformer.loadState(steamid);
+				if (topic === FortifyEventTopics.SYSTEM) {
+					const event: FortifyEvent<SystemEventType> = JSON.parse(
+						value,
+					);
+					const steamid = event["steamid"] as string | null;
 
-					for (const commandReducer of commandReducers) {
-						state = await commandReducer.processor(state, event);
+					if (steamid) {
+						let state = await stateTransformer.loadState(steamid);
+
+						for (const commandReducer of commandReducers) {
+							state = await commandReducer.processor(
+								state,
+								event,
+							);
+						}
+
+						await stateTransformer.saveState(state, steamid);
 					}
-
-					await stateTransformer.saveState(state, steamid);
 				}
-			}
 
-			if (topic === "gsi") {
-				try {
-					const gsi: Log = JSON.parse(value);
-					const jwt = verify(gsi.auth, JWT_SECRET ?? "");
+				if (topic === "gsi") {
+					try {
+						const gsi: Log = JSON.parse(value);
+						const jwt = verify(gsi.auth, JWT_SECRET ?? "");
 
-					if (jwt instanceof Object) {
-						const context = jwt as Context;
+						if (jwt instanceof Object) {
+							const context = jwt as Context;
 
-						let state = await stateTransformer.loadState(
-							context.user.id,
-						);
+							let state = await stateTransformer.loadState(
+								context.user.id,
+							);
 
-						for (const { data } of gsi.block) {
-							for (const {
-								public_player_state,
-								private_player_state,
-							} of data) {
-								if (public_player_state) {
-									for (const reducer of publicStateReducers) {
-										try {
-											state = await reducer.processor(
-												state,
-												context,
-												public_player_state,
-											);
-										} catch (e) {
-											debug(
-												"app::consumer::public_player_state",
-											)(e);
+							for (const { data } of gsi.block) {
+								for (const {
+									public_player_state,
+									private_player_state,
+								} of data) {
+									if (public_player_state) {
+										for (const reducer of publicStateReducers) {
+											try {
+												state = await reducer.processor(
+													state,
+													context,
+													public_player_state,
+												);
+											} catch (e) {
+												debug(
+													"app::consumer::public_player_state",
+												)(e);
+											}
 										}
 									}
-								}
 
-								if (private_player_state) {
-									for (const reducer of privateStateReducers) {
-										try {
-											state = await reducer.processor(
-												state,
-												context,
-												private_player_state,
-											);
-										} catch (e) {
-											debug(
-												"app::consumer::private_player_state",
-											)(e);
+									if (private_player_state) {
+										for (const reducer of privateStateReducers) {
+											try {
+												state = await reducer.processor(
+													state,
+													context,
+													private_player_state,
+												);
+											} catch (e) {
+												debug(
+													"app::consumer::private_player_state",
+												)(e);
+											}
 										}
 									}
 								}
 							}
-						}
 
-						await stateTransformer.saveState(
-							state,
-							context.user.id,
-						);
+							await stateTransformer.saveState(
+								state,
+								context.user.id,
+							);
+						}
+					} catch (e) {
+						debug("app::consumer::eachMessage")(e);
 					}
-				} catch (e) {
-					debug("app::consumer::eachMessage")(e);
 				}
-			}
-		},
+			}).catch(debug("app::eachMessage")),
 	});
 
 	if (KAFKA_START_OFFSET) {
