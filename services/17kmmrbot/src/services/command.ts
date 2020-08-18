@@ -46,7 +46,12 @@ export class BotCommandProcessor {
 
 			for (const channel of channels) {
 				await client.say(channel, event.message);
+				await sleep(1000);
 			}
 		}
 	}
 }
+
+const sleep = (ms: number) => {
+	return new Promise((resolve) => setTimeout(resolve, ms));
+};
