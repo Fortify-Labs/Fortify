@@ -8,9 +8,6 @@ import debug from "debug";
 import express from "express";
 import { json, urlencoded } from "body-parser";
 
-import rateLimit from "express-rate-limit";
-import RedisStore from "rate-limit-redis";
-
 import { container } from "./inversify.config";
 import { KafkaConnector } from "@shared/connectors/kafka";
 import { RedisConnector } from "@shared/connectors/redis";
@@ -26,21 +23,12 @@ const { KAFKA_TOPIC, MY_PORT } = process.env;
 	const producer = kafka.producer();
 	await producer.connect();
 
-	const apiLimiter = rateLimit({
-		max: 120,
-		store: new RedisStore({
-			client: redis.createClient(),
-			prefix: "rl:gsi:",
-		}),
-	});
-
 	const app = express();
 
 	app.use(urlencoded({ extended: true, limit: "10mb" }));
 	app.use(json({ limit: "10mb" }));
 
-	// Rate-limited to 120 requests per minute
-	app.post("/gsi", apiLimiter, async (req, res) => {
+	app.post("/gsi", async (req, res) => {
 		// Send an unsuccessful response on failed auth
 		if (req.body && req.body.auth) {
 			try {
