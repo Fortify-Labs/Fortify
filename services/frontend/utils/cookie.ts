@@ -13,7 +13,10 @@ export const setCookie = (key: string, value: string) => {
 	}
 };
 
-export const removeCookie = (key: string, domain?: string) => {
+export const removeCookie = (
+	key: string,
+	domain = process.env.NEXT_PUBLIC_COOKIE_DOMAIN
+) => {
 	// const ssrMode = typeof window === "undefined";
 
 	// if (ssrMode) {
