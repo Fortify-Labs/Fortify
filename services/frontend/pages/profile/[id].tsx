@@ -49,6 +49,13 @@ const Profile = () => {
 					description: `Rank: ${profile?.rank ?? 0}; MMR: ${
 						profile?.mmr ?? 0
 					}; Leaderboard Rank: ${profile?.leaderboardRank ?? 0}`,
+					images: [
+						{
+							url:
+								profile?.profilePicture ??
+								`${process.env.NEXT_PUBLIC_URL}/favicon.ico`,
+						},
+					],
 				}}
 			/>
 
