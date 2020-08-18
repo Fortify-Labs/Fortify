@@ -27,3 +27,5 @@ gsi.json
 **/*.map
 **/.next/**
 **/.env
+
+!services/frontend/.env
