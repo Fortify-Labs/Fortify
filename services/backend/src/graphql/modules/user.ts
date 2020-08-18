@@ -128,6 +128,14 @@ export class UserModule implements GQLModule {
 						context.scopes.includes(PermissionScope.Admin)
 					) {
 						userID = profile.steamid;
+					} else if (
+						profile.steamid &&
+						profile.steamid !== context.user.id
+					) {
+						throw new ApolloError(
+							"Unauthorized to perform actions for other users",
+							"MUTATION_UPDATE_PROFILE",
+						);
 					}
 
 					const userRepo = await postgres.getUserRepo();
