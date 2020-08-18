@@ -20,7 +20,10 @@ import { sharedSetup } from "@shared/index";
 import { HelpCommand } from "./commands/help";
 sharedSetup();
 
-const { KAFKA_FROM_START, KAFKA_GROUP_ID = "17kmmrbot-group" } = process.env;
+const {
+	KAFKA_FROM_START = "false",
+	KAFKA_GROUP_ID = "17kmmrbot-group",
+} = process.env;
 
 (async () => {
 	const commands = container.getAll<TwitchCommand>("command");
@@ -37,7 +40,7 @@ const { KAFKA_FROM_START, KAFKA_GROUP_ID = "17kmmrbot-group" } = process.env;
 	const consumer = kafka.consumer({ groupId: KAFKA_GROUP_ID });
 
 	consumer.subscribe({
-		fromBeginning: KAFKA_FROM_START !== "true" ?? true,
+		fromBeginning: KAFKA_FROM_START === "true",
 		topic: FortifyEventTopics.SYSTEM,
 	});
 
@@ -83,7 +86,7 @@ const { KAFKA_FROM_START, KAFKA_GROUP_ID = "17kmmrbot-group" } = process.env;
 	}
 
 	await consumer.run({
-		autoCommit: KAFKA_FROM_START !== "true" ?? true,
+		autoCommit: KAFKA_FROM_START !== "true",
 		eachMessage: async (payload) =>
 			commandProcessor.process(payload, client),
 	});
