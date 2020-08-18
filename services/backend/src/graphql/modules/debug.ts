@@ -51,7 +51,7 @@ export class DebugModule implements GQLModule {
 
 		type AuthenticatedObject {
 			authenticated: Boolean!
-			user: UserProfile
+			user: UserProfile @auth(requires: USER)
 		}
 
 		type SystemStatus {
