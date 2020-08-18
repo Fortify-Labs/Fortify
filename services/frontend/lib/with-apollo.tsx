@@ -223,9 +223,7 @@ const createLink = (resolverContext?: ResolverContext) => {
 	};
 
 	const httpLink = createHttpLink({
-		uri:
-			process.env.NEXT_PUBLIC_GRAPHQL_URI ??
-			"http://localhost:8080/graphql",
+		uri: process.env.NEXT_PUBLIC_GRAPHQL_URI,
 		credentials: "same-origin",
 		headers,
 	});
@@ -245,8 +243,7 @@ const createLink = (resolverContext?: ResolverContext) => {
 				},
 				new WebSocketLink(
 					new SubscriptionClient(
-						process.env.NEXT_PUBLIC_GRAPHQL_WS_URI ??
-							"ws://localhost:8080/graphql",
+						process.env.NEXT_PUBLIC_GRAPHQL_WS_URI!,
 						{
 							reconnect: true,
 							connectionParams: {
