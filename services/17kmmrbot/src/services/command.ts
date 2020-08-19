@@ -68,7 +68,7 @@ export class BotCommandProcessor {
 						await client.say(channel, event.message);
 					}
 				}
-				await sleep(1000);
+				await sleep(2000);
 			}
 		}
 	}
