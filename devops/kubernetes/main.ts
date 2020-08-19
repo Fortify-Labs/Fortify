@@ -628,6 +628,7 @@ export class ClusterSetup extends Chart {
 										name: "influxdb-data",
 									},
 								],
+								imagePullPolicy: "Always",
 							},
 						],
 					},
