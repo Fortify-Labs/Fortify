@@ -61,8 +61,14 @@ export class BotCommandProcessor {
 						await client.say(
 							channel,
 							`${converted.day * 24 + converted.hour}:${
-								converted.minute
-							}:${converted.seconds}`,
+								converted.minute < 10
+									? "0" + converted.minute
+									: converted.minute
+							}:${
+								converted.seconds < 10
+									? "0" + converted.seconds
+									: converted.seconds
+							}`,
 						);
 					} else {
 						await client.say(channel, event.message);
