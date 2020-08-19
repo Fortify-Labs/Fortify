@@ -13,10 +13,11 @@ import { DevCommands } from "./commands/dev";
 import { CreditsCommand } from "./commands/credits";
 import { MMRCommand } from "./commands/mmr";
 import { LeftCommand } from "./commands/left";
+import { HelpCommand } from "./commands/help";
+import { MatchCommand } from "./commands/match";
 
 import { ExtractorService } from "@shared/services/extractor";
 import { LeaderboardService } from "@shared/services/leaderboard";
-import { HelpCommand } from "./commands/help";
 
 const container = new Container({ autoBindInjectable: true });
 
@@ -26,6 +27,7 @@ container.bind<TwitchCommand>("command").to(DevCommands);
 container.bind<TwitchCommand>("command").to(CreditsCommand);
 container.bind<TwitchCommand>("command").to(MMRCommand);
 container.bind<TwitchCommand>("command").to(LeftCommand);
+container.bind<TwitchCommand>("command").to(MatchCommand);
 
 // Seperate help command from other commands to avoid a circular dependency
 container.bind<TwitchCommand>(HelpCommand).toSelf();
