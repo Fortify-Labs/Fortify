@@ -8,7 +8,7 @@ export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type RequireFields<T, K extends keyof T> = { [X in Exclude<keyof T, K>]?: T[X] } & { [P in K]-?: NonNullable<T[P]> };
 
-// Generated on 2020-08-18T13:48:50+02:00
+// Generated on 2020-08-19T19:38:55+02:00
 
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
@@ -126,6 +126,7 @@ export type SystemStatus = {
 export type Lobby = {
   __typename?: 'Lobby';
   id: Scalars['ID'];
+  spectatorId?: Maybe<Scalars['ID']>;
   averageMMR?: Maybe<Scalars['Int']>;
   duration?: Maybe<Scalars['String']>;
   slots?: Maybe<Array<Maybe<LobbySlot>>>;
@@ -367,6 +368,7 @@ export type SystemStatusResolvers<ContextType = Context, ParentType extends Reso
 
 export type LobbyResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Lobby'] = ResolversParentTypes['Lobby']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  spectatorId?: Resolver<Maybe<ResolversTypes['ID']>, ParentType, ContextType>;
   averageMMR?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   duration?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   slots?: Resolver<Maybe<Array<Maybe<ResolversTypes['LobbySlot']>>>, ParentType, ContextType>;

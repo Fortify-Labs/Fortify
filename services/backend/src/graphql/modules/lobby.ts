@@ -19,15 +19,17 @@ export class LobbyModule implements GQLModule {
 
 	typeDef = gql`
 		extend type Query {
-			lobby(id: ID): Lobby @auth(requires: USER)
+			lobby(id: ID): Lobby
 		}
 
 		extend type Subscription {
-			lobby(id: ID): Lobby @auth(requires: USER)
+			lobby(id: ID): Lobby
 		}
 
 		type Lobby {
 			id: ID!
+
+			spectatorId: ID
 
 			averageMMR: Int
 			duration: String
@@ -56,13 +58,17 @@ export class LobbyModule implements GQLModule {
 		return {
 			Query: {
 				async lobby(parent, args, context) {
-					let id = context.user.id;
+					let id = context.user?.id;
 
-					if (
-						context.scopes.indexOf(PermissionScope.Admin) &&
-						args.id
-					) {
+					if (args.id) {
 						id = args.id;
+					}
+
+					if (!id) {
+						throw new ApolloError(
+							"No Lobby ID passed",
+							"QUERY_LOBBY_ID",
+						);
 					}
 
 					const rawFPS = await redis.getAsync(`ps:${id}`);
@@ -96,19 +102,24 @@ export class LobbyModule implements GQLModule {
 						duration: `${new Date(duration)
 							.toISOString()
 							.substr(11, 8)} min`,
+						spectatorId: id,
 					};
 				},
 			},
 			Subscription: {
 				lobby: {
 					subscribe(_, args, context) {
-						let id = context.user.id;
+						let id = context.user?.id;
 
-						if (
-							context.scopes.includes(PermissionScope.Admin) &&
-							args.id
-						) {
+						if (args.id) {
 							id = args.id;
+						}
+
+						if (!id) {
+							throw new ApolloError(
+								"No Lobby ID passed",
+								"SUBSCRIPTION_LOBBY_ID",
+							);
 						}
 
 						return pubSub.asyncIterator(`ps:${id}`);
@@ -156,15 +167,19 @@ export class LobbyModule implements GQLModule {
 				async pool(parent, _args, context) {
 					if (parent.pool) return parent.pool;
 
-					const userID = context.user.id;
+					let userID: string | undefined | null = context.user?.id;
 
-					// View the pool of other players as admin user
-					// if (
-					// 	context.scopes.includes(PermissionScope.Admin) &&
-					// 	parent.id
-					// ) {
-					// 	userID = parent.id;
-					// }
+					// Duct tape solution to get the pool from a player state
+					if (parent.spectatorId) {
+						userID = parent.spectatorId;
+					}
+
+					if (!userID) {
+						throw new ApolloError(
+							"No Spectator ID detected",
+							"LOBBY_SLOTS_ID",
+						);
+					}
 
 					const rawFPS = await redis.getAsync(`ps:${userID}`);
 

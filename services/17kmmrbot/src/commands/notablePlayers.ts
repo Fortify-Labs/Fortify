@@ -20,7 +20,6 @@ import { majorRankNameMapping } from "@shared/ranks";
 @injectable()
 export class NotablePlayersCommand implements TwitchCommand {
 	constructor(
-		@inject(PostgresConnector) private db: PostgresConnector,
 		@inject(ExtractorService) private extractorService: ExtractorService,
 		@inject(LeaderboardService)
 		private leaderboardService: LeaderboardService,

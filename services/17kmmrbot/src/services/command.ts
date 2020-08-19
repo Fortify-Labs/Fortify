@@ -10,6 +10,7 @@ import {
 	TwitchMessageBroadcastEvent,
 } from "@shared/events/systemEvents";
 import { PostgresConnector } from "@shared/connectors/postgres";
+import { convertMS } from "../lib/dateUtils";
 
 const { BOT_BROADCAST_DISABLED } = process.env;
 
@@ -48,7 +49,24 @@ export class BotCommandProcessor {
 
 			for (const channel of channels) {
 				if (BOT_BROADCAST_DISABLED !== "true") {
-					await client.say(channel, event.message);
+					if (event.message.startsWith("!date")) {
+						const dateString = event.message.replace("!date ", "");
+
+						const goalDate = new Date(dateString);
+						const now = new Date();
+
+						const diff = goalDate.getTime() - now.getTime();
+						const converted = convertMS(diff);
+
+						await client.say(
+							channel,
+							`${converted.day * 24 + converted.hour}:${
+								converted.minute
+							}:${converted.seconds}`,
+						);
+					} else {
+						await client.say(channel, event.message);
+					}
 				}
 				await sleep(1000);
 			}
