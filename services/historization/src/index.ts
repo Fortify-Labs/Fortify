@@ -42,36 +42,33 @@ const {
 
 	consumer.run({
 		autoCommit: KAFKA_AUTO_COMMIT !== "false" ?? true,
-		eachMessage: async ({ message, topic }) =>
-			new Promise<void>(async (resolve) => {
-				resolve();
+		eachMessage: async ({ message, topic }) => {
+			try {
+				const value = message.value.toString();
 
-				try {
-					const value = message.value.toString();
+				if (topic === FortifyEventTopics.GAME) {
+					const event: FortifyEvent<GameEventType> = JSON.parse(
+						value,
+					);
 
-					if (topic === FortifyEventTopics.GAME) {
-						const event: FortifyEvent<GameEventType> = JSON.parse(
-							value,
+					await matchPersistor.handleEvent(event);
+				} else if (topic === FortifyEventTopics.SYSTEM) {
+					const event: FortifyEvent<SystemEventType> = JSON.parse(
+						value,
+					);
+
+					if (event.type === SystemEventType.IMPORT_COMPLETED) {
+						const importEvent = ImportCompletedEvent.deserialize(
+							event,
 						);
-
-						await matchPersistor.handleEvent(event);
-					} else if (topic === FortifyEventTopics.SYSTEM) {
-						const event: FortifyEvent<SystemEventType> = JSON.parse(
-							value,
+						await leaderboardPersistor.storeLeaderboard(
+							importEvent,
 						);
-
-						if (event.type === SystemEventType.IMPORT_COMPLETED) {
-							const importEvent = ImportCompletedEvent.deserialize(
-								event,
-							);
-							await leaderboardPersistor.storeLeaderboard(
-								importEvent,
-							);
-						}
 					}
-				} catch (e) {
-					debug("app::indexCatch")(e);
 				}
-			}).catch(debug("app::eachMessage")),
+			} catch (e) {
+				debug("app::indexCatch")(e);
+			}
+		},
 	});
 })().catch(debug("app::anonymous_function"));
