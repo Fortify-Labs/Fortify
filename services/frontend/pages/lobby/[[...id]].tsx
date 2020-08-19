@@ -18,8 +18,8 @@ const Lobby = () => {
 	useLobbySubscription({ variables: { id }, shouldResubscribe: true });
 
 	const tabContents = {
-		lobby: <LobbySummary />,
-		pool: <PoolViewer />,
+		lobby: <LobbySummary id={id} />,
+		pool: <PoolViewer id={id} />,
 	};
 	const tab = Object.keys(tabContents).includes(queryTab?.toString() ?? "")
 		? (queryTab?.toString() as keyof typeof tabContents)
