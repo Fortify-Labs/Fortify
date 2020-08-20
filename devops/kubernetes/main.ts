@@ -1229,7 +1229,7 @@ export class Fortify extends Chart {
 				{
 					name: "MESSAGE",
 					value:
-						"Fortify is now live for everyone! Check your lobby related info visually by using the !match command. If you want to sign up, head over to fortify.gg",
+						"Fortify is now live for everyone! Check your lobby related info visually by using the !match command. If you want to sign up, head over to https://fortify.gg",
 				},
 			],
 			secrets: ["postgres-auth"],
