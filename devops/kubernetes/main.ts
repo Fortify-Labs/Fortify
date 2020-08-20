@@ -1063,6 +1063,7 @@ export class Fortify extends Chart {
 		new FortifyDeployment(this, "fsm", {
 			name: "fsm",
 			version: fsmPackage.version,
+			replicas: 3,
 			env: [
 				{
 					name: "KAFKA_CLIENT_ID",
@@ -1076,6 +1077,7 @@ export class Fortify extends Chart {
 		new FortifyDeployment(this, "historization", {
 			name: "historization",
 			version: historizationPackage.version,
+			replicas: 3,
 			env: [
 				{
 					name: "SERVICE_NAME",
