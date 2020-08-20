@@ -68,6 +68,7 @@ const {
 				}
 			} catch (e) {
 				debug("app::indexCatch")(e);
+				throw e;
 			}
 		},
 	});

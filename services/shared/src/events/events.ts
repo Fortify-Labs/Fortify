@@ -21,6 +21,8 @@ export abstract class FortifyEventClass<T> implements FortifyEvent<T> {
 	public abstract _topic: FortifyEventTopics;
 	public abstract type: T;
 
+	public timestamp = new Date();
+
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	new(...args: unknown[]) {}
 
