@@ -11,6 +11,7 @@ import debug from "debug";
 
 import { OpenAPIDocs } from "./services/openapidocs";
 import { SteamAuthMiddleware } from "./services/steamAuth";
+import { TwitchAuthMiddleware } from "./services/twitchAuth";
 
 import express from "express";
 import * as bodyParser from "body-parser";
@@ -27,6 +28,9 @@ openAPI.applyMiddleware({ app, apiPath: "/api", docsPath: "/docs" });
 
 const authMiddleware = container.get(SteamAuthMiddleware);
 authMiddleware.applyMiddleware({ app });
+
+const twitchAuthMiddleware = container.get(TwitchAuthMiddleware);
+twitchAuthMiddleware.applyMiddleware({ app });
 
 const server = app.listen(
 	{ port: parseInt(process.env.MY_PORT ?? "8080", 10) },

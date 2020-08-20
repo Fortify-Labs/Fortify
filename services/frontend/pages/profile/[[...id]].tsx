@@ -16,6 +16,7 @@ import { MmrHistory } from "components/profile/mmrHistory";
 
 import { useUpdateProfileMutation } from "gql/UpdateProfile.graphql";
 import { useProfileQuery } from "gql/Profile.graphql";
+import { useAuthenticatedQuery } from "gql/Authenticated.graphql";
 
 const Profile = () => {
 	const router = useRouter();
@@ -24,6 +25,9 @@ const Profile = () => {
 		variables: { steamid: id?.toString() },
 	});
 	const { profile } = data ?? {};
+
+	const { data: authenticatedData } = useAuthenticatedQuery();
+	const { authenticated } = authenticatedData ?? {};
 
 	const [updateProfileMutation] = useUpdateProfileMutation();
 
@@ -156,8 +160,49 @@ const Profile = () => {
 													Twitch
 												</a>
 												<br />
+												<button
+													className="button is-text"
+													onClick={async () => {
+														await updateProfileMutation(
+															{
+																variables: {
+																	profile: {
+																		steamid: id?.toString(),
+																		unlinkTwitch: true,
+																	},
+																},
+															}
+														);
+													}}
+												>
+													Unlink Twitch account
+												</button>
+												<br />
 											</>
 										)}
+										{!profile?.twitchName &&
+											((!id &&
+												authenticated?.authenticated) ||
+												id ==
+													authenticated?.user
+														?.steamid) && (
+												<>
+													<a
+														href={
+															process.env
+																.NEXT_PUBLIC_TWITCH_LOGIN_URL
+														}
+														rel="noopener noreferrer"
+													>
+														<FontAwesomeIcon
+															icon={faTwitch}
+															size="1x"
+														/>{" "}
+														Link your Twitch Account
+													</a>
+													<br />
+												</>
+											)}
 										{/* <a
 											href=""
 											target="_blank"

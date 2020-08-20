@@ -40,12 +40,17 @@ export class User {
 
 	@Column({
 		nullable: true,
+		type: "varchar",
 	})
-	twitchName?: string;
+	twitchName?: string | null;
 	@Column({
 		nullable: true,
+		type: "varchar",
 	})
-	twitchId?: string;
+	twitchId?: string | null;
+	@Column({ nullable: true, type: "json" })
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	twitchRaw?: any;
 
 	@Column({
 		nullable: true,

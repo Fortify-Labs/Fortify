@@ -24,6 +24,8 @@
 		"postgres",
 		"signup",
 		"steamid",
-		"typeorm"
+		"twitchtv",
+		"typeorm",
+		"varchar"
 	]
 }
