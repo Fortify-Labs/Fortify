@@ -67,7 +67,7 @@ export const Navbar = () => {
 				<div className="navbar-end">
 					{authenticated && (
 						<NavbarLink
-							href="/profile/[id]"
+							href="/profile/[[...id]]"
 							as={`/profile/${user?.steamid ?? 0}`}
 							value="My Profile"
 						/>

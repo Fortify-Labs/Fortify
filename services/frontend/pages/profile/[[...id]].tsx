@@ -21,19 +21,26 @@ import { useAuthenticatedQuery } from "gql/Authenticated.graphql";
 const Profile = () => {
 	const router = useRouter();
 	const { id } = router.query;
-	const { data, loading, error } = useProfileQuery({
-		variables: { steamid: id?.toString() },
-	});
-	const { profile } = data ?? {};
 
 	const { data: authenticatedData } = useAuthenticatedQuery();
 	const { authenticated } = authenticatedData ?? {};
 
+	const steamid = id
+		? id.toString()
+		: authenticated?.authenticated && authenticated.user
+		? authenticated.user.steamid
+		: undefined;
+
+	const { data, loading, error } = useProfileQuery({
+		variables: { steamid },
+	});
+	const { profile } = data ?? {};
+
 	const [updateProfileMutation] = useUpdateProfileMutation();
 
 	const tabContents = {
-		matches: <RecentMatchesTable steamid={id?.toString()} />,
-		mmrHistory: <MmrHistory steamid={id?.toString()} />,
+		matches: <RecentMatchesTable steamid={steamid} />,
+		mmrHistory: <MmrHistory steamid={steamid} />,
 	};
 	const tab = Object.keys(tabContents).includes(
 		router.query.tab?.toString() ?? ""
@@ -118,8 +125,8 @@ const Profile = () => {
 														{
 															variables: {
 																profile: {
+																	steamid,
 																	public: checked,
-																	steamid: id?.toString(),
 																},
 															},
 														}
@@ -167,7 +174,7 @@ const Profile = () => {
 															{
 																variables: {
 																	profile: {
-																		steamid: id?.toString(),
+																		steamid,
 																		unlinkTwitch: true,
 																	},
 																},
@@ -228,8 +235,8 @@ const Profile = () => {
 											})}
 										>
 											<Link
-												href="/profile/[id]?tab=matches"
-												as={`/profile/${id?.toString()}?tab=matches`}
+												href="/profile/[[...id]]?tab=matches"
+												as={`/profile/${steamid}?tab=matches`}
 												passHref
 											>
 												<a>Recent Matches</a>
@@ -242,8 +249,8 @@ const Profile = () => {
 											})}
 										>
 											<Link
-												href="/profile/[id]?tab=mmrHistory"
-												as={`/profile/${id?.toString()}?tab=mmrHistory`}
+												href="/profile/[[...id]]?tab=mmrHistory"
+												as={`/profile/${steamid}?tab=mmrHistory`}
 												passHref
 											>
 												<a>MMR / Rank History</a>
