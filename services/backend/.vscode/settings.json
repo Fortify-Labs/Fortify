@@ -25,6 +25,7 @@
 		"signup",
 		"steamid",
 		"twitchtv",
-		"typeorm"
+		"typeorm",
+		"varchar"
 	]
 }

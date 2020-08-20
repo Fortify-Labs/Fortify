@@ -159,9 +159,9 @@ export class UserModule implements GQLModule {
 						);
 						await eventService.sendEvent(unlinkEvent);
 
-						user.twitchId = undefined;
-						user.twitchName = undefined;
-						user.twitchRaw = undefined;
+						user.twitchId = null;
+						user.twitchName = null;
+						user.twitchRaw = null;
 					}
 
 					await userRepo.save(user);

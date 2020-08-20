@@ -1,6 +1,6 @@
 {
   "name": "shared",
-  "version": "1.7.3",
+  "version": "1.7.4",
   "description": "Shared library for fortify micro services",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
