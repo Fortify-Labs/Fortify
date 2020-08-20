@@ -77,6 +77,8 @@ const {
 	INFLUXDB_TOKEN = "",
 	STEAM_WEB_API_KEY = "",
 	ENVIRONMENT = "prod",
+	TWITCH_CLIENT_ID = "",
+	TWITCH_SECRET = "",
 } = process.env;
 
 const hosts = [DOMAIN, `api.${DOMAIN}`, `gsi.${DOMAIN}`];
@@ -907,6 +909,15 @@ export class Fortify extends Chart {
 			},
 		});
 
+		new Secret(this, "twitch-secret", {
+			metadata: {
+				name: "twitch-secret",
+			},
+			stringData: {
+				TWITCH_SECRET,
+			},
+		});
+
 		// Fortify web services
 		new WebService(this, "backend", {
 			name: "backend",
@@ -930,12 +941,29 @@ export class Fortify extends Chart {
 					name: "APP_STEAM_RETURN_URL",
 					value: `https://api.${DOMAIN}/auth/steam/return`,
 				},
+				{
+					name: "TWITCH_CLIENT_ID",
+					value: TWITCH_CLIENT_ID,
+				},
+				{
+					name: "TWITCH_CALLBACK_URL",
+					value: `https://api.${DOMAIN}/auth/twitch/return`,
+				},
+				{
+					name: "TWITCH_SUCCESS_REDIRECT",
+					value: `https://${DOMAIN}/profile`,
+				},
+				{
+					name: "TWITCH_FAILURE_REDIRECT",
+					value: `https://${DOMAIN}/`,
+				},
 			],
 			secrets: [
 				"postgres-auth",
 				"jwt-secret",
 				"influxdb-secret",
 				"steam-web-api-secret",
+				"twitch-secret",
 			],
 			configmaps: [
 				"postgres-config",
@@ -976,6 +1004,10 @@ export class Fortify extends Chart {
 				{
 					name: "NEXT_PUBLIC_LOGIN_URL",
 					value: `https://api.${DOMAIN}/auth/steam`,
+				},
+				{
+					name: "NEXT_PUBLIC_TWITCH_LOGIN_URL",
+					value: `https://api.${DOMAIN}/auth/twitch`,
 				},
 				{
 					name: "NEXT_PUBLIC_URL",
@@ -1196,7 +1228,8 @@ export class Fortify extends Chart {
 				},
 				{
 					name: "MESSAGE",
-					value: "!date 2020-08-20T18:00:00.000Z",
+					value:
+						"Fortify is now live for everyone! Check your lobby related info visually by using the !match command. If you want to sign up, head over to https://fortify.gg",
 				},
 			],
 			secrets: ["postgres-auth"],
