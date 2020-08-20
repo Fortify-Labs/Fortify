@@ -41,10 +41,13 @@ export class MatchStartedEvent extends FortifyEventClass<GameEventType> {
 		const matchID = obj["matchID"] as string | null;
 		const players = obj["players"] as MatchServicePlayer[] | null;
 		const gameMode = obj["gameMode"] as FortifyGameMode | null;
+		const timestamp = obj["timestamp"] as string | null;
 
-		if (matchID && players && gameMode)
-			return new this(matchID, players, gameMode);
-		else throw new DeserializationError();
+		if (matchID && players && gameMode && timestamp) {
+			const mse = new this(matchID, players, gameMode);
+			mse.timestamp = new Date(timestamp);
+			return mse;
+		} else throw new DeserializationError();
 	}
 }
 
@@ -64,10 +67,13 @@ export class MatchFinalPlaceEvent extends FortifyEventClass<GameEventType> {
 		const matchID = obj["matchID"] as string | null;
 		const steamID = obj["steamID"] as string | null;
 		const finalPlace = obj["finalPlace"] as number | null;
+		const timestamp = obj["timestamp"] as string | null;
 
-		if (matchID && steamID && finalPlace)
-			return new this(matchID, steamID, finalPlace);
-		else throw new DeserializationError();
+		if (matchID && steamID && finalPlace && timestamp) {
+			const mfpe = new this(matchID, steamID, finalPlace);
+			mfpe.timestamp = new Date(timestamp);
+			return mfpe;
+		} else throw new DeserializationError();
 	}
 }
 
@@ -81,9 +87,14 @@ export class MatchEndedEvent extends FortifyEventClass<GameEventType> {
 
 	public static deserialize<GameEventType>(obj: FortifyEvent<GameEventType>) {
 		const matchID = obj["matchID"] as string | null;
+		const timestamp = obj["timestamp"] as string | null;
 
-		if (matchID) return new this(matchID);
-		else throw new DeserializationError();
+		if (matchID && timestamp) {
+			const mee = new this(matchID);
+			mee.timestamp = new Date(timestamp);
+
+			return mee;
+		} else throw new DeserializationError();
 	}
 }
 

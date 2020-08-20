@@ -1,6 +1,7 @@
 export interface Log {
 	block: Block[];
 	auth: string;
+	timestamp: string;
 }
 
 export interface Block {

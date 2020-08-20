@@ -136,6 +136,7 @@ const {
 					}
 				} catch (e) {
 					debug("app::consumer::eachMessage")(e);
+					throw e;
 				}
 			}
 		},

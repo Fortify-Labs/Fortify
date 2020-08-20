@@ -82,7 +82,7 @@ export class MatchPersistor {
 		await userRepo.save(user);
 
 		// Convert all rank tiers below Lord to mmr
-		if (rankTier < 80 && user.registered) {
+		if (rankTier < 80) {
 			// Insert interpolated mmr into influxdb
 			const minorRank = rankTier % 10;
 			const majorRank = (rankTier - minorRank) / 10;

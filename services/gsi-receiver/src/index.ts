@@ -43,6 +43,8 @@ const { KAFKA_TOPIC, MY_PORT } = process.env;
 						(block: object) => Object.keys(block).length > 0,
 					);
 
+					req.body.timestamp = new Date();
+
 					await producer.send({
 						topic: KAFKA_TOPIC ?? "gsi",
 						messages: [
