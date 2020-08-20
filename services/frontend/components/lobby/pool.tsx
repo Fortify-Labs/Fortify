@@ -92,6 +92,13 @@ export const PoolViewer: FunctionComponent<{ id?: string }> = ({ id }) => {
 									</h4>
 									<div className="columns is-multiline">
 										{Object.values(draftTiers[tier])
+											.map((unit) => ({
+												...unit,
+												name:
+													unitMappings[unit.name]
+														?.displayName ??
+													unit.name,
+											}))
 											.sort((a, b) =>
 												a.name < b.name
 													? -1
@@ -121,10 +128,7 @@ export const PoolViewer: FunctionComponent<{ id?: string }> = ({ id }) => {
 																// src="https://bulma.io/images/placeholders/128x128.png"
 															/>
 														</figure>
-														{unitMappings[unit.name]
-															?.displayName ??
-															unit.name}{" "}
-														<br />
+														{unit.name} <br />
 														{pool[unit.id] ?? 0}/
 														{
 															poolSize[
