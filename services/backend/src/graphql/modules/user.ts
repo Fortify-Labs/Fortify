@@ -14,6 +14,8 @@ import {
 	fluxDateTime,
 	FluxParameterLike,
 } from "@influxdata/influxdb-client";
+import { EventService } from "@shared/services/eventService";
+import { TwitchUnlinkedEvent } from "@shared/events/systemEvents";
 
 export interface InfluxMMRQueryRow {
 	result: string;
@@ -34,6 +36,7 @@ export class UserModule implements GQLModule {
 	constructor(
 		@inject(PostgresConnector) private postgres: PostgresConnector,
 		@inject(InfluxDBConnector) private influx: InfluxDBConnector,
+		@inject(EventService) private eventService: EventService,
 	) {}
 
 	typeDef = gql`
@@ -86,11 +89,13 @@ export class UserModule implements GQLModule {
 		input ProfileInput {
 			steamid: ID
 			public: Boolean
+
+			unlinkTwitch: Boolean
 		}
 	`;
 
 	resolver(): Resolvers {
-		const { postgres, influx } = this;
+		const { postgres, influx, eventService } = this;
 
 		return {
 			Query: {
@@ -124,18 +129,17 @@ export class UserModule implements GQLModule {
 					let userID = context.user.id;
 
 					if (
-						profile.steamid &&
-						context.scopes.includes(PermissionScope.Admin)
-					) {
-						userID = profile.steamid;
-					} else if (
-						profile.steamid &&
-						profile.steamid !== context.user.id
+						profile.steamid !== context.user.id &&
+						!context.scopes.includes(PermissionScope.Admin)
 					) {
 						throw new ApolloError(
 							"Unauthorized to perform actions for other users",
 							"MUTATION_UPDATE_PROFILE",
 						);
+					}
+
+					if (profile.steamid) {
+						userID = profile.steamid;
 					}
 
 					const userRepo = await postgres.getUserRepo();
@@ -146,6 +150,18 @@ export class UserModule implements GQLModule {
 						profile.public !== undefined
 					) {
 						user.publicProfile = profile.public;
+					}
+
+					if (profile.unlinkTwitch && user.twitchName) {
+						const unlinkEvent = new TwitchUnlinkedEvent(
+							userID,
+							user.twitchName,
+						);
+						await eventService.sendEvent(unlinkEvent);
+
+						user.twitchId = undefined;
+						user.twitchName = undefined;
+						user.twitchRaw = undefined;
 					}
 
 					await userRepo.save(user);
