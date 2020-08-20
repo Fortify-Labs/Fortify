@@ -46,6 +46,9 @@ export class User {
 		nullable: true,
 	})
 	twitchId?: string;
+	@Column({ nullable: true, type: "json" })
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	twitchRaw?: any;
 
 	@Column({
 		nullable: true,
