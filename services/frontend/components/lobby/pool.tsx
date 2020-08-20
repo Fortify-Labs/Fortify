@@ -2,7 +2,7 @@ import { FunctionComponent } from "react";
 
 import { useLobbyPoolQuery } from "gql/LobbyPool.graphql";
 
-import { currentSeason, units, Unit } from "@shared/units";
+import { currentSeason, units, Unit, unitMappings } from "@shared/units";
 import { poolSize } from "@shared/pool";
 import { VStack } from "components/vstack";
 
@@ -121,7 +121,10 @@ export const PoolViewer: FunctionComponent<{ id?: string }> = ({ id }) => {
 																// src="https://bulma.io/images/placeholders/128x128.png"
 															/>
 														</figure>
-														{unit.name} <br />
+														{unitMappings[unit.name]
+															?.displayName ??
+															unit.name}{" "}
+														<br />
 														{pool[unit.id] ?? 0}/
 														{
 															poolSize[
