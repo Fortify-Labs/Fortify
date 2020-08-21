@@ -79,6 +79,7 @@ const {
 	ENVIRONMENT = "prod",
 	TWITCH_CLIENT_ID = "",
 	TWITCH_SECRET = "",
+	GA_TRACKING_ID,
 } = process.env;
 
 const hosts = [DOMAIN, `api.${DOMAIN}`, `gsi.${DOMAIN}`];
@@ -1050,6 +1051,10 @@ export class Fortify extends Chart {
 				{
 					name: "NEXT_PUBLIC_URL",
 					value: `https://${DOMAIN}`,
+				},
+				{
+					name: "GA_TRACKING_ID",
+					value: GA_TRACKING_ID,
 				},
 			],
 			service: {
