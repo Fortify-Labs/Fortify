@@ -25,7 +25,7 @@ TODO: Write Kubernetes setup guide
 
 - [Valve: Game State Integration for CS:GO](https://developer.valvesoftware.com/wiki/Counter-Strike:_Global_Offensive_Game_State_Integration)
 - [Game State Integration: A Very Large and In-Depth Explanation [CS GO]](https://www.reddit.com/r/GlobalOffensive/comments/cjhcpy/game_state_integration_a_very_large_and_indepth/)
-- Join us on Discord ([https://discord.gg/nZHfKaf](https://discord.gg/nZHfKaf))
+- Join us on Discord ([https://discord.gg/u9qJxzQ](https://discord.gg/u9qJxzQ))
 
 ## Disclaimer
 
