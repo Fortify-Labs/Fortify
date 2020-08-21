@@ -1249,30 +1249,6 @@ export class Fortify extends Chart {
 			secrets: ["postgres-auth"],
 			configmaps: ["redis-config", "kafka-config", "postgres-config"],
 		});
-
-		// Promo CronJob - Delete after launch
-		new FortifyCronJob(this, "promo", {
-			name: "promo",
-			version: jobsPackage.version,
-
-			// Every other hour
-			schedule: "0 * * * *",
-			script: "broadcast",
-
-			env: [
-				{
-					name: "KAFKA_CLIENT_ID",
-					valueFrom: { fieldRef: { fieldPath: "metadata.name" } },
-				},
-				{
-					name: "MESSAGE",
-					value:
-						"Fortify is now live for everyone! Check your lobby related info visually by using the !match command. If you want to sign up, head over to https://fortify.gg",
-				},
-			],
-			secrets: ["postgres-auth"],
-			configmaps: ["redis-config", "kafka-config", "postgres-config"],
-		});
 	}
 }
 
