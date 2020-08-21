@@ -178,7 +178,45 @@ export class ClusterSetup extends Chart {
 				},
 			},
 			spec: {
-				partitions: 1,
+				partitions: 3,
+				replicas: 1,
+				config: {
+					"retention.ms": 7 * 86400000, // 7 * 1 day,
+					"segment.ms": 86400000, // 1 day
+					"segment.bytes": 1073741824, // 1 GB
+				},
+			},
+		} as CustomKafkaTopicOptions);
+
+		new KafkaTopic(this, "game-events-topic", {
+			metadata: {
+				name: "game-events",
+				namespace: "kafka",
+				labels: {
+					"strimzi.io/cluster": "fortify",
+				},
+			},
+			spec: {
+				partitions: 3,
+				replicas: 1,
+				config: {
+					"retention.ms": 7 * 86400000, // 7 * 1 day,
+					"segment.ms": 86400000, // 1 day
+					"segment.bytes": 1073741824, // 1 GB
+				},
+			},
+		} as CustomKafkaTopicOptions);
+
+		new KafkaTopic(this, "system-events-topic", {
+			metadata: {
+				name: "system-events",
+				namespace: "kafka",
+				labels: {
+					"strimzi.io/cluster": "fortify",
+				},
+			},
+			spec: {
+				partitions: 3,
 				replicas: 1,
 				config: {
 					"retention.ms": 7 * 86400000, // 7 * 1 day,
