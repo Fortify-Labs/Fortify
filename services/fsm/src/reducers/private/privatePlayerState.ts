@@ -17,6 +17,8 @@ export class DummyPrivateStateReducer
 		context: Context,
 		// eslint-disable-next-line @typescript-eslint/no-unused-vars
 		publicPlayerState: PrivatePlayerState,
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		timestamp: string,
 	) {
 		return state;
 	}

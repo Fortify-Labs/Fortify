@@ -102,6 +102,7 @@ const {
 												state,
 												context,
 												public_player_state,
+												gsi.timestamp,
 											);
 										} catch (e) {
 											debug(
@@ -118,6 +119,7 @@ const {
 												state,
 												context,
 												private_player_state,
+												gsi.timestamp,
 											);
 										} catch (e) {
 											debug(

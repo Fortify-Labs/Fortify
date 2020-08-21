@@ -49,23 +49,15 @@ export class MatchPersistor {
 	}
 
 	async startHandler(startedEvent: MatchStartedEvent) {
-		return this.matchService.storeMatchStart(
-			startedEvent.matchID,
-			startedEvent.players,
-			startedEvent.gameMode,
-		);
+		return this.matchService.storeMatchStart(startedEvent);
 	}
 
 	async finalPlaceHandler(finalPlaceEvent: MatchFinalPlaceEvent) {
-		return this.matchService.storeFinalPlace(
-			finalPlaceEvent.matchID,
-			finalPlaceEvent.steamID,
-			finalPlaceEvent.finalPlace,
-		);
+		return this.matchService.storeFinalPlace(finalPlaceEvent);
 	}
 
 	async endedHandler(endedEvent: MatchEndedEvent) {
-		return this.matchService.storeMatchEnd(endedEvent.matchID);
+		return this.matchService.storeMatchEnd(endedEvent);
 	}
 
 	async updateRankTier({ accountID, rankTier }: RankTierUpdateEvent) {

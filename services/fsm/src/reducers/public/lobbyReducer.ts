@@ -36,6 +36,7 @@ export class LobbyPlayerReducer implements StateReducer<PublicPlayerState> {
 		state: FortifyPlayerState,
 		context: Context,
 		publicPlayerState: PublicPlayerState,
+		timestamp: string,
 	) {
 		// TODO: Find a reliable way to detect a new game
 
@@ -105,6 +106,7 @@ export class LobbyPlayerReducer implements StateReducer<PublicPlayerState> {
 				accountID,
 				final_place,
 			);
+			finalPlaceEvent.timestamp = new Date(timestamp);
 			await this.eventService.sendEvent(
 				finalPlaceEvent,
 				`userid-${accountID}`,
@@ -190,6 +192,8 @@ export class LobbyPlayerReducer implements StateReducer<PublicPlayerState> {
 				lobbyPlayers,
 				state.lobby.mode,
 			);
+			newMatchEvent.timestamp = new Date(timestamp);
+
 			await this.eventService.sendEvent(
 				newMatchEvent,
 				`userid-${state.steamid}`,
@@ -199,6 +203,7 @@ export class LobbyPlayerReducer implements StateReducer<PublicPlayerState> {
 		// Once a person gets first place, the match is completed
 		if (final_place === 2 && state.lobby.id) {
 			const matchEndedEvent = new MatchEndedEvent(state.lobby.id);
+			matchEndedEvent.timestamp = new Date(timestamp);
 			await this.eventService.sendEvent(
 				matchEndedEvent,
 				`userid-${state.steamid}`,

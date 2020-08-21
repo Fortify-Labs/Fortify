@@ -1,0 +1,15 @@
+[
+	[
+		[
+			"cd services/backend && npm run dev",
+			"cd services/frontend && npm run dev"
+		],
+		[
+			"cd services/fsm && npm run dev",
+			"cd services/gsi-receiver && npm run dev"
+		],
+		[
+			"cd services/historization && npm run dev"
+		]
+	]
+]
