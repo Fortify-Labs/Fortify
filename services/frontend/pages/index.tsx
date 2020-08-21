@@ -280,7 +280,7 @@ const Index = () => {
 							</a>
 						</Link>
 						<Link
-							href="/profile/[id]"
+							href="/profile/[[...id]]"
 							as={`/profile/${user?.steamid}`}
 						>
 							<a className="column" style={{ color: "white" }}>

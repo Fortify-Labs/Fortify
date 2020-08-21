@@ -79,6 +79,7 @@ const {
 	ENVIRONMENT = "prod",
 	TWITCH_CLIENT_ID = "",
 	TWITCH_SECRET = "",
+	GA_TRACKING_ID,
 } = process.env;
 
 const hosts = [DOMAIN, `api.${DOMAIN}`, `gsi.${DOMAIN}`];
@@ -178,7 +179,45 @@ export class ClusterSetup extends Chart {
 				},
 			},
 			spec: {
-				partitions: 1,
+				partitions: 3,
+				replicas: 1,
+				config: {
+					"retention.ms": 7 * 86400000, // 7 * 1 day,
+					"segment.ms": 86400000, // 1 day
+					"segment.bytes": 1073741824, // 1 GB
+				},
+			},
+		} as CustomKafkaTopicOptions);
+
+		new KafkaTopic(this, "game-events-topic", {
+			metadata: {
+				name: "game-events",
+				namespace: "kafka",
+				labels: {
+					"strimzi.io/cluster": "fortify",
+				},
+			},
+			spec: {
+				partitions: 3,
+				replicas: 1,
+				config: {
+					"retention.ms": 7 * 86400000, // 7 * 1 day,
+					"segment.ms": 86400000, // 1 day
+					"segment.bytes": 1073741824, // 1 GB
+				},
+			},
+		} as CustomKafkaTopicOptions);
+
+		new KafkaTopic(this, "system-events-topic", {
+			metadata: {
+				name: "system-events",
+				namespace: "kafka",
+				labels: {
+					"strimzi.io/cluster": "fortify",
+				},
+			},
+			spec: {
+				partitions: 3,
 				replicas: 1,
 				config: {
 					"retention.ms": 7 * 86400000, // 7 * 1 day,
@@ -1013,6 +1052,10 @@ export class Fortify extends Chart {
 					name: "NEXT_PUBLIC_URL",
 					value: `https://${DOMAIN}`,
 				},
+				{
+					name: "GA_TRACKING_ID",
+					value: GA_TRACKING_ID,
+				},
 			],
 			service: {
 				name: "frontend",
@@ -1206,30 +1249,6 @@ export class Fortify extends Chart {
 				{
 					name: "KAFKA_CLIENT_ID",
 					valueFrom: { fieldRef: { fieldPath: "metadata.name" } },
-				},
-			],
-			secrets: ["postgres-auth"],
-			configmaps: ["redis-config", "kafka-config", "postgres-config"],
-		});
-
-		// Promo CronJob - Delete after launch
-		new FortifyCronJob(this, "promo", {
-			name: "promo",
-			version: jobsPackage.version,
-
-			// Every other hour
-			schedule: "0 * * * *",
-			script: "broadcast",
-
-			env: [
-				{
-					name: "KAFKA_CLIENT_ID",
-					valueFrom: { fieldRef: { fieldPath: "metadata.name" } },
-				},
-				{
-					name: "MESSAGE",
-					value:
-						"Fortify is now live for everyone! Check your lobby related info visually by using the !match command. If you want to sign up, head over to https://fortify.gg",
 				},
 			],
 			secrets: ["postgres-auth"],

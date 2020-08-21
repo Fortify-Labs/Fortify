@@ -40,9 +40,9 @@ const {
 		topic: FortifyEventTopics.GAME,
 	});
 
-	consumer.run({
+	await consumer.run({
 		autoCommit: KAFKA_AUTO_COMMIT !== "false" ?? true,
-		eachMessage: async ({ message, topic }) => {
+		eachMessage: async ({ message, topic, partition }) => {
 			try {
 				const value = message.value.toString();
 
@@ -68,6 +68,16 @@ const {
 				}
 			} catch (e) {
 				debug("app::indexCatch")(e);
+
+				// In case something doesn't work for a given topic (e.g. influx down and historization fails)
+				// pause the consumption of said topic for 30 seconds
+				consumer.pause([{ topic, partitions: [partition] }]);
+				// Resume the topics consumption after 15 seconds
+				setTimeout(
+					() => consumer.resume([{ topic, partitions: [partition] }]),
+					15 * 1000,
+				);
+
 				throw e;
 			}
 		},

@@ -3,7 +3,6 @@ import { injectable, inject } from "inversify";
 import { GQLModule } from "definitions/module";
 import { gql, ApolloError } from "apollo-server-express";
 import { Resolvers, Lobby } from "definitions/graphql/types";
-import { PermissionScope } from "@shared/auth";
 import { RedisConnector } from "@shared/connectors/redis";
 import { FortifyPlayerState } from "@shared/state";
 import { PostgresConnector } from "@shared/connectors/postgres";

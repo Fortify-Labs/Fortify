@@ -13,6 +13,11 @@ import { GetPlayerSummaries } from "../definitions/playerSummaries";
 import fetch from "node-fetch";
 import debug from "debug";
 import { convert32to64SteamId } from "../steamid";
+import {
+	MatchStartedEvent,
+	MatchFinalPlaceEvent,
+	MatchEndedEvent,
+} from "../events/gameEvents";
 
 const { STEAM_WEB_API_KEY } = process.env;
 
@@ -155,11 +160,12 @@ export class MatchService {
 		return matchID;
 	}
 
-	async storeMatchStart(
-		matchID: string,
-		players: readonly MatchServicePlayer[],
-		gameMode: FortifyGameMode,
-	) {
+	async storeMatchStart({
+		matchID,
+		players,
+		gameMode,
+		timestamp,
+	}: MatchStartedEvent) {
 		const matchRepo = await this.postgres.getMatchRepo();
 		// const matchSlotsRepo = await this.postgres.getMatchSlotRepo();
 		const userRepo = await this.postgres.getUserRepo();
@@ -170,6 +176,8 @@ export class MatchService {
 		match.slots = [];
 		match.gameMode = gameMode;
 		match.season = currentSeason;
+		match.created = timestamp;
+		match.updated = timestamp;
 
 		const playerRecord = players.reduce<Record<string, FortifyPlayer>>(
 			(acc, player) => {
@@ -214,13 +222,19 @@ export class MatchService {
 			// Save their finalPlace
 			matchSlot.finalPlace = finalPlace;
 
+			matchSlot.created = timestamp;
+			matchSlot.updated = timestamp;
+
 			// Check if player is a fortify user
 			let user = await userRepo.findOne(accountID);
 			if (!user) {
 				user = new User();
 				user.steamid = accountID;
+
+				user.created = timestamp;
 			}
 			user.name = name;
+			user.updated = timestamp;
 
 			try {
 				// TODO: Refactor this to be one request getting all 8 images instead of 8 requests getting one image
@@ -248,11 +262,12 @@ export class MatchService {
 		await matchRepo.save(match);
 	}
 
-	async storeFinalPlace(
-		matchID: string,
-		steamID: string,
-		finalPlace: number,
-	) {
+	async storeFinalPlace({
+		matchID,
+		steamID,
+		finalPlace,
+		timestamp,
+	}: MatchFinalPlaceEvent) {
 		const matchRepo = await this.postgres.getMatchRepo();
 
 		const match = await matchRepo.findOneOrFail(matchID, {
@@ -262,6 +277,7 @@ export class MatchService {
 		match.slots = match.slots.reduce<MatchSlot[]>((acc, slot) => {
 			if (slot.user?.steamid === steamID) {
 				slot.finalPlace = finalPlace;
+				slot.updated = timestamp;
 			}
 
 			acc.push(slot);
@@ -269,10 +285,12 @@ export class MatchService {
 			return acc;
 		}, []);
 
+		match.updated = timestamp;
+
 		await matchRepo.save(match);
 	}
 
-	async storeMatchEnd(matchID: string) {
+	async storeMatchEnd({ matchID, timestamp }: MatchEndedEvent) {
 		const matchRepo = await this.postgres.getMatchRepo();
 
 		const match = await matchRepo.findOneOrFail(matchID, {
@@ -282,6 +300,7 @@ export class MatchService {
 		match.slots = match.slots.reduce<MatchSlot[]>((acc, slot) => {
 			if (!slot.finalPlace) {
 				slot.finalPlace = 1;
+				slot.updated = timestamp;
 			}
 
 			acc.push(slot);
@@ -289,7 +308,7 @@ export class MatchService {
 			return acc;
 		}, []);
 
-		match.ended = new Date(Date.now());
+		match.ended = timestamp;
 
 		await matchRepo.save(match);
 	}

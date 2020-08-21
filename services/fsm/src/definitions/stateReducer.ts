@@ -10,5 +10,6 @@ export interface StateReducer<T = PublicPlayerState | PrivatePlayerState> {
 		state: FortifyPlayerState,
 		context: Context,
 		publicPlayerState: T,
+		timestamp: string,
 	) => Promise<FortifyPlayerState>;
 }
