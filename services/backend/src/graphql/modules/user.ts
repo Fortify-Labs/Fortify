@@ -234,7 +234,7 @@ export class UserModule implements GQLModule {
 					const majorRank = ((user.rankTier ?? 0) - minorRank) / 10;
 
 					return `${majorRankNameMapping[majorRank]}${
-						majorRank < 8 ? ` ${minorRank}` : ""
+						majorRank < 8 ? ` ${minorRank + 1}` : ""
 					}`;
 				},
 				async matches(parent, args) {
