@@ -247,6 +247,9 @@ export class UserModule implements GQLModule {
 						where: { user: { steamid: parent.steamid } },
 						take: limit,
 						skip: offset,
+						order: {
+							updated: "DESC",
+						},
 						relations: ["match"],
 					});
 
