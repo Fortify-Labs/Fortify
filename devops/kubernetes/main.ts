@@ -271,6 +271,32 @@ export class ClusterSetup extends Chart {
 				databaseSecret: {
 					secretName: "postgres-auth",
 				},
+				podTemplate: {
+					spec: {
+						affinity: {
+							podAffinity: {
+								preferredDuringSchedulingIgnoredDuringExecution: [
+									{
+										weight: 1,
+										podAffinityTerm: {
+											labelSelector: {
+												matchExpressions: [
+													{
+														key: "kubedb.com/name",
+														operator: "In",
+														values: ["postgres"],
+													},
+												],
+											},
+											topologyKey:
+												"kubernetes.io/hostname",
+										},
+									},
+								],
+							},
+						},
+					},
+				},
 			},
 		});
 
