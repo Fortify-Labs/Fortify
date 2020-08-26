@@ -180,7 +180,7 @@ export class ClusterSetup extends Chart {
 			},
 			spec: {
 				partitions: 3,
-				replicas: 1,
+				replicas: 2,
 				config: {
 					"retention.ms": 7 * 86400000, // 7 * 1 day,
 					"segment.ms": 86400000, // 1 day
@@ -199,7 +199,7 @@ export class ClusterSetup extends Chart {
 			},
 			spec: {
 				partitions: 3,
-				replicas: 1,
+				replicas: 2,
 				config: {
 					"retention.ms": 7 * 86400000, // 7 * 1 day,
 					"segment.ms": 86400000, // 1 day
@@ -218,7 +218,7 @@ export class ClusterSetup extends Chart {
 			},
 			spec: {
 				partitions: 3,
-				replicas: 1,
+				replicas: 2,
 				config: {
 					"retention.ms": 7 * 86400000, // 7 * 1 day,
 					"segment.ms": 86400000, // 1 day

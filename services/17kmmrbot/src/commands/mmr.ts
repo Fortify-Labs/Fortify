@@ -91,7 +91,7 @@ export class MMRCommand implements TwitchCommand {
 
 			return client.say(
 				channel,
-				`${user.name} [#${player.rank}, MMR: ${player.mmr}]`,
+				`Player: ${user.name} [#${player.rank}, MMR: ${player.mmr}]`,
 			);
 		} catch (e) {
 			debug("app::mmr")(e);
