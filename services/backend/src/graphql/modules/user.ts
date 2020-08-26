@@ -109,18 +109,6 @@ export class UserModule implements GQLModule {
 					const userRepo = await postgres.getUserRepo();
 					const user = await userRepo.findOneOrFail(userID);
 
-					const allowed =
-						user.publicProfile ||
-						context.scopes?.includes(PermissionScope.Admin) ||
-						userID === context.user?.id;
-
-					if (!allowed) {
-						throw new ApolloError(
-							"Unauthorized to view player profile",
-							"QUERY_PROFILE_NOT_ALLOWED",
-						);
-					}
-
 					return user;
 				},
 			},
@@ -237,7 +225,19 @@ export class UserModule implements GQLModule {
 						majorRank < 8 ? ` ${minorRank + 1}` : ""
 					}`;
 				},
-				async matches(parent, args) {
+				async matches(parent, args, context) {
+					const allowed =
+						parent.publicProfile ||
+						context.scopes?.includes(PermissionScope.Admin) ||
+						parent.steamid === context.user?.id;
+
+					if (!allowed) {
+						throw new ApolloError(
+							"Unauthorized to view private player profile",
+							"QUERY_PROFILE_NOT_ALLOWED",
+						);
+					}
+
 					const limit =
 						(args.limit ?? 0) <= 50 ? args.limit ?? 25 : 50;
 					const offset = args.offset ?? 0;
@@ -260,7 +260,19 @@ export class UserModule implements GQLModule {
 						user: parent,
 					}));
 				},
-				async mmrHistory({ steamid }, args) {
+				async mmrHistory({ steamid, publicProfile }, args, context) {
+					const allowed =
+						publicProfile ||
+						context.scopes?.includes(PermissionScope.Admin) ||
+						steamid === context.user?.id;
+
+					if (!allowed) {
+						throw new ApolloError(
+							"Unauthorized to view private player profile",
+							"QUERY_PROFILE_NOT_ALLOWED",
+						);
+					}
+
 					// Write influxdb queries to fetch data points
 					const queryApi = influx.queryApi();
 
