@@ -36,5 +36,5 @@
 		"vdacdefs",
 		"wurstmeister"
 	],
-	"githubIssues.workingIssueBranch": "feature/issue-${issueNumber}"
+	"githubIssues.issueBranchTitle": "feature/issue-${issueNumber}"
 }

@@ -31,7 +31,12 @@ const {
 
 	const postgres = container.get(PostgresConnector);
 	const userRepo = await postgres.getUserRepo();
-	const channels = await (await userRepo.find({ select: ["twitchName"] }))
+	const channels = await (
+		await userRepo.find({
+			select: ["twitchName"],
+			where: { suspended: false },
+		})
+	)
 		.map((channel) => channel.twitchName ?? "")
 		.filter((value) => value);
 
