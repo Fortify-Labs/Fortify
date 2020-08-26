@@ -1,6 +1,6 @@
 {
   "name": "shared",
-  "version": "1.7.5",
+  "version": "1.7.6",
   "description": "Shared library for fortify micro services",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
@@ -24,12 +24,12 @@
     "@types/debug": "^4.1.5",
     "@types/ioredis": "^4.17.3",
     "@types/jsonwebtoken": "^8.5.0",
-    "@types/node": "^14.0.27",
+    "@types/node": "^14.6.0",
     "@types/node-fetch": "^2.5.7",
     "dotenv": "^8.2.0",
     "gts": "^2.0.2",
-    "ts-node": "^8.10.2",
-    "typescript": "^3.9.7"
+    "ts-node": "^9.0.0",
+    "typescript": "^4.0.2"
   },
   "dependencies": {
     "@influxdata/influxdb-client": "^1.6.0",
@@ -40,7 +40,7 @@
     "jsonwebtoken": "^8.5.1",
     "kafkajs": "^1.12.0",
     "node-fetch": "^2.6.0",
-    "pg": "^8.3.0",
+    "pg": "^8.3.2",
     "reflect-metadata": "^0.1.13",
     "typeorm": "^0.2.25"
   }

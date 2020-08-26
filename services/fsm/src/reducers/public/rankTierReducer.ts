@@ -1,6 +1,6 @@
 import { StateReducer } from "../../definitions/stateReducer";
 import { PublicPlayerState } from "../../gsiTypes";
-import { FortifyPlayerState } from "@shared/state";
+import { FortifyPlayerState, FortifyGameMode } from "@shared/state";
 import { Context } from "@shared/auth";
 import { injectable, inject } from "inversify";
 
@@ -29,7 +29,9 @@ export class RankTierReducer implements StateReducer<PublicPlayerState> {
 
 		if (
 			state.lobby.players[accountID] &&
-			!state.lobby.players[accountID].rankTier
+			!state.lobby.players[accountID].rankTier &&
+			// greater than invalid, as FortifyGameMode is a number enum
+			state.lobby.mode > FortifyGameMode.Invalid
 		) {
 			state.lobby.players[accountID].rankTier = rank_tier;
 
@@ -37,6 +39,7 @@ export class RankTierReducer implements StateReducer<PublicPlayerState> {
 				const rankTierUpdate = new RankTierUpdateEvent(
 					accountID,
 					rank_tier,
+					state.lobby.mode,
 				);
 				await this.eventService.sendEvent(
 					rankTierUpdate,

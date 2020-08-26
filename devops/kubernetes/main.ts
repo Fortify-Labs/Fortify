@@ -274,7 +274,7 @@ export class ClusterSetup extends Chart {
 				podTemplate: {
 					spec: {
 						affinity: {
-							podAffinity: {
+							podAntiAffinity: {
 								preferredDuringSchedulingIgnoredDuringExecution: [
 									{
 										weight: 1,
