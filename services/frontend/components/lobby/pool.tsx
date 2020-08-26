@@ -106,38 +106,56 @@ export const PoolViewer: FunctionComponent<{ id?: string }> = ({ id }) => {
 													? 1
 													: 0
 											)
-											.map((unit) => (
-												<div
-													className="column is-narrow"
-													key={`unit-${unit.id}`}
-												>
-													<VStack
-														style={{
-															textAlign: "center",
-														}}
+											.map((unit) => {
+												const left = pool[unit.id] ?? 0;
+												const total =
+													poolSize[unit.draftTier];
+
+												return (
+													<div
+														className="column is-narrow"
+														key={`unit-${unit.id}`}
 													>
-														<figure
-															className="image is-64x64"
+														<VStack
 															style={{
-																margin: "auto",
+																textAlign:
+																	"center",
 															}}
 														>
-															<img
-																className="is-rounded"
-																src={`/units/panorama/images/heroes/icons/${unit.dota_unit_name}_png.png`}
-																// src="https://bulma.io/images/placeholders/128x128.png"
-															/>
-														</figure>
-														{unit.name} <br />
-														{pool[unit.id] ?? 0}/
-														{
-															poolSize[
-																unit.draftTier
-															]
-														}
-													</VStack>
-												</div>
-											))}
+															<figure
+																className="image is-64x64"
+																style={{
+																	margin:
+																		"auto",
+																}}
+															>
+																<img
+																	className="is-rounded"
+																	src={`/units/panorama/images/heroes/icons/${unit.dota_unit_name}_png.png`}
+																	// src="https://bulma.io/images/placeholders/128x128.png"
+																/>
+															</figure>
+															{unit.name} <br />
+															<p
+																style={{
+																	color:
+																		left >
+																		0.7 *
+																			total
+																			? "green"
+																			: left >
+																			  0.4 *
+																					total
+																			? "yellow"
+																			: "red",
+																}}
+															>
+																{left}/{total}
+															</p>
+														</VStack>
+													</div>
+												);
+											})}
 									</div>
 									<br />
 								</div>
