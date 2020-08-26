@@ -102,15 +102,21 @@ export class RankTierUpdateEvent extends FortifyEventClass<GameEventType> {
 	public _topic = FortifyEventTopics.GAME;
 	public type = GameEventType.RANK_TIER_UPDATE;
 
-	constructor(public accountID: string, public rankTier: number) {
+	constructor(
+		public accountID: string,
+		public rankTier: number,
+		public mode: FortifyGameMode,
+	) {
 		super();
 	}
 
 	public static deserialize<GameEventType>(obj: FortifyEvent<GameEventType>) {
 		const accountID = obj["accountID"] as string | null;
 		const rankTier = obj["rankTier"] as number | null;
+		const mode = obj["mode"] as FortifyGameMode | null;
 
-		if (accountID && rankTier) return new this(accountID, rankTier);
+		if (accountID && rankTier && mode)
+			return new this(accountID, rankTier, mode);
 		else throw new DeserializationError();
 	}
 }
