@@ -14,6 +14,7 @@ import { InfluxDBConnector } from "@shared/connectors/influxdb";
 import { Point } from "@influxdata/influxdb-client";
 import { rankToMMRMapping } from "@shared/ranks";
 import { User } from "@shared/db/entities/user";
+import { FortifyGameMode } from "@shared/state";
 
 @injectable()
 export class MatchPersistor {
@@ -60,7 +61,7 @@ export class MatchPersistor {
 		return this.matchService.storeMatchEnd(endedEvent);
 	}
 
-	async updateRankTier({ accountID, rankTier }: RankTierUpdateEvent) {
+	async updateRankTier({ accountID, rankTier, mode }: RankTierUpdateEvent) {
 		const userRepo = await this.postgres.getUserRepo();
 		let user = await userRepo.findOne(accountID);
 
@@ -85,7 +86,7 @@ export class MatchPersistor {
 				new Point("mmr")
 					.intField("mmr", mmr)
 					.tag("steamid", accountID)
-					.tag("type", "standard"),
+					.tag("type", FortifyGameMode[mode]),
 			];
 
 			await this.influx.writePoints(points);
