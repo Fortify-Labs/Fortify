@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { FunctionComponent } from "react";
 import { useLobbyQuery } from "../../gql/Lobby.graphql";
 import { HStack } from "../hstack";
@@ -75,20 +77,40 @@ export const LobbySummary: FunctionComponent<{ id?: string }> = ({ id }) => {
 							<tr key={slot?.lobbySlotId}>
 								<td>
 									<HStack>
-										<figure
-											className="image is-64x64"
-											style={{ marginRight: "2rem" }}
+										<Link
+											href="/profile/[[...id]]"
+											as={`/profile/${
+												slot?.user?.steamid ?? 0
+											}`}
+											passHref
 										>
-											<img
-												className="is-rounded"
-												src={
-													slot?.user
-														?.profilePicture ??
-													"https://bulma.io/images/placeholders/128x128.png"
-												}
-											/>
-										</figure>
-										{slot?.user?.name ?? ""}
+											<a>
+												<figure
+													className="image is-64x64"
+													style={{
+														marginRight: "2rem",
+													}}
+												>
+													<img
+														className="is-rounded"
+														src={
+															slot?.user
+																?.profilePicture ??
+															"https://bulma.io/images/placeholders/128x128.png"
+														}
+													/>
+												</figure>
+											</a>
+										</Link>
+										<Link
+											href="/profile/[[...id]]"
+											as={`/profile/${
+												slot?.user?.steamid ?? 0
+											}`}
+											passHref
+										>
+											<a>{slot?.user?.name ?? ""}</a>
+										</Link>
 									</HStack>
 								</td>
 								<td>{slot?.user?.rank}</td>
