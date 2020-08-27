@@ -1,4 +1,5 @@
 import s1Units from "./assets/s1_units.json";
+import s1Dot5Units from "./assets/s1_5_units.json";
 import aliases from "./assets/unit_mappings.json";
 
 export interface Unit {
@@ -8,12 +9,14 @@ export interface Unit {
 	content_enable_group?: string;
 }
 
-export const currentSeason = "s1";
+export const currentSeason = "s1_5";
 
 // We'll keep the record definition on the variable to ensure type safety
 const s1: Record<string, Unit> = s1Units.set_balance;
+const s1_5: Record<string, Unit> = s1Dot5Units.set_balance;
 export const units = {
 	s1,
+	s1_5,
 };
 
 export interface UnitMapping {
