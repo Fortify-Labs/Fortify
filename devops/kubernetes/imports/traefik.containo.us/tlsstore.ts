@@ -5,27 +5,27 @@ import { Construct } from 'constructs';
 /**
  * 
  *
- * @schema adapter
+ * @schema TLSStore
  */
-export class adapter extends ApiObject {
+export class TlsStore extends ApiObject {
   /**
-   * Defines a "adapter" API object
+   * Defines a "TLSStore" API object
    * @param scope the scope in which to define this object
    * @param name a scope-local name for the object
    * @param options configuration options
    */
-  public constructor(scope: Construct, name: string, options: adapterOptions = {}) {
+  public constructor(scope: Construct, name: string, options: TlsStoreOptions = {}) {
     super(scope, name, {
       ...options,
-      kind: 'adapter',
-      apiVersion: 'config.istio.io/v1alpha2',
+      kind: 'TLSStore',
+      apiVersion: 'traefik.containo.us/v1alpha1',
     });
   }
 }
 
 /**
- * @schema adapter
+ * @schema TLSStore
  */
-export interface adapterOptions {
+export interface TlsStoreOptions {
 }
 

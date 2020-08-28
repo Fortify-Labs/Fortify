@@ -69,7 +69,7 @@ export class FortifyCronJob extends Construct {
 											})),
 										],
 										command: [
-											"scuttle",
+											// "scuttle",
 											"npm",
 											"run",
 											"start",

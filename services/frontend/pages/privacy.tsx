@@ -102,11 +102,11 @@ const Privacy = () => {
 				<h2 className="title is-2">Information Storage</h2>
 				<p>
 					All the data collected by Fortify is stored by the owner of
-					the platform on servers located in Nürnberg (Germany) and is
-					used solely for the purpose of processing the data and
-					displaying the results on the Fortify platform. None of the
-					data is forwarded to any third parties whatsoever, and is
-					never sold to any third parties for monetary benefit or
+					the platform on servers located in Amsterdam (Netherlands)
+					and is used solely for the purpose of processing the data
+					and displaying the results on the Fortify platform. None of
+					the data is forwarded to any third parties whatsoever, and
+					is never sold to any third parties for monetary benefit or
 					otherwise.
 				</p>
 				<h2 className="title is-2">

@@ -12,11 +12,15 @@
 		"ingressgateway",
 		"istio",
 		"kmmrbot",
+		"kube",
 		"kubedb",
 		"letsencrypt",
+		"middlewares",
 		"regcred",
 		"strimzi",
+		"traefik",
 		"virtualservice",
+		"websecure",
 		"webservice"
 	]
 }

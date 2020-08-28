@@ -172,7 +172,7 @@ export interface VirtualServiceSpecHttp {
   readonly route?: VirtualServiceSpecHttpRoute[];
 
   /**
-   * Timeout for HTTP requests.
+   * Timeout for HTTP requests, default is disabled.
    *
    * @schema VirtualServiceSpecHttp#timeout
    */

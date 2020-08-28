@@ -19,4 +19,4 @@ RUN chown -R node:node /usr/src/app
 USER node
 
 EXPOSE ${EXPOSED_PORT}
-CMD scuttle npm run start
+CMD npm run start

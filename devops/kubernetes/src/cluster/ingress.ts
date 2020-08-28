@@ -27,8 +27,10 @@ export class ClusterIngress extends Construct {
 			basicAuth = true,
 		} = options;
 
+		let annotations = {};
+
 		if (basicAuth) {
-			new Secret(this, "basic-auth", {
+			const basicAuthSecret = new Secret(this, "basic-auth", {
 				type: "Opaque",
 				metadata: {
 					name: "basic-auth",
@@ -38,27 +40,23 @@ export class ClusterIngress extends Construct {
 					auth: CLUSTER_BASIC_AUTH,
 				},
 			});
+
+			annotations = {
+				// # type of authentication
+				"nginx.ingress.kubernetes.io/auth-type": "basic",
+				// # name of the secret that contains the user/password definitions
+				"nginx.ingress.kubernetes.io/auth-secret": basicAuthSecret.name,
+				// # message to display with an appropriate context why the authentication is required
+				"nginx.ingress.kubernetes.io/auth-realm":
+					"Authentication Required",
+			};
 		}
 
 		new Ingress(this, `${name}-${ENVIRONMENT}-ingress`, {
 			metadata: {
 				name: `${name}-${ENVIRONMENT}-ingress`,
 				namespace,
-				annotations: {
-					...(basicAuth
-						? {
-								// # type of authentication
-								"nginx.ingress.kubernetes.io/auth-type":
-									"basic",
-								// # name of the secret that contains the user/password definitions
-								"nginx.ingress.kubernetes.io/auth-secret":
-									"basic-auth",
-								// # message to display with an appropriate context why the authentication is required
-								"nginx.ingress.kubernetes.io/auth-realm":
-									"Authentication Required",
-						  }
-						: {}),
-				},
+				annotations,
 			},
 			spec: {
 				rules: [

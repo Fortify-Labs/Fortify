@@ -75,6 +75,8 @@ export enum AuthorizationPolicySpecAction {
   ALLOW = "ALLOW",
   /** DENY */
   DENY = "DENY",
+  /** AUDIT */
+  AUDIT = "AUDIT",
 }
 
 /**

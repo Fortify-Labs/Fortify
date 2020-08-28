@@ -7,6 +7,8 @@ export interface RedisCommanderConfig {
 
 	SENTINEL_HOST?: string;
 	SENTINEL_PORT?: string;
+
+	namespace?: string;
 }
 
 export class RedisCommander extends Construct {
@@ -15,12 +17,18 @@ export class RedisCommander extends Construct {
 
 		const labels = { app: "redis-commander" };
 
-		const { REDIS_HOST, REDIS_PORT, SENTINEL_HOST, SENTINEL_PORT } =
-			config ?? {};
+		const {
+			REDIS_HOST,
+			REDIS_PORT,
+			SENTINEL_HOST,
+			SENTINEL_PORT,
+			namespace,
+		} = config ?? {};
 
 		new ConfigMap(this, "config", {
 			metadata: {
 				name: "redis-commander-config",
+				namespace,
 			},
 			data: {
 				...(REDIS_HOST ? { REDIS_HOST } : {}),
@@ -34,6 +42,7 @@ export class RedisCommander extends Construct {
 		new Service(this, "service", {
 			metadata: {
 				name: "redis-commander",
+				namespace,
 			},
 			spec: {
 				selector: labels,
@@ -51,6 +60,7 @@ export class RedisCommander extends Construct {
 		new Deployment(this, "deployment", {
 			metadata: {
 				name: "redis-commander",
+				namespace,
 			},
 			spec: {
 				replicas: 1,
