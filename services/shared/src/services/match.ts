@@ -225,41 +225,48 @@ export class MatchService {
 			matchSlot.created = timestamp;
 			matchSlot.updated = timestamp;
 
-			// Check if player is a fortify user
-			let user = await userRepo.findOne(accountID);
-			if (!user) {
-				user = new User();
-				user.steamid = accountID;
-
-				user.created = timestamp;
-			}
-			user.name = name;
-			user.updated = timestamp;
-
-			try {
-				// TODO: Refactor this to be one request getting all 8 images instead of 8 requests getting one image
-
-				// Fetch image from steam web api
-				const playerSummaries = await fetch(
-					`http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${STEAM_WEB_API_KEY}&steamids=${convert32to64SteamId(
-						accountID,
-					)}`,
-				).then((res) => res.json() as Promise<GetPlayerSummaries>);
-				if (playerSummaries.response.players.length > 0) {
-					const player = playerSummaries.response.players[0];
-					user.profilePicture = player.avatarfull;
-				}
-			} catch (e) {
-				debug("app::services::match")(e);
-			}
-
-			await userRepo.save(user);
+			const user = await this.getOrCreateUser(accountID, timestamp, name);
 
 			matchSlot.user = user;
 			match.slots.push(matchSlot);
 		}
 
 		await matchRepo.save(match);
+	}
+
+	private async getOrCreateUser(
+		accountID: string,
+		timestamp: Date,
+		name: string,
+	) {
+		const userRepo = await this.postgres.getUserRepo();
+		let user = await userRepo.findOne(accountID);
+		if (!user) {
+			user = new User();
+			user.steamid = accountID;
+
+			user.created = timestamp;
+		}
+		user.name = name;
+		user.updated = timestamp;
+
+		try {
+			// TODO: Refactor this to be one request getting all 8 images instead of 8 requests getting one image
+			// Fetch image from steam web api
+			const playerSummaries = await fetch(
+				`http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${STEAM_WEB_API_KEY}&steamids=${convert32to64SteamId(
+					accountID,
+				)}`,
+			).then((res) => res.json() as Promise<GetPlayerSummaries>);
+			if (playerSummaries.response.players.length > 0) {
+				const player = playerSummaries.response.players[0];
+				user.profilePicture = player.avatarfull;
+			}
+		} catch (e) {
+			debug("app::services::match")(e);
+		}
+
+		return userRepo.save(user);
 	}
 
 	async storeFinalPlace({
@@ -269,47 +276,75 @@ export class MatchService {
 		timestamp,
 	}: MatchFinalPlaceEvent) {
 		const matchRepo = await this.postgres.getMatchRepo();
+		const userRepo = await this.postgres.getUserRepo();
 
-		const match = await matchRepo.findOneOrFail(matchID, {
+		let match = await matchRepo.findOne(matchID, {
 			relations: ["slots", "slots.user"],
 		});
 
-		match.slots = match.slots.reduce<MatchSlot[]>((acc, slot) => {
-			if (slot.user?.steamid === steamID) {
-				slot.finalPlace = finalPlace;
-				slot.updated = timestamp;
-			}
+		if (match) {
+			match.slots = match.slots.reduce<MatchSlot[]>((acc, slot) => {
+				if (slot.user?.steamid === steamID) {
+					slot.finalPlace = finalPlace;
+					slot.updated = timestamp;
+				}
 
-			acc.push(slot);
+				acc.push(slot);
 
-			return acc;
-		}, []);
+				return acc;
+			}, []);
+		} else {
+			match = new Match();
+
+			match.id = matchID;
+			match.created = timestamp;
+
+			const user = await this.getOrCreateUser(steamID, timestamp, "");
+
+			const matchSlot = new MatchSlot();
+			matchSlot.created = timestamp;
+			matchSlot.updated = timestamp;
+			matchSlot.finalPlace = finalPlace;
+			matchSlot.user = user;
+			matchSlot.match = match;
+			// We use Date.now here to avoid primary key clashes
+			matchSlot.slot = Date.now();
+
+			match.slots = [matchSlot];
+		}
 
 		match.updated = timestamp;
 
-		await matchRepo.save(match);
+		return matchRepo.save(match);
 	}
 
 	async storeMatchEnd({ matchID, timestamp }: MatchEndedEvent) {
 		const matchRepo = await this.postgres.getMatchRepo();
 
-		const match = await matchRepo.findOneOrFail(matchID, {
+		let match = await matchRepo.findOne(matchID, {
 			relations: ["slots", "slots.user"],
 		});
 
-		match.slots = match.slots.reduce<MatchSlot[]>((acc, slot) => {
-			if (!slot.finalPlace) {
-				slot.finalPlace = 1;
-				slot.updated = timestamp;
-			}
+		if (match) {
+			match.slots = match.slots.reduce<MatchSlot[]>((acc, slot) => {
+				if (!slot.finalPlace) {
+					slot.finalPlace = 1;
+					slot.updated = timestamp;
+				}
 
-			acc.push(slot);
+				acc.push(slot);
 
-			return acc;
-		}, []);
+				return acc;
+			}, []);
+		} else {
+			match = new Match();
+			match.id = matchID;
+			match.slots = [];
+		}
 
+		match.updated = timestamp;
 		match.ended = timestamp;
 
-		await matchRepo.save(match);
+		return matchRepo.save(match);
 	}
 }
