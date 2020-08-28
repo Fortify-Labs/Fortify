@@ -166,72 +166,85 @@ export class MatchService {
 		gameMode,
 		timestamp,
 	}: MatchStartedEvent) {
-		const matchRepo = await this.postgres.getMatchRepo();
-		// const matchSlotsRepo = await this.postgres.getMatchSlotRepo();
-		const userRepo = await this.postgres.getUserRepo();
+		try {
+			if (!matchID) {
+				throw new Error("No matchID set in MatchStartedEvent");
+			}
 
-		// Once an unused matchID exists, store all player info (displayName (?), steamid)
-		const match = new Match();
-		match.id = matchID;
-		match.slots = [];
-		match.gameMode = gameMode;
-		match.season = currentSeason;
-		match.created = timestamp;
-		match.updated = timestamp;
+			const matchRepo = await this.postgres.getMatchRepo();
+			// const matchSlotsRepo = await this.postgres.getMatchSlotRepo();
+			const userRepo = await this.postgres.getUserRepo();
 
-		const playerRecord = players.reduce<Record<string, FortifyPlayer>>(
-			(acc, player) => {
-				// we can set the name to an empty string here
-				// as the player's name is not needed for mmr average calculations
-				acc[player.accountID] = { ...player, name: "" };
+			// Once an unused matchID exists, store all player info (displayName (?), steamid)
+			const match = new Match();
+			match.id = matchID;
+			match.slots = [];
+			match.gameMode = gameMode;
+			match.season = currentSeason;
+			match.created = timestamp;
+			match.updated = timestamp;
 
-				return acc;
-			},
-			{},
-		);
+			const playerRecord = players.reduce<Record<string, FortifyPlayer>>(
+				(acc, player) => {
+					// we can set the name to an empty string here
+					// as the player's name is not needed for mmr average calculations
+					acc[player.accountID] = { ...player, name: "" };
 
-		if (
-			gameMode === FortifyGameMode.Normal ||
-			gameMode === FortifyGameMode.Turbo ||
-			gameMode === FortifyGameMode.Duos
-		) {
-			const leaderboard = await this.leaderboardService.fetchLeaderboard(
-				gameMode === FortifyGameMode.Normal
-					? LeaderboardType.Standard
-					: gameMode === FortifyGameMode.Turbo
-					? LeaderboardType.Turbo
-					: LeaderboardType.Duos,
+					return acc;
+				},
+				{},
 			);
-			match.averageMMR = parseInt(
-				await this.extractorService.getAverageMMR(
-					playerRecord,
-					leaderboard,
-					null,
-				),
-			);
+
+			if (
+				gameMode === FortifyGameMode.Normal ||
+				gameMode === FortifyGameMode.Turbo ||
+				gameMode === FortifyGameMode.Duos
+			) {
+				const leaderboard = await this.leaderboardService.fetchLeaderboard(
+					gameMode === FortifyGameMode.Normal
+						? LeaderboardType.Standard
+						: gameMode === FortifyGameMode.Turbo
+						? LeaderboardType.Turbo
+						: LeaderboardType.Duos,
+				);
+				match.averageMMR = parseInt(
+					await this.extractorService.getAverageMMR(
+						playerRecord,
+						leaderboard,
+						null,
+					),
+				);
+			}
+
+			// For each player in the lobby
+			for (const { accountID, slot, finalPlace, name } of players) {
+				const matchSlot = new MatchSlot();
+
+				// Link their slot to a match
+				matchSlot.match = match;
+				// Save their slot
+				matchSlot.slot = slot;
+				// Save their finalPlace
+				matchSlot.finalPlace = finalPlace;
+
+				matchSlot.created = timestamp;
+				matchSlot.updated = timestamp;
+
+				const user = await this.getOrCreateUser(
+					accountID,
+					timestamp,
+					name,
+				);
+
+				matchSlot.user = user;
+				match.slots.push(matchSlot);
+			}
+
+			await matchRepo.save(match);
+		} catch (e) {
+			debug("app::storeMatchStart")(e);
+			throw e;
 		}
-
-		// For each player in the lobby
-		for (const { accountID, slot, finalPlace, name } of players) {
-			const matchSlot = new MatchSlot();
-
-			// Link their slot to a match
-			matchSlot.match = match;
-			// Save their slot
-			matchSlot.slot = slot;
-			// Save their finalPlace
-			matchSlot.finalPlace = finalPlace;
-
-			matchSlot.created = timestamp;
-			matchSlot.updated = timestamp;
-
-			const user = await this.getOrCreateUser(accountID, timestamp, name);
-
-			matchSlot.user = user;
-			match.slots.push(matchSlot);
-		}
-
-		await matchRepo.save(match);
 	}
 
 	private async getOrCreateUser(
@@ -239,34 +252,39 @@ export class MatchService {
 		timestamp: Date,
 		name: string,
 	) {
-		const userRepo = await this.postgres.getUserRepo();
-		let user = await userRepo.findOne(accountID);
-		if (!user) {
-			user = new User();
-			user.steamid = accountID;
-
-			user.created = timestamp;
-		}
-		user.name = name;
-		user.updated = timestamp;
-
 		try {
-			// TODO: Refactor this to be one request getting all 8 images instead of 8 requests getting one image
-			// Fetch image from steam web api
-			const playerSummaries = await fetch(
-				`http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${STEAM_WEB_API_KEY}&steamids=${convert32to64SteamId(
-					accountID,
-				)}`,
-			).then((res) => res.json() as Promise<GetPlayerSummaries>);
-			if (playerSummaries.response.players.length > 0) {
-				const player = playerSummaries.response.players[0];
-				user.profilePicture = player.avatarfull;
-			}
-		} catch (e) {
-			debug("app::services::match")(e);
-		}
+			const userRepo = await this.postgres.getUserRepo();
+			let user = await userRepo.findOne(accountID);
+			if (!user) {
+				user = new User();
+				user.steamid = accountID;
 
-		return userRepo.save(user);
+				user.created = timestamp;
+			}
+			user.name = name;
+			user.updated = timestamp;
+
+			try {
+				// TODO: Refactor this to be one request getting all 8 images instead of 8 requests getting one image
+				// Fetch image from steam web api
+				const playerSummaries = await fetch(
+					`http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${STEAM_WEB_API_KEY}&steamids=${convert32to64SteamId(
+						accountID,
+					)}`,
+				).then((res) => res.json() as Promise<GetPlayerSummaries>);
+				if (playerSummaries.response.players.length > 0) {
+					const player = playerSummaries.response.players[0];
+					user.profilePicture = player.avatarfull;
+				}
+			} catch (e) {
+				debug("app::services::match")(e);
+			}
+
+			return userRepo.save(user);
+		} catch (e) {
+			debug("app::getOrCreateUser")(e);
+			throw e;
+		}
 	}
 
 	async storeFinalPlace({
@@ -275,79 +293,99 @@ export class MatchService {
 		finalPlace,
 		timestamp,
 	}: MatchFinalPlaceEvent) {
-		const matchRepo = await this.postgres.getMatchRepo();
-		const userRepo = await this.postgres.getUserRepo();
+		try {
+			if (!matchID) {
+				throw new Error("No matchID set in MatchFinalPlaceEvent");
+			}
 
-		let match = await matchRepo.findOne(matchID, {
-			relations: ["slots", "slots.user"],
-		});
+			const matchRepo = await this.postgres.getMatchRepo();
+			const userRepo = await this.postgres.getUserRepo();
 
-		if (match) {
-			match.slots = match.slots.reduce<MatchSlot[]>((acc, slot) => {
-				if (slot.user?.steamid === steamID) {
-					slot.finalPlace = finalPlace;
-					slot.updated = timestamp;
-				}
+			let match = await matchRepo.findOne(matchID, {
+				relations: ["slots", "slots.user"],
+			});
 
-				acc.push(slot);
+			if (match) {
+				match.slots = match.slots.reduce<MatchSlot[]>((acc, slot) => {
+					if (slot.user?.steamid === steamID) {
+						slot.finalPlace = finalPlace;
+						slot.updated = timestamp;
+					}
 
-				return acc;
-			}, []);
-		} else {
-			match = new Match();
+					acc.push(slot);
 
-			match.id = matchID;
-			match.created = timestamp;
+					return acc;
+				}, []);
+			} else {
+				match = new Match();
 
-			const user = await this.getOrCreateUser(steamID, timestamp, "");
+				match.id = matchID;
+				match.created = timestamp;
 
-			const matchSlot = new MatchSlot();
-			matchSlot.created = timestamp;
-			matchSlot.updated = timestamp;
-			matchSlot.finalPlace = finalPlace;
-			matchSlot.user = user;
-			matchSlot.match = match;
-			// As the slot is a 4 bytes integer in the db, we're going to create a random number in said range
-			// This will hopefully save us from clashing compound primary key collisions
-			matchSlot.slot = Math.floor(
-				(Math.random() >= 0.5 ? 1 : -1) * Math.random() * 2147483647,
-			);
+				const user = await this.getOrCreateUser(steamID, timestamp, "");
 
-			match.slots = [matchSlot];
+				const matchSlot = new MatchSlot();
+				matchSlot.created = timestamp;
+				matchSlot.updated = timestamp;
+				matchSlot.finalPlace = finalPlace;
+				matchSlot.user = user;
+				matchSlot.match = match;
+				// As the slot is a 4 bytes integer in the db, we're going to create a random number in said range
+				// This will hopefully save us from clashing compound primary key collisions
+				matchSlot.slot = Math.floor(
+					(Math.random() >= 0.5 ? 1 : -1) *
+						Math.random() *
+						2147483647,
+				);
+
+				match.slots = [matchSlot];
+			}
+
+			match.updated = timestamp;
+
+			return matchRepo.save(match);
+		} catch (e) {
+			debug("app::storeFinalPlace")(e);
+			throw e;
 		}
-
-		match.updated = timestamp;
-
-		return matchRepo.save(match);
 	}
 
 	async storeMatchEnd({ matchID, timestamp }: MatchEndedEvent) {
-		const matchRepo = await this.postgres.getMatchRepo();
+		try {
+			if (!matchID) {
+				throw new Error("No matchID set in MatchEndedEvent");
+			}
 
-		let match = await matchRepo.findOne(matchID, {
-			relations: ["slots", "slots.user"],
-		});
+			const matchRepo = await this.postgres.getMatchRepo();
 
-		if (match) {
-			match.slots = match.slots.reduce<MatchSlot[]>((acc, slot) => {
-				if (!slot.finalPlace) {
-					slot.finalPlace = 1;
-					slot.updated = timestamp;
-				}
+			let match = await matchRepo.findOne(matchID, {
+				relations: ["slots", "slots.user"],
+			});
 
-				acc.push(slot);
+			if (match) {
+				match.slots = match.slots.reduce<MatchSlot[]>((acc, slot) => {
+					if (!slot.finalPlace) {
+						slot.finalPlace = 1;
+						slot.updated = timestamp;
+					}
 
-				return acc;
-			}, []);
-		} else {
-			match = new Match();
-			match.id = matchID;
-			match.slots = [];
+					acc.push(slot);
+
+					return acc;
+				}, []);
+			} else {
+				match = new Match();
+				match.id = matchID;
+				match.slots = [];
+			}
+
+			match.updated = timestamp;
+			match.ended = timestamp;
+
+			return matchRepo.save(match);
+		} catch (e) {
+			debug("app::storeMatchEnd")(e);
+			throw e;
 		}
-
-		match.updated = timestamp;
-		match.ended = timestamp;
-
-		return matchRepo.save(match);
 	}
 }
