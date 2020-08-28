@@ -176,9 +176,14 @@ export class MatchService {
 
 			const matchRepo = await this.postgres.getMatchRepo();
 
-			// Once an unused matchID exists, store all player info (displayName (?), steamid)
-			const match = new Match();
-			match.id = matchID;
+			let match = await matchRepo.findOne(matchID);
+
+			// In case we receive the match start even multiple times
+			if (!match) {
+				match = new Match();
+				match.id = matchID;
+			}
+
 			match.slots = [];
 			match.gameMode = gameMode;
 			match.season = currentSeason;
@@ -217,36 +222,39 @@ export class MatchService {
 				);
 			}
 
-			try {
-				// For each player in the lobby
-				for (const { accountID, slot, finalPlace, name } of players) {
-					const matchSlot = new MatchSlot();
+			const matchSlotRepo = await this.postgres.getMatchSlotRepo();
 
+			// For each player in the lobby
+			for (const { accountID, slot, finalPlace, name } of players) {
+				let matchSlot = await matchSlotRepo.findOne({
+					where: { match, slot },
+				});
+
+				if (!matchSlot) {
+					matchSlot = new MatchSlot();
 					// Link their slot to a match
 					matchSlot.match = match;
 					// Save their slot
 					matchSlot.slot = slot;
-					// Save their finalPlace
-					matchSlot.finalPlace = finalPlace;
-
-					matchSlot.created = timestamp;
-					matchSlot.updated = timestamp;
-
-					const user = await this.getOrCreateUser(
-						accountID,
-						timestamp,
-						name,
-					);
-
-					matchSlot.user = user;
-					match.slots.push(matchSlot);
 				}
 
-				await matchRepo.save(match);
-			} catch (e) {
-				debug("app::storeMatchStart::slot")(match);
-				throw e;
+				// Save their finalPlace
+				matchSlot.finalPlace = finalPlace;
+
+				matchSlot.created = timestamp;
+				matchSlot.updated = timestamp;
+
+				const user = await this.getOrCreateUser(
+					accountID,
+					timestamp,
+					name,
+				);
+
+				matchSlot.user = user;
+				match.slots.push(matchSlot);
 			}
+
+			await matchRepo.save(match);
 		} catch (e) {
 			debug("app::storeMatchStart")(e);
 			throw e;
