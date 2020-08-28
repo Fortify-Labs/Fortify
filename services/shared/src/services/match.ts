@@ -307,8 +307,10 @@ export class MatchService {
 			matchSlot.finalPlace = finalPlace;
 			matchSlot.user = user;
 			matchSlot.match = match;
-			// We use Date.now here to avoid primary key clashes
-			matchSlot.slot = Date.now();
+			// As the slot is a 4 bytes integer in the db, we're going to create a random number in said range
+			// This will hopefully save us from clashing compound primary key collisions
+			matchSlot.slot =
+				(Math.random() >= 0.5 ? 1 : -1) * Math.random() * 2147483647;
 
 			match.slots = [matchSlot];
 		}
