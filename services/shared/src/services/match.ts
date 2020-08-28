@@ -216,6 +216,8 @@ export class MatchService {
 				);
 			}
 
+			await matchRepo.save(match);
+
 			// For each player in the lobby
 			for (const { accountID, slot, finalPlace, name } of players) {
 				const matchSlot = new MatchSlot();
@@ -299,7 +301,6 @@ export class MatchService {
 			}
 
 			const matchRepo = await this.postgres.getMatchRepo();
-			const userRepo = await this.postgres.getUserRepo();
 
 			let match = await matchRepo.findOne(matchID, {
 				relations: ["slots", "slots.user"],
@@ -321,6 +322,7 @@ export class MatchService {
 
 				match.id = matchID;
 				match.created = timestamp;
+				await matchRepo.save(match);
 
 				const user = await this.getOrCreateUser(steamID, timestamp, "");
 
