@@ -175,8 +175,6 @@ export class MatchService {
 			}
 
 			const matchRepo = await this.postgres.getMatchRepo();
-			// const matchSlotsRepo = await this.postgres.getMatchSlotRepo();
-			const userRepo = await this.postgres.getUserRepo();
 
 			// Once an unused matchID exists, store all player info (displayName (?), steamid)
 			const match = new Match();
@@ -219,33 +217,36 @@ export class MatchService {
 				);
 			}
 
-			await matchRepo.save(match);
+			try {
+				// For each player in the lobby
+				for (const { accountID, slot, finalPlace, name } of players) {
+					const matchSlot = new MatchSlot();
 
-			// For each player in the lobby
-			for (const { accountID, slot, finalPlace, name } of players) {
-				const matchSlot = new MatchSlot();
+					// Link their slot to a match
+					matchSlot.match = match;
+					// Save their slot
+					matchSlot.slot = slot;
+					// Save their finalPlace
+					matchSlot.finalPlace = finalPlace;
 
-				// Link their slot to a match
-				matchSlot.match = match;
-				// Save their slot
-				matchSlot.slot = slot;
-				// Save their finalPlace
-				matchSlot.finalPlace = finalPlace;
+					matchSlot.created = timestamp;
+					matchSlot.updated = timestamp;
 
-				matchSlot.created = timestamp;
-				matchSlot.updated = timestamp;
+					const user = await this.getOrCreateUser(
+						accountID,
+						timestamp,
+						name,
+					);
 
-				const user = await this.getOrCreateUser(
-					accountID,
-					timestamp,
-					name,
-				);
+					matchSlot.user = user;
+					match.slots.push(matchSlot);
+				}
 
-				matchSlot.user = user;
-				match.slots.push(matchSlot);
+				await matchRepo.save(match);
+			} catch (e) {
+				debug("app::storeMatchStart::slot")(match);
+				throw e;
 			}
-
-			await matchRepo.save(match);
 		} catch (e) {
 			debug("app::storeMatchStart")(e);
 			throw e;
