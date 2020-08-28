@@ -27,10 +27,5 @@ export class template extends ApiObject {
  * @schema template
  */
 export interface templateOptions {
-  /**
-   * @schema template#spec
-   */
-  readonly spec?: any;
-
 }
 

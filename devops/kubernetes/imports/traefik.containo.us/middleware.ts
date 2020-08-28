@@ -5,27 +5,27 @@ import { Construct } from 'constructs';
 /**
  * 
  *
- * @schema adapter
+ * @schema Middleware
  */
-export class adapter extends ApiObject {
+export class Middleware extends ApiObject {
   /**
-   * Defines a "adapter" API object
+   * Defines a "Middleware" API object
    * @param scope the scope in which to define this object
    * @param name a scope-local name for the object
    * @param options configuration options
    */
-  public constructor(scope: Construct, name: string, options: adapterOptions = {}) {
+  public constructor(scope: Construct, name: string, options: MiddlewareOptions = {}) {
     super(scope, name, {
       ...options,
-      kind: 'adapter',
-      apiVersion: 'config.istio.io/v1alpha2',
+      kind: 'Middleware',
+      apiVersion: 'traefik.containo.us/v1alpha1',
     });
   }
 }
 
 /**
- * @schema adapter
+ * @schema Middleware
  */
-export interface adapterOptions {
+export interface MiddlewareOptions {
 }
 

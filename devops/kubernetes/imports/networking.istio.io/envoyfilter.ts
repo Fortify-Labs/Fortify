@@ -166,6 +166,13 @@ export interface EnvoyFilterSpecConfigPatchesMatch {
  */
 export interface EnvoyFilterSpecConfigPatchesPatch {
   /**
+   * Determines the filter insertion order.
+   *
+   * @schema EnvoyFilterSpecConfigPatchesPatch#filterClass
+   */
+  readonly filterClass?: EnvoyFilterSpecConfigPatchesPatchFilterClass;
+
+  /**
    * Determines how the patch should be applied.
    *
    * @schema EnvoyFilterSpecConfigPatchesPatch#operation
@@ -321,6 +328,22 @@ export interface EnvoyFilterSpecConfigPatchesMatchRouteConfiguration {
 }
 
 /**
+ * Determines the filter insertion order.
+ *
+ * @schema EnvoyFilterSpecConfigPatchesPatchFilterClass
+ */
+export enum EnvoyFilterSpecConfigPatchesPatchFilterClass {
+  /** UNSPECIFIED */
+  UNSPECIFIED = "UNSPECIFIED",
+  /** AUTHN */
+  AUTHN = "AUTHN",
+  /** AUTHZ */
+  AUTHZ = "AUTHZ",
+  /** STATS */
+  STATS = "STATS",
+}
+
+/**
  * Determines how the patch should be applied.
  *
  * @schema EnvoyFilterSpecConfigPatchesPatchOperation
@@ -340,6 +363,8 @@ export enum EnvoyFilterSpecConfigPatchesPatchOperation {
   INSERT_AFTER = "INSERT_AFTER",
   /** INSERT_FIRST */
   INSERT_FIRST = "INSERT_FIRST",
+  /** REPLACE */
+  REPLACE = "REPLACE",
 }
 
 /**

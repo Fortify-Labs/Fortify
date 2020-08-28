@@ -1,7 +1,8 @@
 FROM node:14-alpine
 
 # Below command makes scuttle available in path
-COPY --from=redboxoss/scuttle:latest /scuttle /bin/scuttle
+# COPY --from=redboxoss/scuttle:latest /scuttle /bin/scuttle
+
 # ENV NODE_ENV production
 
 # Copy the shared library

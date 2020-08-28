@@ -4,6 +4,7 @@
 		"Deserialization",
 		"Dota",
 		"Persistor",
+		"Scaleway",
 		"Underlords",
 		"akhq",
 		"appendonly",

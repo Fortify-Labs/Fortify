@@ -17,4 +17,4 @@ RUN npm run compile &&\
 RUN chown -R node:node /usr/src/app
 USER node
 
-CMD scuttle npm run start
+CMD npm run start
