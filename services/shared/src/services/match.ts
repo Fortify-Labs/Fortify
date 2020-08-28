@@ -168,7 +168,10 @@ export class MatchService {
 	}: MatchStartedEvent) {
 		try {
 			if (!matchID) {
-				throw new Error("No matchID set in MatchStartedEvent");
+				debug("app::storeMatchStart")(
+					"No matchID set in MatchStartedEvent; Skipping event",
+				);
+				return;
 			}
 
 			const matchRepo = await this.postgres.getMatchRepo();
@@ -297,7 +300,10 @@ export class MatchService {
 	}: MatchFinalPlaceEvent) {
 		try {
 			if (!matchID) {
-				throw new Error("No matchID set in MatchFinalPlaceEvent");
+				debug("app::storeFinalPlace")(
+					"No matchID set in MatchFinalPlaceEvent. Skipping event",
+				);
+				return;
 			}
 
 			const matchRepo = await this.postgres.getMatchRepo();
@@ -355,7 +361,10 @@ export class MatchService {
 	async storeMatchEnd({ matchID, timestamp }: MatchEndedEvent) {
 		try {
 			if (!matchID) {
-				throw new Error("No matchID set in MatchEndedEvent");
+				debug("app::storeMatchEnd")(
+					"No matchID set in MatchEndedEvent; Skipping event",
+				);
+				return;
 			}
 
 			const matchRepo = await this.postgres.getMatchRepo();
