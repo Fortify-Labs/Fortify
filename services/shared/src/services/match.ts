@@ -309,8 +309,9 @@ export class MatchService {
 			matchSlot.match = match;
 			// As the slot is a 4 bytes integer in the db, we're going to create a random number in said range
 			// This will hopefully save us from clashing compound primary key collisions
-			matchSlot.slot =
-				(Math.random() >= 0.5 ? 1 : -1) * Math.random() * 2147483647;
+			matchSlot.slot = Math.floor(
+				(Math.random() >= 0.5 ? 1 : -1) * Math.random() * 2147483647,
+			);
 
 			match.slots = [matchSlot];
 		}
