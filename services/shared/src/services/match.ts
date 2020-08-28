@@ -184,7 +184,6 @@ export class MatchService {
 				match.id = matchID;
 			}
 
-			match.slots = [];
 			match.gameMode = gameMode;
 			match.season = currentSeason;
 			match.created = timestamp;
@@ -224,6 +223,7 @@ export class MatchService {
 
 			const matchSlotRepo = await this.postgres.getMatchSlotRepo();
 
+			const matchSlots: MatchSlot[] = [];
 			// For each player in the lobby
 			for (const { accountID, slot, finalPlace, name } of players) {
 				let matchSlot = await matchSlotRepo.findOne({
@@ -251,9 +251,21 @@ export class MatchService {
 				);
 
 				matchSlot.user = user;
-				match.slots.push(matchSlot);
+				matchSlots.push(matchSlot);
 			}
 
+			if (match.slots) {
+				await Promise.all(
+					match.slots.map((slot) =>
+						matchSlotRepo.delete({
+							slot: slot.slot,
+							match: slot.match,
+						}),
+					),
+				);
+			}
+
+			match.slots = matchSlots;
 			await matchRepo.save(match);
 		} catch (e) {
 			debug("app::storeMatchStart")(e);
