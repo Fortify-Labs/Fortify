@@ -176,15 +176,16 @@ export class MatchService {
 
 			const matchRepo = await this.postgres.getMatchRepo();
 
-			let match = await matchRepo.findOne(matchID);
-
-			// In case we receive the match start even multiple times
-			if (!match) {
-				match = new Match();
-				match.id = matchID;
+			// In case we receive the match started event multiple times
+			const dbMatch = await matchRepo.findOne(matchID);
+			if (dbMatch) {
+				return;
 			}
 
+			const match = new Match();
+			match.id = matchID;
 			match.gameMode = gameMode;
+			match.slots = [];
 			match.season = currentSeason;
 			match.created = timestamp;
 			match.updated = timestamp;
@@ -223,7 +224,6 @@ export class MatchService {
 
 			const matchSlotRepo = await this.postgres.getMatchSlotRepo();
 
-			const matchSlots: MatchSlot[] = [];
 			// For each player in the lobby
 			for (const { accountID, slot, finalPlace, name } of players) {
 				let matchSlot = await matchSlotRepo.findOne({
@@ -251,21 +251,9 @@ export class MatchService {
 				);
 
 				matchSlot.user = user;
-				matchSlots.push(matchSlot);
+				match.slots.push(matchSlot);
 			}
 
-			if (match.slots) {
-				await Promise.all(
-					match.slots.map((slot) =>
-						matchSlotRepo.delete({
-							slot: slot.slot,
-							match: slot.match,
-						}),
-					),
-				);
-			}
-
-			match.slots = matchSlots;
 			await matchRepo.save(match);
 		} catch (e) {
 			debug("app::storeMatchStart")(e);
