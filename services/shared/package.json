@@ -1,47 +1,47 @@
 {
-  "name": "shared",
-  "version": "1.7.15",
-  "description": "Shared library for fortify micro services",
-  "main": "build/src/index.js",
-  "types": "build/src/index.d.ts",
-  "license": "AGPL-3.0-or-later",
-  "private": "true",
-  "files": [
-    "build/src"
-  ],
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "check": "gts check",
-    "clean": "gts clean",
-    "compile": "tsc",
-    "fix": "gts fix",
-    "prepare": "npm run compile",
-    "pretest": "npm run compile",
-    "posttest": "npm run check",
-    "typeorm": "ts-node ./node_modules/.bin/typeorm -f ./ormconfig.ts"
-  },
-  "devDependencies": {
-    "@types/debug": "^4.1.5",
-    "@types/ioredis": "^4.17.3",
-    "@types/jsonwebtoken": "^8.5.0",
-    "@types/node": "^14.6.0",
-    "@types/node-fetch": "^2.5.7",
-    "dotenv": "^8.2.0",
-    "gts": "^2.0.2",
-    "ts-node": "^9.0.0",
-    "typescript": "^4.0.2"
-  },
-  "dependencies": {
-    "@influxdata/influxdb-client": "^1.6.0",
-    "bignumber.js": "^9.0.0",
-    "debug": "^4.1.1",
-    "inversify": "^5.0.1",
-    "ioredis": "^4.17.3",
-    "jsonwebtoken": "^8.5.1",
-    "kafkajs": "^1.12.0",
-    "node-fetch": "^2.6.0",
-    "pg": "^8.3.2",
-    "reflect-metadata": "^0.1.13",
-    "typeorm": "^0.2.25"
-  }
+	"name": "shared",
+	"version": "1.7.16",
+	"description": "Shared library for fortify micro services",
+	"main": "build/src/index.js",
+	"types": "build/src/index.d.ts",
+	"license": "AGPL-3.0-or-later",
+	"private": "true",
+	"files": [
+		"build/src"
+	],
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"check": "gts check",
+		"clean": "gts clean",
+		"compile": "tsc",
+		"fix": "gts fix",
+		"prepare": "npm run compile",
+		"pretest": "npm run compile",
+		"posttest": "npm run check",
+		"typeorm": "ts-node ./node_modules/.bin/typeorm -f ./ormconfig.ts"
+	},
+	"devDependencies": {
+		"@types/debug": "^4.1.5",
+		"@types/ioredis": "^4.17.3",
+		"@types/jsonwebtoken": "^8.5.0",
+		"@types/node": "^14.6.0",
+		"@types/node-fetch": "^2.5.7",
+		"dotenv": "^8.2.0",
+		"gts": "^2.0.2",
+		"ts-node": "^9.0.0",
+		"typescript": "^4.0.2"
+	},
+	"dependencies": {
+		"@influxdata/influxdb-client": "^1.6.0",
+		"bignumber.js": "^9.0.0",
+		"debug": "^4.1.1",
+		"inversify": "^5.0.1",
+		"ioredis": "^4.17.3",
+		"jsonwebtoken": "^8.5.1",
+		"kafkajs": "^1.12.0",
+		"node-fetch": "^2.6.0",
+		"pg": "^8.3.2",
+		"reflect-metadata": "^0.1.13",
+		"typeorm": "^0.2.25"
+	}
 }
