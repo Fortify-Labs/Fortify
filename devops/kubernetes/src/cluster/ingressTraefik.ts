@@ -45,7 +45,7 @@ export class ClusterIngressTraefik extends Construct {
 
 		new IngressRoute(this, `${name}-${ENVIRONMENT}-ingress-route`, {
 			metadata: {
-				name: options.name + "-ingress-route",
+				name: `${name}-${ENVIRONMENT}-ingress-route`,
 				namespace: "kube-system",
 			},
 			spec: {
