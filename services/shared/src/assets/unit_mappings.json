@@ -1,7 +1,15 @@
 {
 	"antimage": {
 		"displayName": "Anti-Mage",
-		"alts": ["am", "anti-mage", "anti mage", "vagina", "wei", "anti-mega", "magina"]
+		"alts": [
+			"anti-mage",
+			"anti mage",
+			"am",
+			"vagina",
+			"wei",
+			"anti-mega",
+			"magina"
+		]
 	},
 	"arc_warden": {
 		"displayName": "Arc Warden",
@@ -17,7 +25,7 @@
 	},
 	"bounty_hunter": {
 		"displayName": "Bounty Hunter",
-		"alts": ["bh", "bounty hunter", "bounty", "hounty bunter", "gondar"]
+		"alts": ["bounty hunter", "bounty", "bh", "hounty bunter", "gondar"]
 	},
 	"crystal_maiden": {
 		"displayName": "Crystal Maiden",
@@ -229,6 +237,10 @@
 		"displayName": "Abaddon",
 		"alts": ["abaddon", "abba", "lord of avernus"]
 	},
+	"alchemist": {
+		"displayName": "Alchemist",
+		"alts": ["alchemist", "alch", "razzil darkbrew", "razzil"]
+	},
 	"beastmaster": {
 		"displayName": "Beastmaster",
 		"alts": ["beastmaster", "bm", "beast", "beast master", "rexxar", "karroch"]
@@ -375,11 +387,11 @@
 		"displayName": "Necrophos",
 		"alts": ["necrophos", "necro", "rotundjere", "necrolyte"]
 	},
-	"Pangolier": {
+	"pangolier": {
 		"displayName": "Pangolier",
 		"alts": ["pangolier", "pango", "donte", "donte panlin"]
 	},
-	"Rubick": {
+	"rubick": {
 		"displayName": "Rubick",
 		"alts": ["rubick", "grand magus"]
 	},
