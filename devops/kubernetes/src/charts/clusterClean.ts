@@ -106,6 +106,27 @@ export class ClusterSetupClean extends Chart {
 							},
 						],
 					},
+					affinity: {
+						podAntiAffinity: {
+							preferredDuringSchedulingIgnoredDuringExecution: [
+								{
+									weight: 1,
+									podAffinityTerm: {
+										labelSelector: {
+											matchExpressions: [
+												{
+													key: "strimzi.io/cluster",
+													operator: "In",
+													values: ["fortify"],
+												},
+											],
+										},
+										topologyKey: "kubernetes.io/hostname",
+									},
+								},
+							],
+						},
+					},
 				},
 				zookeeper: {
 					replicas: 3,
@@ -133,8 +154,8 @@ export class ClusterSetupClean extends Chart {
 				partitions: 3,
 				replicas: 2,
 				config: {
-					"retention.ms": 3 * 86400000, // 3 * 1 day,
-					"segment.ms": 86400000, // 1 day
+					"retention.ms": 1 * 24 * 60 * 60 * 1000, // 1 * 1 day,
+					"segment.ms": 1 * 60 * 60 * 1000, // 1 hour
 					"segment.bytes": 1073741824, // 1 GB
 				},
 			},
@@ -152,8 +173,8 @@ export class ClusterSetupClean extends Chart {
 				partitions: 3,
 				replicas: 2,
 				config: {
-					"retention.ms": 3 * 86400000, // 3 * 1 day,
-					"segment.ms": 86400000, // 1 day
+					"retention.ms": 7 * 24 * 60 * 60 * 1000, // 7 * 1 day,
+					"segment.ms": 24 * 60 * 60 * 1000, // 1 day
 					"segment.bytes": 1073741824, // 1 GB
 				},
 			},
@@ -171,8 +192,8 @@ export class ClusterSetupClean extends Chart {
 				partitions: 3,
 				replicas: 2,
 				config: {
-					"retention.ms": 3 * 86400000, // 3 * 1 day,
-					"segment.ms": 86400000, // 1 day
+					"retention.ms": 7 * 24 * 60 * 60 * 1000, // 7 * 1 day,
+					"segment.ms": 24 * 60 * 60 * 1000, // 1 day
 					"segment.bytes": 1073741824, // 1 GB
 				},
 			},
@@ -733,7 +754,7 @@ export class ClusterSetupClean extends Chart {
 		});
 
 		// Placeholder until the staging cluster arrives
-		new ClusterIngressTraefik(this, "frontend-ingress", {
+		new ClusterIngressTraefik(this, "frontend-dev-ingress", {
 			name: "frontend",
 			namespace: fortifyNS.name,
 			serviceName: "frontend",
