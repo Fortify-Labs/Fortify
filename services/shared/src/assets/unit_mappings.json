@@ -1,7 +1,7 @@
 {
 	"antimage": {
 		"displayName": "Anti-Mage",
-		"alts": ["anti-mage", "anti mage", "vagina", "wei", "anti-mega", "magina"]
+		"alts": ["am", "anti-mage", "anti mage", "vagina", "wei", "anti-mega", "magina"]
 	},
 	"arc_warden": {
 		"displayName": "Arc Warden",
@@ -17,7 +17,7 @@
 	},
 	"bounty_hunter": {
 		"displayName": "Bounty Hunter",
-		"alts": ["bounty hunter", "bounty", "hounty bunter", "gondar"]
+		"alts": ["bh", "bounty hunter", "bounty", "hounty bunter", "gondar"]
 	},
 	"crystal_maiden": {
 		"displayName": "Crystal Maiden",
@@ -436,7 +436,6 @@
 			"kotl",
 			"keeper",
 			"kotol",
-			"kotol of the light",
 			"kotl of the light",
 			"kotol of the light",
 			"kontol",
