@@ -12,7 +12,10 @@ import { Integrations } from "@sentry/tracing";
 import "../sass/mystyles.scss";
 import styles from "../css/_appStyles.module.css";
 
+import { Context } from "@shared/auth";
+
 import packageJSON from "../package.json";
+import { getCookie } from "utils/cookie";
 
 function MyApp({ Component, pageProps }: AppProps) {
 	Sentry.init({
@@ -21,6 +24,17 @@ function MyApp({ Component, pageProps }: AppProps) {
 		integrations: [new Integrations.BrowserTracing()],
 		tracesSampleRate: 1.0,
 		release: "frontend@" + packageJSON.version,
+	});
+	Sentry.configureScope((scope) => {
+		const jwt = getCookie("auth", null);
+
+		if (jwt) {
+			const user: Context = JSON.parse(atob(jwt.split(".")[1]));
+
+			scope.setUser({
+				id: user.user.id,
+			});
+		}
 	});
 
 	return (
