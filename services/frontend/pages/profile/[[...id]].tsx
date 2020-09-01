@@ -81,7 +81,7 @@ const Profile = () => {
 				</p>
 			)}
 
-			{!loading && !error && (
+			{!loading && (
 				<div style={{ margin: "1rem" }}>
 					<div className="columns">
 						<div className="column is-narrow">
