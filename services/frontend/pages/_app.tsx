@@ -6,10 +6,23 @@ import defaultSEOConfigs from "../next-seo.config";
 import { Footer } from "../components/footer";
 import CookieConsent from "react-cookie-consent";
 
+import * as Sentry from "@sentry/react";
+import { Integrations } from "@sentry/tracing";
+
 import "../sass/mystyles.scss";
 import styles from "../css/_appStyles.module.css";
 
+import packageJSON from "../package.json";
+
 function MyApp({ Component, pageProps }: AppProps) {
+	Sentry.init({
+		dsn:
+			"https://55dabff87d3d4ab087fd8c0ad574f5e2@o441681.ingest.sentry.io/5413254",
+		integrations: [new Integrations.BrowserTracing()],
+		tracesSampleRate: 1.0,
+		release: "frontend@" + packageJSON.version,
+	});
+
 	return (
 		<>
 			<DefaultSeo {...defaultSEOConfigs} />
