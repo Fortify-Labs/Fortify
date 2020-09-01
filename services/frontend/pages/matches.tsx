@@ -67,7 +67,7 @@ const Matches = () => {
 								{error.name} - {error.message}
 							</p>
 						)}
-						{!loading && !error && (
+						{!loading && (
 							<tbody>
 								{data?.currentMatches?.map((match) => (
 									<tr key={match?.id}>
