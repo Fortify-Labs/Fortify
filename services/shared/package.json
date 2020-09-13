@@ -39,7 +39,7 @@
     "ioredis": "^4.17.3",
     "jsonwebtoken": "^8.5.1",
     "kafkajs": "^1.12.0",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^2.6.1",
     "pg": "^8.3.2",
     "reflect-metadata": "^0.1.13",
     "typeorm": "^0.2.25"
