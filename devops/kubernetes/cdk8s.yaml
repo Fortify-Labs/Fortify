@@ -2,9 +2,9 @@ language: typescript
 app: node main.js
 imports:
   - k8s
-  - https://raw.githubusercontent.com/istio/istio/master/manifests/charts/base/crds/crd-all.gen.yaml
-  - https://raw.githubusercontent.com/istio/istio/master/manifests/charts/base/crds/crd-mixer.yaml
-  - https://raw.githubusercontent.com/istio/istio/master/manifests/charts/base/crds/crd-operator.yaml
+  # - https://raw.githubusercontent.com/istio/istio/master/manifests/charts/base/crds/crd-all.gen.yaml
+  # - https://raw.githubusercontent.com/istio/istio/master/manifests/charts/base/crds/crd-mixer.yaml
+  # - https://raw.githubusercontent.com/istio/istio/master/manifests/charts/base/crds/crd-operator.yaml
   - https://github.com/jetstack/cert-manager/releases/download/v0.15.1/cert-manager.crds.yaml
   - https://strimzi.io/install/latest?namespace=kafka
   - crds/postgres.yaml
