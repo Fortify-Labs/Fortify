@@ -17,6 +17,7 @@ import {
 	KafkaSpecKafkaStorageVolumesType,
 	KafkaSpecZookeeperStorageType,
 	KafkaOptions,
+	// KafkaSpecKafkaListenersTlsAuthenticationType,
 } from "../../imports/kafka.strimzi.io/kafka";
 
 import {
@@ -101,30 +102,36 @@ export class ClusterSetupClean extends Chart {
 								id: 0,
 								type:
 									KafkaSpecKafkaStorageVolumesType.PERSISTENT_CLAIM,
-								size: "30Gi",
+								size: "20Gi",
 								deleteClaim: false,
 							},
 						],
 					},
-					affinity: {
-						podAntiAffinity: {
-							preferredDuringSchedulingIgnoredDuringExecution: [
-								{
-									weight: 1,
-									podAffinityTerm: {
-										labelSelector: {
-											matchExpressions: [
-												{
-													key: "strimzi.io/cluster",
-													operator: "In",
-													values: ["fortify"],
+					template: {
+						pod: {
+							affinity: {
+								podAntiAffinity: {
+									preferredDuringSchedulingIgnoredDuringExecution: [
+										{
+											weight: 1,
+											podAffinityTerm: {
+												labelSelector: {
+													matchExpressions: [
+														{
+															key:
+																"strimzi.io/cluster",
+															operator: "In",
+															values: ["fortify"],
+														},
+													],
 												},
-											],
+												topologyKey:
+													"kubernetes.io/hostname",
+											},
 										},
-										topologyKey: "kubernetes.io/hostname",
-									},
+									],
 								},
-							],
+							},
 						},
 					},
 				},
@@ -134,6 +141,33 @@ export class ClusterSetupClean extends Chart {
 						type: KafkaSpecZookeeperStorageType.PERSISTENT_CLAIM,
 						size: "10Gi",
 						deleteClaim: false,
+					},
+					template: {
+						pod: {
+							affinity: {
+								podAntiAffinity: {
+									preferredDuringSchedulingIgnoredDuringExecution: [
+										{
+											weight: 1,
+											podAffinityTerm: {
+												labelSelector: {
+													matchExpressions: [
+														{
+															key:
+																"strimzi.io/cluster",
+															operator: "In",
+															values: ["fortify"],
+														},
+													],
+												},
+												topologyKey:
+													"kubernetes.io/hostname",
+											},
+										},
+									],
+								},
+							},
+						},
 					},
 				},
 				entityOperator: {
@@ -152,7 +186,7 @@ export class ClusterSetupClean extends Chart {
 			},
 			spec: {
 				partitions: 3,
-				replicas: 2,
+				replicas: 3,
 				config: {
 					"retention.ms": 1 * 24 * 60 * 60 * 1000, // 1 * 1 day,
 					"segment.ms": 1 * 60 * 60 * 1000, // 1 hour
@@ -171,7 +205,7 @@ export class ClusterSetupClean extends Chart {
 			},
 			spec: {
 				partitions: 3,
-				replicas: 2,
+				replicas: 3,
 				config: {
 					"retention.ms": 7 * 24 * 60 * 60 * 1000, // 7 * 1 day,
 					"segment.ms": 24 * 60 * 60 * 1000, // 1 day
@@ -190,7 +224,7 @@ export class ClusterSetupClean extends Chart {
 			},
 			spec: {
 				partitions: 3,
-				replicas: 2,
+				replicas: 3,
 				config: {
 					"retention.ms": 7 * 24 * 60 * 60 * 1000, // 7 * 1 day,
 					"segment.ms": 24 * 60 * 60 * 1000, // 1 day

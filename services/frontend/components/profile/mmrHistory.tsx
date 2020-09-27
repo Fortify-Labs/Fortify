@@ -1,4 +1,5 @@
 import { FunctionComponent } from "react";
+
 import { useProfileMmrHistoryQuery } from "../../gql/ProfileMmrHistory.graphql";
 import { LineChart } from "../linechart";
 

@@ -32,9 +32,12 @@ export class RedisConnector {
 						};
 					}),
 				name: REDIS_SENTINEL_NAME,
+				reconnectOnError: () => true,
 			});
 		} else {
-			return new Redis(REDIS_URL);
+			return new Redis(REDIS_URL, {
+				reconnectOnError: () => true,
+			});
 		}
 	}
 

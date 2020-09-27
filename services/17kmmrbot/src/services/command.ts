@@ -22,7 +22,7 @@ export class BotCommandProcessor {
 
 	async process(payload: EachMessagePayload, client: Client) {
 		const message: FortifyEvent<SystemEventType> = JSON.parse(
-			payload.message.value.toString(),
+			(payload.message.value ?? "{}").toString(),
 		);
 
 		if (message.type === SystemEventType.TWITCH_LINKED) {
