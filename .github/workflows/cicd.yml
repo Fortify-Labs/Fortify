@@ -1,0 +1,53 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - "master"
+      - "hotfix-*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: "14"
+      - run: node --version
+      - run: npm --version
+      - run: echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u ThomasK33 --password-stdin
+      - run: echo -n ${{ secrets.BUILD_DOTENV }} | base64 -d > .env
+      - run: echo -n ${{ secrets.FRONTEND_BUILD_DOTENV }} | base64 -d > services/frontend/.env
+      - run: chmod +x ./scripts/build.sh
+      - run: ./scripts/build.sh
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: devops/kubernetes
+
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v2-beta
+        with:
+          node-version: "14"
+      - uses: azure/setup-kubectl@v1
+        with:
+          version: "v1.19.2"
+        id: install-kubectl
+
+      - run: echo '::set-env name=DOMAIN::fortify.gg'
+      - run: mkdir -p ~/.kube/ && touch ~/.kube/config && echo ${{ secrets.KUBECONFIG }} | base64 --decode > ~/.kube/config
+      - run: touch .env && echo ${{ secrets.K8S_DOTENV }} | base64 --decode > .env
+      - run: npm ci
+      - run: npm run record
+      - run: npm run build
+      - run: kubectl apply -f dist/fortify.k8s.yaml
