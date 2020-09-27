@@ -14,11 +14,6 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v2-beta
-        with:
-          node-version: "14"
-      - run: node --version
-      - run: npm --version
       - run: echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com -u ThomasK33 --password-stdin
       - run: echo -n ${{ secrets.BUILD_DOTENV }} | base64 -d > .env
       - run: echo -n ${{ secrets.FRONTEND_BUILD_DOTENV }} | base64 -d > services/frontend/.env

@@ -1,5 +1,5 @@
 ARG BASE_VERSION=invalidVersion
-FROM registry.gitlab.com/thomask33/fortify/base:$BASE_VERSION
+FROM docker.pkg.github.com/fortify-labs/fortify/base:$BASE_VERSION
 
 ARG SERVICE_NAME
 ARG EXPOSED_PORT=8080
