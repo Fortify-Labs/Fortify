@@ -61,6 +61,10 @@ const {
 	consumer.run({
 		autoCommit: KAFKA_AUTO_COMMIT !== "false" ?? true,
 		eachMessage: async ({ message, topic }) => {
+			if (!message.value) {
+				return;
+			}
+
 			const value = message.value.toString();
 
 			if (topic === FortifyEventTopics.SYSTEM) {

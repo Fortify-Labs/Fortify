@@ -44,6 +44,10 @@ const {
 		autoCommit: KAFKA_AUTO_COMMIT !== "false" ?? true,
 		eachMessage: async ({ message, topic, partition }) => {
 			try {
+				if (!message.value) {
+					return;
+				}
+
 				const value = message.value.toString();
 
 				if (topic === FortifyEventTopics.GAME) {

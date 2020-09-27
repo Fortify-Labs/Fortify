@@ -21,7 +21,8 @@ app.use(bodyParser.json());
 
 const graphQL = container.get(GraphQL);
 const graphQLServer = graphQL.server();
-graphQLServer.applyMiddleware({ app, path: "/graphql" });
+// FIXME: Remove the any
+graphQLServer.applyMiddleware({ app: app as any, path: "/graphql" });
 
 const openAPI = container.get(OpenAPIDocs);
 openAPI.applyMiddleware({ app, apiPath: "/api", docsPath: "/docs" });
