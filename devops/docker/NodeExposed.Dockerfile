@@ -1,5 +1,6 @@
 ARG BASE_VERSION=invalidVersion
-FROM docker.pkg.github.com/fortify-labs/fortify/base:$BASE_VERSION
+FROM ghcr.io/fortify-labs/fortify/base:$BASE_VERSION
+LABEL org.opencontainers.image.source https://github.com/fortify-labs/fortify
 
 ARG SERVICE_NAME
 ARG EXPOSED_PORT=8080
