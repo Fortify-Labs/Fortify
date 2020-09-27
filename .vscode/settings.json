@@ -7,6 +7,7 @@
 		"Scaleway",
 		"Underlords",
 		"akhq",
+		"allowlist",
 		"appendonly",
 		"chmod",
 		"configmaps",
