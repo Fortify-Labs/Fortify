@@ -2,13 +2,13 @@ version: "3.7"
 
 services:
   base:
-    image: docker.pkg.github.com/fortify-labs/fortify/base:${BASE_VERSION:-invalidVersion}
+    image: ghcr.io/fortify-labs/fortify/base:${BASE_VERSION:-invalidVersion}
     build:
       context: ./
       dockerfile: ./devops/docker/Base.Dockerfile
 
   backend:
-    image: docker.pkg.github.com/fortify-labs/fortify/backend:${BACKEND_VERSION:-invalidVersion}
+    image: ghcr.io/fortify-labs/fortify/backend:${BACKEND_VERSION:-invalidVersion}
     build:
       context: ./
       dockerfile: ./devops/docker/NodeExposed.Dockerfile
@@ -19,7 +19,7 @@ services:
         EXPOSED_PORT: 8080
 
   frontend:
-    image: docker.pkg.github.com/fortify-labs/fortify/frontend:${FRONTEND_VERSION:-invalidVersion}
+    image: ghcr.io/fortify-labs/fortify/frontend:${FRONTEND_VERSION:-invalidVersion}
     build:
       context: ./
       dockerfile: ./devops/docker/NodeExposed.Dockerfile
@@ -30,7 +30,7 @@ services:
         EXPOSED_PORT: 3000
 
   fsm:
-    image: docker.pkg.github.com/fortify-labs/fortify/fsm:${FSM_VERSION:-invalidVersion}
+    image: ghcr.io/fortify-labs/fortify/fsm:${FSM_VERSION:-invalidVersion}
     build:
       context: ./
       dockerfile: ./devops/docker/Node.Dockerfile
@@ -40,7 +40,7 @@ services:
         SERVICE_NAME: fsm
 
   gsi-receiver:
-    image: docker.pkg.github.com/fortify-labs/fortify/gsi-receiver:${GSI_RECEIVER_VERSION:-invalidVersion}
+    image: ghcr.io/fortify-labs/fortify/gsi-receiver:${GSI_RECEIVER_VERSION:-invalidVersion}
     build:
       context: ./
       dockerfile: ./devops/docker/NodeExposed.Dockerfile
@@ -51,7 +51,7 @@ services:
         EXPOSED_PORT: 8080
 
   17kmmrbot:
-    image: docker.pkg.github.com/fortify-labs/fortify/17kmmrbot:${TWITCHBOT_VERSION:-invalidVersion}
+    image: ghcr.io/fortify-labs/fortify/17kmmrbot:${TWITCHBOT_VERSION:-invalidVersion}
     build:
       context: ./
       dockerfile: ./devops/docker/Node.Dockerfile
@@ -61,7 +61,7 @@ services:
         SERVICE_NAME: 17kmmrbot
 
   jobs:
-    image: docker.pkg.github.com/fortify-labs/fortify/jobs:${JOBS_VERSION:-invalidVersion}
+    image: ghcr.io/fortify-labs/fortify/jobs:${JOBS_VERSION:-invalidVersion}
     build:
       context: ./
       dockerfile: ./devops/docker/Node.Dockerfile
@@ -71,7 +71,7 @@ services:
         SERVICE_NAME: jobs
 
   historization:
-    image: docker.pkg.github.com/fortify-labs/fortify/historization:${HISTORIZATION_VERSION:-invalidVersion}
+    image: ghcr.io/fortify-labs/fortify/historization:${HISTORIZATION_VERSION:-invalidVersion}
     build:
       context: ./
       dockerfile: ./devops/docker/Node.Dockerfile
