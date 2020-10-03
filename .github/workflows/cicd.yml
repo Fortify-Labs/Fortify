@@ -14,11 +14,33 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - run: echo ${{ secrets.CICD_ACTION_TOKEN }} | docker login ghcr.io -u ThomasK33 --password-stdin
-      - run: echo -n ${{ secrets.BUILD_DOTENV }} | base64 -d > .env
-      - run: echo -n ${{ secrets.FRONTEND_BUILD_DOTENV }} | base64 -d > services/frontend/.env
-      - run: chmod +x ./scripts/build.sh
-      - run: ./scripts/build.sh
+      - name: Login to GHCR
+        run: echo ${{ secrets.CICD_ACTION_TOKEN }} | docker login ghcr.io -u ThomasK33 --password-stdin
+      - name: Set frontend build envs
+        run: echo -n ${{ secrets.FRONTEND_BUILD_DOTENV }} | base64 -d > services/frontend/.env
+      - name: Set Container Build Versions
+        run: |
+          echo '::set-env name=BASE_VERSION::'$(jq -r .version services/shared/package.json)
+
+          echo '::set-env name=BACKEND_VERSION::'$(jq -r .version services/backend/package.json)
+          echo '::set-env name=FRONTEND_VERSION::'$(jq -r .version services/frontend/package.json)
+          echo '::set-env name=FSM_VERSION::'$(jq -r .version services/fsm/package.json)
+          echo '::set-env name=GSI_RECEIVER_VERSION::'$(jq -r .version services/gsi-receiver/package.json)
+          echo '::set-env name=TWITCHBOT_VERSION::'$(jq -r .version services/17kmmrbot/package.json)
+          echo '::set-env name=JOBS_VERSION::'$(jq -r .version services/jobs/package.json)
+          echo '::set-env name=HISTORIZATION_VERSION::'$(jq -r .version services/historization/package.json)
+      - name: Pull all already existing images
+        run: docker-compose -f build.docker-compose.yml pull --ignore-pull-failures
+      - name: Build base image
+        run: |
+          docker-compose -f build.docker-compose.yml up -d base
+          docker-compose -f build.docker-compose.yml down
+      - name: Build remaining images
+        run: |
+          docker-compose -f build.docker-compose.yml up -d
+          docker-compose -f build.docker-compose.yml down
+      - name: Push images to GHCR
+        run: docker-compose -f build.docker-compose.yml push
 
   deploy:
     needs: build
@@ -37,7 +59,6 @@ jobs:
       - uses: azure/setup-kubectl@v1
         with:
           version: "v1.19.2"
-        id: install-kubectl
 
       - run: echo '::set-env name=DOMAIN::fortify.gg'
       - run: mkdir -p ~/.kube/ && touch ~/.kube/config && echo ${{ secrets.KUBECONFIG }} | base64 --decode > ~/.kube/config
