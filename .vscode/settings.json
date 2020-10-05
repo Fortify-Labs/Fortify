@@ -1,10 +1,14 @@
 {
 	"cSpell.words": [
+		"CICD",
 		"DOTENV",
 		"Deserialization",
 		"Dota",
+		"Envs",
+		"GHCR",
 		"Persistor",
 		"Scaleway",
+		"TWITCHBOT",
 		"Underlords",
 		"akhq",
 		"allowlist",
