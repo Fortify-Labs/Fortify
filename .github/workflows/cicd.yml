@@ -20,17 +20,15 @@ jobs:
         run: echo -n ${{ secrets.FRONTEND_BUILD_DOTENV }} | base64 -d > services/frontend/.env
       - name: Set Container Build Versions
         run: |
-          echo '::set-env name=BASE_VERSION::'$(jq -r .version services/shared/package.json)
+          echo BASE_VERSION=$(jq -r .version services/shared/package.json) >> $GITHUB_ENV
 
-          echo '::set-env name=BACKEND_VERSION::'$(jq -r .version services/backend/package.json)
-          echo '::set-env name=FRONTEND_VERSION::'$(jq -r .version services/frontend/package.json)
-          echo '::set-env name=FSM_VERSION::'$(jq -r .version services/fsm/package.json)
-          echo '::set-env name=GSI_RECEIVER_VERSION::'$(jq -r .version services/gsi-receiver/package.json)
-          echo '::set-env name=TWITCHBOT_VERSION::'$(jq -r .version services/17kmmrbot/package.json)
-          echo '::set-env name=JOBS_VERSION::'$(jq -r .version services/jobs/package.json)
-          echo '::set-env name=HISTORIZATION_VERSION::'$(jq -r .version services/historization/package.json)
-      - name: Pull all already existing images
-        run: docker-compose -f build.docker-compose.yml pull --ignore-pull-failures
+          echo BACKEND_VERSION=$(jq -r .version services/backend/package.json) >> $GITHUB_ENV
+          echo FRONTEND_VERSION=$(jq -r .version services/frontend/package.json) >> $GITHUB_ENV
+          echo FSM_VERSION=$(jq -r .version services/fsm/package.json) >> $GITHUB_ENV
+          echo GSI_RECEIVER_VERSION=$(jq -r .version services/gsi-receiver/package.json) >> $GITHUB_ENV
+          echo TWITCHBOT_VERSION=$(jq -r .version services/17kmmrbot/package.json) >> $GITHUB_ENV
+          echo JOBS_VERSION=$(jq -r .version services/jobs/package.json) >> $GITHUB_ENV
+          echo HISTORIZATION_VERSION=$(jq -r .version services/historization/package.json) >> $GITHUB_ENV
       - name: Build base image
         run: |
           docker-compose -f build.docker-compose.yml up -d base
@@ -60,7 +58,7 @@ jobs:
         with:
           version: "v1.19.2"
 
-      - run: echo '::set-env name=DOMAIN::fortify.gg'
+      - run: echo DOMAIN=fortify.gg >> $GITHUB_ENV
       - run: mkdir -p ~/.kube/ && touch ~/.kube/config && echo ${{ secrets.KUBECONFIG }} | base64 --decode > ~/.kube/config
       - run: touch .env && echo ${{ secrets.K8S_DOTENV }} | base64 --decode > .env
       - run: npm ci
