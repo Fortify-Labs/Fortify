@@ -29,6 +29,7 @@ const {
 	TWITCH_CLIENT_ID = "",
 	TWITCH_SECRET = "",
 	GA_TRACKING_ID,
+	SENTRY_DSN = "",
 } = process.env;
 
 export class Fortify extends Chart {
@@ -222,8 +223,16 @@ export class Fortify extends Chart {
 					value: `https://${DOMAIN}`,
 				},
 				{
-					name: "GA_TRACKING_ID",
+					name: "NEXT_PUBLIC_GA_TRACKING_ID",
 					value: GA_TRACKING_ID,
+				},
+				{
+					name: "NEXT_PUBLIC_SENTRY_DSN",
+					value: SENTRY_DSN,
+				},
+				{
+					name: "NODE_ENV",
+					value: "production",
 				},
 			],
 			service: {
