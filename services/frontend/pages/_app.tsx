@@ -6,37 +6,53 @@ import defaultSEOConfigs from "../next-seo.config";
 import { Footer } from "../components/footer";
 import CookieConsent from "react-cookie-consent";
 
-// import * as Sentry from "@sentry/react";
-// import { Integrations } from "@sentry/tracing";
-
 import "../sass/mystyles.scss";
 import styles from "../css/_appStyles.module.css";
 
-// import { Context } from "@shared/auth";
+import { Context } from "@shared/auth";
 
-// import packageJSON from "../package.json";
-// import { getCookie } from "utils/cookie";
+import packageJSON from "../package.json";
+import { getCookie } from "utils/cookie";
+
+import * as Sentry from "@sentry/node";
+import { RewriteFrames } from "@sentry/integrations";
+import getConfig from "next/config";
+
+if (process.env.NEXT_PUBLIC_SENTRY_DSN) {
+	const config = getConfig();
+	const distDir = `${config.serverRuntimeConfig.rootDir}/.next`;
+	Sentry.init({
+		enabled: process.env.NODE_ENV === "production",
+		dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+		integrations: [
+			new RewriteFrames({
+				iteratee: (frame) => {
+					frame.filename = frame.filename?.replace(
+						distDir,
+						"app:///_next"
+					);
+					return frame;
+				},
+			}),
+		],
+		tracesSampleRate: 1.0,
+		release: "frontend@" + packageJSON.version,
+	});
+
+	Sentry.configureScope((scope) => {
+		const jwt = getCookie("auth", null);
+
+		if (jwt) {
+			const user: Context = JSON.parse(atob(jwt.split(".")[1]));
+
+			scope.setUser({
+				id: user.user.id,
+			});
+		}
+	});
+}
 
 function MyApp({ Component, pageProps }: AppProps) {
-	// Sentry.init({
-	// 	dsn:
-	// 		"https://55dabff87d3d4ab087fd8c0ad574f5e2@o441681.ingest.sentry.io/5413254",
-	// 	integrations: [new Integrations.BrowserTracing()],
-	// 	tracesSampleRate: 1.0,
-	// 	release: "frontend@" + packageJSON.version,
-	// });
-	// Sentry.configureScope((scope) => {
-	// 	const jwt = getCookie("auth", null);
-
-	// 	if (jwt) {
-	// 		const user: Context = JSON.parse(atob(jwt.split(".")[1]));
-
-	// 		scope.setUser({
-	// 			id: user.user.id,
-	// 		});
-	// 	}
-	// });
-
 	return (
 		<>
 			<DefaultSeo {...defaultSEOConfigs} />
