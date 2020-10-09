@@ -29,6 +29,14 @@ jobs:
           echo TWITCHBOT_VERSION=$(jq -r .version services/17kmmrbot/package.json) >> $GITHUB_ENV
           echo JOBS_VERSION=$(jq -r .version services/jobs/package.json) >> $GITHUB_ENV
           echo HISTORIZATION_VERSION=$(jq -r .version services/historization/package.json) >> $GITHUB_ENV
+      # Set pulling of images to --no-parallel, as apparently --ignore-pull-failures doesn't work in parallel mode
+      # see:
+      # - https://github.com/docker/compose/issues/7127
+      # - https://github.com/docker/compose/pull/7134
+      # - name: Pull all already existing images
+      #   run: docker-compose -f build.docker-compose.yml pull --ignore-pull-failures
+      - name: Pull all already existing images
+        run: docker-compose -f build.docker-compose.yml pull --no-parallel --ignore-pull-failures
       - name: Build base image
         run: |
           docker-compose -f build.docker-compose.yml up -d base
