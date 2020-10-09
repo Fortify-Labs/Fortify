@@ -15,6 +15,7 @@ import { Point } from "@influxdata/influxdb-client";
 import { rankToMMRMapping } from "@shared/ranks";
 import { User } from "@shared/db/entities/user";
 import { FortifyGameMode } from "@shared/state";
+import { LeaderboardType } from "../../../shared/src/definitions/leaderboard";
 
 @injectable()
 export class MatchPersistor {
@@ -86,7 +87,16 @@ export class MatchPersistor {
 				new Point("mmr")
 					.intField("mmr", mmr)
 					.tag("steamid", accountID)
-					.tag("type", FortifyGameMode[mode]),
+					.tag(
+						"type",
+						mode == FortifyGameMode.Normal
+							? LeaderboardType.Standard
+							: mode == FortifyGameMode.Turbo
+							? LeaderboardType.Turbo
+							: mode == FortifyGameMode.Duos
+							? LeaderboardType.Duos
+							: FortifyGameMode[mode],
+					),
 			];
 
 			await this.influx.writePoints(points);
