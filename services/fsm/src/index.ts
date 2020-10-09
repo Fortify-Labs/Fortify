@@ -85,10 +85,13 @@ const {
 			if (topic === "gsi") {
 				try {
 					const gsi: Log = JSON.parse(value);
-					const jwt = verify(gsi.auth, JWT_SECRET ?? "");
+					const cxt =
+						typeof gsi.auth === "string"
+							? verify(gsi.auth, JWT_SECRET ?? "")
+							: gsi.auth;
 
-					if (jwt instanceof Object) {
-						const context = jwt as Context;
+					if (cxt instanceof Object) {
+						const context = cxt as Context;
 
 						let state = await stateTransformer.loadState(
 							context.user.id,
