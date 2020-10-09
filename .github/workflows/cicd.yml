@@ -29,14 +29,20 @@ jobs:
           echo TWITCHBOT_VERSION=$(jq -r .version services/17kmmrbot/package.json) >> $GITHUB_ENV
           echo JOBS_VERSION=$(jq -r .version services/jobs/package.json) >> $GITHUB_ENV
           echo HISTORIZATION_VERSION=$(jq -r .version services/historization/package.json) >> $GITHUB_ENV
-      # Set pulling of images to --no-parallel, as apparently --ignore-pull-failures doesn't work in parallel mode
-      # see:
-      # - https://github.com/docker/compose/issues/7127
-      # - https://github.com/docker/compose/pull/7134
-      # - name: Pull all already existing images
-      #   run: docker-compose -f build.docker-compose.yml pull --ignore-pull-failures
+      # The exit code is always mapped to 0, as for some reason docker-compose pull likes to exit with a non-zero values
+      # even when --ignore-pull-failures is set
       - name: Pull all already existing images
-        run: docker-compose -f build.docker-compose.yml pull --no-parallel --ignore-pull-failures
+        run: |
+          docker-compose -f build.docker-compose.yml pull --ignore-pull-failures
+
+          RESULT="$?"
+          if [ "$RESULT" != "0" ]; then
+              echo "docker-compose pull failed partially or fully"
+              exit 0
+          else
+              echo "docker-compose pull ran successfully"
+              exit 0
+          fi
       - name: Build base image
         run: |
           docker-compose -f build.docker-compose.yml up -d base
