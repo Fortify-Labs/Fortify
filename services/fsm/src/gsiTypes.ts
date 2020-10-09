@@ -1,6 +1,8 @@
+import { Context } from "@shared/auth";
+
 export interface Log {
 	block: Block[];
-	auth: string;
+	auth: string | Pick<Context, "user">;
 	timestamp: string;
 }
 
