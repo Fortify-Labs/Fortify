@@ -10,7 +10,6 @@ import { json, urlencoded } from "body-parser";
 
 import { container } from "./inversify.config";
 import { KafkaConnector } from "@shared/connectors/kafka";
-import { RedisConnector } from "@shared/connectors/redis";
 
 import { verifyJWT, PermissionScope } from "@shared/auth";
 
@@ -18,7 +17,6 @@ const { KAFKA_TOPIC, MY_PORT } = process.env;
 
 (async () => {
 	const kafka = container.get(KafkaConnector);
-	const redis = container.get(RedisConnector);
 
 	const producer = kafka.producer();
 	await producer.connect();
@@ -38,6 +36,8 @@ const { KAFKA_TOPIC, MY_PORT } = process.env;
 
 				if (success) {
 					res.status(200).contentType("text/html").end("OK");
+
+					req.body.auth = { user };
 
 					req.body.block = req.body.block.filter(
 						(block: object) => Object.keys(block).length > 0,

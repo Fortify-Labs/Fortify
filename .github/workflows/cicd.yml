@@ -32,17 +32,7 @@ jobs:
       # The exit code is always mapped to 0, as for some reason docker-compose pull likes to exit with a non-zero values
       # even when --ignore-pull-failures is set
       - name: Pull all already existing images
-        run: |
-          docker-compose -f build.docker-compose.yml pull --ignore-pull-failures
-
-          RESULT="$?"
-          if [ "$RESULT" != "0" ]; then
-              echo "docker-compose pull failed partially or fully"
-              exit 0
-          else
-              echo "docker-compose pull ran successfully"
-              exit 0
-          fi
+        run: docker-compose -f build.docker-compose.yml pull --ignore-pull-failures || true
       - name: Build base image
         run: |
           docker-compose -f build.docker-compose.yml up -d base
