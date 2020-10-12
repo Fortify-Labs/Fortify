@@ -86,6 +86,7 @@ export class MatchPersistor {
 			const points = [
 				new Point("mmr")
 					.intField("mmr", mmr)
+					.intField("rank", 0)
 					.tag("steamid", accountID)
 					.tag(
 						"type",
