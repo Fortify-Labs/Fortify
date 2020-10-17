@@ -8,6 +8,7 @@ import {
 	currentSeason,
 	Unit as SeasonUnit,
 	unitMappings,
+	Unit,
 } from "@shared/units";
 import { poolSize } from "@shared/pool";
 
@@ -48,6 +49,68 @@ export class LeftCommand implements TwitchCommand {
 		}
 
 		const unitName = message.substr(6).trim().toLowerCase();
+
+		// Asking for amount of units in a tier
+		if (unitName.startsWith("t")) {
+			const tierName = unitName
+				.replace("tier", "")
+				.replace("t", "")
+				.trim();
+
+			try {
+				const tier = parseInt(tierName);
+
+				// Copy & pasted from frontend "lobby/pool"-component
+				const pool = fps.lobby.pool;
+				const currentUnits = units[currentSeason];
+				const mappedUnits = Object.entries(currentUnits).reduce<
+					Record<string, Unit & { name: string }>
+				>((acc, [name, unit]) => {
+					if (
+						unit.content_enable_group !== "rotation" &&
+						unit.draftTier > 0
+					) {
+						acc[unit.id] = {
+							id: unit.id,
+							dota_unit_name: unit.dota_unit_name,
+							draftTier: unit.draftTier,
+							name,
+						};
+					}
+
+					return acc;
+				}, {});
+
+				const draftTiers = Object.values(mappedUnits).reduce<
+					Record<string, Array<Unit & { name: string }>>
+				>((acc, value) => {
+					if (!acc[value.draftTier]) acc[value.draftTier] = [];
+					acc[value.draftTier].push(value);
+
+					return acc;
+				}, {});
+
+				const left = Object.values(draftTiers[tier])
+					.map((unit) => unit.id)
+					.reduce((acc, id) => {
+						if (pool[id] && Number.isInteger(pool[id]))
+							acc += pool[id] ?? 0;
+
+						return acc;
+					}, 0);
+				const total = draftTiers[tier].length * poolSize[tier];
+
+				return client.say(
+					channel,
+					`Tier ${tier}: ${left}/${total} units left`,
+				);
+			} catch (e) {
+				return client.say(
+					channel,
+					`${tags.username} no tier "${tierName}" found`,
+				);
+			}
+		}
 
 		// Change aliases to their actual names in code
 
