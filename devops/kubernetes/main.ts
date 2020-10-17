@@ -106,7 +106,7 @@ export class Fortify extends Chart {
 			data: {
 				INFLUXDB_ORG: "Fortify",
 				INFLUXDB_BUCKET: "mmr",
-				INFLUXDB_URL: "http://influxdb.influxdb:9999",
+				INFLUXDB_URL: "http://influxdb-rc.influxdb:8086",
 			},
 		});
 

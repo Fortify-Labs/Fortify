@@ -474,7 +474,7 @@ export interface VirtualServiceSpecHttpRedirect {
  */
 export interface VirtualServiceSpecHttpRetries {
   /**
-   * Number of retries for a given request.
+   * Number of retries to be allowed for a given request.
    *
    * @schema VirtualServiceSpecHttpRetries#attempts
    */

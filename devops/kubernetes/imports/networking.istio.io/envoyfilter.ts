@@ -114,6 +114,8 @@ export enum EnvoyFilterSpecConfigPatchesApplyTo {
   HTTP_ROUTE = "HTTP_ROUTE",
   /** CLUSTER */
   CLUSTER = "CLUSTER",
+  /** EXTENSION_CONFIG */
+  EXTENSION_CONFIG = "EXTENSION_CONFIG",
 }
 
 /**
@@ -402,7 +404,7 @@ export interface EnvoyFilterSpecConfigPatchesMatchListenerFilterChain {
   readonly sni?: string;
 
   /**
-   * Applies only to SIDECAR_INBOUND context.
+   * Applies only to `SIDECAR_INBOUND` context.
    *
    * @schema EnvoyFilterSpecConfigPatchesMatchListenerFilterChain#transportProtocol
    */

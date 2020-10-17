@@ -50,6 +50,13 @@ export interface AuthorizationPolicySpec {
   readonly action?: AuthorizationPolicySpecAction;
 
   /**
+   * Configures how to talk to the external server.
+   *
+   * @schema AuthorizationPolicySpec#external
+   */
+  readonly external?: AuthorizationPolicySpecExternal;
+
+  /**
    * Optional.
    *
    * @schema AuthorizationPolicySpec#rules
@@ -77,6 +84,26 @@ export enum AuthorizationPolicySpecAction {
   DENY = "DENY",
   /** AUDIT */
   AUDIT = "AUDIT",
+  /** EXTERNAL */
+  EXTERNAL = "EXTERNAL",
+}
+
+/**
+ * Configures how to talk to the external server.
+ *
+ * @schema AuthorizationPolicySpecExternal
+ */
+export interface AuthorizationPolicySpecExternal {
+  /**
+   * @schema AuthorizationPolicySpecExternal#http
+   */
+  readonly http?: AuthorizationPolicySpecExternalHttp;
+
+  /**
+   * @schema AuthorizationPolicySpecExternal#tcp
+   */
+  readonly tcp?: AuthorizationPolicySpecExternalTcp;
+
 }
 
 /**
@@ -116,6 +143,74 @@ export interface AuthorizationPolicySpecSelector {
    * @schema AuthorizationPolicySpecSelector#matchLabels
    */
   readonly matchLabels?: { [key: string]: string };
+
+}
+
+/**
+ * @schema AuthorizationPolicySpecExternalHttp
+ */
+export interface AuthorizationPolicySpecExternalHttp {
+  /**
+   * Settings used for controlling authorization request metadata.
+   *
+   * @schema AuthorizationPolicySpecExternalHttp#authorizationRequest
+   */
+  readonly authorizationRequest?: AuthorizationPolicySpecExternalHttpAuthorizationRequest;
+
+  /**
+   * Settings used for controlling authorization response metadata.
+   *
+   * @schema AuthorizationPolicySpecExternalHttp#authorizationResponse
+   */
+  readonly authorizationResponse?: AuthorizationPolicySpecExternalHttpAuthorizationResponse;
+
+  /**
+   * Specifies if the peer certificate is included in the external authorization request.
+   *
+   * @schema AuthorizationPolicySpecExternalHttp#includePeerCertificate
+   */
+  readonly includePeerCertificate?: boolean;
+
+  /**
+   * Supplies the full URL of the external server that implements the Envoy ext_authz filter check request API.
+   *
+   * @schema AuthorizationPolicySpecExternalHttp#server
+   */
+  readonly server?: string;
+
+  /**
+   * Sets the maximum duration in milliseconds for connection to the external server (default is 200ms).
+   *
+   * @schema AuthorizationPolicySpecExternalHttp#timeout
+   */
+  readonly timeout?: string;
+
+}
+
+/**
+ * @schema AuthorizationPolicySpecExternalTcp
+ */
+export interface AuthorizationPolicySpecExternalTcp {
+  /**
+   * Specifies if the peer certificate is included in the external authorization request.
+   *
+   * @schema AuthorizationPolicySpecExternalTcp#includePeerCertificate
+   */
+  readonly includePeerCertificate?: boolean;
+
+  /**
+   * Supplies the full URL of the external server that implements the Envoy ext_authz filter authorization request API.
+   *
+   * @schema AuthorizationPolicySpecExternalTcp#server
+   */
+  readonly server?: string;
+
+  /**
+   * Sets the maximum duration in milliseconds for connection to the external server (default is 200ms).
+   *
+   * @schema AuthorizationPolicySpecExternalTcp#timeout
+   */
+  readonly timeout?: string;
 
 }
 
@@ -173,6 +268,39 @@ export interface AuthorizationPolicySpecRulesWhen {
 }
 
 /**
+ * Settings used for controlling authorization request metadata.
+ *
+ * @schema AuthorizationPolicySpecExternalHttpAuthorizationRequest
+ */
+export interface AuthorizationPolicySpecExternalHttpAuthorizationRequest {
+  /**
+   * Authorization request will include the client request headers that have a correspondent match.
+   *
+   * @schema AuthorizationPolicySpecExternalHttpAuthorizationRequest#allowedHeaders
+   */
+  readonly allowedHeaders?: string[];
+
+}
+
+/**
+ * Settings used for controlling authorization response metadata.
+ *
+ * @schema AuthorizationPolicySpecExternalHttpAuthorizationResponse
+ */
+export interface AuthorizationPolicySpecExternalHttpAuthorizationResponse {
+  /**
+   * @schema AuthorizationPolicySpecExternalHttpAuthorizationResponse#forwardToDownstream
+   */
+  readonly forwardToDownstream?: string[];
+
+  /**
+   * @schema AuthorizationPolicySpecExternalHttpAuthorizationResponse#forwardToUpstream
+   */
+  readonly forwardToUpstream?: string[];
+
+}
+
+/**
  * Source specifies the source of a request.
  *
  * @schema AuthorizationPolicySpecRulesFromSource
@@ -216,6 +344,13 @@ export interface AuthorizationPolicySpecRulesFromSource {
   /**
    * Optional.
    *
+   * @schema AuthorizationPolicySpecRulesFromSource#notRemoteIpBlocks
+   */
+  readonly notRemoteIpBlocks?: string[];
+
+  /**
+   * Optional.
+   *
    * @schema AuthorizationPolicySpecRulesFromSource#notRequestPrincipals
    */
   readonly notRequestPrincipals?: string[];
@@ -226,6 +361,13 @@ export interface AuthorizationPolicySpecRulesFromSource {
    * @schema AuthorizationPolicySpecRulesFromSource#principals
    */
   readonly principals?: string[];
+
+  /**
+   * Optional.
+   *
+   * @schema AuthorizationPolicySpecRulesFromSource#remoteIpBlocks
+   */
+  readonly remoteIpBlocks?: string[];
 
   /**
    * Optional.

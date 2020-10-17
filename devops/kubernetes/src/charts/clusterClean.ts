@@ -45,7 +45,7 @@ const hosts = [DOMAIN, `api.${DOMAIN}`, `gsi.${DOMAIN}`];
 const devHosts = [
 	`akhq-${ENVIRONMENT}.fortify.dev`,
 	`redis-commander-${ENVIRONMENT}.fortify.dev`,
-	`influxdb-${ENVIRONMENT}.fortify.dev`,
+	`influxdb-rc-${ENVIRONMENT}.fortify.dev`,
 	`kibana-${ENVIRONMENT}.fortify.dev`,
 	`fortify.dev`,
 ];
@@ -603,41 +603,42 @@ export class ClusterSetupClean extends Chart {
 			},
 		});
 
-		const influxdbSSLabels = {
-			app: "influxdb",
+		// Influxdb RC1
+		const influxdbSSLabelsRC1 = {
+			app: "influxdb-rc",
 		};
 
-		new StatefulSet(this, "influxdb-statefulset", {
+		const influxdbSS = new StatefulSet(this, "influxdb-rc-statefulset", {
 			metadata: {
-				name: "influxdb",
+				name: "influxdb-rc",
 				namespace: influxNS.name,
-				labels: influxdbSSLabels,
+				labels: influxdbSSLabelsRC1,
 			},
 			spec: {
 				replicas: 1,
 				selector: {
-					matchLabels: influxdbSSLabels,
+					matchLabels: influxdbSSLabelsRC1,
 				},
-				serviceName: "influxdb",
+				serviceName: "influxdb-rc",
 				template: {
 					metadata: {
-						labels: influxdbSSLabels,
+						labels: influxdbSSLabelsRC1,
 					},
 					spec: {
 						containers: [
 							{
-								image: "quay.io/influxdb/influxdb:2.0.0-beta",
+								image: "quay.io/influxdb/influxdb:2.0.0-rc",
 								name: "influxdb",
 								ports: [
 									{
-										containerPort: 9999,
+										containerPort: 8086,
 										name: "influxdb",
 									},
 								],
 								volumeMounts: [
 									{
 										mountPath: "/root/.influxdbv2",
-										name: "influxdb-data",
+										name: "influxdb-rc-data",
 									},
 								],
 								imagePullPolicy: "Always",
@@ -648,14 +649,14 @@ export class ClusterSetupClean extends Chart {
 				volumeClaimTemplates: [
 					{
 						metadata: {
-							name: "influxdb-data",
+							name: "influxdb-rc-data",
 							namespace: "influxdb",
 						},
 						spec: {
 							accessModes: ["ReadWriteOnce"],
 							resources: {
 								requests: {
-									storage: "10Gi",
+									storage: "2Gi",
 								},
 							},
 						},
@@ -664,20 +665,20 @@ export class ClusterSetupClean extends Chart {
 			},
 		});
 
-		new Service(this, "influxdb-service", {
+		new Service(this, "influxdb-rc-service", {
 			metadata: {
-				name: "influxdb",
+				name: influxdbSS.name,
 				namespace: influxNS.name,
 			},
 			spec: {
 				ports: [
 					{
 						name: "http-influxdb",
-						port: 9999,
-						targetPort: 9999,
+						port: 8086,
+						targetPort: 8086,
 					},
 				],
-				selector: influxdbSSLabels,
+				selector: influxdbSSLabelsRC1,
 				type: "ClusterIP",
 			},
 		});
@@ -768,11 +769,11 @@ export class ClusterSetupClean extends Chart {
 			servicePort: 80,
 		});
 
-		new ClusterIngressTraefik(this, "influxdb-ingress", {
-			name: "influxdb",
+		new ClusterIngressTraefik(this, "influxdb-rc-ingress", {
+			name: "influxdb-rc",
 			namespace: influxNS.name,
-			serviceName: "influxdb",
-			servicePort: 9999,
+			serviceName: "influxdb-rc",
+			servicePort: 8086,
 
 			// Let's disable it for now. Basic auth is very annoying with influx
 			basicAuth: false,

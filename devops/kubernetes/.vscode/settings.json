@@ -17,10 +17,12 @@
 		"letsencrypt",
 		"middlewares",
 		"regcred",
+		"statefulset",
 		"strimzi",
 		"traefik",
 		"virtualservice",
 		"websecure",
 		"webservice"
-	]
+	],
+	"obsSwitcher.autoConnect": true
 }
