@@ -4,7 +4,7 @@ import { injectable } from "inversify";
 
 @injectable()
 export class CreditsCommand implements TwitchCommand {
-	invocations = ["!credit", "!credits", "!dedication"];
+	invocations = ["!credit"];
 
 	handler = async (
 		client: Client,
@@ -12,18 +12,11 @@ export class CreditsCommand implements TwitchCommand {
 		tags: ChatUserstate,
 		message: string,
 	) => {
-		if (
-			message.toLowerCase() === "!credit" ||
-			message.toLowerCase() === "!credits"
-		) {
+		if (message.toLowerCase().startsWith("!credit")) {
 			client.say(
 				channel,
 				"Kiss @ Thomas (GreyCodes). Check out https://fortify.gg",
 			);
-		}
-
-		if (message.toLowerCase() === "!dedication") {
-			client.say(channel, "For AB by TK");
 		}
 	};
 }
