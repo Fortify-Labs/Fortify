@@ -12,6 +12,7 @@ import { UserModule } from "./graphql/modules/user";
 import { MatchModule } from "./graphql/modules/match";
 import { LobbyModule } from "./graphql/modules/lobby";
 import { GSIModule } from "./graphql/modules/gsi";
+import { LeaderboardModule } from "./graphql/modules/leaderboard";
 
 import { PostgresConnector } from "@shared/connectors/postgres";
 import { RedisConnector } from "@shared/connectors/redis";
@@ -24,6 +25,7 @@ container.bind<GQLModule>("module").to(UserModule);
 container.bind<GQLModule>("module").to(MatchModule);
 container.bind<GQLModule>("module").to(LobbyModule);
 container.bind<GQLModule>("module").to(GSIModule);
+container.bind<GQLModule>("module").to(LeaderboardModule);
 
 container.bind<GQLDirective>("directive").to(AuthDirective);
 

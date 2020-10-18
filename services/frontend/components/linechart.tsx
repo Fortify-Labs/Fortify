@@ -88,8 +88,10 @@ export const LineChart: FunctionComponent<{
 		const line = d3
 			.line<typeof data[0]>()
 			.defined((d) => !isNaN(d.value))
-			.x((d) => x(new Date(d.date)) ?? 0)
-			.y((d) => y(d.value) ?? 0);
+			// Changed from `?? 0` to `?? 1` to potentially mitigate a bug when all rank points are 0
+			.x((d) => x(new Date(d.date)) ?? 1)
+			// Changed from `?? 0` to `?? 1` to potentially mitigate a bug when all rank points are 0
+			.y((d) => y(d.value) ?? 1);
 
 		svg.append("g").call(xAxis);
 		svg.append("g").call(yAxis);

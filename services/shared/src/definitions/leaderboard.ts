@@ -16,3 +16,9 @@ export enum LeaderboardType {
 	Turbo = "turbo",
 	Duos = "duos",
 }
+
+export interface MappedLeaderboardEntry {
+	steamid: string;
+	mmr: number;
+	rank: number;
+}

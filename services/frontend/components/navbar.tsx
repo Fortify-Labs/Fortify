@@ -62,6 +62,11 @@ export const Navbar = () => {
 							value="My Lobby"
 						/>
 					)}
+					<NavbarLink
+						href="/leaderboard/[[...leaderboard]]"
+						as="/leaderboard/standard"
+						value="Leaderboard"
+					/>
 				</div>
 
 				<div className="navbar-end">
