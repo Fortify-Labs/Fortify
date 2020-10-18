@@ -1,10 +1,16 @@
+import { NextPage, NextPageContext } from "next";
 import { useRouter } from "next/router";
 import Link from "next/link";
+
 import { NextSeo } from "next-seo";
 import withApollo from "lib/with-apollo";
 
 import { BigNumber } from "bignumber.js";
 import classNames from "classnames";
+
+import { getCookie } from "utils/cookie";
+import { decode } from "js-base64";
+import { Context, PermissionScope } from "@shared/auth";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSteam, faTwitch } from "@fortawesome/free-brands-svg-icons";
@@ -18,7 +24,11 @@ import { useUpdateProfileMutation } from "gql/UpdateProfile.graphql";
 import { useProfileQuery } from "gql/Profile.graphql";
 import { useAuthenticatedQuery } from "gql/Authenticated.graphql";
 
-const Profile = () => {
+interface ProfilePageProps {
+	context?: Context;
+}
+
+const Profile: NextPage<ProfilePageProps> = ({ context }) => {
 	const router = useRouter();
 	const { id } = router.query;
 
@@ -109,33 +119,43 @@ const Profile = () => {
 									<hr />
 
 									<div className="content">
-										<label className="checkbox">
-											<input
-												type="checkbox"
-												checked={
-													profile?.publicProfile ??
-													false
-												}
-												disabled={loading}
-												onChange={async (event) => {
-													const checked =
-														event.target.checked;
-
-													await updateProfileMutation(
-														{
-															variables: {
-																profile: {
-																	steamid,
-																	public: checked,
-																},
-															},
+										{(context?.user.id === steamid ||
+											context?.scopes.includes(
+												PermissionScope.Admin
+											)) && (
+											<>
+												<label className="checkbox">
+													<input
+														type="checkbox"
+														checked={
+															profile?.publicProfile ??
+															false
 														}
-													);
-												}}
-											/>{" "}
-											Public Player Profile
-										</label>{" "}
-										<hr />
+														disabled={loading}
+														onChange={async (
+															event
+														) => {
+															const checked =
+																event.target
+																	.checked;
+
+															await updateProfileMutation(
+																{
+																	variables: {
+																		profile: {
+																			steamid,
+																			public: checked,
+																		},
+																	},
+																}
+															);
+														}}
+													/>{" "}
+													Public Player Profile
+												</label>
+												<hr />{" "}
+											</>
+										)}
 										<a
 											href={`https://steamcommunity.com/profiles/${new BigNumber(
 												profile?.steamid ?? ""
@@ -269,6 +289,23 @@ const Profile = () => {
 			)}
 		</>
 	);
+};
+
+Profile.getInitialProps = (ctx: NextPageContext) => {
+	const auth = getCookie("auth", ctx.req);
+
+	try {
+		const b64Payload = auth?.split(".")[1];
+
+		if (b64Payload) {
+			const payload = decode(b64Payload);
+			const context: Context = JSON.parse(payload);
+
+			return { context };
+		}
+	} catch (e) {}
+
+	return {};
 };
 
 export default withApollo(Profile);

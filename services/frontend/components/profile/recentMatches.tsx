@@ -28,9 +28,11 @@ export const RecentMatchesTable: FunctionComponent<{
 					</tr>
 				)}
 				{error && (
-					<p>
-						{error.name} - {error.message}
-					</p>
+					<tr>
+						<td>
+							{error.name} - {error.message}
+						</td>
+					</tr>
 				)}
 				{!loading &&
 					!error &&
