@@ -11,9 +11,11 @@ import {
 import { InfluxDBConnector } from "@shared/connectors/influxdb";
 import { RedisConnector } from "@shared/connectors/redis";
 import { PostgresConnector } from "@shared/connectors/postgres";
-import { ULLeaderboard } from "@shared/definitions/leaderboard";
+import {
+	ULLeaderboard,
+	MappedLeaderboardEntry,
+} from "@shared/definitions/leaderboard";
 import { GetPlayerSummaries } from "@shared/definitions/playerSummaries";
-
 import { convert32to64SteamId, convert64to32SteamId } from "@shared/steamid";
 import { EventService } from "@shared/services/eventService";
 
@@ -109,12 +111,6 @@ export class LeaderboardPersistor {
 			{},
 		);
 
-		interface MappedLeaderboardEntry {
-			steamid: string;
-			mmr: number;
-			rank: number;
-		}
-
 		// Map current display names to leaderboard entries
 		const mappedLeaderboard = Object.values(mappings).reduce<
 			MappedLeaderboardEntry[]
@@ -138,6 +134,12 @@ export class LeaderboardPersistor {
 
 			return acc;
 		}, []);
+
+		// Save mapped leaderboard to redis
+		await this.redis.setAsync(
+			"ul:leaderboard:mapped:" + leaderboardType,
+			JSON.stringify(mappedLeaderboard),
+		);
 
 		// Save mmr and leaderboard rank to influx
 		const points = mappedLeaderboard.map(({ mmr, rank, steamid }) =>
