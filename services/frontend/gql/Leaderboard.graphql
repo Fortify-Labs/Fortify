@@ -1,0 +1,13 @@
+query Leaderboard($type: LeaderboardType) {
+	leaderboard(type: $type) {
+		type
+		entries {
+			rank
+			name
+			mmr
+
+			steamid
+			profilePicture
+		}
+	}
+}

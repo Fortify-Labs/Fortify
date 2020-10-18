@@ -1,6 +1,6 @@
 {
   "name": "historization",
-  "version": "1.3.20",
+  "version": "1.3.21",
   "description": "A historization service responsible for persisting info",
   "author": {
     "name": "Thomas Kosiewski"
@@ -40,17 +40,17 @@
   "devDependencies": {
     "@types/debug": "^4.1.5",
     "@types/jsonwebtoken": "^8.5.0",
-    "@types/node": "^14.11.8",
+    "@types/node": "^14.11.10",
     "@types/node-fetch": "^2.5.7",
-    "@types/redis": "^2.8.27",
+    "@types/redis": "^2.8.28",
     "gts": "^3.0.1",
-    "nodemon": "^2.0.4",
+    "nodemon": "^2.0.5",
     "sync-dotenv": "^2.6.2",
     "ts-node": "^9.0.0",
     "typescript": "^4.0.3"
   },
   "dependencies": {
-    "@influxdata/influxdb-client": "^1.7.0",
+    "@influxdata/influxdb-client": "^1.7.1",
     "bignumber.js": "^9.0.1",
     "cross-env": "^7.0.2",
     "debug": "^4.2.0",
