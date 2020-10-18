@@ -187,24 +187,33 @@ const Profile: NextPage<ProfilePageProps> = ({ context }) => {
 													Twitch
 												</a>
 												<br />
-												<button
-													className="button is-text"
-													onClick={async () => {
-														await updateProfileMutation(
-															{
-																variables: {
-																	profile: {
-																		steamid,
-																		unlinkTwitch: true,
-																	},
-																},
-															}
-														);
-													}}
-												>
-													Unlink Twitch account
-												</button>
-												<br />
+												{(context?.user.id ===
+													steamid ||
+													context?.scopes.includes(
+														PermissionScope.Admin
+													)) && (
+													<>
+														<button
+															className="button is-text"
+															onClick={async () => {
+																await updateProfileMutation(
+																	{
+																		variables: {
+																			profile: {
+																				steamid,
+																				unlinkTwitch: true,
+																			},
+																		},
+																	}
+																);
+															}}
+														>
+															Unlink Twitch
+															Account
+														</button>
+														<br />
+													</>
+												)}
 											</>
 										)}
 										{!profile?.twitchName &&
