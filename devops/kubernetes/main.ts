@@ -141,6 +141,8 @@ export class Fortify extends Chart {
 		new WebService(this, "backend", {
 			name: "backend",
 			version: backendPackage.version,
+			replicas: 3,
+			maxUnavailable: 1,
 			service: {
 				name: "backend",
 				containerPort: 8080,
@@ -200,6 +202,8 @@ export class Fortify extends Chart {
 
 		new WebService(this, "frontend", {
 			name: "frontend",
+			replicas: 3,
+			maxUnavailable: 1,
 			version: frontendPackage.version,
 			env: [
 				{
@@ -251,6 +255,8 @@ export class Fortify extends Chart {
 
 		new WebService(this, "gsi-receiver", {
 			name: "gsi-receiver",
+			replicas: 3,
+			maxUnavailable: 1,
 			version: gsiReceiverPackage.version,
 			env: [
 				{ name: "MY_PORT", value: "8080" },
@@ -297,6 +303,7 @@ export class Fortify extends Chart {
 			name: "fsm",
 			version: fsmPackage.version,
 			replicas: 3,
+			maxUnavailable: 1,
 			env: [
 				{
 					name: "KAFKA_CLIENT_ID",
@@ -311,6 +318,7 @@ export class Fortify extends Chart {
 			name: "historization",
 			version: historizationPackage.version,
 			replicas: 3,
+			maxUnavailable: 1,
 			env: [
 				{
 					name: "SERVICE_NAME",
