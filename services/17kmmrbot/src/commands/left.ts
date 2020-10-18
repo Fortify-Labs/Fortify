@@ -51,7 +51,10 @@ export class LeftCommand implements TwitchCommand {
 		const unitName = message.substr(6).trim().toLowerCase();
 
 		// Asking for amount of units in a tier
-		if (unitName.startsWith("t")) {
+		if (
+			unitName.startsWith("tier") ||
+			(unitName.startsWith("t") && !isNaN(+unitName.charAt(1)))
+		) {
 			const tierName = unitName
 				.replace("tier", "")
 				.replace("t", "")
