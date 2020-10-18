@@ -9,6 +9,7 @@
 		"configmaps",
 		"crds",
 		"dockerconfigjson",
+		"historization",
 		"ingressgateway",
 		"istio",
 		"kmmrbot",

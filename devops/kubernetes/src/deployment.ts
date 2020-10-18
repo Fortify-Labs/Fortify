@@ -1,5 +1,10 @@
 import { Construct, Node } from "constructs";
-import { Service, Deployment, EnvVar } from "../imports/k8s";
+import {
+	Service,
+	Deployment,
+	EnvVar,
+	PodDisruptionBudget,
+} from "../imports/k8s";
 
 const { REGISTRY } = process.env;
 
@@ -24,6 +29,9 @@ export interface FortifyDeploymentOptions {
 	readonly env?: EnvVar[] | undefined;
 	readonly configmaps?: string[];
 	readonly secrets?: string[];
+
+	readonly minAvailable?: number;
+	readonly maxUnavailable?: number;
 }
 
 export class FortifyDeployment extends Construct {
@@ -124,5 +132,20 @@ export class FortifyDeployment extends Construct {
 				},
 			},
 		});
+
+		if (options.minAvailable || options.maxUnavailable) {
+			new PodDisruptionBudget(this, "pdb", {
+				metadata: {
+					name: options.name + "-pdb",
+				},
+				spec: {
+					selector: {
+						matchLabels: labels,
+					},
+					maxUnavailable: options.maxUnavailable,
+					minAvailable: options.minAvailable,
+				},
+			});
+		}
 	}
 }
