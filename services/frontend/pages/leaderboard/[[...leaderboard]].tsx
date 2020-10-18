@@ -6,7 +6,7 @@ import withApollo from "lib/with-apollo";
 import { NextSeo } from "next-seo";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import React, { Component, ComponentType, FunctionComponent } from "react";
+import React, { FunctionComponent } from "react";
 
 const LeaderboardPage = () => {
 	const router = useRouter();
