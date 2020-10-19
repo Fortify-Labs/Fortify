@@ -73,11 +73,11 @@ export class MatchPersistor {
 		}
 
 		if (mode === FortifyGameMode.Normal) {
-			user.standardRating.rankTier = rankTier;
+			user.standardRating = { ...user.standardRating, rankTier };
 		} else if (mode === FortifyGameMode.Turbo) {
-			user.turboRating.rankTier = rankTier;
+			user.turboRating = { ...user.turboRating, rankTier };
 		} else if (mode === FortifyGameMode.Duos) {
-			user.duosRating.rankTier = rankTier;
+			user.duosRating = { ...user.duosRating, rankTier };
 		}
 
 		await userRepo.save(user);
