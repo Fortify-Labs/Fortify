@@ -64,7 +64,10 @@ export const LineChart: FunctionComponent<{
 		const y = d3
 			.scaleLinear()
 			.domain(valueExtent[0] ? valueExtent : [])
-			// .domain([0, d3.max(data, (d) => d.value) ?? 0])
+			.domain([
+				d3.min(data, (d) => d.value) ?? 0,
+				d3.max(data, (d) => d.value) ?? 0,
+			])
 			.nice()
 			.range([height - margin.bottom, margin.top]);
 
@@ -88,10 +91,8 @@ export const LineChart: FunctionComponent<{
 		const line = d3
 			.line<typeof data[0]>()
 			.defined((d) => !isNaN(d.value))
-			// Changed from `?? 0` to `?? 1` to potentially mitigate a bug when all rank points are 0
-			.x((d) => x(new Date(d.date)) ?? 1)
-			// Changed from `?? 0` to `?? 1` to potentially mitigate a bug when all rank points are 0
-			.y((d) => y(d.value) ?? 1);
+			.x((d) => x(new Date(d.date)) ?? 0)
+			.y((d) => y(d.value) ?? 0);
 
 		svg.append("g").call(xAxis);
 		svg.append("g").call(yAxis);

@@ -9,20 +9,19 @@ import { useRouter } from "next/router";
 import React, { FunctionComponent } from "react";
 
 const LeaderboardPage = () => {
-	const router = useRouter();
+	const { query } = useRouter();
 
-	let leaderboard = (router.query.leaderboard ?? ["standard"])[0];
+	let leaderboard = (query.leaderboard ?? ["standard"])[0];
 	leaderboard =
 		leaderboard[0].toUpperCase() +
 		(leaderboard as string).slice(1).toLowerCase();
 
-	let leaderboardType: keyof typeof LeaderboardType = "Standard";
-	if (leaderboard in LeaderboardType) {
-		leaderboardType = leaderboard as keyof typeof LeaderboardType;
-	}
-
 	const { data, loading, error } = useLeaderboardQuery({
-		variables: { type: LeaderboardType[leaderboardType] },
+		variables: {
+			type:
+				LeaderboardType[leaderboard as keyof typeof LeaderboardType] ||
+				LeaderboardType.Standard,
+		},
 	});
 
 	return (
@@ -47,7 +46,7 @@ const LeaderboardPage = () => {
 									<li
 										className={classNames({
 											"is-active":
-												leaderboardType === "Standard",
+												leaderboard === "Standard",
 										})}
 									>
 										<Link
@@ -61,7 +60,7 @@ const LeaderboardPage = () => {
 									<li
 										className={classNames({
 											"is-active":
-												leaderboardType === "Turbo",
+												leaderboard === "Turbo",
 										})}
 									>
 										<Link
@@ -74,8 +73,7 @@ const LeaderboardPage = () => {
 									</li>
 									<li
 										className={classNames({
-											"is-active":
-												leaderboardType === "Duos",
+											"is-active": leaderboard === "Duos",
 										})}
 									>
 										<Link
@@ -88,10 +86,12 @@ const LeaderboardPage = () => {
 									</li>
 								</ul>
 							</div>
-
 							<div
 								className="content"
-								style={{ overflowX: "auto" }}
+								style={{
+									overflowX: "auto",
+									marginTop: "-1rem",
+								}}
 							>
 								{loading && <p>Loading...</p>}
 								{error && <pre>{error.message}</pre>}
@@ -207,6 +207,11 @@ const LeaderboardPage = () => {
 									</table>
 								)}
 							</div>
+							Last imported:{" "}
+							{"" +
+								new Date(
+									(data?.leaderboard?.imported ?? 0) * 1000
+								)}
 						</div>
 					</div>
 				</div>

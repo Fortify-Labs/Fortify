@@ -6,7 +6,6 @@ import { Resolvers, MmrHistory } from "definitions/graphql/types";
 import { PostgresConnector } from "@shared/connectors/postgres";
 import { InfluxDBConnector } from "@shared/connectors/influxdb";
 import { PermissionScope } from "@shared/auth";
-import { majorRankNameMapping } from "@shared/ranks";
 
 import {
 	fluxDuration,
@@ -56,12 +55,12 @@ export class UserModule implements GQLModule {
 
 			publicProfile: Boolean
 
-			mmr: Int
-			leaderboardRank: Int
-			rank: String
-
 			twitchName: String
 			discordName: String
+
+			standardRating: MMRRating
+			turboRating: MMRRating
+			duosRating: MMRRating
 
 			matches(
 				"""
@@ -77,7 +76,14 @@ export class UserModule implements GQLModule {
 				Duration in days
 				"""
 				duration: Int
+				mode: GameMode = STANDARD
 			): [MMRHistory]
+		}
+
+		type MMRRating {
+			mmr: Int
+			rank: Int
+			rankTier: Int
 		}
 
 		type MMRHistory {
@@ -158,73 +164,6 @@ export class UserModule implements GQLModule {
 				},
 			},
 			UserProfile: {
-				async mmr({ steamid }) {
-					// fetch latest mmr point from influxdb
-
-					const queryApi = influx.queryApi();
-					const start = fluxDuration("-30d");
-					const field = "mmr";
-					const fluxQuery = flux`
-						from(bucket: "mmr")
-						|> range(start: ${start})
-						|> filter(fn: (r) => r["_measurement"] == "mmr")
-						|> filter(fn: (r) => r["_field"] == ${field})
-						|> filter(fn: (r) => r["steamid"] == ${steamid})
-						|> filter(fn: (r) => r["type"] == "standard")
-						|> last()
-						|> yield(name: "last")
-					`;
-
-					const rows = await queryApi.collectRows(fluxQuery);
-
-					const lastRow = rows[0] as InfluxMMRQueryRow | undefined;
-
-					if (lastRow && lastRow._value !== null) {
-						return parseInt(lastRow._value);
-					}
-
-					return 0;
-				},
-				async leaderboardRank({ steamid }) {
-					// fetch latest rank point from influxdb
-
-					const queryApi = influx.queryApi();
-					const start = fluxDuration("-30d");
-					const field = "rank";
-					const fluxQuery = flux`
-						from(bucket: "mmr")
-						|> range(start: ${start})
-						|> filter(fn: (r) => r["_measurement"] == "mmr")
-						|> filter(fn: (r) => r["_field"] == ${field})
-						|> filter(fn: (r) => r["steamid"] == ${steamid})
-						|> filter(fn: (r) => r["type"] == "standard")
-						|> last()
-						|> yield(name: "last")
-					`;
-
-					const rows = await queryApi.collectRows(fluxQuery);
-
-					const lastRow = rows[0] as InfluxMMRQueryRow | undefined;
-
-					if (lastRow && lastRow._value !== null) {
-						return parseInt(lastRow._value);
-					}
-
-					return 0;
-				},
-				async rank({ steamid }) {
-					// fetch major and minor rank from postgres
-
-					const userRepo = await postgres.getUserRepo();
-					const user = await userRepo.findOneOrFail(steamid);
-
-					const minorRank = (user.rankTier ?? 0) % 10;
-					const majorRank = ((user.rankTier ?? 0) - minorRank) / 10;
-
-					return `${majorRankNameMapping[majorRank]}${
-						majorRank < 8 ? ` ${minorRank + 1}` : ""
-					}`;
-				},
 				async matches(parent, args, context) {
 					const allowed =
 						parent.publicProfile ||
@@ -281,7 +220,7 @@ export class UserModule implements GQLModule {
 
 					if (args.duration) {
 						start = fluxDuration(
-							`-${args.duration <= 30 ? args.duration : 30}d`,
+							`-${args.duration <= 60 ? args.duration : 30}d`,
 						);
 						stop = fluxDateTime(new Date().toISOString());
 					}
@@ -315,7 +254,7 @@ export class UserModule implements GQLModule {
 						|> filter(fn: (r) => r["_measurement"] == "mmr")
 						|> filter(fn: (r) => r["_field"] == "mmr" or r["_field"] == "rank")
 						|> filter(fn: (r) => r["steamid"] == ${steamid})
-						|> filter(fn: (r) => r["type"] == "standard")
+						|> filter(fn: (r) => r["type"] == ${args.mode.toLowerCase()})
 						|> yield(name: "history")
 					`;
 

@@ -1,8 +1,8 @@
-query ProfileMmrHistory($steamid: ID) {
+query ProfileMmrHistory($steamid: ID, $mode: GameMode) {
 	profile(steamid: $steamid) {
 		steamid
 
-		mmrHistory(duration: 30) {
+		mmrHistory(duration: 30, mode: $mode) {
 			date
 			mmr
 			rank

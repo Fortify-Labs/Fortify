@@ -14,10 +14,12 @@ import { PostgresConnector } from "@shared/connectors/postgres";
 import {
 	ULLeaderboard,
 	MappedLeaderboardEntry,
+	LeaderboardType,
 } from "@shared/definitions/leaderboard";
 import { GetPlayerSummaries } from "@shared/definitions/playerSummaries";
 import { convert32to64SteamId, convert64to32SteamId } from "@shared/steamid";
 import { EventService } from "@shared/services/eventService";
+import { MMR } from "@shared/db/entities/user";
 
 const { STEAM_WEB_API_KEY } = process.env;
 
@@ -51,7 +53,12 @@ export class LeaderboardPersistor {
 			await userRepo.find({
 				select: ["steamid"],
 				// Fetch all lords
-				where: { rankTier: 80 },
+				where:
+					leaderboardType === LeaderboardType.Standard
+						? { standardRating: { rankTier: 80 } }
+						: leaderboardType === LeaderboardType.Turbo
+						? { turboRating: { rankTier: 80 } }
+						: { duosRating: { rankTier: 80 } },
 			})
 		).map((channel) => channel.steamid);
 
@@ -151,6 +158,37 @@ export class LeaderboardPersistor {
 		);
 
 		await this.influx.writePoints(points);
+
+		// Save latest mmr and leaderboard rank to postgres
+		const kvMappedLeaderboard = mappedLeaderboard.reduce<
+			Record<string, MappedLeaderboardEntry>
+		>((acc, value) => {
+			acc[value.steamid] = value;
+
+			return acc;
+		}, {});
+
+		const users = await userRepo.findByIds(
+			mappedLeaderboard.map((entry) => entry.steamid),
+		);
+
+		for (const user of users) {
+			const ratings: MMR = {
+				mmr: kvMappedLeaderboard[user.steamid].mmr,
+				rank: kvMappedLeaderboard[user.steamid].rank,
+				rankTier: 80,
+			};
+
+			if (leaderboardType === LeaderboardType.Standard) {
+				user.standardRating = ratings;
+			} else if (leaderboardType === LeaderboardType.Turbo) {
+				user.turboRating = ratings;
+			} else if (leaderboardType === LeaderboardType.Duos) {
+				user.duosRating = ratings;
+			}
+		}
+
+		await userRepo.save(users);
 
 		debug("app::leaderboardPersistor")(
 			`Successfully persisted ${points.length} data points for ${leaderboardType}`,

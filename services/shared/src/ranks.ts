@@ -29,3 +29,16 @@ export const adjustedBigBossRanks: Record<string, number> = {
 	"3": 14522,
 	"4": 14841,
 };
+
+export const mapRankTierToName = (rankTier: number) => {
+	if (rankTier > 80) {
+		return `No rank tier ${rankTier} found`;
+	}
+
+	const minorRank = rankTier % 10;
+	const majorRank = (rankTier - minorRank) / 10;
+
+	return `${majorRankNameMapping[majorRank]}${
+		majorRank < 8 ? ` ${minorRank + 1}` : ""
+	}`;
+};

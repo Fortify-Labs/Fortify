@@ -11,6 +11,12 @@ export class MatchModule implements GQLModule {
 	) {}
 
 	typeDef = gql`
+		enum GameMode {
+			STANDARD
+			TURBO
+			DUOS
+		}
+
 		extend type Query {
 			currentMatches(
 				"""

@@ -30,6 +30,8 @@ export class LeaderboardModule implements GQLModule {
 		type Leaderboard {
 			type: ID!
 
+			imported: Float
+
 			entries: [LeaderboardEntry]
 		}
 
@@ -96,6 +98,7 @@ export class LeaderboardModule implements GQLModule {
 
 					return {
 						type: leaderboardType,
+						imported: leaderboard.time_posted,
 						entries,
 					};
 				},

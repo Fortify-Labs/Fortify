@@ -1,13 +1,26 @@
-import { FunctionComponent } from "react";
+import classNames from "classnames";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import React, { FunctionComponent } from "react";
 
-import { useProfileMmrHistoryQuery } from "../../gql/ProfileMmrHistory.graphql";
+import {
+	GameMode,
+	useProfileMmrHistoryQuery,
+} from "../../gql/ProfileMmrHistory.graphql";
 import { LineChart } from "../linechart";
 
 export const MmrHistory: FunctionComponent<{
 	steamid?: string;
 }> = ({ steamid }) => {
+	const { query } = useRouter();
+	const mode =
+		GameMode[query.mode as keyof typeof GameMode] || GameMode.Standard;
+
 	const { data, loading, error } = useProfileMmrHistoryQuery({
-		variables: { steamid },
+		variables: {
+			steamid,
+			mode,
+		},
 	});
 	const { mmrHistory } = data?.profile ?? {};
 
@@ -25,6 +38,53 @@ export const MmrHistory: FunctionComponent<{
 
 	return (
 		<div>
+			<div
+				className="tabs"
+				style={{ marginLeft: "-2rem", marginTop: "-2rem" }}
+			>
+				<ul>
+					<li
+						className={classNames({
+							"is-active": mode === GameMode.Standard,
+						})}
+					>
+						<Link
+							href={`/profile/[[...id]]?tab=mmrHistory&mode=Standard`}
+							as={`/profile/${steamid}?tab=mmrHistory&mode=Standard`}
+							passHref
+						>
+							<a>Standard</a>
+						</Link>
+					</li>
+					<li
+						className={classNames({
+							"is-active": mode === GameMode.Turbo,
+						})}
+					>
+						<Link
+							href={`/profile/[[...id]]?tab=mmrHistory&mode=Turbo`}
+							as={`/profile/${steamid}?tab=mmrHistory&mode=Turbo`}
+							passHref
+						>
+							<a>Turbo</a>
+						</Link>
+					</li>
+					<li
+						className={classNames({
+							"is-active": mode === GameMode.Duos,
+						})}
+					>
+						<Link
+							href={`/profile/[[...id]]?tab=mmrHistory&mode=Duos`}
+							as={`/profile/${steamid}?tab=mmrHistory&mode=Duos`}
+							passHref
+						>
+							<a>Duos</a>
+						</Link>
+					</li>
+				</ul>
+			</div>
+
 			{loading && <p>Loading...</p>}
 
 			{error && (
