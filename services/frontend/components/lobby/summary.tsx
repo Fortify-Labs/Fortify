@@ -4,6 +4,7 @@ import { FunctionComponent } from "react";
 import { useLobbyQuery } from "../../gql/Lobby.graphql";
 import { HStack } from "../hstack";
 import { NextSeo } from "next-seo";
+import { mapRankTierToName } from "@shared/ranks";
 
 export const LobbySummary: FunctionComponent<{ id?: string }> = ({ id }) => {
 	const { data, loading, error, refetch } = useLobbyQuery({
@@ -113,9 +114,14 @@ export const LobbySummary: FunctionComponent<{ id?: string }> = ({ id }) => {
 										</Link>
 									</HStack>
 								</td>
-								<td>{slot?.user?.rank}</td>
-								<td>{slot?.user?.leaderboardRank}</td>
-								<td>{slot?.user?.mmr}</td>
+								<td>
+									{mapRankTierToName(
+										slot?.user?.standardRating?.rankTier ??
+											0
+									)}
+								</td>
+								<td>{slot?.user?.standardRating?.rank}</td>
+								<td>{slot?.user?.standardRating?.mmr}</td>
 								<td></td>
 								<td></td>
 								<td></td>

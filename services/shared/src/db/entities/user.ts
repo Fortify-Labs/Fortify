@@ -8,6 +8,19 @@ import {
 } from "typeorm";
 import { MatchSlot } from "./matchSlot";
 
+export class MMR {
+	@Column({ default: 0 })
+	mmr!: number;
+
+	@Column({ default: 0 })
+	rank!: number;
+
+	@Column({
+		nullable: true,
+	})
+	rankTier?: number;
+}
+
 @Entity()
 export class User {
 	// --- ID ---
@@ -57,13 +70,16 @@ export class User {
 	})
 	discordName?: string;
 
-	@Column({
-		nullable: true,
-	})
-	rankTier?: number;
+	@Column(() => MMR)
+	standardRating!: MMR;
+
+	@Column(() => MMR)
+	turboRating!: MMR;
+
+	@Column(() => MMR)
+	duosRating!: MMR;
 
 	// --- Relations ---
-
 	@OneToMany(() => MatchSlot, (slot) => slot.user)
 	matchSlots!: MatchSlot[];
 

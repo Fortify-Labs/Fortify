@@ -11,9 +11,13 @@ query Lobby($id: ID) {
 			user {
 				steamid
 				name
-				rank
-				leaderboardRank
-				mmr
+
+				standardRating {
+					mmr
+					rank
+					rankTier
+				}
+
 				profilePicture
 			}
 		}

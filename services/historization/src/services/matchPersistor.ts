@@ -13,7 +13,7 @@ import { PostgresConnector } from "@shared/connectors/postgres";
 import { InfluxDBConnector } from "@shared/connectors/influxdb";
 import { Point } from "@influxdata/influxdb-client";
 import { rankToMMRMapping } from "@shared/ranks";
-import { User } from "@shared/db/entities/user";
+import { MMR, User } from "@shared/db/entities/user";
 import { FortifyGameMode } from "@shared/state";
 import { LeaderboardType } from "@shared/definitions/leaderboard";
 
@@ -71,7 +71,14 @@ export class MatchPersistor {
 			user.steamid = accountID;
 			user.name = "";
 		}
-		user.rankTier = rankTier;
+
+		if (mode === FortifyGameMode.Normal) {
+			user.standardRating.rankTier = rankTier;
+		} else if (mode === FortifyGameMode.Turbo) {
+			user.turboRating.rankTier = rankTier;
+		} else if (mode === FortifyGameMode.Duos) {
+			user.duosRating.rankTier = rankTier;
+		}
 
 		await userRepo.save(user);
 
@@ -101,6 +108,22 @@ export class MatchPersistor {
 			];
 
 			await this.influx.writePoints(points);
+
+			// Store interpolate mmr into postgres
+			const ratings: MMR = {
+				rankTier,
+				mmr,
+				rank: 0,
+			};
+			if (mode === FortifyGameMode.Normal) {
+				user.standardRating = ratings;
+			} else if (mode === FortifyGameMode.Turbo) {
+				user.turboRating = ratings;
+			} else if (mode === FortifyGameMode.Duos) {
+				user.duosRating = ratings;
+			}
+
+			await userRepo.save(user);
 		}
 	}
 }

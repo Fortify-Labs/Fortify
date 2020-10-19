@@ -4,9 +4,19 @@ query Profile($steamid: ID) {
 		name
 		profilePicture
 		publicProfile
-		mmr
-		leaderboardRank
-		rank
+
+		standardRating {
+			mmr
+			rank
+			rankTier
+		}
+
+		turboRating {
+			mmr
+			rank
+			rankTier
+		}
+
 		twitchName
 		discordName
 	}

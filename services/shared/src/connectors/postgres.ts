@@ -13,7 +13,7 @@ const {
 	POSTGRES_HOST,
 	POSTGRES_PORT,
 	POSTGRES_DATABASE,
-	NODE_ENV,
+	// NODE_ENV,
 	DB_LOG,
 } = process.env;
 
@@ -39,7 +39,8 @@ export class PostgresConnector {
 			entities: ["../shared/build/src/db/entities/**/*.js"],
 			migrations: ["../shared/build/src/db/migrations/**/*.js"],
 			migrationsRun: true,
-			synchronize: NODE_ENV === "development",
+			// synchronize: NODE_ENV === "development",
+			synchronize: false,
 			logging: DB_LOG === "true",
 			poolErrorHandler: debug("app::db"),
 		});

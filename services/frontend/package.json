@@ -1,6 +1,6 @@
 {
   "name": "frontend",
-  "version": "1.2.25",
+  "version": "1.2.26",
   "author": "Thomas Kosiewski",
   "license": "AGPL-3.0-or-later",
   "private": true,
@@ -14,7 +14,7 @@
     "download-schema": "apollo client:download-schema"
   },
   "dependencies": {
-    "@apollo/client": "^3.2.4",
+    "@apollo/client": "^3.2.5",
     "@fortawesome/fontawesome-svg-core": "^1.2.32",
     "@fortawesome/free-brands-svg-icons": "^5.15.1",
     "@fortawesome/free-solid-svg-icons": "^5.15.1",
@@ -46,9 +46,9 @@
     "subscriptions-transport-ws": "^0.9.18"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "1.17.10",
+    "@graphql-codegen/cli": "1.18.0",
     "@graphql-codegen/plugin-helpers": "1.17.9",
-    "@graphql-codegen/typescript": "^1.17.10",
+    "@graphql-codegen/typescript": "^1.17.11",
     "@graphql-codegen/typescript-operations": "^1.17.8",
     "@graphql-codegen/typescript-react-apollo": "^2.0.7",
     "@graphql-codegen/typescript-resolvers": "1.17.10",

@@ -11,6 +11,7 @@ import classNames from "classnames";
 import { getCookie } from "utils/cookie";
 import { decode } from "js-base64";
 import { Context, PermissionScope } from "@shared/auth";
+import { mapRankTierToName } from "@shared/ranks";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSteam, faTwitch } from "@fortawesome/free-brands-svg-icons";
@@ -21,7 +22,7 @@ import { RecentMatchesTable } from "components/profile/recentMatches";
 import { MmrHistory } from "components/profile/mmrHistory";
 
 import { useUpdateProfileMutation } from "gql/UpdateProfile.graphql";
-import { useProfileQuery } from "gql/Profile.graphql";
+import { MmrRating, useProfileQuery } from "gql/Profile.graphql";
 import { useAuthenticatedQuery } from "gql/Authenticated.graphql";
 
 interface ProfilePageProps {
@@ -58,19 +59,19 @@ const Profile: NextPage<ProfilePageProps> = ({ context }) => {
 		? (router.query.tab?.toString() as keyof typeof tabContents)
 		: "matches";
 
+	const standardDescription = createDescription(profile?.standardRating);
+	const turboDescription = createDescription(profile?.turboRating);
+	const description = `Standard: ${standardDescription}, Turbo: ${turboDescription}`;
+
 	return (
 		<>
 			<NextSeo
 				title={`${profile?.name ?? "Private"} Profile | Fortify`}
-				description={`Rank: ${profile?.rank ?? 0}; MMR: ${
-					profile?.mmr ?? 0
-				}; Leaderboard Rank: ${profile?.leaderboardRank ?? 0}`}
+				description={description}
 				openGraph={{
 					url: `${process.env.NEXT_PUBLIC_URL}/profile/${profile?.steamid}`,
 					title: `${profile?.name ?? "Private"} Profile | Fortify`,
-					description: `Rank: ${profile?.rank ?? 0}; MMR: ${
-						profile?.mmr ?? 0
-					}; Leaderboard Rank: ${profile?.leaderboardRank ?? 0}`,
+					description,
 					images: [
 						{
 							url:
@@ -111,9 +112,9 @@ const Profile: NextPage<ProfilePageProps> = ({ context }) => {
 											/>
 										</figure>
 										Username: {profile?.name} <br /> <br />
-										Rank Name: {profile?.rank} <br />
-										MMR: {profile?.mmr} <br />
-										Rank: {profile?.leaderboardRank}
+										Standard: {standardDescription} <br />
+										Turbo: {turboDescription}
+										<hr />
 									</HStack>
 
 									<hr />
@@ -318,3 +319,12 @@ Profile.getInitialProps = (ctx: NextPageContext) => {
 };
 
 export default withApollo(Profile);
+
+const createDescription = (rating: MmrRating | undefined | null) => {
+	const mappedRankName = mapRankTierToName(rating?.rankTier ?? 0);
+	const description = `${mappedRankName} [#${rating?.rank ?? 0}, MMR: ${
+		rating?.mmr ?? 0
+	}]`;
+
+	return description;
+};

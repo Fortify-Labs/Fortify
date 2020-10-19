@@ -7,7 +7,7 @@ import { Context } from '@shared/auth';
 export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type RequireFields<T, K extends keyof T> = { [X in Exclude<keyof T, K>]?: T[X] } & { [P in K]-?: NonNullable<T[P]> };
-// Generated on 2020-10-18T21:00:02+02:00
+// Generated on 2020-10-19T23:09:38+02:00
 
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
@@ -137,6 +137,7 @@ export enum LeaderboardType {
 export type Leaderboard = {
   __typename?: 'Leaderboard';
   type: Scalars['ID'];
+  imported?: Maybe<Scalars['Float']>;
   entries?: Maybe<Array<Maybe<LeaderboardEntry>>>;
 };
 
@@ -167,6 +168,12 @@ export type LobbySlot = {
   user?: Maybe<UserProfile>;
 };
 
+export enum GameMode {
+  Standard = 'STANDARD',
+  Turbo = 'TURBO',
+  Duos = 'DUOS'
+}
+
 export type Match = {
   __typename?: 'Match';
   id: Scalars['ID'];
@@ -193,11 +200,11 @@ export type UserProfile = {
   name?: Maybe<Scalars['String']>;
   profilePicture?: Maybe<Scalars['String']>;
   publicProfile?: Maybe<Scalars['Boolean']>;
-  mmr?: Maybe<Scalars['Int']>;
-  leaderboardRank?: Maybe<Scalars['Int']>;
-  rank?: Maybe<Scalars['String']>;
   twitchName?: Maybe<Scalars['String']>;
   discordName?: Maybe<Scalars['String']>;
+  standardRating?: Maybe<MmrRating>;
+  turboRating?: Maybe<MmrRating>;
+  duosRating?: Maybe<MmrRating>;
   matches?: Maybe<Array<Maybe<MatchSlot>>>;
   mmrHistory?: Maybe<Array<Maybe<MmrHistory>>>;
 };
@@ -213,6 +220,14 @@ export type UserProfileMmrHistoryArgs = {
   startDate?: Maybe<Scalars['Date']>;
   endDate?: Maybe<Scalars['Date']>;
   duration?: Maybe<Scalars['Int']>;
+  mode?: Maybe<GameMode>;
+};
+
+export type MmrRating = {
+  __typename?: 'MMRRating';
+  mmr?: Maybe<Scalars['Int']>;
+  rank?: Maybe<Scalars['Int']>;
+  rankTier?: Maybe<Scalars['Int']>;
 };
 
 export type MmrHistory = {
@@ -321,12 +336,15 @@ export type ResolversTypes = ResolversObject<{
   SystemStatus: ResolverTypeWrapper<SystemStatus>;
   LeaderboardType: LeaderboardType;
   Leaderboard: ResolverTypeWrapper<Leaderboard>;
+  Float: ResolverTypeWrapper<Scalars['Float']>;
   LeaderboardEntry: ResolverTypeWrapper<LeaderboardEntry>;
   Lobby: ResolverTypeWrapper<Lobby>;
   LobbySlot: ResolverTypeWrapper<LobbySlot>;
+  GameMode: GameMode;
   Match: ResolverTypeWrapper<Match>;
   MatchSlot: ResolverTypeWrapper<MatchSlot>;
   UserProfile: ResolverTypeWrapper<UserProfile>;
+  MMRRating: ResolverTypeWrapper<MmrRating>;
   MMRHistory: ResolverTypeWrapper<MmrHistory>;
   ProfileInput: ProfileInput;
 }>;
@@ -345,12 +363,14 @@ export type ResolversParentTypes = ResolversObject<{
   AuthenticatedObject: AuthenticatedObject;
   SystemStatus: SystemStatus;
   Leaderboard: Leaderboard;
+  Float: Scalars['Float'];
   LeaderboardEntry: LeaderboardEntry;
   Lobby: Lobby;
   LobbySlot: LobbySlot;
   Match: Match;
   MatchSlot: MatchSlot;
   UserProfile: UserProfile;
+  MMRRating: MmrRating;
   MMRHistory: MmrHistory;
   ProfileInput: ProfileInput;
 }>;
@@ -401,6 +421,7 @@ export type SystemStatusResolvers<ContextType = Context, ParentType extends Reso
 
 export type LeaderboardResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Leaderboard'] = ResolversParentTypes['Leaderboard']> = ResolversObject<{
   type?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  imported?: Resolver<Maybe<ResolversTypes['Float']>, ParentType, ContextType>;
   entries?: Resolver<Maybe<Array<Maybe<ResolversTypes['LeaderboardEntry']>>>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
@@ -454,13 +475,20 @@ export type UserProfileResolvers<ContextType = Context, ParentType extends Resol
   name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   profilePicture?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   publicProfile?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
-  mmr?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  leaderboardRank?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  rank?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   twitchName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   discordName?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  standardRating?: Resolver<Maybe<ResolversTypes['MMRRating']>, ParentType, ContextType>;
+  turboRating?: Resolver<Maybe<ResolversTypes['MMRRating']>, ParentType, ContextType>;
+  duosRating?: Resolver<Maybe<ResolversTypes['MMRRating']>, ParentType, ContextType>;
   matches?: Resolver<Maybe<Array<Maybe<ResolversTypes['MatchSlot']>>>, ParentType, ContextType, RequireFields<UserProfileMatchesArgs, never>>;
-  mmrHistory?: Resolver<Maybe<Array<Maybe<ResolversTypes['MMRHistory']>>>, ParentType, ContextType, RequireFields<UserProfileMmrHistoryArgs, never>>;
+  mmrHistory?: Resolver<Maybe<Array<Maybe<ResolversTypes['MMRHistory']>>>, ParentType, ContextType, RequireFields<UserProfileMmrHistoryArgs, 'mode'>>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type MmrRatingResolvers<ContextType = Context, ParentType extends ResolversParentTypes['MMRRating'] = ResolversParentTypes['MMRRating']> = ResolversObject<{
+  mmr?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  rank?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  rankTier?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -485,6 +513,7 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   Match?: MatchResolvers<ContextType>;
   MatchSlot?: MatchSlotResolvers<ContextType>;
   UserProfile?: UserProfileResolvers<ContextType>;
+  MMRRating?: MmrRatingResolvers<ContextType>;
   MMRHistory?: MmrHistoryResolvers<ContextType>;
 }>;
 

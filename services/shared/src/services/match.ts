@@ -225,7 +225,14 @@ export class MatchService {
 			const matchSlotRepo = await this.postgres.getMatchSlotRepo();
 
 			// For each player in the lobby
-			for (const { accountID, slot, finalPlace, name } of players) {
+			for (const {
+				accountID,
+				slot,
+				finalPlace,
+				name,
+				globalLeaderboardRank,
+				rankTier,
+			} of players) {
 				let matchSlot = await matchSlotRepo.findOne({
 					where: { match, slot },
 				});
@@ -248,6 +255,9 @@ export class MatchService {
 					accountID,
 					timestamp,
 					name,
+					gameMode,
+					globalLeaderboardRank,
+					rankTier,
 				);
 
 				matchSlot.user = user;
@@ -265,6 +275,9 @@ export class MatchService {
 		accountID: string,
 		timestamp: Date,
 		name: string,
+		gameMode?: FortifyGameMode,
+		globalLeaderboardRank?: number,
+		rankTier?: number,
 	) {
 		try {
 			const userRepo = await this.postgres.getUserRepo();
@@ -277,6 +290,29 @@ export class MatchService {
 			}
 			user.name = name;
 			user.updated = timestamp;
+
+			if (gameMode === FortifyGameMode.Normal) {
+				if (globalLeaderboardRank) {
+					user.standardRating.rank = globalLeaderboardRank;
+				}
+				if (rankTier) {
+					user.standardRating.rankTier = rankTier;
+				}
+			} else if (gameMode === FortifyGameMode.Turbo) {
+				if (globalLeaderboardRank) {
+					user.turboRating.rank = globalLeaderboardRank;
+				}
+				if (rankTier) {
+					user.turboRating.rankTier = rankTier;
+				}
+			} else if (gameMode === FortifyGameMode.Duos) {
+				if (globalLeaderboardRank) {
+					user.duosRating.rank = globalLeaderboardRank;
+				}
+				if (rankTier) {
+					user.duosRating.rankTier = rankTier;
+				}
+			}
 
 			try {
 				// TODO: Refactor this to be one request getting all 8 images instead of 8 requests getting one image
