@@ -132,6 +132,7 @@ export const PoolViewer: FunctionComponent<{ id?: string }> = ({ id }) => {
 																<img
 																	className="is-rounded"
 																	src={`/units/panorama/images/heroes/icons/${unit.dota_unit_name}_png.png`}
+																	loading="lazy"
 																	// src="https://bulma.io/images/placeholders/128x128.png"
 																/>
 															</figure>

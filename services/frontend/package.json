@@ -1,6 +1,6 @@
 {
   "name": "frontend",
-  "version": "1.2.26",
+  "version": "1.2.27",
   "author": "Thomas Kosiewski",
   "license": "AGPL-3.0-or-later",
   "private": true,
@@ -38,10 +38,11 @@
     "js-base64": "^3.5.2",
     "js-cookie": "^2.2.1",
     "next": "^9.5.5",
-    "next-seo": "^4.13.0",
-    "react": "^16.14.0",
+    "next-optimized-images": "^2.6.2",
+    "next-seo": "^4.14.0",
+    "react": "^17.0.0",
     "react-cookie-consent": "^5.2.0",
-    "react-dom": "^16.14.0",
+    "react-dom": "^17.0.0",
     "sass": "^1.27.0",
     "subscriptions-transport-ws": "^0.9.18"
   },

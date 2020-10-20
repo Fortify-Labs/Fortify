@@ -74,6 +74,10 @@ export class WebService extends Construct {
 										name: "redirect-scheme-middleware",
 										namespace: "kube-system",
 									},
+									{
+										name: "compression",
+										namespace: "kube-system",
+									},
 								],
 								services: [
 									{
