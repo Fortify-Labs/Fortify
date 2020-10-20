@@ -45,7 +45,7 @@ const Index = () => {
 			<div
 				style={{
 					backgroundImage:
-						"linear-gradient( rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5) ), url(/images/flattened-bg.png)",
+						"linear-gradient( rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5) ), url(/images/flattened-bg-min.png)",
 					backgroundSize: "100%",
 					backgroundRepeat: "no-repeat",
 					flex: 1,

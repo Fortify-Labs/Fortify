@@ -755,6 +755,16 @@ export class ClusterSetupClean extends Chart {
 			},
 		});
 
+		new Middleware(this, "compression", {
+			metadata: {
+				name: "compression",
+				namespace: "kube-system",
+			},
+			spec: {
+				compress: {},
+			},
+		});
+
 		new ClusterIngressTraefik(this, "akhq-ingress", {
 			name: "akhq",
 			namespace: fortifyNS.name,

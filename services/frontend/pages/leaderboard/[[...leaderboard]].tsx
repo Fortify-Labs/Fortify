@@ -140,6 +140,7 @@ const LeaderboardPage = () => {
 																					entry?.profilePicture ||
 																					"https://bulma.io/images/placeholders/128x128.png"
 																				}
+																				loading="lazy"
 																			/>
 																		</figure>
 																		{

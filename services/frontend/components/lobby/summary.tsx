@@ -94,6 +94,7 @@ export const LobbySummary: FunctionComponent<{ id?: string }> = ({ id }) => {
 												>
 													<img
 														className="is-rounded"
+														loading="lazy"
 														src={
 															slot?.user
 																?.profilePicture ??
