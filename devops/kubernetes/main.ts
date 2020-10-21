@@ -29,8 +29,10 @@ const {
 	TWITCH_CLIENT_ID = "",
 	TWITCH_SECRET = "",
 	GA_TRACKING_ID,
-	SENTRY_DSN = "",
 } = process.env;
+
+// Sentry DSNs
+const { SENTRY_DSN = "", TWITCH_BOT_SENTRY_DSN } = process.env;
 
 export class Fortify extends Chart {
 	constructor(scope: Construct, name: string) {
@@ -208,11 +210,11 @@ export class Fortify extends Chart {
 			env: [
 				{
 					name: "NEXT_PUBLIC_GRAPHQL_URI",
-					value: `https://backend:8080/graphql`,
+					value: `http://backend:8080/graphql`,
 				},
 				{
 					name: "NEXT_PUBLIC_GRAPHQL_WS_URI",
-					value: `wss://backend:8080/graphql`,
+					value: `ws://backend:8080/graphql`,
 				},
 				{
 					name: "NEXT_PUBLIC_LOGIN_URL",
@@ -294,6 +296,7 @@ export class Fortify extends Chart {
 				},
 				{ name: "KAFKA_TOPIC", value: "gsi" },
 				{ name: "BOT_BROADCAST_DISABLED", value: "false" },
+				{ name: "SENTRY_DSN", value: TWITCH_BOT_SENTRY_DSN },
 			],
 			secrets: ["postgres-auth", "twitch-bot-secret"],
 			configmaps: ["postgres-config", "redis-config", "kafka-config"],
