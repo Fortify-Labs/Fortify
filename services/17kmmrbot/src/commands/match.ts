@@ -23,7 +23,7 @@ export class MatchCommand implements TwitchCommand {
 			client.say(channel, `https://fortify.gg/lobby/${user.steamid}`);
 		} catch (e) {
 			client.say(channel, "Something went wrong");
-			debug("app::notablePlayers")(e);
+			debug("app::match")(e);
 		}
 
 		return;

@@ -2,7 +2,6 @@ import debug = require("debug");
 
 import { injectable, inject } from "inversify";
 import { TwitchCommand } from "../definitions/twitchCommand";
-import { PostgresConnector } from "@shared/connectors/postgres";
 
 import { Client } from "tmi.js";
 
