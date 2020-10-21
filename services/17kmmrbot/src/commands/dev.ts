@@ -8,8 +8,7 @@ import { KafkaConnector } from "@shared/connectors/kafka";
 import { ExtractorService } from "@shared/services/extractor";
 
 import { FSMResetRequestEvent } from "@shared/events/systemEvents";
-
-// import packageJSON = require("../../package.json");
+import { captureTwitchException } from "../lib/sentryUtils";
 
 @injectable()
 export class DevCommands implements TwitchCommand {
@@ -63,6 +62,7 @@ export class DevCommands implements TwitchCommand {
 					await client.join(channelName);
 				} catch (e) {
 					debug("app::devCommands::join")(e);
+					captureTwitchException(e, channel, tags, message);
 				}
 			}
 
@@ -73,14 +73,19 @@ export class DevCommands implements TwitchCommand {
 					await client.part(channelName);
 				} catch (e) {
 					debug("app::devCommands::leave")(e);
+					captureTwitchException(e, channel, tags, message);
 				}
 			}
 
-			// if (msg.startsWith("!version")) {
-			// 	await client.say(channel, "Version: " + packageJSON.version);
-			// }
+			if (msg.startsWith("!version")) {
+				await client.say(
+					channel,
+					"Version: " + process.env.npm_package_version,
+				);
+			}
 		} catch (e) {
 			debug("app::devCommands")(e);
+			captureTwitchException(e, channel, tags, message);
 		}
 	};
 }

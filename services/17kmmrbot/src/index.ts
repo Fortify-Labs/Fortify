@@ -16,9 +16,12 @@ import { BotCommandProcessor } from "./services/command";
 
 import { FortifyEventTopics } from "@shared/events/events";
 
-import { sharedSetup } from "@shared/index";
 import { HelpCommand } from "./commands/help";
+
+import { sharedSetup } from "@shared/index";
 sharedSetup();
+import { captureException, captureMessage } from "@sentry/node";
+import { captureTwitchException } from "./lib/sentryUtils";
 
 const {
 	KAFKA_FROM_START = "false",
@@ -134,6 +137,7 @@ const {
 			}
 		} catch (e) {
 			debug("app::message")(e);
+			captureTwitchException(e, channel, tags, message);
 		}
 	});
 
@@ -141,8 +145,16 @@ const {
 
 	client.on("disconnected", async (reason) => {
 		debug("app::main::disconnected")(reason);
+		captureMessage("Twitch bot disconnected", {
+			extra: {
+				reason,
+			},
+		});
 	});
 
 	debug("app::main")("Twitch bot connected");
 	debug("app::main")(connected);
-})().catch(debug("app::main"));
+})().catch((e) => {
+	debug("app::main")(e);
+	captureException(e);
+});

@@ -3,7 +3,7 @@ import { injectable, inject } from "inversify";
 import debug = require("debug");
 
 import { TwitchCommand } from "../definitions/twitchCommand";
-import { Client } from "tmi.js";
+import { ChatUserstate, Client } from "tmi.js";
 
 import { ExtractorService } from "@shared/services/extractor";
 import { LeaderboardService } from "@shared/services/leaderboard";
@@ -13,6 +13,7 @@ import {
 } from "@shared/definitions/leaderboard";
 import { FortifyGameMode } from "@shared/state";
 import { Player } from "@shared/definitions/player";
+import { captureTwitchException } from "../lib/sentryUtils";
 
 @injectable()
 export class MMRCommand implements TwitchCommand {
@@ -26,7 +27,12 @@ export class MMRCommand implements TwitchCommand {
 	showInHelp = true;
 	description = "Display current leaderboard MMR";
 
-	handler = async (client: Client, channel: string) => {
+	handler = async (
+		client: Client,
+		channel: string,
+		tags: ChatUserstate,
+		message: string,
+	) => {
 		try {
 			const user = await this.extractorService.getUser(channel);
 
@@ -95,6 +101,7 @@ export class MMRCommand implements TwitchCommand {
 			);
 		} catch (e) {
 			debug("app::mmr")(e);
+			captureTwitchException(e, channel, tags, message);
 		}
 
 		return false;

@@ -3,7 +3,7 @@ import debug = require("debug");
 import { injectable, inject } from "inversify";
 import { TwitchCommand } from "../definitions/twitchCommand";
 
-import { Client } from "tmi.js";
+import { ChatUserstate, Client } from "tmi.js";
 
 import { ExtractorService } from "@shared/services/extractor";
 
@@ -15,6 +15,7 @@ import {
 } from "@shared/definitions/leaderboard";
 
 import { majorRankNameMapping } from "@shared/ranks";
+import { captureTwitchException } from "../lib/sentryUtils";
 
 @injectable()
 export class NotablePlayersCommand implements TwitchCommand {
@@ -29,7 +30,12 @@ export class NotablePlayersCommand implements TwitchCommand {
 	description =
 		"Displays a full summary of the lobby, including players ranks and MMR. Also calculates the average for the lobby";
 
-	handler = async (client: Client, channel: string) => {
+	handler = async (
+		client: Client,
+		channel: string,
+		tags: ChatUserstate,
+		message: string,
+	) => {
 		try {
 			const user = await this.extractorService.getUser(channel);
 
@@ -126,8 +132,17 @@ export class NotablePlayersCommand implements TwitchCommand {
 
 			client.say(channel, response);
 		} catch (e) {
-			client.say(channel, "Something went wrong");
 			debug("app::notablePlayers")(e);
+			const exceptionID = captureTwitchException(
+				e,
+				channel,
+				tags,
+				message,
+			);
+			await client.say(
+				channel,
+				`Something went wrong. (Exception ID: ${exceptionID})`,
+			);
 		}
 
 		return;
