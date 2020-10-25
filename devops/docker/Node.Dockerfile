@@ -27,11 +27,11 @@ LABEL org.opencontainers.image.source https://github.com/fortify-labs/fortify
 
 ARG SERVICE_NAME
 
-WORKDIR /usr/src/app/
-COPY --from=builder /usr/src/app/${SERVICE_NAME}/build ${SERVICE_NAME}/build
-COPY --from=builder /usr/src/app/${SERVICE_NAME}/package.json ${SERVICE_NAME}/
-COPY --from=builder /usr/src/app/${SERVICE_NAME}/package-lock.json ${SERVICE_NAME}/
-COPY --from=builder /usr/src/app/${SERVICE_NAME}/tsconfig.json ${SERVICE_NAME}/
+WORKDIR /usr/src/app/${SERVICE_NAME}
+COPY --from=builder /usr/src/app/${SERVICE_NAME}/build build
+COPY --from=builder /usr/src/app/${SERVICE_NAME}/package.json .
+COPY --from=builder /usr/src/app/${SERVICE_NAME}/package-lock.json .
+COPY --from=builder /usr/src/app/${SERVICE_NAME}/tsconfig.json .
 
 # Install only prod dependencies
 RUN npm install --only=prod
