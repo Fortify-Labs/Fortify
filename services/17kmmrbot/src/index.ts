@@ -19,6 +19,7 @@ import { FortifyEventTopics } from "@shared/events/events";
 import { HelpCommand } from "./commands/help";
 
 import { sharedSetup } from "@shared/index";
+global.__rootdir__ = __dirname || process.cwd();
 sharedSetup();
 import { captureException, captureMessage } from "@sentry/node";
 import { captureTwitchException } from "./lib/sentryUtils";
@@ -139,6 +140,18 @@ const {
 			debug("app::message")(e);
 			captureTwitchException(e, channel, tags, message);
 		}
+	});
+
+	client.on("connected", (address, port) => {
+		debug("app::main::connected")(address, port);
+		captureMessage("Twitch bot connected", {
+			contexts: {
+				arguments: {
+					address,
+					port,
+				},
+			},
+		});
 	});
 
 	const connected = await client.connect();

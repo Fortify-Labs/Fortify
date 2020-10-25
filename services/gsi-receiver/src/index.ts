@@ -2,6 +2,7 @@ import { config } from "dotenv";
 config();
 
 import { sharedSetup } from "@shared/index";
+global.__rootdir__ = __dirname || process.cwd();
 sharedSetup();
 
 import debug from "debug";
@@ -12,6 +13,8 @@ import { container } from "./inversify.config";
 import { KafkaConnector } from "@shared/connectors/kafka";
 
 import { verifyJWT, PermissionScope } from "@shared/auth";
+
+import { captureException, flush } from "@sentry/node";
 
 const { KAFKA_TOPIC, MY_PORT } = process.env;
 
@@ -61,11 +64,25 @@ const { KAFKA_TOPIC, MY_PORT } = process.env;
 				}
 			} catch (e) {
 				debug("app::gsi::exception")(e);
+				captureException(e, {
+					extra: {
+						jwtPayload: (req.body.auth as
+							| string
+							| undefined)?.split(".")[1],
+					},
+				});
 				res.status(500).contentType("text/html").end("SERVER ERROR");
 			}
 		} else {
 			res.status(401).contentType("text/html").end("UNAUTHORIZED");
 		}
+	});
+
+	app.get("/sentry", async (req, res) => {
+		const exception = new Error("Sentry error test");
+		const errorID = captureException(exception);
+		await flush();
+		res.status(200).json({ errorID });
 	});
 
 	app.use((req, res) => {
@@ -104,4 +121,7 @@ const { KAFKA_TOPIC, MY_PORT } = process.env;
 			}, 10000);
 		}
 	}
-})().catch(debug("app::start"));
+})().catch((e) => {
+	debug("app::start")(e);
+	captureException(e);
+});
