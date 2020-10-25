@@ -119,9 +119,11 @@ export class ClusterSetupClean extends Chart {
 													matchExpressions: [
 														{
 															key:
-																"strimzi.io/cluster",
+																"strimzi.io/name",
 															operator: "In",
-															values: ["fortify"],
+															values: [
+																"fortify-kafka",
+															],
 														},
 													],
 												},
@@ -154,9 +156,11 @@ export class ClusterSetupClean extends Chart {
 													matchExpressions: [
 														{
 															key:
-																"strimzi.io/cluster",
+																"strimzi.io/name",
 															operator: "In",
-															values: ["fortify"],
+															values: [
+																"fortify-zookeeper",
+															],
 														},
 													],
 												},

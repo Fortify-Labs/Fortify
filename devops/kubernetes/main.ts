@@ -32,7 +32,11 @@ const {
 } = process.env;
 
 // Sentry DSNs
-const { SENTRY_DSN = "", TWITCH_BOT_SENTRY_DSN } = process.env;
+const {
+	SENTRY_DSN = "",
+	TWITCH_BOT_SENTRY_DSN,
+	GSI_RECEIVER_SENTRY_DSN,
+} = process.env;
 
 export class Fortify extends Chart {
 	constructor(scope: Construct, name: string) {
@@ -267,6 +271,7 @@ export class Fortify extends Chart {
 					valueFrom: { fieldRef: { fieldPath: "metadata.name" } },
 				},
 				{ name: "KAFKA_TOPIC", value: "gsi" },
+				{ name: "SENTRY_DSN", value: GSI_RECEIVER_SENTRY_DSN },
 			],
 			secrets: ["jwt-secret"],
 			configmaps: ["kafka-config", "redis-config"],

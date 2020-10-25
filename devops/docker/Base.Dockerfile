@@ -1,7 +1,5 @@
 FROM node:14-alpine
-
-# Below command makes scuttle available in path
-# COPY --from=redboxoss/scuttle:latest /scuttle /bin/scuttle
+LABEL org.opencontainers.image.source https://github.com/fortify-labs/fortify
 
 # ENV NODE_ENV production
 

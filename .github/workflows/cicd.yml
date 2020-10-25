@@ -29,9 +29,12 @@ jobs:
           echo TWITCHBOT_VERSION=$(jq -r .version services/17kmmrbot/package.json) >> $GITHUB_ENV
           echo JOBS_VERSION=$(jq -r .version services/jobs/package.json) >> $GITHUB_ENV
           echo HISTORIZATION_VERSION=$(jq -r .version services/historization/package.json) >> $GITHUB_ENV
-      # The exit code is always mapped to 0, as for some reason docker-compose pull likes to exit with a non-zero values
-      # even when --ignore-pull-failures is set
+
+          echo SENTRY_ORG='thomas-kosiewski' >> $GITHUB_ENV
+          echo SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} >> $GITHUB_ENV
       - name: Pull all already existing images
+        # The exit code is always mapped to 0, as for some reason docker-compose pull likes to exit with a non-zero values
+        # even when --ignore-pull-failures is set
         run: docker-compose -f build.docker-compose.yml pull --ignore-pull-failures || true
       - name: Build base image
         run: |
