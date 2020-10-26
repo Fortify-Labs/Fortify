@@ -36,6 +36,7 @@ const {
 	SENTRY_DSN = "",
 	TWITCH_BOT_SENTRY_DSN,
 	GSI_RECEIVER_SENTRY_DSN,
+	FSM_SENTRY_DSN,
 } = process.env;
 
 export class Fortify extends Chart {
@@ -316,6 +317,10 @@ export class Fortify extends Chart {
 				{
 					name: "KAFKA_CLIENT_ID",
 					valueFrom: { fieldRef: { fieldPath: "metadata.name" } },
+				},
+				{
+					name: "SENTRY_DSN",
+					value: FSM_SENTRY_DSN,
 				},
 			],
 			secrets: ["jwt-secret", "postgres-auth"],

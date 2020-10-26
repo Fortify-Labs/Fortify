@@ -4,7 +4,10 @@ config();
 import debug from "debug";
 
 import { sharedSetup } from "@shared/index";
+global.__rootdir__ = __dirname || process.cwd();
 sharedSetup();
+
+import { captureException, flush } from "@sentry/node";
 
 import { container } from "./inversify.config";
 
@@ -22,6 +25,7 @@ import { StateTransformationService } from "./services/stateTransformer";
 
 import { FortifyEventTopics, FortifyEvent } from "@shared/events/events";
 import { SystemEventType } from "@shared/events/systemEvents";
+import { ConsumerCrashEvent } from "kafkajs";
 
 const {
 	JWT_SECRET,
@@ -85,13 +89,13 @@ const {
 			if (topic === "gsi") {
 				try {
 					const gsi: Log = JSON.parse(value);
-					const cxt =
+					const ctx =
 						typeof gsi.auth === "string"
 							? verify(gsi.auth, JWT_SECRET ?? "")
 							: gsi.auth;
 
-					if (cxt instanceof Object) {
-						const context = cxt as Context;
+					if (ctx instanceof Object) {
+						const context = ctx as Context;
 
 						let state = await stateTransformer.loadState(
 							context.user.id,
@@ -115,6 +119,19 @@ const {
 											debug(
 												"app::consumer::public_player_state",
 											)(e);
+											captureException(e, {
+												contexts: {
+													reducer: {
+														name: reducer.name,
+														type:
+															"public_player_state",
+													},
+													message,
+												},
+												user: {
+													id: context.user.id,
+												},
+											});
 										}
 									}
 								}
@@ -132,6 +149,19 @@ const {
 											debug(
 												"app::consumer::private_player_state",
 											)(e);
+											captureException(e, {
+												contexts: {
+													reducer: {
+														name: reducer.name,
+														type:
+															"private_player_state",
+													},
+													message,
+												},
+												user: {
+													id: context.user.id,
+												},
+											});
 										}
 									}
 								}
@@ -145,6 +175,7 @@ const {
 					}
 				} catch (e) {
 					debug("app::consumer::eachMessage")(e);
+					captureException(e);
 					throw e;
 				}
 			}
@@ -158,4 +189,33 @@ const {
 			topic: "gsi",
 		});
 	}
-})().catch(debug("app::anonymous_function"));
+
+	consumer.on("consumer.disconnect", () => {
+		debug("app::kafka::consumer.disconnect")("Consumer disconnected");
+		// const sentryID = captureMessage("Consumer disconnected");
+		// debug("app::kafka::consumer.disconnect")(sentryID);
+	});
+	consumer.on("consumer.connect", () => {
+		debug("app::kafka::consumer.connect")("Consumer connected");
+		// const sentryID = captureMessage("Consumer connected");
+		// debug("app::kafka::consumer.connect")(sentryID);
+	});
+	consumer.on("consumer.crash", async (crashEvent: ConsumerCrashEvent) => {
+		debug("app::kafka::consumer.crash")(crashEvent);
+		const sentryID = captureException(crashEvent.payload.error, {
+			extra: {
+				groupId: crashEvent.payload.groupId,
+			},
+		});
+		debug("app::kafka::consumer.crash")(sentryID);
+		try {
+			await flush();
+		} finally {
+			// eslint-disable-next-line no-process-exit
+			process.exit(-1);
+		}
+	});
+})().catch((e) => {
+	debug("app::anonymous_function")(e);
+	captureException(e);
+});
