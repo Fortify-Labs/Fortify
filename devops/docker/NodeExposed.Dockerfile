@@ -11,13 +11,12 @@ ARG SENTRY_ORG
 ENV SENTRY_ORG=${SENTRY_ORG}
 
 # Copy the files necessary for the serivce
-WORKDIR /usr/src/app
-COPY services/${SERVICE_NAME} ${SERVICE_NAME}
+WORKDIR /usr/src/app/${SERVICE_NAME}
+COPY services/${SERVICE_NAME} .
 
 # Compile the service
-WORKDIR /usr/src/app/${SERVICE_NAME}
-RUN npm ci --silent
-RUN npm run compile &&\
+RUN npm ci --silent &&\
+	npm run compile &&\
 	npm run sentry &&\
 	rm -rf src tests
 
