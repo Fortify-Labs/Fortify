@@ -81,7 +81,7 @@ const {
 						kafka: {
 							topic,
 							partition,
-							message,
+							message: JSON.stringify(message, null, 2),
 						},
 					},
 				});
