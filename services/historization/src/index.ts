@@ -4,11 +4,15 @@ config();
 import debug from "debug";
 
 import { sharedSetup } from "@shared/index";
+global.__rootdir__ = __dirname || process.cwd();
 sharedSetup();
+
+import { captureException, flush } from "@sentry/node";
 
 import { container } from "./inversify.config";
 
 import { KafkaConnector } from "@shared/connectors/kafka";
+import { ConsumerCrashEvent } from "kafkajs";
 
 import { FortifyEventTopics, FortifyEvent } from "@shared/events/events";
 import {
@@ -71,7 +75,17 @@ const {
 					}
 				}
 			} catch (e) {
-				debug("app::indexCatch")(e);
+				debug("app::consumer::run")(e);
+				const exceptionID = captureException(e, {
+					contexts: {
+						kafka: {
+							topic,
+							partition,
+							message,
+						},
+					},
+				});
+				debug("app::consumer::run")(exceptionID);
 
 				// In case something doesn't work for a given topic (e.g. influx down and historization fails)
 				// pause the consumption of said topic for 30 seconds
@@ -86,4 +100,35 @@ const {
 			}
 		},
 	});
-})().catch(debug("app::anonymous_function"));
+
+	consumer.on("consumer.disconnect", () => {
+		debug("app::kafka::consumer.disconnect")("Consumer disconnected");
+		// const sentryID = captureMessage("Consumer disconnected");
+		// debug("app::kafka::consumer.disconnect")(sentryID);
+	});
+	consumer.on("consumer.connect", () => {
+		debug("app::kafka::consumer.connect")("Consumer connected");
+		// const sentryID = captureMessage("Consumer connected");
+		// debug("app::kafka::consumer.connect")(sentryID);
+	});
+	consumer.on("consumer.crash", async (crashEvent: ConsumerCrashEvent) => {
+		debug("app::kafka::consumer.crash")(crashEvent);
+		const sentryID = captureException(crashEvent.payload.error, {
+			extra: {
+				groupId: crashEvent.payload.groupId,
+			},
+		});
+		debug("app::kafka::consumer.crash")(sentryID);
+		try {
+			await flush();
+		} finally {
+			// eslint-disable-next-line no-process-exit
+			process.exit(-1);
+		}
+	});
+})().catch(async (e) => {
+	debug("app::anonymous_function")(e);
+	const sentryID = captureException(e);
+	debug("app::anonymous_function")(sentryID);
+	await flush();
+});

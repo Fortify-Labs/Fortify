@@ -1,6 +1,8 @@
 import { injectable, inject } from "inversify";
 import debug = require("debug");
 
+import { captureMessage } from "@sentry/node";
+
 import { FortifyScript } from "../scripts";
 import { EventService } from "@shared/services/eventService";
 import { TwitchMessageBroadcastEvent } from "@shared/events/systemEvents";
@@ -21,6 +23,15 @@ export class BroadcastNotificationScript implements FortifyScript {
 			debug("app::BroadcastNotificationScript")(
 				"TwitchMessageBroadcastEvent sent",
 			);
+			const messageID = captureMessage(
+				"TwitchMessageBroadcastEvent sent",
+				{
+					extra: {
+						message: broadcast.message,
+					},
+				},
+			);
+			debug("app::BroadcastNotificationScript")(messageID);
 		}
 	}
 }

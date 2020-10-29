@@ -1,7 +1,7 @@
 import { Construct } from "constructs";
 import { CronJob, EnvVar } from "../imports/k8s";
 
-const { REGISTRY } = process.env;
+const { REGISTRY, JOBS_SENTRY_DSN } = process.env;
 
 export interface FortifyCronJobOptions {
 	readonly schedule: string;
@@ -31,8 +31,13 @@ export class FortifyCronJob extends Construct {
 			? [...options.env, { name: "DEBUG", value: "app::*" }]
 			: [];
 
-		env.push({ name: "ENVOY_ADMIN_API", value: "http://127.0.0.1:15000" });
-		env.push({ name: "ISTIO_QUIT_API", value: "http://127.0.0.1:15020" });
+		// env.push({ name: "ENVOY_ADMIN_API", value: "http://127.0.0.1:15000" });
+		// env.push({ name: "ISTIO_QUIT_API", value: "http://127.0.0.1:15020" });
+
+		env.push({
+			name: "SENTRY_DSN",
+			value: JOBS_SENTRY_DSN,
+		});
 
 		const image =
 			options.image ??

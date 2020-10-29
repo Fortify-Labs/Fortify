@@ -64,7 +64,7 @@ const {
 
 	consumer.run({
 		autoCommit: KAFKA_AUTO_COMMIT !== "false" ?? true,
-		eachMessage: async ({ message, topic }) => {
+		eachMessage: async ({ message, topic, partition }) => {
 			if (!message.value) {
 				return;
 			}
@@ -174,8 +174,17 @@ const {
 						);
 					}
 				} catch (e) {
-					debug("app::consumer::eachMessage")(e);
-					captureException(e);
+					debug("app::consumer::run")(e);
+					const exceptionID = captureException(e, {
+						contexts: {
+							kafka: {
+								topic,
+								partition,
+								message,
+							},
+						},
+					});
+					debug("app::consumer::run")(exceptionID);
 					throw e;
 				}
 			}

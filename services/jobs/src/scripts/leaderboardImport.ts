@@ -35,7 +35,18 @@ export class LeaderboardImportService implements FortifyScript {
 			debug("app::leaderboardImport")(
 				`RequestFailure! Could not fetch ${type} leaderboard.`,
 			);
-			return;
+			throw new Error(
+				`Leaderboard Import: RequestFailure! Could not fetch ${type} leaderboard.`,
+			);
+		}
+
+		if (!leaderboard.success) {
+			debug("app::leaderboardImport")(
+				`Unsuccessful response! Success boolean in response is false for ${type} leaderboard.`,
+			);
+			throw new Error(
+				`Unsuccessful response! Success boolean in response is false for ${type} leaderboard.`,
+			);
 		}
 
 		debug("app::leaderboardImport")(`${type} leaderboard fetched`);
