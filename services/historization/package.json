@@ -1,6 +1,6 @@
 {
   "name": "historization",
-  "version": "1.3.23",
+  "version": "1.3.24",
   "description": "A historization service responsible for persisting info",
   "author": {
     "name": "Thomas Kosiewski"
@@ -32,6 +32,7 @@
     "prepare": "npm run compile",
     "pretest": "npm run compile",
     "posttest": "npm run check",
+    "sentry": "cross-env SENTRY_PROJECT=$npm_package_name sentry-cli releases new $npm_package_version && cross-env SENTRY_PROJECT=$npm_package_name sentry-cli releases files $npm_package_version upload-sourcemaps --rewrite ./build && cross-env SENTRY_PROJECT=$npm_package_name sentry-cli releases finalize $npm_package_version",
     "start": "cross-env TS_NODE_PROJECT=./ NODE_OPTIONS=--trace-warnings node -r tsconfig-paths/register build/index.js",
     "start:ts": "cross-env DEBUG=app::* NODE_OPTIONS=--trace-warnings ts-node -r tsconfig-paths/register --files src/index.ts",
     "sync-dotenv": "sync-dotenv",
@@ -40,17 +41,18 @@
   "devDependencies": {
     "@types/debug": "^4.1.5",
     "@types/jsonwebtoken": "^8.5.0",
-    "@types/node": "^14.11.10",
+    "@types/node": "^14.14.6",
     "@types/node-fetch": "^2.5.7",
     "@types/redis": "^2.8.28",
-    "gts": "^3.0.1",
-    "nodemon": "^2.0.5",
+    "gts": "^3.0.2",
+    "nodemon": "^2.0.6",
     "sync-dotenv": "^2.6.2",
     "ts-node": "^9.0.0",
-    "typescript": "^4.0.3"
+    "typescript": "^4.0.5"
   },
   "dependencies": {
     "@influxdata/influxdb-client": "^1.7.1",
+    "@sentry/node": "^5.27.2",
     "bignumber.js": "^9.0.1",
     "cross-env": "^7.0.2",
     "debug": "^4.2.0",

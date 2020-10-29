@@ -10,10 +10,10 @@ import { MatchSlot } from "./matchSlot";
 
 export class MMR {
 	@Column({ default: 0 })
-	mmr!: number;
+	mmr?: number;
 
 	@Column({ default: 0 })
-	rank!: number;
+	rank?: number;
 
 	@Column({
 		nullable: true,
@@ -71,13 +71,13 @@ export class User {
 	discordName?: string;
 
 	@Column(() => MMR)
-	standardRating!: MMR;
+	standardRating?: MMR;
 
 	@Column(() => MMR)
-	turboRating!: MMR;
+	turboRating?: MMR;
 
 	@Column(() => MMR)
-	duosRating!: MMR;
+	duosRating?: MMR;
 
 	// --- Relations ---
 	@OneToMany(() => MatchSlot, (slot) => slot.user)

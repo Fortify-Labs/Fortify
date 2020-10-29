@@ -292,6 +292,8 @@ export class MatchService {
 			user.updated = timestamp;
 
 			if (gameMode === FortifyGameMode.Normal) {
+				user.standardRating = { ...user.standardRating };
+
 				if (globalLeaderboardRank) {
 					user.standardRating.rank = globalLeaderboardRank;
 				}
@@ -299,6 +301,8 @@ export class MatchService {
 					user.standardRating.rankTier = rankTier;
 				}
 			} else if (gameMode === FortifyGameMode.Turbo) {
+				user.turboRating = { ...user.turboRating };
+
 				if (globalLeaderboardRank) {
 					user.turboRating.rank = globalLeaderboardRank;
 				}
@@ -306,6 +310,8 @@ export class MatchService {
 					user.turboRating.rankTier = rankTier;
 				}
 			} else if (gameMode === FortifyGameMode.Duos) {
+				user.duosRating = { ...user.duosRating };
+
 				if (globalLeaderboardRank) {
 					user.duosRating.rank = globalLeaderboardRank;
 				}

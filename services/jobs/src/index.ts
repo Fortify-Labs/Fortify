@@ -4,7 +4,10 @@ config();
 import debug from "debug";
 
 import { sharedSetup } from "@shared/index";
+global.__rootdir__ = __dirname || process.cwd();
 sharedSetup();
+
+import { captureException, flush } from "@sentry/node";
 
 import { container } from "./inversify.config";
 
@@ -25,19 +28,31 @@ yargs
 			});
 		},
 		async (argv) => {
-			debug("app::run")(argv);
+			try {
+				debug("app::run")(argv);
 
-			if (container.isBound(argv.script)) {
-				const fortifyScript = container.get<FortifyScript>(argv.script);
+				if (container.isBound(argv.script)) {
+					const fortifyScript = container.get<FortifyScript>(
+						argv.script,
+					);
 
-				await fortifyScript.handler();
-			} else {
-				debug("app::run")("No matching script found");
+					await fortifyScript.handler();
+				} else {
+					debug("app::run")("No matching script found");
+				}
+
+				// Close connections to gracefully complete
+				await container.get(RedisConnector).client.quit();
+				await (
+					await container.get(PostgresConnector).connection
+				).close();
+			} catch (e) {
+				debug("app::command::run")(e);
+				const exceptionID = captureException(e);
+				debug("app::command::run")(exceptionID);
+				await flush();
+				throw e;
 			}
-
-			// Close connections to gracefully complete
-			await container.get(RedisConnector).client.quit();
-			await (await container.get(PostgresConnector).connection).close();
 		},
 	)
 	.showHelpOnFail(true)
