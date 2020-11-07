@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "next",
     "compile": "graphql-let && tsc -b && cross-env NODE_ENV=production next build",
+    "sentry": "exit 0",
     "start": "next start",
     "sync-dotenv": "sync-dotenv",
     "types": "npm run download-schema && graphql-let",
