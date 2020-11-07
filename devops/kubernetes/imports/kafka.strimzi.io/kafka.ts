@@ -142,11 +142,9 @@ export interface KafkaSpecKafka {
   readonly storage: KafkaSpecKafkaStorage;
 
   /**
-   * Configures listeners of Kafka brokers.
-   *
    * @schema KafkaSpecKafka#listeners
    */
-  readonly listeners: KafkaSpecKafkaListeners;
+  readonly listeners: any;
 
   /**
    * Authorization configuration for Kafka brokers.
@@ -156,7 +154,7 @@ export interface KafkaSpecKafka {
   readonly authorization?: KafkaSpecKafkaAuthorization;
 
   /**
-   * Kafka broker config properties with the following prefixes cannot be set: listeners, advertised., broker., listener., host.name, port, inter.broker.listener.name, sasl., ssl., security., password., principal.builder.class, log.dir, zookeeper.connect, zookeeper.set.acl, authorizer., super.user, cruise.control.metrics.topic, cruise.control.metrics.reporter.bootstrap.servers (with the exception of: zookeeper.connection.timeout.ms, ssl.cipher.suites, ssl.protocol, ssl.enabled.protocols,cruise.control.metrics.topic.num.partitions, cruise.control.metrics.topic.replication.factor, cruise.control.metrics.topic.retention.ms,cruise.control.metrics.topic.auto.create.retries, cruise.control.metrics.topic.auto.create.timeout.ms).
+   * Kafka broker config properties with the following prefixes cannot be set: listeners, advertised., broker., listener., host.name, port, inter.broker.listener.name, sasl., ssl., security., password., principal.builder.class, log.dir, zookeeper.connect, zookeeper.set.acl, zookeeper.ssl, zookeeper.clientCnxnSocket, authorizer., super.user, cruise.control.metrics.topic, cruise.control.metrics.reporter.bootstrap.servers (with the exception of: zookeeper.connection.timeout.ms, ssl.cipher.suites, ssl.protocol, ssl.enabled.protocols,cruise.control.metrics.topic.num.partitions, cruise.control.metrics.topic.replication.factor, cruise.control.metrics.topic.retention.ms,cruise.control.metrics.topic.auto.create.retries, cruise.control.metrics.topic.auto.create.timeout.ms).
    *
    * @schema KafkaSpecKafka#config
    */
@@ -601,11 +599,18 @@ export interface KafkaSpecCruiseControl {
   readonly image?: string;
 
   /**
-   * The Cruise Control configuration. For a full list of configuration options refer to https://github.com/linkedin/cruise-control/wiki/Configurations. Note that properties with the following prefixes cannot be set: bootstrap.servers, client.id, zookeeper., network., security., failed.brokers.zk.path,webserver.http., webserver.api.urlprefix, webserver.session.path, webserver.accesslog., two.step., request.reason.required,metric.reporter.sampler.bootstrap.servers, metric.reporter.topic, partition.metric.sample.store.topic, broker.metric.sample.store.topic,capacity.config.file, self.healing., anomaly.detection., ssl.
+   * TLS sidecar configuration.
    *
-   * @schema KafkaSpecCruiseControl#config
+   * @schema KafkaSpecCruiseControl#tlsSidecar
    */
-  readonly config?: any;
+  readonly tlsSidecar?: KafkaSpecCruiseControlTlsSidecar;
+
+  /**
+   * CPU and memory resources to reserve for the Cruise Control container.
+   *
+   * @schema KafkaSpecCruiseControl#resources
+   */
+  readonly resources?: KafkaSpecCruiseControlResources;
 
   /**
    * Pod liveness checking for the Cruise Control container.
@@ -629,25 +634,11 @@ export interface KafkaSpecCruiseControl {
   readonly jvmOptions?: KafkaSpecCruiseControlJvmOptions;
 
   /**
-   * CPU and memory resources to reserve for the Cruise Control container.
-   *
-   * @schema KafkaSpecCruiseControl#resources
-   */
-  readonly resources?: KafkaSpecCruiseControlResources;
-
-  /**
    * Logging configuration (log4j1) for Cruise Control.
    *
    * @schema KafkaSpecCruiseControl#logging
    */
   readonly logging?: KafkaSpecCruiseControlLogging;
-
-  /**
-   * TLS sidecar configuration.
-   *
-   * @schema KafkaSpecCruiseControl#tlsSidecar
-   */
-  readonly tlsSidecar?: KafkaSpecCruiseControlTlsSidecar;
 
   /**
    * Template to specify how Cruise Control resources, `Deployments` and `Pods`, are generated.
@@ -662,6 +653,20 @@ export interface KafkaSpecCruiseControl {
    * @schema KafkaSpecCruiseControl#brokerCapacity
    */
   readonly brokerCapacity?: KafkaSpecCruiseControlBrokerCapacity;
+
+  /**
+   * The Cruise Control configuration. For a full list of configuration options refer to https://github.com/linkedin/cruise-control/wiki/Configurations. Note that properties with the following prefixes cannot be set: bootstrap.servers, client.id, zookeeper., network., security., failed.brokers.zk.path,webserver.http., webserver.api.urlprefix, webserver.session.path, webserver.accesslog., two.step., request.reason.required,metric.reporter.sampler.bootstrap.servers, metric.reporter.topic, partition.metric.sample.store.topic, broker.metric.sample.store.topic,capacity.config.file, self.healing., anomaly.detection., ssl.
+   *
+   * @schema KafkaSpecCruiseControl#config
+   */
+  readonly config?: any;
+
+  /**
+   * The Prometheus JMX Exporter configuration. See https://github.com/prometheus/jmx_exporter for details of the structure of this configuration.
+   *
+   * @schema KafkaSpecCruiseControl#metrics
+   */
+  readonly metrics?: any;
 
 }
 
@@ -858,35 +863,6 @@ export interface KafkaSpecKafkaStorage {
 }
 
 /**
- * Configures listeners of Kafka brokers.
- *
- * @schema KafkaSpecKafkaListeners
- */
-export interface KafkaSpecKafkaListeners {
-  /**
-   * Configures plain listener on port 9092.
-   *
-   * @schema KafkaSpecKafkaListeners#plain
-   */
-  readonly plain?: KafkaSpecKafkaListenersPlain;
-
-  /**
-   * Configures TLS listener on port 9093.
-   *
-   * @schema KafkaSpecKafkaListeners#tls
-   */
-  readonly tls?: KafkaSpecKafkaListenersTls;
-
-  /**
-   * Configures external listener on port 9094.
-   *
-   * @schema KafkaSpecKafkaListeners#external
-   */
-  readonly external?: KafkaSpecKafkaListenersExternal;
-
-}
-
-/**
  * Authorization configuration for Kafka brokers.
  *
  * @schema KafkaSpecKafkaAuthorization
@@ -908,7 +884,7 @@ export interface KafkaSpecKafkaAuthorization {
   readonly clientId?: string;
 
   /**
-   * Whether authorization decision should be delegated to the 'Simple' authorizer if DENIED by Keycloak Authorization Services policies.Default value is `false`.
+   * Whether authorization decision should be delegated to the 'Simple' authorizer if DENIED by Keycloak Authorization Services policies. Default value is `false`.
    *
    * @schema KafkaSpecKafkaAuthorization#delegateToKafkaAcls
    */
@@ -928,6 +904,20 @@ export interface KafkaSpecKafkaAuthorization {
    * @schema KafkaSpecKafkaAuthorization#expireAfterMs
    */
   readonly expireAfterMs?: number;
+
+  /**
+   * The time between two consecutive grants refresh runs in seconds. The default value is 60.
+   *
+   * @schema KafkaSpecKafkaAuthorization#grantsRefreshPeriodSeconds
+   */
+  readonly grantsRefreshPeriodSeconds?: number;
+
+  /**
+   * The number of threads to use to refresh grants for active sessions. The more threads, the more parallelism, so the sooner the job completes. However, using more threads places a heavier load on the authorization server. The default value is 5.
+   *
+   * @schema KafkaSpecKafkaAuthorization#grantsRefreshPoolSize
+   */
+  readonly grantsRefreshPoolSize?: number;
 
   /**
    * Initial capacity of the local cache used by the authorizer to avoid querying the Open Policy Agent for every request Defaults to `5000`.
@@ -967,7 +957,7 @@ export interface KafkaSpecKafkaAuthorization {
   readonly tokenEndpointUri?: string;
 
   /**
-   * Authorization type. Currently, the supported types are `simple`, `keycloak`, and `opa`. `simple` authorization type uses Kafka's `kafka.security.auth.SimpleAclAuthorizer` class for authorization. `keycloak` authorization type uses Keycloak Authorization Services for authorization. `opa` authorization type uses Open Policy Agent based authorization.
+   * Authorization type. Currently, the supported types are `simple`, `keycloak`, and `opa`. `simple` authorization type uses Kafka's `kafka.security.authorizer.AclAuthorizer` class for authorization. `keycloak` authorization type uses Keycloak Authorization Services for authorization. `opa` authorization type uses Open Policy Agent based authorization.
    *
    * @schema KafkaSpecKafkaAuthorization#type
    */
@@ -2373,6 +2363,67 @@ export enum KafkaSpecClientsCaCertificateExpirationPolicy {
 }
 
 /**
+ * TLS sidecar configuration.
+ *
+ * @schema KafkaSpecCruiseControlTlsSidecar
+ */
+export interface KafkaSpecCruiseControlTlsSidecar {
+  /**
+   * The docker image for the container.
+   *
+   * @schema KafkaSpecCruiseControlTlsSidecar#image
+   */
+  readonly image?: string;
+
+  /**
+   * Pod liveness checking.
+   *
+   * @schema KafkaSpecCruiseControlTlsSidecar#livenessProbe
+   */
+  readonly livenessProbe?: KafkaSpecCruiseControlTlsSidecarLivenessProbe;
+
+  /**
+   * The log level for the TLS sidecar. Default value is `notice`.
+   *
+   * @schema KafkaSpecCruiseControlTlsSidecar#logLevel
+   */
+  readonly logLevel?: KafkaSpecCruiseControlTlsSidecarLogLevel;
+
+  /**
+   * Pod readiness checking.
+   *
+   * @schema KafkaSpecCruiseControlTlsSidecar#readinessProbe
+   */
+  readonly readinessProbe?: KafkaSpecCruiseControlTlsSidecarReadinessProbe;
+
+  /**
+   * CPU and memory resources to reserve.
+   *
+   * @schema KafkaSpecCruiseControlTlsSidecar#resources
+   */
+  readonly resources?: KafkaSpecCruiseControlTlsSidecarResources;
+
+}
+
+/**
+ * CPU and memory resources to reserve for the Cruise Control container.
+ *
+ * @schema KafkaSpecCruiseControlResources
+ */
+export interface KafkaSpecCruiseControlResources {
+  /**
+   * @schema KafkaSpecCruiseControlResources#limits
+   */
+  readonly limits?: any;
+
+  /**
+   * @schema KafkaSpecCruiseControlResources#requests
+   */
+  readonly requests?: any;
+
+}
+
+/**
  * Pod liveness checking for the Cruise Control container.
  *
  * @schema KafkaSpecCruiseControlLivenessProbe
@@ -2508,24 +2559,6 @@ export interface KafkaSpecCruiseControlJvmOptions {
 }
 
 /**
- * CPU and memory resources to reserve for the Cruise Control container.
- *
- * @schema KafkaSpecCruiseControlResources
- */
-export interface KafkaSpecCruiseControlResources {
-  /**
-   * @schema KafkaSpecCruiseControlResources#limits
-   */
-  readonly limits?: any;
-
-  /**
-   * @schema KafkaSpecCruiseControlResources#requests
-   */
-  readonly requests?: any;
-
-}
-
-/**
  * Logging configuration (log4j1) for Cruise Control.
  *
  * @schema KafkaSpecCruiseControlLogging
@@ -2551,49 +2584,6 @@ export interface KafkaSpecCruiseControlLogging {
    * @schema KafkaSpecCruiseControlLogging#type
    */
   readonly type: KafkaSpecCruiseControlLoggingType;
-
-}
-
-/**
- * TLS sidecar configuration.
- *
- * @schema KafkaSpecCruiseControlTlsSidecar
- */
-export interface KafkaSpecCruiseControlTlsSidecar {
-  /**
-   * The docker image for the container.
-   *
-   * @schema KafkaSpecCruiseControlTlsSidecar#image
-   */
-  readonly image?: string;
-
-  /**
-   * Pod liveness checking.
-   *
-   * @schema KafkaSpecCruiseControlTlsSidecar#livenessProbe
-   */
-  readonly livenessProbe?: KafkaSpecCruiseControlTlsSidecarLivenessProbe;
-
-  /**
-   * The log level for the TLS sidecar. Default value is `notice`.
-   *
-   * @schema KafkaSpecCruiseControlTlsSidecar#logLevel
-   */
-  readonly logLevel?: KafkaSpecCruiseControlTlsSidecarLogLevel;
-
-  /**
-   * Pod readiness checking.
-   *
-   * @schema KafkaSpecCruiseControlTlsSidecar#readinessProbe
-   */
-  readonly readinessProbe?: KafkaSpecCruiseControlTlsSidecarReadinessProbe;
-
-  /**
-   * CPU and memory resources to reserve.
-   *
-   * @schema KafkaSpecCruiseControlTlsSidecar#resources
-   */
-  readonly resources?: KafkaSpecCruiseControlTlsSidecarResources;
 
 }
 
@@ -3048,116 +3038,6 @@ export interface KafkaSpecKafkaStorageVolumes {
 }
 
 /**
- * Configures plain listener on port 9092.
- *
- * @schema KafkaSpecKafkaListenersPlain
- */
-export interface KafkaSpecKafkaListenersPlain {
-  /**
-   * Authentication configuration for this listener. Since this listener does not use TLS transport you cannot configure an authentication with `type: tls`.
-   *
-   * @schema KafkaSpecKafkaListenersPlain#authentication
-   */
-  readonly authentication?: KafkaSpecKafkaListenersPlainAuthentication;
-
-  /**
-   * List of peers which should be able to connect to this listener. Peers in this list are combined using a logical OR operation. If this field is empty or missing, all connections will be allowed for this listener. If this field is present and contains at least one item, the listener only allows the traffic which matches at least one item in this list.
-   *
-   * @schema KafkaSpecKafkaListenersPlain#networkPolicyPeers
-   */
-  readonly networkPolicyPeers?: KafkaSpecKafkaListenersPlainNetworkPolicyPeers[];
-
-}
-
-/**
- * Configures TLS listener on port 9093.
- *
- * @schema KafkaSpecKafkaListenersTls
- */
-export interface KafkaSpecKafkaListenersTls {
-  /**
-   * Authentication configuration for this listener.
-   *
-   * @schema KafkaSpecKafkaListenersTls#authentication
-   */
-  readonly authentication?: KafkaSpecKafkaListenersTlsAuthentication;
-
-  /**
-   * Configuration of TLS listener.
-   *
-   * @schema KafkaSpecKafkaListenersTls#configuration
-   */
-  readonly configuration?: KafkaSpecKafkaListenersTlsConfiguration;
-
-  /**
-   * List of peers which should be able to connect to this listener. Peers in this list are combined using a logical OR operation. If this field is empty or missing, all connections will be allowed for this listener. If this field is present and contains at least one item, the listener only allows the traffic which matches at least one item in this list.
-   *
-   * @schema KafkaSpecKafkaListenersTls#networkPolicyPeers
-   */
-  readonly networkPolicyPeers?: KafkaSpecKafkaListenersTlsNetworkPolicyPeers[];
-
-}
-
-/**
- * Configures external listener on port 9094.
- *
- * @schema KafkaSpecKafkaListenersExternal
- */
-export interface KafkaSpecKafkaListenersExternal {
-  /**
-   * Authentication configuration for Kafka brokers.
-   *
-   * @schema KafkaSpecKafkaListenersExternal#authentication
-   */
-  readonly authentication?: KafkaSpecKafkaListenersExternalAuthentication;
-
-  /**
-   * Configures the `Ingress` class that defines which `Ingress` controller will be used. If not set, the `Ingress` class is set to `nginx`.
-   *
-   * @schema KafkaSpecKafkaListenersExternal#class
-   */
-  readonly class?: string;
-
-  /**
-   * External listener configuration.
-   *
-   * @schema KafkaSpecKafkaListenersExternal#configuration
-   */
-  readonly configuration?: KafkaSpecKafkaListenersExternalConfiguration;
-
-  /**
-   * List of peers which should be able to connect to this listener. Peers in this list are combined using a logical OR operation. If this field is empty or missing, all connections will be allowed for this listener. If this field is present and contains at least one item, the listener only allows the traffic which matches at least one item in this list.
-   *
-   * @schema KafkaSpecKafkaListenersExternal#networkPolicyPeers
-   */
-  readonly networkPolicyPeers?: KafkaSpecKafkaListenersExternalNetworkPolicyPeers[];
-
-  /**
-   * Overrides for external bootstrap and broker services and externally advertised addresses.
-   *
-   * @schema KafkaSpecKafkaListenersExternal#overrides
-   */
-  readonly overrides?: KafkaSpecKafkaListenersExternalOverrides;
-
-  /**
-   * Enables TLS encryption on the listener. By default set to `true` for enabled TLS encryption.
-   *
-   * @schema KafkaSpecKafkaListenersExternal#tls
-   */
-  readonly tls?: boolean;
-
-  /**
-   * Type of the external listener. Currently the supported types are `route`, `loadbalancer`, and `nodeport`. 
-
-* `route` type uses OpenShift Routes to expose Kafka.* `loadbalancer` type uses LoadBalancer type services to expose Kafka.* `nodeport` type uses NodePort type services to expose Kafka..
-   *
-   * @schema KafkaSpecKafkaListenersExternal#type
-   */
-  readonly type: KafkaSpecKafkaListenersExternalType;
-
-}
-
-/**
  * @schema KafkaSpecKafkaAuthorizationTlsTrustedCertificates
  */
 export interface KafkaSpecKafkaAuthorizationTlsTrustedCertificates {
@@ -3178,7 +3058,7 @@ export interface KafkaSpecKafkaAuthorizationTlsTrustedCertificates {
 }
 
 /**
- * Authorization type. Currently, the supported types are `simple`, `keycloak`, and `opa`. `simple` authorization type uses Kafka's `kafka.security.auth.SimpleAclAuthorizer` class for authorization. `keycloak` authorization type uses Keycloak Authorization Services for authorization. `opa` authorization type uses Open Policy Agent based authorization.
+ * Authorization type. Currently, the supported types are `simple`, `keycloak`, and `opa`. `simple` authorization type uses Kafka's `kafka.security.authorizer.AclAuthorizer` class for authorization. `keycloak` authorization type uses Keycloak Authorization Services for authorization. `opa` authorization type uses Open Policy Agent based authorization.
  *
  * @schema KafkaSpecKafkaAuthorizationType
  */
@@ -3486,6 +3366,13 @@ export interface KafkaSpecKafkaTemplatePod {
   readonly affinity?: KafkaSpecKafkaTemplatePodAffinity;
 
   /**
+   * The pod's tolerations.
+   *
+   * @schema KafkaSpecKafkaTemplatePod#tolerations
+   */
+  readonly tolerations?: KafkaSpecKafkaTemplatePodTolerations[];
+
+  /**
    * The name of the priority class used to assign priority to the pods. For more information about priority classes, see {K8sPriorityClass}.
    *
    * @schema KafkaSpecKafkaTemplatePod#priorityClassName
@@ -3500,11 +3387,11 @@ export interface KafkaSpecKafkaTemplatePod {
   readonly schedulerName?: string;
 
   /**
-   * The pod's tolerations.
+   * The pod's HostAliases. HostAliases is an optional list of hosts and IPs that will be injected into the pod's hosts file if specified.
    *
-   * @schema KafkaSpecKafkaTemplatePod#tolerations
+   * @schema KafkaSpecKafkaTemplatePod#hostAliases
    */
-  readonly tolerations?: KafkaSpecKafkaTemplatePodTolerations[];
+  readonly hostAliases?: KafkaSpecKafkaTemplatePodHostAliases[];
 
 }
 
@@ -3938,6 +3825,13 @@ export interface KafkaSpecZookeeperTemplatePod {
   readonly affinity?: KafkaSpecZookeeperTemplatePodAffinity;
 
   /**
+   * The pod's tolerations.
+   *
+   * @schema KafkaSpecZookeeperTemplatePod#tolerations
+   */
+  readonly tolerations?: KafkaSpecZookeeperTemplatePodTolerations[];
+
+  /**
    * The name of the priority class used to assign priority to the pods. For more information about priority classes, see {K8sPriorityClass}.
    *
    * @schema KafkaSpecZookeeperTemplatePod#priorityClassName
@@ -3952,11 +3846,11 @@ export interface KafkaSpecZookeeperTemplatePod {
   readonly schedulerName?: string;
 
   /**
-   * The pod's tolerations.
+   * The pod's HostAliases. HostAliases is an optional list of hosts and IPs that will be injected into the pod's hosts file if specified.
    *
-   * @schema KafkaSpecZookeeperTemplatePod#tolerations
+   * @schema KafkaSpecZookeeperTemplatePod#hostAliases
    */
-  readonly tolerations?: KafkaSpecZookeeperTemplatePodTolerations[];
+  readonly hostAliases?: KafkaSpecZookeeperTemplatePodHostAliases[];
 
 }
 
@@ -5024,6 +4918,13 @@ export interface KafkaSpecEntityOperatorTemplatePod {
   readonly affinity?: KafkaSpecEntityOperatorTemplatePodAffinity;
 
   /**
+   * The pod's tolerations.
+   *
+   * @schema KafkaSpecEntityOperatorTemplatePod#tolerations
+   */
+  readonly tolerations?: KafkaSpecEntityOperatorTemplatePodTolerations[];
+
+  /**
    * The name of the priority class used to assign priority to the pods. For more information about priority classes, see {K8sPriorityClass}.
    *
    * @schema KafkaSpecEntityOperatorTemplatePod#priorityClassName
@@ -5038,11 +4939,11 @@ export interface KafkaSpecEntityOperatorTemplatePod {
   readonly schedulerName?: string;
 
   /**
-   * The pod's tolerations.
+   * The pod's HostAliases. HostAliases is an optional list of hosts and IPs that will be injected into the pod's hosts file if specified.
    *
-   * @schema KafkaSpecEntityOperatorTemplatePod#tolerations
+   * @schema KafkaSpecEntityOperatorTemplatePod#hostAliases
    */
-  readonly tolerations?: KafkaSpecEntityOperatorTemplatePodTolerations[];
+  readonly hostAliases?: KafkaSpecEntityOperatorTemplatePodHostAliases[];
 
 }
 
@@ -5110,38 +5011,6 @@ export interface KafkaSpecEntityOperatorTemplateUserOperatorContainer {
    */
   readonly securityContext?: KafkaSpecEntityOperatorTemplateUserOperatorContainerSecurityContext;
 
-}
-
-/**
- * @schema KafkaSpecCruiseControlJvmOptionsJavaSystemProperties
- */
-export interface KafkaSpecCruiseControlJvmOptionsJavaSystemProperties {
-  /**
-   * The system property name.
-   *
-   * @schema KafkaSpecCruiseControlJvmOptionsJavaSystemProperties#name
-   */
-  readonly name?: string;
-
-  /**
-   * The system property value.
-   *
-   * @schema KafkaSpecCruiseControlJvmOptionsJavaSystemProperties#value
-   */
-  readonly value?: string;
-
-}
-
-/**
- * Logging type, must be either 'inline' or 'external'.
- *
- * @schema KafkaSpecCruiseControlLoggingType
- */
-export enum KafkaSpecCruiseControlLoggingType {
-  /** inline */
-  INLINE = "inline",
-  /** external */
-  EXTERNAL = "external",
 }
 
 /**
@@ -5279,6 +5148,38 @@ export interface KafkaSpecCruiseControlTlsSidecarResources {
 }
 
 /**
+ * @schema KafkaSpecCruiseControlJvmOptionsJavaSystemProperties
+ */
+export interface KafkaSpecCruiseControlJvmOptionsJavaSystemProperties {
+  /**
+   * The system property name.
+   *
+   * @schema KafkaSpecCruiseControlJvmOptionsJavaSystemProperties#name
+   */
+  readonly name?: string;
+
+  /**
+   * The system property value.
+   *
+   * @schema KafkaSpecCruiseControlJvmOptionsJavaSystemProperties#value
+   */
+  readonly value?: string;
+
+}
+
+/**
+ * Logging type, must be either 'inline' or 'external'.
+ *
+ * @schema KafkaSpecCruiseControlLoggingType
+ */
+export enum KafkaSpecCruiseControlLoggingType {
+  /** inline */
+  INLINE = "inline",
+  /** external */
+  EXTERNAL = "external",
+}
+
+/**
  * Template for Cruise Control `Deployment`.
  *
  * @schema KafkaSpecCruiseControlTemplateDeployment
@@ -5336,6 +5237,13 @@ export interface KafkaSpecCruiseControlTemplatePod {
   readonly affinity?: KafkaSpecCruiseControlTemplatePodAffinity;
 
   /**
+   * The pod's tolerations.
+   *
+   * @schema KafkaSpecCruiseControlTemplatePod#tolerations
+   */
+  readonly tolerations?: KafkaSpecCruiseControlTemplatePodTolerations[];
+
+  /**
    * The name of the priority class used to assign priority to the pods. For more information about priority classes, see {K8sPriorityClass}.
    *
    * @schema KafkaSpecCruiseControlTemplatePod#priorityClassName
@@ -5350,11 +5258,11 @@ export interface KafkaSpecCruiseControlTemplatePod {
   readonly schedulerName?: string;
 
   /**
-   * The pod's tolerations.
+   * The pod's HostAliases. HostAliases is an optional list of hosts and IPs that will be injected into the pod's hosts file if specified.
    *
-   * @schema KafkaSpecCruiseControlTemplatePod#tolerations
+   * @schema KafkaSpecCruiseControlTemplatePod#hostAliases
    */
-  readonly tolerations?: KafkaSpecCruiseControlTemplatePodTolerations[];
+  readonly hostAliases?: KafkaSpecCruiseControlTemplatePodHostAliases[];
 
 }
 
@@ -5498,6 +5406,13 @@ export interface KafkaSpecJmxTransTemplatePod {
   readonly affinity?: KafkaSpecJmxTransTemplatePodAffinity;
 
   /**
+   * The pod's tolerations.
+   *
+   * @schema KafkaSpecJmxTransTemplatePod#tolerations
+   */
+  readonly tolerations?: KafkaSpecJmxTransTemplatePodTolerations[];
+
+  /**
    * The name of the priority class used to assign priority to the pods. For more information about priority classes, see {K8sPriorityClass}.
    *
    * @schema KafkaSpecJmxTransTemplatePod#priorityClassName
@@ -5512,11 +5427,11 @@ export interface KafkaSpecJmxTransTemplatePod {
   readonly schedulerName?: string;
 
   /**
-   * The pod's tolerations.
+   * The pod's HostAliases. HostAliases is an optional list of hosts and IPs that will be injected into the pod's hosts file if specified.
    *
-   * @schema KafkaSpecJmxTransTemplatePod#tolerations
+   * @schema KafkaSpecJmxTransTemplatePod#hostAliases
    */
-  readonly tolerations?: KafkaSpecJmxTransTemplatePodTolerations[];
+  readonly hostAliases?: KafkaSpecJmxTransTemplatePodHostAliases[];
 
 }
 
@@ -5600,6 +5515,13 @@ export interface KafkaSpecKafkaExporterTemplatePod {
   readonly affinity?: KafkaSpecKafkaExporterTemplatePodAffinity;
 
   /**
+   * The pod's tolerations.
+   *
+   * @schema KafkaSpecKafkaExporterTemplatePod#tolerations
+   */
+  readonly tolerations?: KafkaSpecKafkaExporterTemplatePodTolerations[];
+
+  /**
    * The name of the priority class used to assign priority to the pods. For more information about priority classes, see {K8sPriorityClass}.
    *
    * @schema KafkaSpecKafkaExporterTemplatePod#priorityClassName
@@ -5614,11 +5536,11 @@ export interface KafkaSpecKafkaExporterTemplatePod {
   readonly schedulerName?: string;
 
   /**
-   * The pod's tolerations.
+   * The pod's HostAliases. HostAliases is an optional list of hosts and IPs that will be injected into the pod's hosts file if specified.
    *
-   * @schema KafkaSpecKafkaExporterTemplatePod#tolerations
+   * @schema KafkaSpecKafkaExporterTemplatePod#hostAliases
    */
-  readonly tolerations?: KafkaSpecKafkaExporterTemplatePodTolerations[];
+  readonly hostAliases?: KafkaSpecKafkaExporterTemplatePodHostAliases[];
 
 }
 
@@ -5689,591 +5611,6 @@ export enum KafkaSpecKafkaStorageVolumesType {
   EPHEMERAL = "ephemeral",
   /** persistent-claim */
   PERSISTENT_CLAIM = "persistent-claim",
-}
-
-/**
- * Authentication configuration for this listener. Since this listener does not use TLS transport you cannot configure an authentication with `type: tls`.
- *
- * @schema KafkaSpecKafkaListenersPlainAuthentication
- */
-export interface KafkaSpecKafkaListenersPlainAuthentication {
-  /**
-   * Configure whether the access token is treated as JWT. This must be set to `false` if the authorization server returns opaque tokens. Defaults to `true`.
-   *
-   * @default true`.
-   * @schema KafkaSpecKafkaListenersPlainAuthentication#accessTokenIsJwt
-   */
-  readonly accessTokenIsJwt?: boolean;
-
-  /**
-   * Configure whether the access token type check is performed or not. This should be set to `false` if the authorization server does not include 'typ' claim in JWT token. Defaults to `true`.
-   *
-   * @default true`.
-   * @schema KafkaSpecKafkaListenersPlainAuthentication#checkAccessTokenType
-   */
-  readonly checkAccessTokenType?: boolean;
-
-  /**
-   * Enable or disable issuer checking. By default issuer is checked using the value configured by `validIssuerUri`. Default value is `true`.
-   *
-   * @schema KafkaSpecKafkaListenersPlainAuthentication#checkIssuer
-   */
-  readonly checkIssuer?: boolean;
-
-  /**
-   * OAuth Client ID which the Kafka broker can use to authenticate against the authorization server and use the introspect endpoint URI.
-   *
-   * @schema KafkaSpecKafkaListenersPlainAuthentication#clientId
-   */
-  readonly clientId?: string;
-
-  /**
-   * Link to Kubernetes Secret containing the OAuth client secret which the Kafka broker can use to authenticate against the authorization server and use the introspect endpoint URI.
-   *
-   * @schema KafkaSpecKafkaListenersPlainAuthentication#clientSecret
-   */
-  readonly clientSecret?: KafkaSpecKafkaListenersPlainAuthenticationClientSecret;
-
-  /**
-   * Enable or disable TLS hostname verification. Default value is `false`.
-   *
-   * @schema KafkaSpecKafkaListenersPlainAuthentication#disableTlsHostnameVerification
-   */
-  readonly disableTlsHostnameVerification?: boolean;
-
-  /**
-   * Enable or disable ECDSA support by installing BouncyCastle crypto provider. Default value is `false`.
-   *
-   * @schema KafkaSpecKafkaListenersPlainAuthentication#enableECDSA
-   */
-  readonly enableECDSA?: boolean;
-
-  /**
-   * The fallback username claim to be used for the user id if the claim specified by `userNameClaim` is not present. This is useful when `client_credentials` authentication only results in the client id being provided in another claim. It only takes effect if `userNameClaim` is set.
-   *
-   * @schema KafkaSpecKafkaListenersPlainAuthentication#fallbackUserNameClaim
-   */
-  readonly fallbackUserNameClaim?: string;
-
-  /**
-   * The prefix to use with the value of `fallbackUserNameClaim` to construct the user id. This only takes effect if `fallbackUserNameClaim` is true, and the value is present for the claim. Mapping usernames and client ids into the same user id space is useful in preventing name collisions.
-   *
-   * @schema KafkaSpecKafkaListenersPlainAuthentication#fallbackUserNamePrefix
-   */
-  readonly fallbackUserNamePrefix?: string;
-
-  /**
-   * URI of the token introspection endpoint which can be used to validate opaque non-JWT tokens.
-   *
-   * @schema KafkaSpecKafkaListenersPlainAuthentication#introspectionEndpointUri
-   */
-  readonly introspectionEndpointUri?: string;
-
-  /**
-   * URI of the JWKS certificate endpoint, which can be used for local JWT validation.
-   *
-   * @schema KafkaSpecKafkaListenersPlainAuthentication#jwksEndpointUri
-   */
-  readonly jwksEndpointUri?: string;
-
-  /**
-   * Configures how often are the JWKS certificates considered valid. The expiry interval has to be at least 60 seconds longer then the refresh interval specified in `jwksRefreshSeconds`. Defaults to 360 seconds.
-   *
-   * @default 360 seconds.
-   * @schema KafkaSpecKafkaListenersPlainAuthentication#jwksExpirySeconds
-   */
-  readonly jwksExpirySeconds?: number;
-
-  /**
-   * Configures how often are the JWKS certificates refreshed. The refresh interval has to be at least 60 seconds shorter then the expiry interval specified in `jwksExpirySeconds`. Defaults to 300 seconds.
-   *
-   * @default 300 seconds.
-   * @schema KafkaSpecKafkaListenersPlainAuthentication#jwksRefreshSeconds
-   */
-  readonly jwksRefreshSeconds?: number;
-
-  /**
-   * Trusted certificates for TLS connection to the OAuth server.
-   *
-   * @schema KafkaSpecKafkaListenersPlainAuthentication#tlsTrustedCertificates
-   */
-  readonly tlsTrustedCertificates?: KafkaSpecKafkaListenersPlainAuthenticationTlsTrustedCertificates[];
-
-  /**
-   * Authentication type. `oauth` type uses SASL OAUTHBEARER Authentication. `scram-sha-512` type uses SASL SCRAM-SHA-512 Authentication. `tls` type uses TLS Client Authentication. `tls` type is supported only on TLS listeners.
-   *
-   * @schema KafkaSpecKafkaListenersPlainAuthentication#type
-   */
-  readonly type: KafkaSpecKafkaListenersPlainAuthenticationType;
-
-  /**
-   * URI of the User Info Endpoint to use as a fallback to obtaining the user id when the Introspection Endpoint does not return information that can be used for the user id. 
-   *
-   * @schema KafkaSpecKafkaListenersPlainAuthentication#userInfoEndpointUri
-   */
-  readonly userInfoEndpointUri?: string;
-
-  /**
-   * Name of the claim from the JWT authentication token, Introspection Endpoint response or User Info Endpoint response which will be used to extract the user id. Defaults to `sub`.
-   *
-   * @default sub`.
-   * @schema KafkaSpecKafkaListenersPlainAuthentication#userNameClaim
-   */
-  readonly userNameClaim?: string;
-
-  /**
-   * URI of the token issuer used for authentication.
-   *
-   * @schema KafkaSpecKafkaListenersPlainAuthentication#validIssuerUri
-   */
-  readonly validIssuerUri?: string;
-
-  /**
-   * Valid value for the `token_type` attribute returned by the Introspection Endpoint. No default value, and not checked by default.
-   *
-   * @schema KafkaSpecKafkaListenersPlainAuthentication#validTokenType
-   */
-  readonly validTokenType?: string;
-
-}
-
-/**
- * @schema KafkaSpecKafkaListenersPlainNetworkPolicyPeers
- */
-export interface KafkaSpecKafkaListenersPlainNetworkPolicyPeers {
-  /**
-   * @schema KafkaSpecKafkaListenersPlainNetworkPolicyPeers#ipBlock
-   */
-  readonly ipBlock?: KafkaSpecKafkaListenersPlainNetworkPolicyPeersIpBlock;
-
-  /**
-   * @schema KafkaSpecKafkaListenersPlainNetworkPolicyPeers#namespaceSelector
-   */
-  readonly namespaceSelector?: KafkaSpecKafkaListenersPlainNetworkPolicyPeersNamespaceSelector;
-
-  /**
-   * @schema KafkaSpecKafkaListenersPlainNetworkPolicyPeers#podSelector
-   */
-  readonly podSelector?: KafkaSpecKafkaListenersPlainNetworkPolicyPeersPodSelector;
-
-}
-
-/**
- * Authentication configuration for this listener.
- *
- * @schema KafkaSpecKafkaListenersTlsAuthentication
- */
-export interface KafkaSpecKafkaListenersTlsAuthentication {
-  /**
-   * Configure whether the access token is treated as JWT. This must be set to `false` if the authorization server returns opaque tokens. Defaults to `true`.
-   *
-   * @default true`.
-   * @schema KafkaSpecKafkaListenersTlsAuthentication#accessTokenIsJwt
-   */
-  readonly accessTokenIsJwt?: boolean;
-
-  /**
-   * Configure whether the access token type check is performed or not. This should be set to `false` if the authorization server does not include 'typ' claim in JWT token. Defaults to `true`.
-   *
-   * @default true`.
-   * @schema KafkaSpecKafkaListenersTlsAuthentication#checkAccessTokenType
-   */
-  readonly checkAccessTokenType?: boolean;
-
-  /**
-   * Enable or disable issuer checking. By default issuer is checked using the value configured by `validIssuerUri`. Default value is `true`.
-   *
-   * @schema KafkaSpecKafkaListenersTlsAuthentication#checkIssuer
-   */
-  readonly checkIssuer?: boolean;
-
-  /**
-   * OAuth Client ID which the Kafka broker can use to authenticate against the authorization server and use the introspect endpoint URI.
-   *
-   * @schema KafkaSpecKafkaListenersTlsAuthentication#clientId
-   */
-  readonly clientId?: string;
-
-  /**
-   * Link to Kubernetes Secret containing the OAuth client secret which the Kafka broker can use to authenticate against the authorization server and use the introspect endpoint URI.
-   *
-   * @schema KafkaSpecKafkaListenersTlsAuthentication#clientSecret
-   */
-  readonly clientSecret?: KafkaSpecKafkaListenersTlsAuthenticationClientSecret;
-
-  /**
-   * Enable or disable TLS hostname verification. Default value is `false`.
-   *
-   * @schema KafkaSpecKafkaListenersTlsAuthentication#disableTlsHostnameVerification
-   */
-  readonly disableTlsHostnameVerification?: boolean;
-
-  /**
-   * Enable or disable ECDSA support by installing BouncyCastle crypto provider. Default value is `false`.
-   *
-   * @schema KafkaSpecKafkaListenersTlsAuthentication#enableECDSA
-   */
-  readonly enableECDSA?: boolean;
-
-  /**
-   * The fallback username claim to be used for the user id if the claim specified by `userNameClaim` is not present. This is useful when `client_credentials` authentication only results in the client id being provided in another claim. It only takes effect if `userNameClaim` is set.
-   *
-   * @schema KafkaSpecKafkaListenersTlsAuthentication#fallbackUserNameClaim
-   */
-  readonly fallbackUserNameClaim?: string;
-
-  /**
-   * The prefix to use with the value of `fallbackUserNameClaim` to construct the user id. This only takes effect if `fallbackUserNameClaim` is true, and the value is present for the claim. Mapping usernames and client ids into the same user id space is useful in preventing name collisions.
-   *
-   * @schema KafkaSpecKafkaListenersTlsAuthentication#fallbackUserNamePrefix
-   */
-  readonly fallbackUserNamePrefix?: string;
-
-  /**
-   * URI of the token introspection endpoint which can be used to validate opaque non-JWT tokens.
-   *
-   * @schema KafkaSpecKafkaListenersTlsAuthentication#introspectionEndpointUri
-   */
-  readonly introspectionEndpointUri?: string;
-
-  /**
-   * URI of the JWKS certificate endpoint, which can be used for local JWT validation.
-   *
-   * @schema KafkaSpecKafkaListenersTlsAuthentication#jwksEndpointUri
-   */
-  readonly jwksEndpointUri?: string;
-
-  /**
-   * Configures how often are the JWKS certificates considered valid. The expiry interval has to be at least 60 seconds longer then the refresh interval specified in `jwksRefreshSeconds`. Defaults to 360 seconds.
-   *
-   * @default 360 seconds.
-   * @schema KafkaSpecKafkaListenersTlsAuthentication#jwksExpirySeconds
-   */
-  readonly jwksExpirySeconds?: number;
-
-  /**
-   * Configures how often are the JWKS certificates refreshed. The refresh interval has to be at least 60 seconds shorter then the expiry interval specified in `jwksExpirySeconds`. Defaults to 300 seconds.
-   *
-   * @default 300 seconds.
-   * @schema KafkaSpecKafkaListenersTlsAuthentication#jwksRefreshSeconds
-   */
-  readonly jwksRefreshSeconds?: number;
-
-  /**
-   * Trusted certificates for TLS connection to the OAuth server.
-   *
-   * @schema KafkaSpecKafkaListenersTlsAuthentication#tlsTrustedCertificates
-   */
-  readonly tlsTrustedCertificates?: KafkaSpecKafkaListenersTlsAuthenticationTlsTrustedCertificates[];
-
-  /**
-   * Authentication type. `oauth` type uses SASL OAUTHBEARER Authentication. `scram-sha-512` type uses SASL SCRAM-SHA-512 Authentication. `tls` type uses TLS Client Authentication. `tls` type is supported only on TLS listeners.
-   *
-   * @schema KafkaSpecKafkaListenersTlsAuthentication#type
-   */
-  readonly type: KafkaSpecKafkaListenersTlsAuthenticationType;
-
-  /**
-   * URI of the User Info Endpoint to use as a fallback to obtaining the user id when the Introspection Endpoint does not return information that can be used for the user id. 
-   *
-   * @schema KafkaSpecKafkaListenersTlsAuthentication#userInfoEndpointUri
-   */
-  readonly userInfoEndpointUri?: string;
-
-  /**
-   * Name of the claim from the JWT authentication token, Introspection Endpoint response or User Info Endpoint response which will be used to extract the user id. Defaults to `sub`.
-   *
-   * @default sub`.
-   * @schema KafkaSpecKafkaListenersTlsAuthentication#userNameClaim
-   */
-  readonly userNameClaim?: string;
-
-  /**
-   * URI of the token issuer used for authentication.
-   *
-   * @schema KafkaSpecKafkaListenersTlsAuthentication#validIssuerUri
-   */
-  readonly validIssuerUri?: string;
-
-  /**
-   * Valid value for the `token_type` attribute returned by the Introspection Endpoint. No default value, and not checked by default.
-   *
-   * @schema KafkaSpecKafkaListenersTlsAuthentication#validTokenType
-   */
-  readonly validTokenType?: string;
-
-}
-
-/**
- * Configuration of TLS listener.
- *
- * @schema KafkaSpecKafkaListenersTlsConfiguration
- */
-export interface KafkaSpecKafkaListenersTlsConfiguration {
-  /**
-   * Reference to the `Secret` which holds the certificate and private key pair. The certificate can optionally contain the whole chain.
-   *
-   * @schema KafkaSpecKafkaListenersTlsConfiguration#brokerCertChainAndKey
-   */
-  readonly brokerCertChainAndKey?: KafkaSpecKafkaListenersTlsConfigurationBrokerCertChainAndKey;
-
-}
-
-/**
- * @schema KafkaSpecKafkaListenersTlsNetworkPolicyPeers
- */
-export interface KafkaSpecKafkaListenersTlsNetworkPolicyPeers {
-  /**
-   * @schema KafkaSpecKafkaListenersTlsNetworkPolicyPeers#ipBlock
-   */
-  readonly ipBlock?: KafkaSpecKafkaListenersTlsNetworkPolicyPeersIpBlock;
-
-  /**
-   * @schema KafkaSpecKafkaListenersTlsNetworkPolicyPeers#namespaceSelector
-   */
-  readonly namespaceSelector?: KafkaSpecKafkaListenersTlsNetworkPolicyPeersNamespaceSelector;
-
-  /**
-   * @schema KafkaSpecKafkaListenersTlsNetworkPolicyPeers#podSelector
-   */
-  readonly podSelector?: KafkaSpecKafkaListenersTlsNetworkPolicyPeersPodSelector;
-
-}
-
-/**
- * Authentication configuration for Kafka brokers.
- *
- * @schema KafkaSpecKafkaListenersExternalAuthentication
- */
-export interface KafkaSpecKafkaListenersExternalAuthentication {
-  /**
-   * Configure whether the access token is treated as JWT. This must be set to `false` if the authorization server returns opaque tokens. Defaults to `true`.
-   *
-   * @default true`.
-   * @schema KafkaSpecKafkaListenersExternalAuthentication#accessTokenIsJwt
-   */
-  readonly accessTokenIsJwt?: boolean;
-
-  /**
-   * Configure whether the access token type check is performed or not. This should be set to `false` if the authorization server does not include 'typ' claim in JWT token. Defaults to `true`.
-   *
-   * @default true`.
-   * @schema KafkaSpecKafkaListenersExternalAuthentication#checkAccessTokenType
-   */
-  readonly checkAccessTokenType?: boolean;
-
-  /**
-   * Enable or disable issuer checking. By default issuer is checked using the value configured by `validIssuerUri`. Default value is `true`.
-   *
-   * @schema KafkaSpecKafkaListenersExternalAuthentication#checkIssuer
-   */
-  readonly checkIssuer?: boolean;
-
-  /**
-   * OAuth Client ID which the Kafka broker can use to authenticate against the authorization server and use the introspect endpoint URI.
-   *
-   * @schema KafkaSpecKafkaListenersExternalAuthentication#clientId
-   */
-  readonly clientId?: string;
-
-  /**
-   * Link to Kubernetes Secret containing the OAuth client secret which the Kafka broker can use to authenticate against the authorization server and use the introspect endpoint URI.
-   *
-   * @schema KafkaSpecKafkaListenersExternalAuthentication#clientSecret
-   */
-  readonly clientSecret?: KafkaSpecKafkaListenersExternalAuthenticationClientSecret;
-
-  /**
-   * Enable or disable TLS hostname verification. Default value is `false`.
-   *
-   * @schema KafkaSpecKafkaListenersExternalAuthentication#disableTlsHostnameVerification
-   */
-  readonly disableTlsHostnameVerification?: boolean;
-
-  /**
-   * Enable or disable ECDSA support by installing BouncyCastle crypto provider. Default value is `false`.
-   *
-   * @schema KafkaSpecKafkaListenersExternalAuthentication#enableECDSA
-   */
-  readonly enableECDSA?: boolean;
-
-  /**
-   * The fallback username claim to be used for the user id if the claim specified by `userNameClaim` is not present. This is useful when `client_credentials` authentication only results in the client id being provided in another claim. It only takes effect if `userNameClaim` is set.
-   *
-   * @schema KafkaSpecKafkaListenersExternalAuthentication#fallbackUserNameClaim
-   */
-  readonly fallbackUserNameClaim?: string;
-
-  /**
-   * The prefix to use with the value of `fallbackUserNameClaim` to construct the user id. This only takes effect if `fallbackUserNameClaim` is true, and the value is present for the claim. Mapping usernames and client ids into the same user id space is useful in preventing name collisions.
-   *
-   * @schema KafkaSpecKafkaListenersExternalAuthentication#fallbackUserNamePrefix
-   */
-  readonly fallbackUserNamePrefix?: string;
-
-  /**
-   * URI of the token introspection endpoint which can be used to validate opaque non-JWT tokens.
-   *
-   * @schema KafkaSpecKafkaListenersExternalAuthentication#introspectionEndpointUri
-   */
-  readonly introspectionEndpointUri?: string;
-
-  /**
-   * URI of the JWKS certificate endpoint, which can be used for local JWT validation.
-   *
-   * @schema KafkaSpecKafkaListenersExternalAuthentication#jwksEndpointUri
-   */
-  readonly jwksEndpointUri?: string;
-
-  /**
-   * Configures how often are the JWKS certificates considered valid. The expiry interval has to be at least 60 seconds longer then the refresh interval specified in `jwksRefreshSeconds`. Defaults to 360 seconds.
-   *
-   * @default 360 seconds.
-   * @schema KafkaSpecKafkaListenersExternalAuthentication#jwksExpirySeconds
-   */
-  readonly jwksExpirySeconds?: number;
-
-  /**
-   * Configures how often are the JWKS certificates refreshed. The refresh interval has to be at least 60 seconds shorter then the expiry interval specified in `jwksExpirySeconds`. Defaults to 300 seconds.
-   *
-   * @default 300 seconds.
-   * @schema KafkaSpecKafkaListenersExternalAuthentication#jwksRefreshSeconds
-   */
-  readonly jwksRefreshSeconds?: number;
-
-  /**
-   * Trusted certificates for TLS connection to the OAuth server.
-   *
-   * @schema KafkaSpecKafkaListenersExternalAuthentication#tlsTrustedCertificates
-   */
-  readonly tlsTrustedCertificates?: KafkaSpecKafkaListenersExternalAuthenticationTlsTrustedCertificates[];
-
-  /**
-   * Authentication type. `oauth` type uses SASL OAUTHBEARER Authentication. `scram-sha-512` type uses SASL SCRAM-SHA-512 Authentication. `tls` type uses TLS Client Authentication. `tls` type is supported only on TLS listeners.
-   *
-   * @schema KafkaSpecKafkaListenersExternalAuthentication#type
-   */
-  readonly type: KafkaSpecKafkaListenersExternalAuthenticationType;
-
-  /**
-   * URI of the User Info Endpoint to use as a fallback to obtaining the user id when the Introspection Endpoint does not return information that can be used for the user id. 
-   *
-   * @schema KafkaSpecKafkaListenersExternalAuthentication#userInfoEndpointUri
-   */
-  readonly userInfoEndpointUri?: string;
-
-  /**
-   * Name of the claim from the JWT authentication token, Introspection Endpoint response or User Info Endpoint response which will be used to extract the user id. Defaults to `sub`.
-   *
-   * @default sub`.
-   * @schema KafkaSpecKafkaListenersExternalAuthentication#userNameClaim
-   */
-  readonly userNameClaim?: string;
-
-  /**
-   * URI of the token issuer used for authentication.
-   *
-   * @schema KafkaSpecKafkaListenersExternalAuthentication#validIssuerUri
-   */
-  readonly validIssuerUri?: string;
-
-  /**
-   * Valid value for the `token_type` attribute returned by the Introspection Endpoint. No default value, and not checked by default.
-   *
-   * @schema KafkaSpecKafkaListenersExternalAuthentication#validTokenType
-   */
-  readonly validTokenType?: string;
-
-}
-
-/**
- * External listener configuration.
- *
- * @schema KafkaSpecKafkaListenersExternalConfiguration
- */
-export interface KafkaSpecKafkaListenersExternalConfiguration {
-  /**
-   * External bootstrap ingress configuration.
-   *
-   * @schema KafkaSpecKafkaListenersExternalConfiguration#bootstrap
-   */
-  readonly bootstrap?: KafkaSpecKafkaListenersExternalConfigurationBootstrap;
-
-  /**
-   * External broker ingress configuration.
-   *
-   * @schema KafkaSpecKafkaListenersExternalConfiguration#brokers
-   */
-  readonly brokers?: KafkaSpecKafkaListenersExternalConfigurationBrokers[];
-
-  /**
-   * Reference to the `Secret` which holds the certificate and private key pair. The certificate can optionally contain the whole chain.
-   *
-   * @schema KafkaSpecKafkaListenersExternalConfiguration#brokerCertChainAndKey
-   */
-  readonly brokerCertChainAndKey?: KafkaSpecKafkaListenersExternalConfigurationBrokerCertChainAndKey;
-
-}
-
-/**
- * @schema KafkaSpecKafkaListenersExternalNetworkPolicyPeers
- */
-export interface KafkaSpecKafkaListenersExternalNetworkPolicyPeers {
-  /**
-   * @schema KafkaSpecKafkaListenersExternalNetworkPolicyPeers#ipBlock
-   */
-  readonly ipBlock?: KafkaSpecKafkaListenersExternalNetworkPolicyPeersIpBlock;
-
-  /**
-   * @schema KafkaSpecKafkaListenersExternalNetworkPolicyPeers#namespaceSelector
-   */
-  readonly namespaceSelector?: KafkaSpecKafkaListenersExternalNetworkPolicyPeersNamespaceSelector;
-
-  /**
-   * @schema KafkaSpecKafkaListenersExternalNetworkPolicyPeers#podSelector
-   */
-  readonly podSelector?: KafkaSpecKafkaListenersExternalNetworkPolicyPeersPodSelector;
-
-}
-
-/**
- * Overrides for external bootstrap and broker services and externally advertised addresses.
- *
- * @schema KafkaSpecKafkaListenersExternalOverrides
- */
-export interface KafkaSpecKafkaListenersExternalOverrides {
-  /**
-   * External bootstrap service configuration.
-   *
-   * @schema KafkaSpecKafkaListenersExternalOverrides#bootstrap
-   */
-  readonly bootstrap?: KafkaSpecKafkaListenersExternalOverridesBootstrap;
-
-  /**
-   * External broker services configuration.
-   *
-   * @schema KafkaSpecKafkaListenersExternalOverrides#brokers
-   */
-  readonly brokers?: KafkaSpecKafkaListenersExternalOverridesBrokers[];
-
-}
-
-/**
- * Type of the external listener. Currently the supported types are `route`, `loadbalancer`, and `nodeport`. 
-
-* `route` type uses OpenShift Routes to expose Kafka.* `loadbalancer` type uses LoadBalancer type services to expose Kafka.* `nodeport` type uses NodePort type services to expose Kafka..
- *
- * @schema KafkaSpecKafkaListenersExternalType
- */
-export enum KafkaSpecKafkaListenersExternalType {
-  /** route */
-  ROUTE = "route",
-  /** loadbalancer */
-  LOADBALANCER = "loadbalancer",
-  /** nodeport */
-  NODEPORT = "nodeport",
-  /** ingress */
-  INGRESS = "ingress",
 }
 
 /**
@@ -6467,6 +5804,11 @@ export interface KafkaSpecKafkaTemplatePodSecurityContext {
   readonly fsGroup?: number;
 
   /**
+   * @schema KafkaSpecKafkaTemplatePodSecurityContext#fsGroupChangePolicy
+   */
+  readonly fsGroupChangePolicy?: string;
+
+  /**
    * @schema KafkaSpecKafkaTemplatePodSecurityContext#runAsGroup
    */
   readonly runAsGroup?: number;
@@ -6554,6 +5896,22 @@ export interface KafkaSpecKafkaTemplatePodTolerations {
    * @schema KafkaSpecKafkaTemplatePodTolerations#value
    */
   readonly value?: string;
+
+}
+
+/**
+ * @schema KafkaSpecKafkaTemplatePodHostAliases
+ */
+export interface KafkaSpecKafkaTemplatePodHostAliases {
+  /**
+   * @schema KafkaSpecKafkaTemplatePodHostAliases#hostnames
+   */
+  readonly hostnames?: string[];
+
+  /**
+   * @schema KafkaSpecKafkaTemplatePodHostAliases#ip
+   */
+  readonly ip?: string;
 
 }
 
@@ -7216,6 +6574,11 @@ export interface KafkaSpecZookeeperTemplatePodSecurityContext {
   readonly fsGroup?: number;
 
   /**
+   * @schema KafkaSpecZookeeperTemplatePodSecurityContext#fsGroupChangePolicy
+   */
+  readonly fsGroupChangePolicy?: string;
+
+  /**
    * @schema KafkaSpecZookeeperTemplatePodSecurityContext#runAsGroup
    */
   readonly runAsGroup?: number;
@@ -7303,6 +6666,22 @@ export interface KafkaSpecZookeeperTemplatePodTolerations {
    * @schema KafkaSpecZookeeperTemplatePodTolerations#value
    */
   readonly value?: string;
+
+}
+
+/**
+ * @schema KafkaSpecZookeeperTemplatePodHostAliases
+ */
+export interface KafkaSpecZookeeperTemplatePodHostAliases {
+  /**
+   * @schema KafkaSpecZookeeperTemplatePodHostAliases#hostnames
+   */
+  readonly hostnames?: string[];
+
+  /**
+   * @schema KafkaSpecZookeeperTemplatePodHostAliases#ip
+   */
+  readonly ip?: string;
 
 }
 
@@ -7883,6 +7262,11 @@ export interface KafkaSpecEntityOperatorTemplatePodSecurityContext {
   readonly fsGroup?: number;
 
   /**
+   * @schema KafkaSpecEntityOperatorTemplatePodSecurityContext#fsGroupChangePolicy
+   */
+  readonly fsGroupChangePolicy?: string;
+
+  /**
    * @schema KafkaSpecEntityOperatorTemplatePodSecurityContext#runAsGroup
    */
   readonly runAsGroup?: number;
@@ -7970,6 +7354,22 @@ export interface KafkaSpecEntityOperatorTemplatePodTolerations {
    * @schema KafkaSpecEntityOperatorTemplatePodTolerations#value
    */
   readonly value?: string;
+
+}
+
+/**
+ * @schema KafkaSpecEntityOperatorTemplatePodHostAliases
+ */
+export interface KafkaSpecEntityOperatorTemplatePodHostAliases {
+  /**
+   * @schema KafkaSpecEntityOperatorTemplatePodHostAliases#hostnames
+   */
+  readonly hostnames?: string[];
+
+  /**
+   * @schema KafkaSpecEntityOperatorTemplatePodHostAliases#ip
+   */
+  readonly ip?: string;
 
 }
 
@@ -8274,6 +7674,11 @@ export interface KafkaSpecCruiseControlTemplatePodSecurityContext {
   readonly fsGroup?: number;
 
   /**
+   * @schema KafkaSpecCruiseControlTemplatePodSecurityContext#fsGroupChangePolicy
+   */
+  readonly fsGroupChangePolicy?: string;
+
+  /**
    * @schema KafkaSpecCruiseControlTemplatePodSecurityContext#runAsGroup
    */
   readonly runAsGroup?: number;
@@ -8361,6 +7766,22 @@ export interface KafkaSpecCruiseControlTemplatePodTolerations {
    * @schema KafkaSpecCruiseControlTemplatePodTolerations#value
    */
   readonly value?: string;
+
+}
+
+/**
+ * @schema KafkaSpecCruiseControlTemplatePodHostAliases
+ */
+export interface KafkaSpecCruiseControlTemplatePodHostAliases {
+  /**
+   * @schema KafkaSpecCruiseControlTemplatePodHostAliases#hostnames
+   */
+  readonly hostnames?: string[];
+
+  /**
+   * @schema KafkaSpecCruiseControlTemplatePodHostAliases#ip
+   */
+  readonly ip?: string;
 
 }
 
@@ -8631,6 +8052,11 @@ export interface KafkaSpecJmxTransTemplatePodSecurityContext {
   readonly fsGroup?: number;
 
   /**
+   * @schema KafkaSpecJmxTransTemplatePodSecurityContext#fsGroupChangePolicy
+   */
+  readonly fsGroupChangePolicy?: string;
+
+  /**
    * @schema KafkaSpecJmxTransTemplatePodSecurityContext#runAsGroup
    */
   readonly runAsGroup?: number;
@@ -8718,6 +8144,22 @@ export interface KafkaSpecJmxTransTemplatePodTolerations {
    * @schema KafkaSpecJmxTransTemplatePodTolerations#value
    */
   readonly value?: string;
+
+}
+
+/**
+ * @schema KafkaSpecJmxTransTemplatePodHostAliases
+ */
+export interface KafkaSpecJmxTransTemplatePodHostAliases {
+  /**
+   * @schema KafkaSpecJmxTransTemplatePodHostAliases#hostnames
+   */
+  readonly hostnames?: string[];
+
+  /**
+   * @schema KafkaSpecJmxTransTemplatePodHostAliases#ip
+   */
+  readonly ip?: string;
 
 }
 
@@ -8866,6 +8308,11 @@ export interface KafkaSpecKafkaExporterTemplatePodSecurityContext {
   readonly fsGroup?: number;
 
   /**
+   * @schema KafkaSpecKafkaExporterTemplatePodSecurityContext#fsGroupChangePolicy
+   */
+  readonly fsGroupChangePolicy?: string;
+
+  /**
    * @schema KafkaSpecKafkaExporterTemplatePodSecurityContext#runAsGroup
    */
   readonly runAsGroup?: number;
@@ -8953,6 +8400,22 @@ export interface KafkaSpecKafkaExporterTemplatePodTolerations {
    * @schema KafkaSpecKafkaExporterTemplatePodTolerations#value
    */
   readonly value?: string;
+
+}
+
+/**
+ * @schema KafkaSpecKafkaExporterTemplatePodHostAliases
+ */
+export interface KafkaSpecKafkaExporterTemplatePodHostAliases {
+  /**
+   * @schema KafkaSpecKafkaExporterTemplatePodHostAliases#hostnames
+   */
+  readonly hostnames?: string[];
+
+  /**
+   * @schema KafkaSpecKafkaExporterTemplatePodHostAliases#ip
+   */
+  readonly ip?: string;
 
 }
 
@@ -9053,516 +8516,6 @@ export interface KafkaSpecKafkaExporterTemplateContainerSecurityContext {
    * @schema KafkaSpecKafkaExporterTemplateContainerSecurityContext#windowsOptions
    */
   readonly windowsOptions?: KafkaSpecKafkaExporterTemplateContainerSecurityContextWindowsOptions;
-
-}
-
-/**
- * Link to Kubernetes Secret containing the OAuth client secret which the Kafka broker can use to authenticate against the authorization server and use the introspect endpoint URI.
- *
- * @schema KafkaSpecKafkaListenersPlainAuthenticationClientSecret
- */
-export interface KafkaSpecKafkaListenersPlainAuthenticationClientSecret {
-  /**
-   * The key under which the secret value is stored in the Kubernetes Secret.
-   *
-   * @schema KafkaSpecKafkaListenersPlainAuthenticationClientSecret#key
-   */
-  readonly key: string;
-
-  /**
-   * The name of the Kubernetes Secret containing the secret value.
-   *
-   * @schema KafkaSpecKafkaListenersPlainAuthenticationClientSecret#secretName
-   */
-  readonly secretName: string;
-
-}
-
-/**
- * @schema KafkaSpecKafkaListenersPlainAuthenticationTlsTrustedCertificates
- */
-export interface KafkaSpecKafkaListenersPlainAuthenticationTlsTrustedCertificates {
-  /**
-   * The name of the file certificate in the Secret.
-   *
-   * @schema KafkaSpecKafkaListenersPlainAuthenticationTlsTrustedCertificates#certificate
-   */
-  readonly certificate: string;
-
-  /**
-   * The name of the Secret containing the certificate.
-   *
-   * @schema KafkaSpecKafkaListenersPlainAuthenticationTlsTrustedCertificates#secretName
-   */
-  readonly secretName: string;
-
-}
-
-/**
- * Authentication type. `oauth` type uses SASL OAUTHBEARER Authentication. `scram-sha-512` type uses SASL SCRAM-SHA-512 Authentication. `tls` type uses TLS Client Authentication. `tls` type is supported only on TLS listeners.
- *
- * @schema KafkaSpecKafkaListenersPlainAuthenticationType
- */
-export enum KafkaSpecKafkaListenersPlainAuthenticationType {
-  /** tls */
-  TLS = "tls",
-  /** scram-sha-512 */
-  SCRAM_SHA_512 = "scram-sha-512",
-  /** oauth */
-  OAUTH = "oauth",
-}
-
-/**
- * @schema KafkaSpecKafkaListenersPlainNetworkPolicyPeersIpBlock
- */
-export interface KafkaSpecKafkaListenersPlainNetworkPolicyPeersIpBlock {
-  /**
-   * @schema KafkaSpecKafkaListenersPlainNetworkPolicyPeersIpBlock#cidr
-   */
-  readonly cidr?: string;
-
-  /**
-   * @schema KafkaSpecKafkaListenersPlainNetworkPolicyPeersIpBlock#except
-   */
-  readonly except?: string[];
-
-}
-
-/**
- * @schema KafkaSpecKafkaListenersPlainNetworkPolicyPeersNamespaceSelector
- */
-export interface KafkaSpecKafkaListenersPlainNetworkPolicyPeersNamespaceSelector {
-  /**
-   * @schema KafkaSpecKafkaListenersPlainNetworkPolicyPeersNamespaceSelector#matchExpressions
-   */
-  readonly matchExpressions?: KafkaSpecKafkaListenersPlainNetworkPolicyPeersNamespaceSelectorMatchExpressions[];
-
-  /**
-   * @schema KafkaSpecKafkaListenersPlainNetworkPolicyPeersNamespaceSelector#matchLabels
-   */
-  readonly matchLabels?: any;
-
-}
-
-/**
- * @schema KafkaSpecKafkaListenersPlainNetworkPolicyPeersPodSelector
- */
-export interface KafkaSpecKafkaListenersPlainNetworkPolicyPeersPodSelector {
-  /**
-   * @schema KafkaSpecKafkaListenersPlainNetworkPolicyPeersPodSelector#matchExpressions
-   */
-  readonly matchExpressions?: KafkaSpecKafkaListenersPlainNetworkPolicyPeersPodSelectorMatchExpressions[];
-
-  /**
-   * @schema KafkaSpecKafkaListenersPlainNetworkPolicyPeersPodSelector#matchLabels
-   */
-  readonly matchLabels?: any;
-
-}
-
-/**
- * Link to Kubernetes Secret containing the OAuth client secret which the Kafka broker can use to authenticate against the authorization server and use the introspect endpoint URI.
- *
- * @schema KafkaSpecKafkaListenersTlsAuthenticationClientSecret
- */
-export interface KafkaSpecKafkaListenersTlsAuthenticationClientSecret {
-  /**
-   * The key under which the secret value is stored in the Kubernetes Secret.
-   *
-   * @schema KafkaSpecKafkaListenersTlsAuthenticationClientSecret#key
-   */
-  readonly key: string;
-
-  /**
-   * The name of the Kubernetes Secret containing the secret value.
-   *
-   * @schema KafkaSpecKafkaListenersTlsAuthenticationClientSecret#secretName
-   */
-  readonly secretName: string;
-
-}
-
-/**
- * @schema KafkaSpecKafkaListenersTlsAuthenticationTlsTrustedCertificates
- */
-export interface KafkaSpecKafkaListenersTlsAuthenticationTlsTrustedCertificates {
-  /**
-   * The name of the file certificate in the Secret.
-   *
-   * @schema KafkaSpecKafkaListenersTlsAuthenticationTlsTrustedCertificates#certificate
-   */
-  readonly certificate: string;
-
-  /**
-   * The name of the Secret containing the certificate.
-   *
-   * @schema KafkaSpecKafkaListenersTlsAuthenticationTlsTrustedCertificates#secretName
-   */
-  readonly secretName: string;
-
-}
-
-/**
- * Authentication type. `oauth` type uses SASL OAUTHBEARER Authentication. `scram-sha-512` type uses SASL SCRAM-SHA-512 Authentication. `tls` type uses TLS Client Authentication. `tls` type is supported only on TLS listeners.
- *
- * @schema KafkaSpecKafkaListenersTlsAuthenticationType
- */
-export enum KafkaSpecKafkaListenersTlsAuthenticationType {
-  /** tls */
-  TLS = "tls",
-  /** scram-sha-512 */
-  SCRAM_SHA_512 = "scram-sha-512",
-  /** oauth */
-  OAUTH = "oauth",
-}
-
-/**
- * Reference to the `Secret` which holds the certificate and private key pair. The certificate can optionally contain the whole chain.
- *
- * @schema KafkaSpecKafkaListenersTlsConfigurationBrokerCertChainAndKey
- */
-export interface KafkaSpecKafkaListenersTlsConfigurationBrokerCertChainAndKey {
-  /**
-   * The name of the file certificate in the Secret.
-   *
-   * @schema KafkaSpecKafkaListenersTlsConfigurationBrokerCertChainAndKey#certificate
-   */
-  readonly certificate: string;
-
-  /**
-   * The name of the private key in the Secret.
-   *
-   * @schema KafkaSpecKafkaListenersTlsConfigurationBrokerCertChainAndKey#key
-   */
-  readonly key: string;
-
-  /**
-   * The name of the Secret containing the certificate.
-   *
-   * @schema KafkaSpecKafkaListenersTlsConfigurationBrokerCertChainAndKey#secretName
-   */
-  readonly secretName: string;
-
-}
-
-/**
- * @schema KafkaSpecKafkaListenersTlsNetworkPolicyPeersIpBlock
- */
-export interface KafkaSpecKafkaListenersTlsNetworkPolicyPeersIpBlock {
-  /**
-   * @schema KafkaSpecKafkaListenersTlsNetworkPolicyPeersIpBlock#cidr
-   */
-  readonly cidr?: string;
-
-  /**
-   * @schema KafkaSpecKafkaListenersTlsNetworkPolicyPeersIpBlock#except
-   */
-  readonly except?: string[];
-
-}
-
-/**
- * @schema KafkaSpecKafkaListenersTlsNetworkPolicyPeersNamespaceSelector
- */
-export interface KafkaSpecKafkaListenersTlsNetworkPolicyPeersNamespaceSelector {
-  /**
-   * @schema KafkaSpecKafkaListenersTlsNetworkPolicyPeersNamespaceSelector#matchExpressions
-   */
-  readonly matchExpressions?: KafkaSpecKafkaListenersTlsNetworkPolicyPeersNamespaceSelectorMatchExpressions[];
-
-  /**
-   * @schema KafkaSpecKafkaListenersTlsNetworkPolicyPeersNamespaceSelector#matchLabels
-   */
-  readonly matchLabels?: any;
-
-}
-
-/**
- * @schema KafkaSpecKafkaListenersTlsNetworkPolicyPeersPodSelector
- */
-export interface KafkaSpecKafkaListenersTlsNetworkPolicyPeersPodSelector {
-  /**
-   * @schema KafkaSpecKafkaListenersTlsNetworkPolicyPeersPodSelector#matchExpressions
-   */
-  readonly matchExpressions?: KafkaSpecKafkaListenersTlsNetworkPolicyPeersPodSelectorMatchExpressions[];
-
-  /**
-   * @schema KafkaSpecKafkaListenersTlsNetworkPolicyPeersPodSelector#matchLabels
-   */
-  readonly matchLabels?: any;
-
-}
-
-/**
- * Link to Kubernetes Secret containing the OAuth client secret which the Kafka broker can use to authenticate against the authorization server and use the introspect endpoint URI.
- *
- * @schema KafkaSpecKafkaListenersExternalAuthenticationClientSecret
- */
-export interface KafkaSpecKafkaListenersExternalAuthenticationClientSecret {
-  /**
-   * The key under which the secret value is stored in the Kubernetes Secret.
-   *
-   * @schema KafkaSpecKafkaListenersExternalAuthenticationClientSecret#key
-   */
-  readonly key: string;
-
-  /**
-   * The name of the Kubernetes Secret containing the secret value.
-   *
-   * @schema KafkaSpecKafkaListenersExternalAuthenticationClientSecret#secretName
-   */
-  readonly secretName: string;
-
-}
-
-/**
- * @schema KafkaSpecKafkaListenersExternalAuthenticationTlsTrustedCertificates
- */
-export interface KafkaSpecKafkaListenersExternalAuthenticationTlsTrustedCertificates {
-  /**
-   * The name of the file certificate in the Secret.
-   *
-   * @schema KafkaSpecKafkaListenersExternalAuthenticationTlsTrustedCertificates#certificate
-   */
-  readonly certificate: string;
-
-  /**
-   * The name of the Secret containing the certificate.
-   *
-   * @schema KafkaSpecKafkaListenersExternalAuthenticationTlsTrustedCertificates#secretName
-   */
-  readonly secretName: string;
-
-}
-
-/**
- * Authentication type. `oauth` type uses SASL OAUTHBEARER Authentication. `scram-sha-512` type uses SASL SCRAM-SHA-512 Authentication. `tls` type uses TLS Client Authentication. `tls` type is supported only on TLS listeners.
- *
- * @schema KafkaSpecKafkaListenersExternalAuthenticationType
- */
-export enum KafkaSpecKafkaListenersExternalAuthenticationType {
-  /** tls */
-  TLS = "tls",
-  /** scram-sha-512 */
-  SCRAM_SHA_512 = "scram-sha-512",
-  /** oauth */
-  OAUTH = "oauth",
-}
-
-/**
- * External bootstrap ingress configuration.
- *
- * @schema KafkaSpecKafkaListenersExternalConfigurationBootstrap
- */
-export interface KafkaSpecKafkaListenersExternalConfigurationBootstrap {
-  /**
-   * Additional address name for the bootstrap service. The address will be added to the list of subject alternative names of the TLS certificates.
-   *
-   * @schema KafkaSpecKafkaListenersExternalConfigurationBootstrap#address
-   */
-  readonly address?: string;
-
-  /**
-   * Annotations that will be added to the `Ingress` resource. You can use this field to configure DNS providers such as External DNS.
-   *
-   * @schema KafkaSpecKafkaListenersExternalConfigurationBootstrap#dnsAnnotations
-   */
-  readonly dnsAnnotations?: any;
-
-  /**
-   * Host for the bootstrap route. This field will be used in the Ingress resource.
-   *
-   * @schema KafkaSpecKafkaListenersExternalConfigurationBootstrap#host
-   */
-  readonly host: string;
-
-}
-
-/**
- * @schema KafkaSpecKafkaListenersExternalConfigurationBrokers
- */
-export interface KafkaSpecKafkaListenersExternalConfigurationBrokers {
-  /**
-   * Id of the kafka broker (broker identifier).
-   *
-   * @schema KafkaSpecKafkaListenersExternalConfigurationBrokers#broker
-   */
-  readonly broker?: number;
-
-  /**
-   * The host name which will be used in the brokers' `advertised.brokers`.
-   *
-   * @schema KafkaSpecKafkaListenersExternalConfigurationBrokers#advertisedHost
-   */
-  readonly advertisedHost?: string;
-
-  /**
-   * The port number which will be used in the brokers' `advertised.brokers`.
-   *
-   * @schema KafkaSpecKafkaListenersExternalConfigurationBrokers#advertisedPort
-   */
-  readonly advertisedPort?: number;
-
-  /**
-   * Host for the broker ingress. This field will be used in the Ingress resource.
-   *
-   * @schema KafkaSpecKafkaListenersExternalConfigurationBrokers#host
-   */
-  readonly host: string;
-
-  /**
-   * Annotations that will be added to the `Ingress` resources for individual brokers. You can use this field to configure DNS providers such as External DNS.
-   *
-   * @schema KafkaSpecKafkaListenersExternalConfigurationBrokers#dnsAnnotations
-   */
-  readonly dnsAnnotations?: any;
-
-}
-
-/**
- * Reference to the `Secret` which holds the certificate and private key pair. The certificate can optionally contain the whole chain.
- *
- * @schema KafkaSpecKafkaListenersExternalConfigurationBrokerCertChainAndKey
- */
-export interface KafkaSpecKafkaListenersExternalConfigurationBrokerCertChainAndKey {
-  /**
-   * The name of the file certificate in the Secret.
-   *
-   * @schema KafkaSpecKafkaListenersExternalConfigurationBrokerCertChainAndKey#certificate
-   */
-  readonly certificate: string;
-
-  /**
-   * The name of the private key in the Secret.
-   *
-   * @schema KafkaSpecKafkaListenersExternalConfigurationBrokerCertChainAndKey#key
-   */
-  readonly key: string;
-
-  /**
-   * The name of the Secret containing the certificate.
-   *
-   * @schema KafkaSpecKafkaListenersExternalConfigurationBrokerCertChainAndKey#secretName
-   */
-  readonly secretName: string;
-
-}
-
-/**
- * @schema KafkaSpecKafkaListenersExternalNetworkPolicyPeersIpBlock
- */
-export interface KafkaSpecKafkaListenersExternalNetworkPolicyPeersIpBlock {
-  /**
-   * @schema KafkaSpecKafkaListenersExternalNetworkPolicyPeersIpBlock#cidr
-   */
-  readonly cidr?: string;
-
-  /**
-   * @schema KafkaSpecKafkaListenersExternalNetworkPolicyPeersIpBlock#except
-   */
-  readonly except?: string[];
-
-}
-
-/**
- * @schema KafkaSpecKafkaListenersExternalNetworkPolicyPeersNamespaceSelector
- */
-export interface KafkaSpecKafkaListenersExternalNetworkPolicyPeersNamespaceSelector {
-  /**
-   * @schema KafkaSpecKafkaListenersExternalNetworkPolicyPeersNamespaceSelector#matchExpressions
-   */
-  readonly matchExpressions?: KafkaSpecKafkaListenersExternalNetworkPolicyPeersNamespaceSelectorMatchExpressions[];
-
-  /**
-   * @schema KafkaSpecKafkaListenersExternalNetworkPolicyPeersNamespaceSelector#matchLabels
-   */
-  readonly matchLabels?: any;
-
-}
-
-/**
- * @schema KafkaSpecKafkaListenersExternalNetworkPolicyPeersPodSelector
- */
-export interface KafkaSpecKafkaListenersExternalNetworkPolicyPeersPodSelector {
-  /**
-   * @schema KafkaSpecKafkaListenersExternalNetworkPolicyPeersPodSelector#matchExpressions
-   */
-  readonly matchExpressions?: KafkaSpecKafkaListenersExternalNetworkPolicyPeersPodSelectorMatchExpressions[];
-
-  /**
-   * @schema KafkaSpecKafkaListenersExternalNetworkPolicyPeersPodSelector#matchLabels
-   */
-  readonly matchLabels?: any;
-
-}
-
-/**
- * External bootstrap service configuration.
- *
- * @schema KafkaSpecKafkaListenersExternalOverridesBootstrap
- */
-export interface KafkaSpecKafkaListenersExternalOverridesBootstrap {
-  /**
-   * Additional address name for the bootstrap service. The address will be added to the list of subject alternative names of the TLS certificates.
-   *
-   * @schema KafkaSpecKafkaListenersExternalOverridesBootstrap#address
-   */
-  readonly address?: string;
-
-  /**
-   * Annotations that will be added to the `Service` resource. You can use this field to configure DNS providers such as External DNS.
-   *
-   * @schema KafkaSpecKafkaListenersExternalOverridesBootstrap#dnsAnnotations
-   */
-  readonly dnsAnnotations?: any;
-
-  /**
-   * Node port for the bootstrap service.
-   *
-   * @schema KafkaSpecKafkaListenersExternalOverridesBootstrap#nodePort
-   */
-  readonly nodePort?: number;
-
-}
-
-/**
- * @schema KafkaSpecKafkaListenersExternalOverridesBrokers
- */
-export interface KafkaSpecKafkaListenersExternalOverridesBrokers {
-  /**
-   * Id of the kafka broker (broker identifier).
-   *
-   * @schema KafkaSpecKafkaListenersExternalOverridesBrokers#broker
-   */
-  readonly broker?: number;
-
-  /**
-   * The host name which will be used in the brokers' `advertised.brokers`.
-   *
-   * @schema KafkaSpecKafkaListenersExternalOverridesBrokers#advertisedHost
-   */
-  readonly advertisedHost?: string;
-
-  /**
-   * The port number which will be used in the brokers' `advertised.brokers`.
-   *
-   * @schema KafkaSpecKafkaListenersExternalOverridesBrokers#advertisedPort
-   */
-  readonly advertisedPort?: number;
-
-  /**
-   * Node port for the broker service.
-   *
-   * @schema KafkaSpecKafkaListenersExternalOverridesBrokers#nodePort
-   */
-  readonly nodePort?: number;
-
-  /**
-   * Annotations that will be added to the `Service` resources for individual brokers. You can use this field to configure DNS providers such as External DNS.
-   *
-   * @schema KafkaSpecKafkaListenersExternalOverridesBrokers#dnsAnnotations
-   */
-  readonly dnsAnnotations?: any;
 
 }
 
@@ -9728,6 +8681,11 @@ export interface KafkaSpecKafkaTemplatePodSecurityContextWindowsOptions {
    */
   readonly gmsaCredentialSpecName?: string;
 
+  /**
+   * @schema KafkaSpecKafkaTemplatePodSecurityContextWindowsOptions#runAsUserName
+   */
+  readonly runAsUserName?: string;
+
 }
 
 /**
@@ -9834,6 +8792,11 @@ export interface KafkaSpecKafkaTemplateKafkaContainerSecurityContextWindowsOptio
    */
   readonly gmsaCredentialSpecName?: string;
 
+  /**
+   * @schema KafkaSpecKafkaTemplateKafkaContainerSecurityContextWindowsOptions#runAsUserName
+   */
+  readonly runAsUserName?: string;
+
 }
 
 /**
@@ -9892,6 +8855,11 @@ export interface KafkaSpecKafkaTemplateTlsSidecarContainerSecurityContextWindows
    */
   readonly gmsaCredentialSpecName?: string;
 
+  /**
+   * @schema KafkaSpecKafkaTemplateTlsSidecarContainerSecurityContextWindowsOptions#runAsUserName
+   */
+  readonly runAsUserName?: string;
+
 }
 
 /**
@@ -9949,6 +8917,11 @@ export interface KafkaSpecKafkaTemplateInitContainerSecurityContextWindowsOption
    * @schema KafkaSpecKafkaTemplateInitContainerSecurityContextWindowsOptions#gmsaCredentialSpecName
    */
   readonly gmsaCredentialSpecName?: string;
+
+  /**
+   * @schema KafkaSpecKafkaTemplateInitContainerSecurityContextWindowsOptions#runAsUserName
+   */
+  readonly runAsUserName?: string;
 
 }
 
@@ -10114,6 +9087,11 @@ export interface KafkaSpecZookeeperTemplatePodSecurityContextWindowsOptions {
    */
   readonly gmsaCredentialSpecName?: string;
 
+  /**
+   * @schema KafkaSpecZookeeperTemplatePodSecurityContextWindowsOptions#runAsUserName
+   */
+  readonly runAsUserName?: string;
+
 }
 
 /**
@@ -10220,6 +9198,11 @@ export interface KafkaSpecZookeeperTemplateZookeeperContainerSecurityContextWind
    */
   readonly gmsaCredentialSpecName?: string;
 
+  /**
+   * @schema KafkaSpecZookeeperTemplateZookeeperContainerSecurityContextWindowsOptions#runAsUserName
+   */
+  readonly runAsUserName?: string;
+
 }
 
 /**
@@ -10277,6 +9260,11 @@ export interface KafkaSpecZookeeperTemplateTlsSidecarContainerSecurityContextWin
    * @schema KafkaSpecZookeeperTemplateTlsSidecarContainerSecurityContextWindowsOptions#gmsaCredentialSpecName
    */
   readonly gmsaCredentialSpecName?: string;
+
+  /**
+   * @schema KafkaSpecZookeeperTemplateTlsSidecarContainerSecurityContextWindowsOptions#runAsUserName
+   */
+  readonly runAsUserName?: string;
 
 }
 
@@ -10548,6 +9536,11 @@ export interface KafkaSpecEntityOperatorTemplatePodSecurityContextWindowsOptions
    */
   readonly gmsaCredentialSpecName?: string;
 
+  /**
+   * @schema KafkaSpecEntityOperatorTemplatePodSecurityContextWindowsOptions#runAsUserName
+   */
+  readonly runAsUserName?: string;
+
 }
 
 /**
@@ -10654,6 +9647,11 @@ export interface KafkaSpecEntityOperatorTemplateTlsSidecarContainerSecurityConte
    */
   readonly gmsaCredentialSpecName?: string;
 
+  /**
+   * @schema KafkaSpecEntityOperatorTemplateTlsSidecarContainerSecurityContextWindowsOptions#runAsUserName
+   */
+  readonly runAsUserName?: string;
+
 }
 
 /**
@@ -10711,6 +9709,11 @@ export interface KafkaSpecEntityOperatorTemplateTopicOperatorContainerSecurityCo
    * @schema KafkaSpecEntityOperatorTemplateTopicOperatorContainerSecurityContextWindowsOptions#gmsaCredentialSpecName
    */
   readonly gmsaCredentialSpecName?: string;
+
+  /**
+   * @schema KafkaSpecEntityOperatorTemplateTopicOperatorContainerSecurityContextWindowsOptions#runAsUserName
+   */
+  readonly runAsUserName?: string;
 
 }
 
@@ -10770,6 +9773,11 @@ export interface KafkaSpecEntityOperatorTemplateUserOperatorContainerSecurityCon
    */
   readonly gmsaCredentialSpecName?: string;
 
+  /**
+   * @schema KafkaSpecEntityOperatorTemplateUserOperatorContainerSecurityContextWindowsOptions#runAsUserName
+   */
+  readonly runAsUserName?: string;
+
 }
 
 /**
@@ -10827,6 +9835,11 @@ export interface KafkaSpecCruiseControlTemplatePodSecurityContextWindowsOptions 
    * @schema KafkaSpecCruiseControlTemplatePodSecurityContextWindowsOptions#gmsaCredentialSpecName
    */
   readonly gmsaCredentialSpecName?: string;
+
+  /**
+   * @schema KafkaSpecCruiseControlTemplatePodSecurityContextWindowsOptions#runAsUserName
+   */
+  readonly runAsUserName?: string;
 
 }
 
@@ -10934,6 +9947,11 @@ export interface KafkaSpecCruiseControlTemplateCruiseControlContainerSecurityCon
    */
   readonly gmsaCredentialSpecName?: string;
 
+  /**
+   * @schema KafkaSpecCruiseControlTemplateCruiseControlContainerSecurityContextWindowsOptions#runAsUserName
+   */
+  readonly runAsUserName?: string;
+
 }
 
 /**
@@ -10992,6 +10010,11 @@ export interface KafkaSpecCruiseControlTemplateTlsSidecarContainerSecurityContex
    */
   readonly gmsaCredentialSpecName?: string;
 
+  /**
+   * @schema KafkaSpecCruiseControlTemplateTlsSidecarContainerSecurityContextWindowsOptions#runAsUserName
+   */
+  readonly runAsUserName?: string;
+
 }
 
 /**
@@ -11049,6 +10072,11 @@ export interface KafkaSpecJmxTransTemplatePodSecurityContextWindowsOptions {
    * @schema KafkaSpecJmxTransTemplatePodSecurityContextWindowsOptions#gmsaCredentialSpecName
    */
   readonly gmsaCredentialSpecName?: string;
+
+  /**
+   * @schema KafkaSpecJmxTransTemplatePodSecurityContextWindowsOptions#runAsUserName
+   */
+  readonly runAsUserName?: string;
 
 }
 
@@ -11156,6 +10184,11 @@ export interface KafkaSpecJmxTransTemplateContainerSecurityContextWindowsOptions
    */
   readonly gmsaCredentialSpecName?: string;
 
+  /**
+   * @schema KafkaSpecJmxTransTemplateContainerSecurityContextWindowsOptions#runAsUserName
+   */
+  readonly runAsUserName?: string;
+
 }
 
 /**
@@ -11213,6 +10246,11 @@ export interface KafkaSpecKafkaExporterTemplatePodSecurityContextWindowsOptions 
    * @schema KafkaSpecKafkaExporterTemplatePodSecurityContextWindowsOptions#gmsaCredentialSpecName
    */
   readonly gmsaCredentialSpecName?: string;
+
+  /**
+   * @schema KafkaSpecKafkaExporterTemplatePodSecurityContextWindowsOptions#runAsUserName
+   */
+  readonly runAsUserName?: string;
 
 }
 
@@ -11320,131 +10358,10 @@ export interface KafkaSpecKafkaExporterTemplateContainerSecurityContextWindowsOp
    */
   readonly gmsaCredentialSpecName?: string;
 
-}
-
-/**
- * @schema KafkaSpecKafkaListenersPlainNetworkPolicyPeersNamespaceSelectorMatchExpressions
- */
-export interface KafkaSpecKafkaListenersPlainNetworkPolicyPeersNamespaceSelectorMatchExpressions {
   /**
-   * @schema KafkaSpecKafkaListenersPlainNetworkPolicyPeersNamespaceSelectorMatchExpressions#key
+   * @schema KafkaSpecKafkaExporterTemplateContainerSecurityContextWindowsOptions#runAsUserName
    */
-  readonly key?: string;
-
-  /**
-   * @schema KafkaSpecKafkaListenersPlainNetworkPolicyPeersNamespaceSelectorMatchExpressions#operator
-   */
-  readonly operator?: string;
-
-  /**
-   * @schema KafkaSpecKafkaListenersPlainNetworkPolicyPeersNamespaceSelectorMatchExpressions#values
-   */
-  readonly values?: string[];
-
-}
-
-/**
- * @schema KafkaSpecKafkaListenersPlainNetworkPolicyPeersPodSelectorMatchExpressions
- */
-export interface KafkaSpecKafkaListenersPlainNetworkPolicyPeersPodSelectorMatchExpressions {
-  /**
-   * @schema KafkaSpecKafkaListenersPlainNetworkPolicyPeersPodSelectorMatchExpressions#key
-   */
-  readonly key?: string;
-
-  /**
-   * @schema KafkaSpecKafkaListenersPlainNetworkPolicyPeersPodSelectorMatchExpressions#operator
-   */
-  readonly operator?: string;
-
-  /**
-   * @schema KafkaSpecKafkaListenersPlainNetworkPolicyPeersPodSelectorMatchExpressions#values
-   */
-  readonly values?: string[];
-
-}
-
-/**
- * @schema KafkaSpecKafkaListenersTlsNetworkPolicyPeersNamespaceSelectorMatchExpressions
- */
-export interface KafkaSpecKafkaListenersTlsNetworkPolicyPeersNamespaceSelectorMatchExpressions {
-  /**
-   * @schema KafkaSpecKafkaListenersTlsNetworkPolicyPeersNamespaceSelectorMatchExpressions#key
-   */
-  readonly key?: string;
-
-  /**
-   * @schema KafkaSpecKafkaListenersTlsNetworkPolicyPeersNamespaceSelectorMatchExpressions#operator
-   */
-  readonly operator?: string;
-
-  /**
-   * @schema KafkaSpecKafkaListenersTlsNetworkPolicyPeersNamespaceSelectorMatchExpressions#values
-   */
-  readonly values?: string[];
-
-}
-
-/**
- * @schema KafkaSpecKafkaListenersTlsNetworkPolicyPeersPodSelectorMatchExpressions
- */
-export interface KafkaSpecKafkaListenersTlsNetworkPolicyPeersPodSelectorMatchExpressions {
-  /**
-   * @schema KafkaSpecKafkaListenersTlsNetworkPolicyPeersPodSelectorMatchExpressions#key
-   */
-  readonly key?: string;
-
-  /**
-   * @schema KafkaSpecKafkaListenersTlsNetworkPolicyPeersPodSelectorMatchExpressions#operator
-   */
-  readonly operator?: string;
-
-  /**
-   * @schema KafkaSpecKafkaListenersTlsNetworkPolicyPeersPodSelectorMatchExpressions#values
-   */
-  readonly values?: string[];
-
-}
-
-/**
- * @schema KafkaSpecKafkaListenersExternalNetworkPolicyPeersNamespaceSelectorMatchExpressions
- */
-export interface KafkaSpecKafkaListenersExternalNetworkPolicyPeersNamespaceSelectorMatchExpressions {
-  /**
-   * @schema KafkaSpecKafkaListenersExternalNetworkPolicyPeersNamespaceSelectorMatchExpressions#key
-   */
-  readonly key?: string;
-
-  /**
-   * @schema KafkaSpecKafkaListenersExternalNetworkPolicyPeersNamespaceSelectorMatchExpressions#operator
-   */
-  readonly operator?: string;
-
-  /**
-   * @schema KafkaSpecKafkaListenersExternalNetworkPolicyPeersNamespaceSelectorMatchExpressions#values
-   */
-  readonly values?: string[];
-
-}
-
-/**
- * @schema KafkaSpecKafkaListenersExternalNetworkPolicyPeersPodSelectorMatchExpressions
- */
-export interface KafkaSpecKafkaListenersExternalNetworkPolicyPeersPodSelectorMatchExpressions {
-  /**
-   * @schema KafkaSpecKafkaListenersExternalNetworkPolicyPeersPodSelectorMatchExpressions#key
-   */
-  readonly key?: string;
-
-  /**
-   * @schema KafkaSpecKafkaListenersExternalNetworkPolicyPeersPodSelectorMatchExpressions#operator
-   */
-  readonly operator?: string;
-
-  /**
-   * @schema KafkaSpecKafkaListenersExternalNetworkPolicyPeersPodSelectorMatchExpressions#values
-   */
-  readonly values?: string[];
+  readonly runAsUserName?: string;
 
 }
 

@@ -50,11 +50,11 @@ export interface AuthorizationPolicySpec {
   readonly action?: AuthorizationPolicySpecAction;
 
   /**
-   * Configures how to talk to the external server.
+   * Specifies detailed configuration of the CUSTOM action.
    *
-   * @schema AuthorizationPolicySpec#external
+   * @schema AuthorizationPolicySpec#provider
    */
-  readonly external?: AuthorizationPolicySpecExternal;
+  readonly provider?: AuthorizationPolicySpecProvider;
 
   /**
    * Optional.
@@ -84,25 +84,22 @@ export enum AuthorizationPolicySpecAction {
   DENY = "DENY",
   /** AUDIT */
   AUDIT = "AUDIT",
-  /** EXTERNAL */
-  EXTERNAL = "EXTERNAL",
+  /** CUSTOM */
+  CUSTOM = "CUSTOM",
 }
 
 /**
- * Configures how to talk to the external server.
+ * Specifies detailed configuration of the CUSTOM action.
  *
- * @schema AuthorizationPolicySpecExternal
+ * @schema AuthorizationPolicySpecProvider
  */
-export interface AuthorizationPolicySpecExternal {
+export interface AuthorizationPolicySpecProvider {
   /**
-   * @schema AuthorizationPolicySpecExternal#http
+   * Specifies the name of the extension provider.
+   *
+   * @schema AuthorizationPolicySpecProvider#name
    */
-  readonly http?: AuthorizationPolicySpecExternalHttp;
-
-  /**
-   * @schema AuthorizationPolicySpecExternal#tcp
-   */
-  readonly tcp?: AuthorizationPolicySpecExternalTcp;
+  readonly name?: string;
 
 }
 
@@ -143,74 +140,6 @@ export interface AuthorizationPolicySpecSelector {
    * @schema AuthorizationPolicySpecSelector#matchLabels
    */
   readonly matchLabels?: { [key: string]: string };
-
-}
-
-/**
- * @schema AuthorizationPolicySpecExternalHttp
- */
-export interface AuthorizationPolicySpecExternalHttp {
-  /**
-   * Settings used for controlling authorization request metadata.
-   *
-   * @schema AuthorizationPolicySpecExternalHttp#authorizationRequest
-   */
-  readonly authorizationRequest?: AuthorizationPolicySpecExternalHttpAuthorizationRequest;
-
-  /**
-   * Settings used for controlling authorization response metadata.
-   *
-   * @schema AuthorizationPolicySpecExternalHttp#authorizationResponse
-   */
-  readonly authorizationResponse?: AuthorizationPolicySpecExternalHttpAuthorizationResponse;
-
-  /**
-   * Specifies if the peer certificate is included in the external authorization request.
-   *
-   * @schema AuthorizationPolicySpecExternalHttp#includePeerCertificate
-   */
-  readonly includePeerCertificate?: boolean;
-
-  /**
-   * Supplies the full URL of the external server that implements the Envoy ext_authz filter check request API.
-   *
-   * @schema AuthorizationPolicySpecExternalHttp#server
-   */
-  readonly server?: string;
-
-  /**
-   * Sets the maximum duration in milliseconds for connection to the external server (default is 200ms).
-   *
-   * @schema AuthorizationPolicySpecExternalHttp#timeout
-   */
-  readonly timeout?: string;
-
-}
-
-/**
- * @schema AuthorizationPolicySpecExternalTcp
- */
-export interface AuthorizationPolicySpecExternalTcp {
-  /**
-   * Specifies if the peer certificate is included in the external authorization request.
-   *
-   * @schema AuthorizationPolicySpecExternalTcp#includePeerCertificate
-   */
-  readonly includePeerCertificate?: boolean;
-
-  /**
-   * Supplies the full URL of the external server that implements the Envoy ext_authz filter authorization request API.
-   *
-   * @schema AuthorizationPolicySpecExternalTcp#server
-   */
-  readonly server?: string;
-
-  /**
-   * Sets the maximum duration in milliseconds for connection to the external server (default is 200ms).
-   *
-   * @schema AuthorizationPolicySpecExternalTcp#timeout
-   */
-  readonly timeout?: string;
 
 }
 
@@ -264,39 +193,6 @@ export interface AuthorizationPolicySpecRulesWhen {
    * @schema AuthorizationPolicySpecRulesWhen#values
    */
   readonly values?: string[];
-
-}
-
-/**
- * Settings used for controlling authorization request metadata.
- *
- * @schema AuthorizationPolicySpecExternalHttpAuthorizationRequest
- */
-export interface AuthorizationPolicySpecExternalHttpAuthorizationRequest {
-  /**
-   * Authorization request will include the client request headers that have a correspondent match.
-   *
-   * @schema AuthorizationPolicySpecExternalHttpAuthorizationRequest#allowedHeaders
-   */
-  readonly allowedHeaders?: string[];
-
-}
-
-/**
- * Settings used for controlling authorization response metadata.
- *
- * @schema AuthorizationPolicySpecExternalHttpAuthorizationResponse
- */
-export interface AuthorizationPolicySpecExternalHttpAuthorizationResponse {
-  /**
-   * @schema AuthorizationPolicySpecExternalHttpAuthorizationResponse#forwardToDownstream
-   */
-  readonly forwardToDownstream?: string[];
-
-  /**
-   * @schema AuthorizationPolicySpecExternalHttpAuthorizationResponse#forwardToUpstream
-   */
-  readonly forwardToUpstream?: string[];
 
 }
 

@@ -95,5 +95,12 @@ export interface KafkaRebalanceSpec {
    */
   readonly replicationThrottle?: number;
 
+  /**
+   * A list of strategy class names used to determine the execution order for the replica movements in the generated optimization proposal. By default BaseReplicaMovementStrategy is used, which will execute the replica movements in the order that they were generated.
+   *
+   * @schema KafkaRebalanceSpec#replicaMovementStrategies
+   */
+  readonly replicaMovementStrategies?: string[];
+
 }
 
