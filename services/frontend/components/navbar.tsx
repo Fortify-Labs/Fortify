@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import classNames from "classnames";
 
+import Image from "next/image";
+
 import Link from "next/link";
 import { useRouter } from "next/router";
 
@@ -27,7 +29,11 @@ export const Navbar = () => {
 			<div className="navbar-brand">
 				<Link href="/" passHref={true}>
 					<a className="navbar-item">
-						<img src="/images/Fortify_WIP.png" width="100" />
+						<Image
+							src="/images/Fortify_WIP.png"
+							width="100"
+							height="45"
+						/>
 					</a>
 				</Link>
 

@@ -1,5 +1,7 @@
 import { FunctionComponent } from "react";
 
+import Image from "next/image";
+
 import { useLobbyPoolQuery } from "gql/LobbyPool.graphql";
 
 import { currentSeason, units, Unit, unitMappings } from "@shared/units";
@@ -129,11 +131,12 @@ export const PoolViewer: FunctionComponent<{ id?: string }> = ({ id }) => {
 																		"auto",
 																}}
 															>
-																<img
+																<Image
 																	className="is-rounded"
 																	src={`/units/panorama/images/heroes/icons/${unit.dota_unit_name}_png.png`}
 																	loading="lazy"
-																	// src="https://bulma.io/images/placeholders/128x128.png"
+																	width="64"
+																	height="64"
 																/>
 															</figure>
 															{unit.name} <br />
