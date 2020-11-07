@@ -208,11 +208,9 @@ const LeaderboardPage = () => {
 									</table>
 								)}
 							</div>
-							Last imported:{" "}
-							{"" +
-								new Date(
-									(data?.leaderboard?.imported ?? 0) * 1000
-								)}
+							{data?.leaderboard?.imported &&
+								"Last imported: " +
+									new Date(data.leaderboard.imported * 1000)}
 						</div>
 					</div>
 				</div>

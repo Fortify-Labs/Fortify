@@ -3,6 +3,7 @@ import dotenvExpand from "dotenv-expand";
 dotenvExpand(dotenv.config());
 
 import { sharedSetup } from "@shared/index";
+global.__rootdir__ = __dirname || process.cwd();
 sharedSetup();
 
 import { container } from "./inversify.config";

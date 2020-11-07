@@ -169,6 +169,20 @@ export interface KafkaConnectSpec {
    */
   readonly externalConfiguration?: KafkaConnectSpecExternalConfiguration;
 
+  /**
+   * The image of the init container used for initializing the `client.rack`.
+   *
+   * @schema KafkaConnectSpec#clientRackInitImage
+   */
+  readonly clientRackInitImage?: string;
+
+  /**
+   * Configuration of the node label which will be used as the client.rack consumer configuration.
+   *
+   * @schema KafkaConnectSpec#rack
+   */
+  readonly rack?: KafkaConnectSpecRack;
+
 }
 
 /**
@@ -579,6 +593,13 @@ export interface KafkaConnectSpecTemplate {
   readonly connectContainer?: KafkaConnectSpecTemplateConnectContainer;
 
   /**
+   * Template for the Kafka init container.
+   *
+   * @schema KafkaConnectSpecTemplate#initContainer
+   */
+  readonly initContainer?: KafkaConnectSpecTemplateInitContainer;
+
+  /**
    * Template for Kafka Connect `PodDisruptionBudget`.
    *
    * @schema KafkaConnectSpecTemplate#podDisruptionBudget
@@ -606,6 +627,21 @@ export interface KafkaConnectSpecExternalConfiguration {
    * @schema KafkaConnectSpecExternalConfiguration#volumes
    */
   readonly volumes?: KafkaConnectSpecExternalConfigurationVolumes[];
+
+}
+
+/**
+ * Configuration of the node label which will be used as the client.rack consumer configuration.
+ *
+ * @schema KafkaConnectSpecRack
+ */
+export interface KafkaConnectSpecRack {
+  /**
+   * A key that matches labels assigned to the Kubernetes cluster nodes. The value of the label is used to set the broker's `broker.rack` config.
+   *
+   * @schema KafkaConnectSpecRack#topologyKey
+   */
+  readonly topologyKey: string;
 
 }
 
@@ -930,6 +966,13 @@ export interface KafkaConnectSpecTemplatePod {
   readonly affinity?: KafkaConnectSpecTemplatePodAffinity;
 
   /**
+   * The pod's tolerations.
+   *
+   * @schema KafkaConnectSpecTemplatePod#tolerations
+   */
+  readonly tolerations?: KafkaConnectSpecTemplatePodTolerations[];
+
+  /**
    * The name of the priority class used to assign priority to the pods. For more information about priority classes, see {K8sPriorityClass}.
    *
    * @schema KafkaConnectSpecTemplatePod#priorityClassName
@@ -944,11 +987,11 @@ export interface KafkaConnectSpecTemplatePod {
   readonly schedulerName?: string;
 
   /**
-   * The pod's tolerations.
+   * The pod's HostAliases. HostAliases is an optional list of hosts and IPs that will be injected into the pod's hosts file if specified.
    *
-   * @schema KafkaConnectSpecTemplatePod#tolerations
+   * @schema KafkaConnectSpecTemplatePod#hostAliases
    */
-  readonly tolerations?: KafkaConnectSpecTemplatePodTolerations[];
+  readonly hostAliases?: KafkaConnectSpecTemplatePodHostAliases[];
 
 }
 
@@ -986,6 +1029,28 @@ export interface KafkaConnectSpecTemplateConnectContainer {
    * @schema KafkaConnectSpecTemplateConnectContainer#securityContext
    */
   readonly securityContext?: KafkaConnectSpecTemplateConnectContainerSecurityContext;
+
+}
+
+/**
+ * Template for the Kafka init container.
+ *
+ * @schema KafkaConnectSpecTemplateInitContainer
+ */
+export interface KafkaConnectSpecTemplateInitContainer {
+  /**
+   * Environment variables which should be applied to the container.
+   *
+   * @schema KafkaConnectSpecTemplateInitContainer#env
+   */
+  readonly env?: KafkaConnectSpecTemplateInitContainerEnv[];
+
+  /**
+   * Security context for the container.
+   *
+   * @schema KafkaConnectSpecTemplateInitContainer#securityContext
+   */
+  readonly securityContext?: KafkaConnectSpecTemplateInitContainerSecurityContext;
 
 }
 
@@ -1227,6 +1292,11 @@ export interface KafkaConnectSpecTemplatePodSecurityContext {
   readonly fsGroup?: number;
 
   /**
+   * @schema KafkaConnectSpecTemplatePodSecurityContext#fsGroupChangePolicy
+   */
+  readonly fsGroupChangePolicy?: string;
+
+  /**
    * @schema KafkaConnectSpecTemplatePodSecurityContext#runAsGroup
    */
   readonly runAsGroup?: number;
@@ -1314,6 +1384,22 @@ export interface KafkaConnectSpecTemplatePodTolerations {
    * @schema KafkaConnectSpecTemplatePodTolerations#value
    */
   readonly value?: string;
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplatePodHostAliases
+ */
+export interface KafkaConnectSpecTemplatePodHostAliases {
+  /**
+   * @schema KafkaConnectSpecTemplatePodHostAliases#hostnames
+   */
+  readonly hostnames?: string[];
+
+  /**
+   * @schema KafkaConnectSpecTemplatePodHostAliases#ip
+   */
+  readonly ip?: string;
 
 }
 
@@ -1414,6 +1500,84 @@ export interface KafkaConnectSpecTemplateConnectContainerSecurityContext {
    * @schema KafkaConnectSpecTemplateConnectContainerSecurityContext#windowsOptions
    */
   readonly windowsOptions?: KafkaConnectSpecTemplateConnectContainerSecurityContextWindowsOptions;
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateInitContainerEnv
+ */
+export interface KafkaConnectSpecTemplateInitContainerEnv {
+  /**
+   * The environment variable key.
+   *
+   * @schema KafkaConnectSpecTemplateInitContainerEnv#name
+   */
+  readonly name?: string;
+
+  /**
+   * The environment variable value.
+   *
+   * @schema KafkaConnectSpecTemplateInitContainerEnv#value
+   */
+  readonly value?: string;
+
+}
+
+/**
+ * Security context for the container.
+ *
+ * @schema KafkaConnectSpecTemplateInitContainerSecurityContext
+ */
+export interface KafkaConnectSpecTemplateInitContainerSecurityContext {
+  /**
+   * @schema KafkaConnectSpecTemplateInitContainerSecurityContext#allowPrivilegeEscalation
+   */
+  readonly allowPrivilegeEscalation?: boolean;
+
+  /**
+   * @schema KafkaConnectSpecTemplateInitContainerSecurityContext#capabilities
+   */
+  readonly capabilities?: KafkaConnectSpecTemplateInitContainerSecurityContextCapabilities;
+
+  /**
+   * @schema KafkaConnectSpecTemplateInitContainerSecurityContext#privileged
+   */
+  readonly privileged?: boolean;
+
+  /**
+   * @schema KafkaConnectSpecTemplateInitContainerSecurityContext#procMount
+   */
+  readonly procMount?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateInitContainerSecurityContext#readOnlyRootFilesystem
+   */
+  readonly readOnlyRootFilesystem?: boolean;
+
+  /**
+   * @schema KafkaConnectSpecTemplateInitContainerSecurityContext#runAsGroup
+   */
+  readonly runAsGroup?: number;
+
+  /**
+   * @schema KafkaConnectSpecTemplateInitContainerSecurityContext#runAsNonRoot
+   */
+  readonly runAsNonRoot?: boolean;
+
+  /**
+   * @schema KafkaConnectSpecTemplateInitContainerSecurityContext#runAsUser
+   */
+  readonly runAsUser?: number;
+
+  /**
+   * @schema KafkaConnectSpecTemplateInitContainerSecurityContext#seLinuxOptions
+   */
+  readonly seLinuxOptions?: KafkaConnectSpecTemplateInitContainerSecurityContextSeLinuxOptions;
+
+  /**
+   * @schema KafkaConnectSpecTemplateInitContainerSecurityContext#windowsOptions
+   */
+  readonly windowsOptions?: KafkaConnectSpecTemplateInitContainerSecurityContextWindowsOptions;
 
 }
 
@@ -1679,6 +1843,11 @@ export interface KafkaConnectSpecTemplatePodSecurityContextWindowsOptions {
    */
   readonly gmsaCredentialSpecName?: string;
 
+  /**
+   * @schema KafkaConnectSpecTemplatePodSecurityContextWindowsOptions#runAsUserName
+   */
+  readonly runAsUserName?: string;
+
 }
 
 /**
@@ -1784,6 +1953,74 @@ export interface KafkaConnectSpecTemplateConnectContainerSecurityContextWindowsO
    * @schema KafkaConnectSpecTemplateConnectContainerSecurityContextWindowsOptions#gmsaCredentialSpecName
    */
   readonly gmsaCredentialSpecName?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateConnectContainerSecurityContextWindowsOptions#runAsUserName
+   */
+  readonly runAsUserName?: string;
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateInitContainerSecurityContextCapabilities
+ */
+export interface KafkaConnectSpecTemplateInitContainerSecurityContextCapabilities {
+  /**
+   * @schema KafkaConnectSpecTemplateInitContainerSecurityContextCapabilities#add
+   */
+  readonly add?: string[];
+
+  /**
+   * @schema KafkaConnectSpecTemplateInitContainerSecurityContextCapabilities#drop
+   */
+  readonly drop?: string[];
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateInitContainerSecurityContextSeLinuxOptions
+ */
+export interface KafkaConnectSpecTemplateInitContainerSecurityContextSeLinuxOptions {
+  /**
+   * @schema KafkaConnectSpecTemplateInitContainerSecurityContextSeLinuxOptions#level
+   */
+  readonly level?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateInitContainerSecurityContextSeLinuxOptions#role
+   */
+  readonly role?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateInitContainerSecurityContextSeLinuxOptions#type
+   */
+  readonly type?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateInitContainerSecurityContextSeLinuxOptions#user
+   */
+  readonly user?: string;
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateInitContainerSecurityContextWindowsOptions
+ */
+export interface KafkaConnectSpecTemplateInitContainerSecurityContextWindowsOptions {
+  /**
+   * @schema KafkaConnectSpecTemplateInitContainerSecurityContextWindowsOptions#gmsaCredentialSpec
+   */
+  readonly gmsaCredentialSpec?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateInitContainerSecurityContextWindowsOptions#gmsaCredentialSpecName
+   */
+  readonly gmsaCredentialSpecName?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateInitContainerSecurityContextWindowsOptions#runAsUserName
+   */
+  readonly runAsUserName?: string;
 
 }
 
