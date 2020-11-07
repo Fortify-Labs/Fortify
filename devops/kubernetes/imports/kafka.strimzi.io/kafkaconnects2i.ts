@@ -127,6 +127,13 @@ export interface KafkaConnectS2ISpec {
   readonly bootstrapServers: string;
 
   /**
+   * The image of the init container used for initializing the `client.rack`.
+   *
+   * @schema KafkaConnectS2ISpec#clientRackInitImage
+   */
+  readonly clientRackInitImage?: string;
+
+  /**
    * The Kafka Connect configuration. Properties with the following prefixes cannot be set: ssl., sasl., security., listeners, plugin.path, rest., bootstrap.servers, consumer.interceptor.classes, producer.interceptor.classes (with the exception of: ssl.endpoint.identification.algorithm, ssl.cipher.suites, ssl.protocol, ssl.enabled.protocols).
    *
    * @schema KafkaConnectS2ISpec#config
@@ -146,6 +153,13 @@ export interface KafkaConnectS2ISpec {
    * @schema KafkaConnectS2ISpec#insecureSourceRepository
    */
   readonly insecureSourceRepository?: boolean;
+
+  /**
+   * Configuration of the node label which will be used as the client.rack consumer configuration.
+   *
+   * @schema KafkaConnectS2ISpec#rack
+   */
+  readonly rack?: KafkaConnectS2ISpecRack;
 
   /**
    * The maximum limits for CPU and memory resources and the requested initial resources.
@@ -425,6 +439,13 @@ export interface KafkaConnectS2ISpecTemplate {
   readonly connectContainer?: KafkaConnectS2ISpecTemplateConnectContainer;
 
   /**
+   * Template for the Kafka init container.
+   *
+   * @schema KafkaConnectS2ISpecTemplate#initContainer
+   */
+  readonly initContainer?: KafkaConnectS2ISpecTemplateInitContainer;
+
+  /**
    * Template for Kafka Connect `PodDisruptionBudget`.
    *
    * @schema KafkaConnectS2ISpecTemplate#podDisruptionBudget
@@ -559,6 +580,21 @@ export interface KafkaConnectS2ISpecExternalConfiguration {
    * @schema KafkaConnectS2ISpecExternalConfiguration#volumes
    */
   readonly volumes?: KafkaConnectS2ISpecExternalConfigurationVolumes[];
+
+}
+
+/**
+ * Configuration of the node label which will be used as the client.rack consumer configuration.
+ *
+ * @schema KafkaConnectS2ISpecRack
+ */
+export interface KafkaConnectS2ISpecRack {
+  /**
+   * A key that matches labels assigned to the Kubernetes cluster nodes. The value of the label is used to set the broker's `broker.rack` config.
+   *
+   * @schema KafkaConnectS2ISpecRack#topologyKey
+   */
+  readonly topologyKey: string;
 
 }
 
@@ -779,6 +815,13 @@ export interface KafkaConnectS2ISpecTemplatePod {
   readonly affinity?: KafkaConnectS2ISpecTemplatePodAffinity;
 
   /**
+   * The pod's tolerations.
+   *
+   * @schema KafkaConnectS2ISpecTemplatePod#tolerations
+   */
+  readonly tolerations?: KafkaConnectS2ISpecTemplatePodTolerations[];
+
+  /**
    * The name of the priority class used to assign priority to the pods. For more information about priority classes, see {K8sPriorityClass}.
    *
    * @schema KafkaConnectS2ISpecTemplatePod#priorityClassName
@@ -793,11 +836,11 @@ export interface KafkaConnectS2ISpecTemplatePod {
   readonly schedulerName?: string;
 
   /**
-   * The pod's tolerations.
+   * The pod's HostAliases. HostAliases is an optional list of hosts and IPs that will be injected into the pod's hosts file if specified.
    *
-   * @schema KafkaConnectS2ISpecTemplatePod#tolerations
+   * @schema KafkaConnectS2ISpecTemplatePod#hostAliases
    */
-  readonly tolerations?: KafkaConnectS2ISpecTemplatePodTolerations[];
+  readonly hostAliases?: KafkaConnectS2ISpecTemplatePodHostAliases[];
 
 }
 
@@ -835,6 +878,28 @@ export interface KafkaConnectS2ISpecTemplateConnectContainer {
    * @schema KafkaConnectS2ISpecTemplateConnectContainer#securityContext
    */
   readonly securityContext?: KafkaConnectS2ISpecTemplateConnectContainerSecurityContext;
+
+}
+
+/**
+ * Template for the Kafka init container.
+ *
+ * @schema KafkaConnectS2ISpecTemplateInitContainer
+ */
+export interface KafkaConnectS2ISpecTemplateInitContainer {
+  /**
+   * Environment variables which should be applied to the container.
+   *
+   * @schema KafkaConnectS2ISpecTemplateInitContainer#env
+   */
+  readonly env?: KafkaConnectS2ISpecTemplateInitContainerEnv[];
+
+  /**
+   * Security context for the container.
+   *
+   * @schema KafkaConnectS2ISpecTemplateInitContainer#securityContext
+   */
+  readonly securityContext?: KafkaConnectS2ISpecTemplateInitContainerSecurityContext;
 
 }
 
@@ -1259,6 +1324,11 @@ export interface KafkaConnectS2ISpecTemplatePodSecurityContext {
   readonly fsGroup?: number;
 
   /**
+   * @schema KafkaConnectS2ISpecTemplatePodSecurityContext#fsGroupChangePolicy
+   */
+  readonly fsGroupChangePolicy?: string;
+
+  /**
    * @schema KafkaConnectS2ISpecTemplatePodSecurityContext#runAsGroup
    */
   readonly runAsGroup?: number;
@@ -1346,6 +1416,22 @@ export interface KafkaConnectS2ISpecTemplatePodTolerations {
    * @schema KafkaConnectS2ISpecTemplatePodTolerations#value
    */
   readonly value?: string;
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplatePodHostAliases
+ */
+export interface KafkaConnectS2ISpecTemplatePodHostAliases {
+  /**
+   * @schema KafkaConnectS2ISpecTemplatePodHostAliases#hostnames
+   */
+  readonly hostnames?: string[];
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplatePodHostAliases#ip
+   */
+  readonly ip?: string;
 
 }
 
@@ -1446,6 +1532,84 @@ export interface KafkaConnectS2ISpecTemplateConnectContainerSecurityContext {
    * @schema KafkaConnectS2ISpecTemplateConnectContainerSecurityContext#windowsOptions
    */
   readonly windowsOptions?: KafkaConnectS2ISpecTemplateConnectContainerSecurityContextWindowsOptions;
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateInitContainerEnv
+ */
+export interface KafkaConnectS2ISpecTemplateInitContainerEnv {
+  /**
+   * The environment variable key.
+   *
+   * @schema KafkaConnectS2ISpecTemplateInitContainerEnv#name
+   */
+  readonly name?: string;
+
+  /**
+   * The environment variable value.
+   *
+   * @schema KafkaConnectS2ISpecTemplateInitContainerEnv#value
+   */
+  readonly value?: string;
+
+}
+
+/**
+ * Security context for the container.
+ *
+ * @schema KafkaConnectS2ISpecTemplateInitContainerSecurityContext
+ */
+export interface KafkaConnectS2ISpecTemplateInitContainerSecurityContext {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateInitContainerSecurityContext#allowPrivilegeEscalation
+   */
+  readonly allowPrivilegeEscalation?: boolean;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateInitContainerSecurityContext#capabilities
+   */
+  readonly capabilities?: KafkaConnectS2ISpecTemplateInitContainerSecurityContextCapabilities;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateInitContainerSecurityContext#privileged
+   */
+  readonly privileged?: boolean;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateInitContainerSecurityContext#procMount
+   */
+  readonly procMount?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateInitContainerSecurityContext#readOnlyRootFilesystem
+   */
+  readonly readOnlyRootFilesystem?: boolean;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateInitContainerSecurityContext#runAsGroup
+   */
+  readonly runAsGroup?: number;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateInitContainerSecurityContext#runAsNonRoot
+   */
+  readonly runAsNonRoot?: boolean;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateInitContainerSecurityContext#runAsUser
+   */
+  readonly runAsUser?: number;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateInitContainerSecurityContext#seLinuxOptions
+   */
+  readonly seLinuxOptions?: KafkaConnectS2ISpecTemplateInitContainerSecurityContextSeLinuxOptions;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateInitContainerSecurityContext#windowsOptions
+   */
+  readonly windowsOptions?: KafkaConnectS2ISpecTemplateInitContainerSecurityContextWindowsOptions;
 
 }
 
@@ -1711,6 +1875,11 @@ export interface KafkaConnectS2ISpecTemplatePodSecurityContextWindowsOptions {
    */
   readonly gmsaCredentialSpecName?: string;
 
+  /**
+   * @schema KafkaConnectS2ISpecTemplatePodSecurityContextWindowsOptions#runAsUserName
+   */
+  readonly runAsUserName?: string;
+
 }
 
 /**
@@ -1816,6 +1985,74 @@ export interface KafkaConnectS2ISpecTemplateConnectContainerSecurityContextWindo
    * @schema KafkaConnectS2ISpecTemplateConnectContainerSecurityContextWindowsOptions#gmsaCredentialSpecName
    */
   readonly gmsaCredentialSpecName?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateConnectContainerSecurityContextWindowsOptions#runAsUserName
+   */
+  readonly runAsUserName?: string;
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateInitContainerSecurityContextCapabilities
+ */
+export interface KafkaConnectS2ISpecTemplateInitContainerSecurityContextCapabilities {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateInitContainerSecurityContextCapabilities#add
+   */
+  readonly add?: string[];
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateInitContainerSecurityContextCapabilities#drop
+   */
+  readonly drop?: string[];
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateInitContainerSecurityContextSeLinuxOptions
+ */
+export interface KafkaConnectS2ISpecTemplateInitContainerSecurityContextSeLinuxOptions {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateInitContainerSecurityContextSeLinuxOptions#level
+   */
+  readonly level?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateInitContainerSecurityContextSeLinuxOptions#role
+   */
+  readonly role?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateInitContainerSecurityContextSeLinuxOptions#type
+   */
+  readonly type?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateInitContainerSecurityContextSeLinuxOptions#user
+   */
+  readonly user?: string;
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateInitContainerSecurityContextWindowsOptions
+ */
+export interface KafkaConnectS2ISpecTemplateInitContainerSecurityContextWindowsOptions {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateInitContainerSecurityContextWindowsOptions#gmsaCredentialSpec
+   */
+  readonly gmsaCredentialSpec?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateInitContainerSecurityContextWindowsOptions#gmsaCredentialSpecName
+   */
+  readonly gmsaCredentialSpecName?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateInitContainerSecurityContextWindowsOptions#runAsUserName
+   */
+  readonly runAsUserName?: string;
 
 }
 

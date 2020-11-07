@@ -856,6 +856,13 @@ export interface KafkaBridgeSpecTemplatePod {
   readonly affinity?: KafkaBridgeSpecTemplatePodAffinity;
 
   /**
+   * The pod's tolerations.
+   *
+   * @schema KafkaBridgeSpecTemplatePod#tolerations
+   */
+  readonly tolerations?: KafkaBridgeSpecTemplatePodTolerations[];
+
+  /**
    * The name of the priority class used to assign priority to the pods. For more information about priority classes, see {K8sPriorityClass}.
    *
    * @schema KafkaBridgeSpecTemplatePod#priorityClassName
@@ -870,11 +877,11 @@ export interface KafkaBridgeSpecTemplatePod {
   readonly schedulerName?: string;
 
   /**
-   * The pod's tolerations.
+   * The pod's HostAliases. HostAliases is an optional list of hosts and IPs that will be injected into the pod's hosts file if specified.
    *
-   * @schema KafkaBridgeSpecTemplatePod#tolerations
+   * @schema KafkaBridgeSpecTemplatePod#hostAliases
    */
-  readonly tolerations?: KafkaBridgeSpecTemplatePodTolerations[];
+  readonly hostAliases?: KafkaBridgeSpecTemplatePodHostAliases[];
 
 }
 
@@ -1015,6 +1022,11 @@ export interface KafkaBridgeSpecTemplatePodSecurityContext {
   readonly fsGroup?: number;
 
   /**
+   * @schema KafkaBridgeSpecTemplatePodSecurityContext#fsGroupChangePolicy
+   */
+  readonly fsGroupChangePolicy?: string;
+
+  /**
    * @schema KafkaBridgeSpecTemplatePodSecurityContext#runAsGroup
    */
   readonly runAsGroup?: number;
@@ -1102,6 +1114,22 @@ export interface KafkaBridgeSpecTemplatePodTolerations {
    * @schema KafkaBridgeSpecTemplatePodTolerations#value
    */
   readonly value?: string;
+
+}
+
+/**
+ * @schema KafkaBridgeSpecTemplatePodHostAliases
+ */
+export interface KafkaBridgeSpecTemplatePodHostAliases {
+  /**
+   * @schema KafkaBridgeSpecTemplatePodHostAliases#hostnames
+   */
+  readonly hostnames?: string[];
+
+  /**
+   * @schema KafkaBridgeSpecTemplatePodHostAliases#ip
+   */
+  readonly ip?: string;
 
 }
 
@@ -1283,6 +1311,11 @@ export interface KafkaBridgeSpecTemplatePodSecurityContextWindowsOptions {
    */
   readonly gmsaCredentialSpecName?: string;
 
+  /**
+   * @schema KafkaBridgeSpecTemplatePodSecurityContextWindowsOptions#runAsUserName
+   */
+  readonly runAsUserName?: string;
+
 }
 
 /**
@@ -1388,6 +1421,11 @@ export interface KafkaBridgeSpecTemplateBridgeContainerSecurityContextWindowsOpt
    * @schema KafkaBridgeSpecTemplateBridgeContainerSecurityContextWindowsOptions#gmsaCredentialSpecName
    */
   readonly gmsaCredentialSpecName?: string;
+
+  /**
+   * @schema KafkaBridgeSpecTemplateBridgeContainerSecurityContextWindowsOptions#runAsUserName
+   */
+  readonly runAsUserName?: string;
 
 }
 

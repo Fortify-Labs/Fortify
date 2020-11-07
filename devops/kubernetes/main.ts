@@ -38,6 +38,7 @@ const {
 	GSI_RECEIVER_SENTRY_DSN,
 	FSM_SENTRY_DSN,
 	HISTORIZATION_SENTRY_DSN,
+	BACKEND_SENTRY_DSN,
 } = process.env;
 
 export class Fortify extends Chart {
@@ -186,6 +187,7 @@ export class Fortify extends Chart {
 					name: "TWITCH_FAILURE_REDIRECT",
 					value: `https://${DOMAIN}/`,
 				},
+				{ name: "SENTRY_DSN", value: BACKEND_SENTRY_DSN },
 			],
 			secrets: [
 				"postgres-auth",

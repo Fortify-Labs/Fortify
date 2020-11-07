@@ -560,6 +560,13 @@ export interface KafkaMirrorMaker2SpecTemplate {
   readonly connectContainer?: KafkaMirrorMaker2SpecTemplateConnectContainer;
 
   /**
+   * Template for the Kafka init container.
+   *
+   * @schema KafkaMirrorMaker2SpecTemplate#initContainer
+   */
+  readonly initContainer?: KafkaMirrorMaker2SpecTemplateInitContainer;
+
+  /**
    * Template for Kafka Connect `PodDisruptionBudget`.
    *
    * @schema KafkaMirrorMaker2SpecTemplate#podDisruptionBudget
@@ -950,6 +957,13 @@ export interface KafkaMirrorMaker2SpecTemplatePod {
   readonly affinity?: KafkaMirrorMaker2SpecTemplatePodAffinity;
 
   /**
+   * The pod's tolerations.
+   *
+   * @schema KafkaMirrorMaker2SpecTemplatePod#tolerations
+   */
+  readonly tolerations?: KafkaMirrorMaker2SpecTemplatePodTolerations[];
+
+  /**
    * The name of the priority class used to assign priority to the pods. For more information about priority classes, see {K8sPriorityClass}.
    *
    * @schema KafkaMirrorMaker2SpecTemplatePod#priorityClassName
@@ -964,11 +978,11 @@ export interface KafkaMirrorMaker2SpecTemplatePod {
   readonly schedulerName?: string;
 
   /**
-   * The pod's tolerations.
+   * The pod's HostAliases. HostAliases is an optional list of hosts and IPs that will be injected into the pod's hosts file if specified.
    *
-   * @schema KafkaMirrorMaker2SpecTemplatePod#tolerations
+   * @schema KafkaMirrorMaker2SpecTemplatePod#hostAliases
    */
-  readonly tolerations?: KafkaMirrorMaker2SpecTemplatePodTolerations[];
+  readonly hostAliases?: KafkaMirrorMaker2SpecTemplatePodHostAliases[];
 
 }
 
@@ -1006,6 +1020,28 @@ export interface KafkaMirrorMaker2SpecTemplateConnectContainer {
    * @schema KafkaMirrorMaker2SpecTemplateConnectContainer#securityContext
    */
   readonly securityContext?: KafkaMirrorMaker2SpecTemplateConnectContainerSecurityContext;
+
+}
+
+/**
+ * Template for the Kafka init container.
+ *
+ * @schema KafkaMirrorMaker2SpecTemplateInitContainer
+ */
+export interface KafkaMirrorMaker2SpecTemplateInitContainer {
+  /**
+   * Environment variables which should be applied to the container.
+   *
+   * @schema KafkaMirrorMaker2SpecTemplateInitContainer#env
+   */
+  readonly env?: KafkaMirrorMaker2SpecTemplateInitContainerEnv[];
+
+  /**
+   * Security context for the container.
+   *
+   * @schema KafkaMirrorMaker2SpecTemplateInitContainer#securityContext
+   */
+  readonly securityContext?: KafkaMirrorMaker2SpecTemplateInitContainerSecurityContext;
 
 }
 
@@ -1420,6 +1456,11 @@ export interface KafkaMirrorMaker2SpecTemplatePodSecurityContext {
   readonly fsGroup?: number;
 
   /**
+   * @schema KafkaMirrorMaker2SpecTemplatePodSecurityContext#fsGroupChangePolicy
+   */
+  readonly fsGroupChangePolicy?: string;
+
+  /**
    * @schema KafkaMirrorMaker2SpecTemplatePodSecurityContext#runAsGroup
    */
   readonly runAsGroup?: number;
@@ -1507,6 +1548,22 @@ export interface KafkaMirrorMaker2SpecTemplatePodTolerations {
    * @schema KafkaMirrorMaker2SpecTemplatePodTolerations#value
    */
   readonly value?: string;
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplatePodHostAliases
+ */
+export interface KafkaMirrorMaker2SpecTemplatePodHostAliases {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplatePodHostAliases#hostnames
+   */
+  readonly hostnames?: string[];
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplatePodHostAliases#ip
+   */
+  readonly ip?: string;
 
 }
 
@@ -1607,6 +1664,84 @@ export interface KafkaMirrorMaker2SpecTemplateConnectContainerSecurityContext {
    * @schema KafkaMirrorMaker2SpecTemplateConnectContainerSecurityContext#windowsOptions
    */
   readonly windowsOptions?: KafkaMirrorMaker2SpecTemplateConnectContainerSecurityContextWindowsOptions;
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateInitContainerEnv
+ */
+export interface KafkaMirrorMaker2SpecTemplateInitContainerEnv {
+  /**
+   * The environment variable key.
+   *
+   * @schema KafkaMirrorMaker2SpecTemplateInitContainerEnv#name
+   */
+  readonly name?: string;
+
+  /**
+   * The environment variable value.
+   *
+   * @schema KafkaMirrorMaker2SpecTemplateInitContainerEnv#value
+   */
+  readonly value?: string;
+
+}
+
+/**
+ * Security context for the container.
+ *
+ * @schema KafkaMirrorMaker2SpecTemplateInitContainerSecurityContext
+ */
+export interface KafkaMirrorMaker2SpecTemplateInitContainerSecurityContext {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateInitContainerSecurityContext#allowPrivilegeEscalation
+   */
+  readonly allowPrivilegeEscalation?: boolean;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateInitContainerSecurityContext#capabilities
+   */
+  readonly capabilities?: KafkaMirrorMaker2SpecTemplateInitContainerSecurityContextCapabilities;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateInitContainerSecurityContext#privileged
+   */
+  readonly privileged?: boolean;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateInitContainerSecurityContext#procMount
+   */
+  readonly procMount?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateInitContainerSecurityContext#readOnlyRootFilesystem
+   */
+  readonly readOnlyRootFilesystem?: boolean;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateInitContainerSecurityContext#runAsGroup
+   */
+  readonly runAsGroup?: number;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateInitContainerSecurityContext#runAsNonRoot
+   */
+  readonly runAsNonRoot?: boolean;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateInitContainerSecurityContext#runAsUser
+   */
+  readonly runAsUser?: number;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateInitContainerSecurityContext#seLinuxOptions
+   */
+  readonly seLinuxOptions?: KafkaMirrorMaker2SpecTemplateInitContainerSecurityContextSeLinuxOptions;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateInitContainerSecurityContext#windowsOptions
+   */
+  readonly windowsOptions?: KafkaMirrorMaker2SpecTemplateInitContainerSecurityContextWindowsOptions;
 
 }
 
@@ -1872,6 +2007,11 @@ export interface KafkaMirrorMaker2SpecTemplatePodSecurityContextWindowsOptions {
    */
   readonly gmsaCredentialSpecName?: string;
 
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplatePodSecurityContextWindowsOptions#runAsUserName
+   */
+  readonly runAsUserName?: string;
+
 }
 
 /**
@@ -1977,6 +2117,74 @@ export interface KafkaMirrorMaker2SpecTemplateConnectContainerSecurityContextWin
    * @schema KafkaMirrorMaker2SpecTemplateConnectContainerSecurityContextWindowsOptions#gmsaCredentialSpecName
    */
   readonly gmsaCredentialSpecName?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateConnectContainerSecurityContextWindowsOptions#runAsUserName
+   */
+  readonly runAsUserName?: string;
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateInitContainerSecurityContextCapabilities
+ */
+export interface KafkaMirrorMaker2SpecTemplateInitContainerSecurityContextCapabilities {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateInitContainerSecurityContextCapabilities#add
+   */
+  readonly add?: string[];
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateInitContainerSecurityContextCapabilities#drop
+   */
+  readonly drop?: string[];
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateInitContainerSecurityContextSeLinuxOptions
+ */
+export interface KafkaMirrorMaker2SpecTemplateInitContainerSecurityContextSeLinuxOptions {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateInitContainerSecurityContextSeLinuxOptions#level
+   */
+  readonly level?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateInitContainerSecurityContextSeLinuxOptions#role
+   */
+  readonly role?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateInitContainerSecurityContextSeLinuxOptions#type
+   */
+  readonly type?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateInitContainerSecurityContextSeLinuxOptions#user
+   */
+  readonly user?: string;
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateInitContainerSecurityContextWindowsOptions
+ */
+export interface KafkaMirrorMaker2SpecTemplateInitContainerSecurityContextWindowsOptions {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateInitContainerSecurityContextWindowsOptions#gmsaCredentialSpec
+   */
+  readonly gmsaCredentialSpec?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateInitContainerSecurityContextWindowsOptions#gmsaCredentialSpecName
+   */
+  readonly gmsaCredentialSpecName?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateInitContainerSecurityContextWindowsOptions#runAsUserName
+   */
+  readonly runAsUserName?: string;
 
 }
 

@@ -101,7 +101,7 @@ export interface KafkaUserSpecAuthorization {
   readonly acls: KafkaUserSpecAuthorizationAcls[];
 
   /**
-   * Authorization type. Currently the only supported type is `simple`. `simple` authorization type uses Kafka's `kafka.security.auth.SimpleAclAuthorizer` class for authorization.
+   * Authorization type. Currently the only supported type is `simple`. `simple` authorization type uses Kafka's `kafka.security.authorizer.AclAuthorizer` class for authorization.
    *
    * @schema KafkaUserSpecAuthorization#type
    */
@@ -200,7 +200,7 @@ export interface KafkaUserSpecAuthorizationAcls {
 }
 
 /**
- * Authorization type. Currently the only supported type is `simple`. `simple` authorization type uses Kafka's `kafka.security.auth.SimpleAclAuthorizer` class for authorization.
+ * Authorization type. Currently the only supported type is `simple`. `simple` authorization type uses Kafka's `kafka.security.authorizer.AclAuthorizer` class for authorization.
  *
  * @schema KafkaUserSpecAuthorizationType
  */

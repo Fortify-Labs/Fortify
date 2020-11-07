@@ -936,6 +936,13 @@ export interface KafkaMirrorMakerSpecTemplatePod {
   readonly affinity?: KafkaMirrorMakerSpecTemplatePodAffinity;
 
   /**
+   * The pod's tolerations.
+   *
+   * @schema KafkaMirrorMakerSpecTemplatePod#tolerations
+   */
+  readonly tolerations?: KafkaMirrorMakerSpecTemplatePodTolerations[];
+
+  /**
    * The name of the priority class used to assign priority to the pods. For more information about priority classes, see {K8sPriorityClass}.
    *
    * @schema KafkaMirrorMakerSpecTemplatePod#priorityClassName
@@ -950,11 +957,11 @@ export interface KafkaMirrorMakerSpecTemplatePod {
   readonly schedulerName?: string;
 
   /**
-   * The pod's tolerations.
+   * The pod's HostAliases. HostAliases is an optional list of hosts and IPs that will be injected into the pod's hosts file if specified.
    *
-   * @schema KafkaMirrorMakerSpecTemplatePod#tolerations
+   * @schema KafkaMirrorMakerSpecTemplatePod#hostAliases
    */
-  readonly tolerations?: KafkaMirrorMakerSpecTemplatePodTolerations[];
+  readonly hostAliases?: KafkaMirrorMakerSpecTemplatePodHostAliases[];
 
 }
 
@@ -1517,6 +1524,11 @@ export interface KafkaMirrorMakerSpecTemplatePodSecurityContext {
   readonly fsGroup?: number;
 
   /**
+   * @schema KafkaMirrorMakerSpecTemplatePodSecurityContext#fsGroupChangePolicy
+   */
+  readonly fsGroupChangePolicy?: string;
+
+  /**
    * @schema KafkaMirrorMakerSpecTemplatePodSecurityContext#runAsGroup
    */
   readonly runAsGroup?: number;
@@ -1604,6 +1616,22 @@ export interface KafkaMirrorMakerSpecTemplatePodTolerations {
    * @schema KafkaMirrorMakerSpecTemplatePodTolerations#value
    */
   readonly value?: string;
+
+}
+
+/**
+ * @schema KafkaMirrorMakerSpecTemplatePodHostAliases
+ */
+export interface KafkaMirrorMakerSpecTemplatePodHostAliases {
+  /**
+   * @schema KafkaMirrorMakerSpecTemplatePodHostAliases#hostnames
+   */
+  readonly hostnames?: string[];
+
+  /**
+   * @schema KafkaMirrorMakerSpecTemplatePodHostAliases#ip
+   */
+  readonly ip?: string;
 
 }
 
@@ -1869,6 +1897,11 @@ export interface KafkaMirrorMakerSpecTemplatePodSecurityContextWindowsOptions {
    */
   readonly gmsaCredentialSpecName?: string;
 
+  /**
+   * @schema KafkaMirrorMakerSpecTemplatePodSecurityContextWindowsOptions#runAsUserName
+   */
+  readonly runAsUserName?: string;
+
 }
 
 /**
@@ -1974,6 +2007,11 @@ export interface KafkaMirrorMakerSpecTemplateMirrorMakerContainerSecurityContext
    * @schema KafkaMirrorMakerSpecTemplateMirrorMakerContainerSecurityContextWindowsOptions#gmsaCredentialSpecName
    */
   readonly gmsaCredentialSpecName?: string;
+
+  /**
+   * @schema KafkaMirrorMakerSpecTemplateMirrorMakerContainerSecurityContextWindowsOptions#runAsUserName
+   */
+  readonly runAsUserName?: string;
 
 }
 
