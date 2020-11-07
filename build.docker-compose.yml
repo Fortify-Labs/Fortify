@@ -25,15 +25,12 @@ services:
     image: ghcr.io/fortify-labs/fortify/frontend:${FRONTEND_VERSION:-invalidVersion}
     build:
       context: ./
-      dockerfile: ./devops/docker/NodeExposed.Dockerfile
+      dockerfile: ./services/frontend/Dockerfile
 
       args:
         BASE_VERSION: ${BASE_VERSION:-invalidVersion}
         SERVICE_NAME: frontend
         EXPOSED_PORT: 3000
-
-        SENTRY_AUTH_TOKEN: ${SENTRY_AUTH_TOKEN:-invalidAuthToken}
-        SENTRY_ORG: ${SENTRY_ORG:-invalidOrg}
 
   fsm:
     image: ghcr.io/fortify-labs/fortify/fsm:${FSM_VERSION:-invalidVersion}
