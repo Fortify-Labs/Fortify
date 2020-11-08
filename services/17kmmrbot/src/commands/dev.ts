@@ -17,8 +17,7 @@ export class DevCommands implements TwitchCommand {
 		@inject(ExtractorService) private extractorService: ExtractorService,
 	) {}
 
-	invocations = ["!reset", "!join", "!leave"];
-	// invocations = ["!reset", "!join", "!leave", "!version"];
+	invocations = ["!reset", "!join", "!leave", "!version"];
 
 	authorized = async (_channel: string, tags: ChatUserstate) =>
 		tags.badges?.broadcaster === "1" ||
