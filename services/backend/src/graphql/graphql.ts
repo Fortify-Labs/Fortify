@@ -64,7 +64,10 @@ export class GraphQL {
 								for (const err of ctx.errors) {
 									// Only report internal server errors,
 									// all errors extending ApolloError should be user-facing
-									if (err instanceof ApolloError) {
+									if (
+										err instanceof ApolloError
+										// || err instanceof GraphQLError
+									) {
 										continue;
 									}
 
