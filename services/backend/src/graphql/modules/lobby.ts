@@ -124,9 +124,9 @@ export class LobbyModule implements GQLModule {
 						return pubSub.asyncIterator(`ps:${id}`);
 					},
 					async resolve(
-						payload: FortifyPlayerState,
+						payload?: FortifyPlayerState,
 					): Promise<Lobby | null> {
-						if (!payload.lobby.id) {
+						if (!payload?.lobby.id) {
 							return null;
 						}
 
