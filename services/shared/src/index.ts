@@ -20,6 +20,7 @@ export const sharedSetup = (
 				root: global.__rootdir__,
 			}),
 		],
+		tracesSampleRate: 1.0,
 	});
 };
 

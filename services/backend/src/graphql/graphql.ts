@@ -4,6 +4,7 @@ import { verifyToken } from "../util/jwt";
 import { schema } from "./schemaLoader";
 
 import * as Sentry from "@sentry/node";
+import { Transaction } from "@sentry/types";
 
 @injectable()
 export class GraphQL {
@@ -107,9 +108,38 @@ export class GraphQL {
 											);
 										}
 
+										if (ctx.context.transaction) {
+											scope.setSpan(
+												ctx.context.transaction,
+											);
+										}
+
 										Sentry.captureException(err);
 									});
 								}
+							},
+							executionDidStart(ctx) {
+								const transaction = Sentry.startTransaction({
+									name: ctx.operationName ?? "Unnamed query",
+									op: ctx.operation.operation,
+									data: {
+										query: ctx.request.query,
+										variables: ctx.request.variables,
+									},
+								});
+
+								ctx.request.http?.headers.set(
+									"x-transaction-id",
+									transaction.traceId,
+								);
+
+								ctx.context.transaction = transaction;
+							},
+							async willSendResponse(ctx) {
+								const transaction: Transaction =
+									ctx.context.transaction;
+
+								transaction.finish();
 							},
 						};
 					},
