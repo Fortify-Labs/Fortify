@@ -140,7 +140,7 @@ const {
 
 					if (!timedOut && authorized) {
 						const transaction = startTransaction({
-							name: message.toLowerCase(),
+							name: message.toLowerCase().split(" ")[0],
 							op: "twitchCommand",
 							data: {
 								channel,
