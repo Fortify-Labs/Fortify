@@ -21,7 +21,12 @@ import { HelpCommand } from "./commands/help";
 import { sharedSetup } from "@shared/index";
 global.__rootdir__ = __dirname || process.cwd();
 sharedSetup();
-import { captureException, captureMessage } from "@sentry/node";
+import {
+	captureException,
+	captureMessage,
+	startTransaction,
+	flush,
+} from "@sentry/node";
 import { captureTwitchException } from "./lib/sentryUtils";
 
 const {
@@ -77,15 +82,17 @@ const {
 				consumer.disconnect(),
 				container.get(RedisConnector).client.quit(),
 				client.disconnect(),
+				flush(10000),
 			]);
-			debug("app::main")("Postgres connection closed");
-			debug("app::main")("Kafka consumer closed");
-			debug("app::main")("Redis connection closed");
-			debug("app::main")("Twitch connection closed");
+			debug("app::shutDown")("Postgres connection closed");
+			debug("app::shutDown")("Kafka consumer closed");
+			debug("app::shutDown")("Redis connection closed");
+			debug("app::shutDown")("Twitch connection closed");
+			debug("app::shutDown")("Flushed sentry");
 		} catch (e) {
-			debug("app::shutdown")(e);
+			debug("app::shutDown")(e);
 		} finally {
-			debug("app::shutdown")(
+			debug("app::shutDown")(
 				"Received kill signal, shutting down gracefully",
 			);
 
@@ -132,7 +139,15 @@ const {
 							: true;
 
 					if (!timedOut && authorized) {
+						const transaction = startTransaction({
+							name: message.toLowerCase(),
+							op: "twitchCommand",
+							data: {
+								channel,
+							},
+						});
 						await command.handler(client, channel, tags, message);
+						transaction.finish();
 					}
 				}
 			}

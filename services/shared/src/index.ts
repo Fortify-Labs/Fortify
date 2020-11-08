@@ -12,6 +12,22 @@ export const sharedSetup = (
 ) => {
 	debug("app::sharedSetup")(`Launching ${name} v${release}`);
 
+	let tracesSampleRate = 1.0;
+
+	try {
+		tracesSampleRate = parseFloat(
+			process.env.SENTRY_TRACE_SAMPLE_RATE || "1.0",
+		);
+
+		debug("app::sharedSetup")(
+			`Using tracesSampleRate of ${tracesSampleRate}`,
+		);
+	} catch (e) {
+		debug("app::sharedSetup")(
+			`Using default tracesSampleRate of ${tracesSampleRate}`,
+		);
+	}
+
 	Sentry.init({
 		dsn: SENTRY_DSN,
 		release,
@@ -20,7 +36,7 @@ export const sharedSetup = (
 				root: global.__rootdir__,
 			}),
 		],
-		tracesSampleRate: 1.0,
+		tracesSampleRate,
 	});
 };
 
