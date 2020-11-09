@@ -83,7 +83,7 @@ export class LobbyModule implements GQLModule {
 					if (!fps.lobby.id) {
 						throw new ApolloError(
 							"No lobby found yet",
-							"QUERY_LOBBY_ID",
+							"QUERY_LOBBY_FPS_LOBBY_ID",
 						);
 					}
 

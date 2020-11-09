@@ -1,6 +1,6 @@
 {
   "name": "backend",
-  "version": "1.4.16",
+  "version": "1.4.17",
   "private": true,
   "main": "build/index.js",
   "types": "build/index.d.ts",
@@ -55,8 +55,8 @@
     "@types/passport-oauth2": "^1.4.9",
     "@types/passport-steam": "^1.0.1",
     "@types/swagger-ui-express": "^4.1.2",
-    "@typescript-eslint/eslint-plugin": "^4.6.1",
-    "@typescript-eslint/parser": "^4.6.1",
+    "@typescript-eslint/eslint-plugin": "^4.7.0",
+    "@typescript-eslint/parser": "^4.7.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "cpx": "^1.5.0",

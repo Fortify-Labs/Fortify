@@ -5,6 +5,7 @@ import { schema } from "./schemaLoader";
 
 import * as Sentry from "@sentry/node";
 import { Transaction } from "@sentry/types";
+import { Context } from "@shared/auth";
 
 @injectable()
 export class GraphQL {
@@ -89,6 +90,13 @@ export class GraphQL {
 											"variables",
 											ctx.request.variables,
 										);
+
+										const context = ctx.context as Context;
+										if (context.user) {
+											scope.setUser({
+												id: context.user.id,
+											});
+										}
 
 										if (err.path) {
 											// We can also add the path as breadcrumb
