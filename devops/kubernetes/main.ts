@@ -188,6 +188,7 @@ export class Fortify extends Chart {
 					value: `https://${DOMAIN}/`,
 				},
 				{ name: "SENTRY_DSN", value: BACKEND_SENTRY_DSN },
+				{ name: "SENTRY_TRACE_SAMPLE_RATE", value: "0.2" },
 			],
 			secrets: [
 				"postgres-auth",

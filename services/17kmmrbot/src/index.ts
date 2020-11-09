@@ -28,6 +28,7 @@ import {
 	flush,
 } from "@sentry/node";
 import { captureTwitchException } from "./lib/sentryUtils";
+import { ConsumerCrashEvent } from "kafkajs";
 
 const {
 	KAFKA_FROM_START = "false",
@@ -100,6 +101,32 @@ const {
 			process.exit(0);
 		}
 	}
+
+	consumer.on("consumer.disconnect", () => {
+		debug("app::kafka::consumer.disconnect")("Consumer disconnected");
+		// const sentryID = captureMessage("Consumer disconnected");
+		// debug("app::kafka::consumer.disconnect")(sentryID);
+	});
+	consumer.on("consumer.connect", () => {
+		debug("app::kafka::consumer.connect")("Consumer connected");
+		// const sentryID = captureMessage("Consumer connected");
+		// debug("app::kafka::consumer.connect")(sentryID);
+	});
+	consumer.on("consumer.crash", async (crashEvent: ConsumerCrashEvent) => {
+		debug("app::kafka::consumer.crash")(crashEvent);
+		const sentryID = captureException(crashEvent.payload.error, {
+			extra: {
+				groupId: crashEvent.payload.groupId,
+			},
+		});
+		debug("app::kafka::consumer.crash")(sentryID);
+		try {
+			await flush();
+		} finally {
+			// eslint-disable-next-line no-process-exit
+			process.exit(-1);
+		}
+	});
 
 	await consumer.run({
 		autoCommit: KAFKA_FROM_START !== "true",
