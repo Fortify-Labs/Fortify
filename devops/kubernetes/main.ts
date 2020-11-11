@@ -296,8 +296,8 @@ export class Fortify extends Chart {
 			},
 		});
 
-		new WebService(this, "sentry-webhook", {
-			name: "sentry-webhook",
+		new WebService(this, "sentry-discord-webhook", {
+			name: "sentry-discord-webhook",
 			replicas: 1,
 			version: "1.0.0",
 			env: [
@@ -310,10 +310,10 @@ export class Fortify extends Chart {
 				{ name: "DISABLE_STARTUP_MESSAGE", value: "true" },
 			],
 			service: {
-				name: "sentry-webhook",
+				name: "sentry-discord-webhook",
 				containerPort: 8080,
 				port: 8080,
-				portName: "http-sentry-webhook",
+				portName: "http-sentry-discord-webhook",
 			},
 
 			traefik: {
