@@ -29,8 +29,11 @@ const {
 	TWITCH_CLIENT_ID = "",
 	TWITCH_SECRET = "",
 	GA_TRACKING_ID,
+	REGISTRY,
 	SENTRY_WEBHOOK_CLIENT_SECRET,
+	SENTRY_DEV_WEBHOOK_CLIENT_SECRET,
 	SENTRY_DISCORD_WEBHOOKS,
+	SENTRY_DEV_DISCORD_WEBHOOKS,
 } = process.env;
 
 // Sentry DSNs
@@ -320,6 +323,37 @@ export class Fortify extends Chart {
 				entryPoints: ["websecure"],
 				namespace: "fortify",
 				match: `Host(\`sentry.fortify.dev\`)`,
+			},
+		});
+
+		new WebService(this, "sentry-discord-dev-webhook", {
+			name: "sentry-discord-dev-webhook",
+			replicas: 1,
+			version: "1.0.0",
+			image: REGISTRY + "sentry-discord-webhook:1.0.0",
+			env: [
+				{ name: "LISTEN_ADDRESS", value: ":8080" },
+				{
+					name: "DISCORD_WEBHOOKS",
+					value: SENTRY_DEV_DISCORD_WEBHOOKS,
+				},
+				{
+					name: "SENTRY_CLIENT_SECRET",
+					value: SENTRY_DEV_WEBHOOK_CLIENT_SECRET,
+				},
+				{ name: "DISABLE_STARTUP_MESSAGE", value: "true" },
+			],
+			service: {
+				name: "sentry-discord-dev-webhook",
+				containerPort: 8080,
+				port: 8080,
+				portName: "http-sentry-discord-dev-webhook",
+			},
+
+			traefik: {
+				entryPoints: ["websecure"],
+				namespace: "fortify",
+				match: `Host(\`sentry-dev.fortify.dev\`)`,
 			},
 		});
 
