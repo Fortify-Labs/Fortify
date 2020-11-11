@@ -1,5 +1,22 @@
 version: "3.7"
 services:
+  vault:
+    image: vault:1.5.5
+    command: ["vault", "server", "-config=/vault/config"]
+    ports:
+      - "8200:8200"
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: "token"
+      VAULT_LOCAL_CONFIG: '{"backend": {"file": {"path": "/vault/file"}}, "default_lease_ttl": "168h", "max_lease_ttl": "720h"}'
+      VAULT_SUPPLEMENTAL_CONFIG: '{"ui":true, "listener": {"tcp":{"address": "0.0.0.0:8200", "tls_disable": 1}}}'
+      VAULT_ADDR: "http://127.0.0.1:8200"
+    volumes:
+      - vault-file-data:/vault/file
+      - vault-unseal-data:/vault/unseal
+      - ./devops/local/vault/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh
+    cap_add:
+      - IPC_LOCK
+
   postgres:
     image: "postgres:11"
     hostname: postgres
@@ -79,3 +96,5 @@ volumes:
   zookeeper-data:
   postgres-data:
   influx-data:
+  vault-file-data:
+  vault-unseal-data:
