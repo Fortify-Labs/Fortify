@@ -29,6 +29,8 @@ const {
 	TWITCH_CLIENT_ID = "",
 	TWITCH_SECRET = "",
 	GA_TRACKING_ID,
+	SENTRY_WEBHOOK_CLIENT_SECRET,
+	SENTRY_DISCORD_WEBHOOKS,
 } = process.env;
 
 // Sentry DSNs
@@ -291,6 +293,33 @@ export class Fortify extends Chart {
 				entryPoints: ["web", "websecure"],
 				namespace: "fortify",
 				match: `Host(\`gsi.${DOMAIN}\`)`,
+			},
+		});
+
+		new WebService(this, "sentry-webhook", {
+			name: "sentry-webhook",
+			replicas: 1,
+			version: "1.0.0",
+			env: [
+				{ name: "LISTEN_ADDRESS", value: ":8080" },
+				{ name: "DISCORD_WEBHOOKS", value: SENTRY_DISCORD_WEBHOOKS },
+				{
+					name: "SENTRY_CLIENT_SECRET",
+					value: SENTRY_WEBHOOK_CLIENT_SECRET,
+				},
+				{ name: "DISABLE_STARTUP_MESSAGE", value: "true" },
+			],
+			service: {
+				name: "sentry-webhook",
+				containerPort: 8080,
+				port: 8080,
+				portName: "http-sentry-webhook",
+			},
+
+			traefik: {
+				entryPoints: ["websecure"],
+				namespace: "fortify",
+				match: `Host(\`sentry.fortify.dev\`)`,
 			},
 		});
 

@@ -30,6 +30,8 @@ jobs:
           echo JOBS_VERSION=$(jq -r .version services/jobs/package.json) >> $GITHUB_ENV
           echo HISTORIZATION_VERSION=$(jq -r .version services/historization/package.json) >> $GITHUB_ENV
 
+          echo SENTRY_DISCORD_WEBHOOK_VERSION=1.0.0 >> $GITHUB_ENV
+
           echo SENTRY_ORG='thomas-kosiewski' >> $GITHUB_ENV
           echo SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} >> $GITHUB_ENV
       - name: Pull all already existing images

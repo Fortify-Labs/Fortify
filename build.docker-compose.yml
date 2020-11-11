@@ -97,3 +97,10 @@ services:
 
         SENTRY_AUTH_TOKEN: ${SENTRY_AUTH_TOKEN:-invalidAuthToken}
         SENTRY_ORG: ${SENTRY_ORG:-invalidOrg}
+
+  # --- Tools ---
+  sentry-discord-webhook:
+    image: ghcr.io/fortify-labs/fortify/sentry-discord-webhook:${SENTRY_DISCORD_WEBHOOK_VERSION:-invalidVersion}
+    build:
+      context: ./services/sentry-discord-webhook/
+      dockerfile: Dockerfile
