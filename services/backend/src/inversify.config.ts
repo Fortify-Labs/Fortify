@@ -16,6 +16,7 @@ import { LeaderboardModule } from "./graphql/modules/leaderboard";
 
 import { PostgresConnector } from "@shared/connectors/postgres";
 import { RedisConnector } from "@shared/connectors/redis";
+import { VaultConnector } from "@shared/connectors/vault";
 
 const container = new Container({ autoBindInjectable: true });
 
@@ -29,7 +30,8 @@ container.bind<GQLModule>("module").to(LeaderboardModule);
 
 container.bind<GQLDirective>("directive").to(AuthDirective);
 
-container.bind(PostgresConnector).toConstantValue(new PostgresConnector());
+container.bind(VaultConnector).toSelf().inSingletonScope();
+container.bind(PostgresConnector).toSelf().inSingletonScope();
 container.bind(RedisConnector).toConstantValue(new RedisConnector());
 
 export { container };

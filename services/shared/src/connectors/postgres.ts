@@ -1,4 +1,4 @@
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 
 import debug = require("debug");
 
@@ -6,10 +6,10 @@ import { createConnection, Connection } from "typeorm";
 import { User } from "../db/entities/user";
 import { Match } from "../db/entities/match";
 import { MatchSlot } from "../db/entities/matchSlot";
+import { VaultConnector } from "./vault";
 
 const {
 	POSTGRES_USER,
-	POSTGRES_PASSWORD,
 	POSTGRES_HOST,
 	POSTGRES_PORT,
 	POSTGRES_DATABASE,
@@ -22,19 +22,22 @@ const {
 export class PostgresConnector {
 	connection: Promise<Connection>;
 
-	constructor() {
+	constructor(@inject(VaultConnector) private vault: VaultConnector) {
 		this.connection = this.setupConnection();
 
 		this.runMigration();
 	}
 
-	private setupConnection() {
+	private async setupConnection() {
+		const postgres = await this.vault.read("/postgres");
+		const { password } = postgres.data.data;
+
 		const connection = createConnection({
 			type: "postgres",
 			host: POSTGRES_HOST,
 			port: parseInt(POSTGRES_PORT ?? "5432"),
 			username: POSTGRES_USER,
-			password: POSTGRES_PASSWORD,
+			password,
 			database: POSTGRES_DATABASE ?? "fortify",
 			entities: ["../shared/build/src/db/entities/**/*.js"],
 			migrations: ["../shared/build/src/db/migrations/**/*.js"],

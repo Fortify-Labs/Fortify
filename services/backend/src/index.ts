@@ -5,6 +5,7 @@ dotenvExpand(dotenv.config());
 import { sharedSetup } from "@shared/index";
 global.__rootdir__ = __dirname || process.cwd();
 sharedSetup();
+import { captureException } from "@sentry/node";
 
 import { container } from "./inversify.config";
 import { GraphQL } from "./graphql/graphql";
@@ -30,10 +31,18 @@ const openAPI = container.get(OpenAPIDocs);
 openAPI.applyMiddleware({ app, apiPath: "/api", docsPath: "/docs" });
 
 const authMiddleware = container.get(SteamAuthMiddleware);
-authMiddleware.applyMiddleware({ app });
+authMiddleware.applyMiddleware({ app }).catch((e) => {
+	const errorID = captureException(e);
+	debug("app::index::steamAuth::applyMiddleware")(errorID);
+	debug("app::index::steamAuth::applyMiddleware")(e);
+});
 
 const twitchAuthMiddleware = container.get(TwitchAuthMiddleware);
-twitchAuthMiddleware.applyMiddleware({ app });
+twitchAuthMiddleware.applyMiddleware({ app }).catch((e) => {
+	const errorID = captureException(e);
+	debug("app::index::twitchAuth::applyMiddleware")(errorID);
+	debug("app::index::twitchAuth::applyMiddleware")(e);
+});
 
 const server = app.listen(
 	{ port: parseInt(process.env.MY_PORT ?? "8080", 10) },

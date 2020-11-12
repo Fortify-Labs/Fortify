@@ -1,11 +1,11 @@
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 
 import { InfluxDB, Point } from "@influxdata/influxdb-client";
+import { VaultConnector } from "./vault";
 
 const {
 	SERVICE_NAME = "unknown",
 
-	INFLUXDB_TOKEN,
 	INFLUXDB_ORG = "fortify",
 	INFLUXDB_BUCKET = "fortify",
 	INFLUXDB_URL = "http://localhost:9999",
@@ -13,17 +13,27 @@ const {
 
 @injectable()
 export class InfluxDBConnector {
-	client: InfluxDB;
+	client: Promise<InfluxDB>;
 
-	constructor() {
-		this.client = new InfluxDB({
+	constructor(@inject(VaultConnector) private vault: VaultConnector) {
+		this.client = this.newClient();
+	}
+
+	private async newClient() {
+		const influxdb = await this.vault.read("/influxdb");
+		const token = influxdb.data.data["historization-token"];
+
+		return new InfluxDB({
 			url: INFLUXDB_URL,
-			token: INFLUXDB_TOKEN,
+			token,
 		});
 	}
 
-	writePoints(points: Point[]) {
-		const writeApi = this.client.getWriteApi(INFLUXDB_ORG, INFLUXDB_BUCKET);
+	async writePoints(points: Point[]) {
+		const writeApi = (await this.client).getWriteApi(
+			INFLUXDB_ORG,
+			INFLUXDB_BUCKET,
+		);
 
 		// Not sure about this, potentially make it dynamic
 		writeApi.useDefaultTags({ service: SERVICE_NAME });
@@ -33,7 +43,7 @@ export class InfluxDBConnector {
 		return writeApi.close();
 	}
 
-	queryApi() {
-		return this.client.getQueryApi(INFLUXDB_ORG);
+	async queryApi() {
+		return (await this.client).getQueryApi(INFLUXDB_ORG);
 	}
 }

@@ -10,14 +10,13 @@ import { User } from "@shared/db/entities/user";
 
 import { convert64to32SteamId } from "@shared/steamid";
 import { RedisConnector } from "@shared/connectors/redis";
+import { VaultConnector } from "@shared/connectors/vault";
 
 const {
 	APP_URL = "",
 	APP_DOMAIN,
 	APP_SUCCESSFUL_AUTH_RETURN_URL = "/",
 	APP_STEAM_RETURN_URL,
-	JWT_SECRET,
-	STEAM_WEB_API_KEY,
 } = process.env;
 
 export interface NodeSteamPassportProfileJSON {
@@ -56,12 +55,15 @@ export class SteamAuthMiddleware {
 	constructor(
 		@inject(PostgresConnector) private postgres: PostgresConnector,
 		@inject(RedisConnector) private redis: RedisConnector,
+		@inject(VaultConnector) private vault: VaultConnector,
 	) {}
 
 	async handleAuth(req: Request, res: Response) {
 		const user = req.user as NodeSteamPassportProfile | undefined;
 
-		if (user && JWT_SECRET) {
+		const jwt = await this.vault.read("/jwt");
+
+		if (user && jwt.data.data.jwt) {
 			// Store user to DB
 			const userRepo = await this.postgres.getUserRepo();
 
@@ -112,11 +114,13 @@ export class SteamAuthMiddleware {
 		res.redirect(APP_SUCCESSFUL_AUTH_RETURN_URL);
 	}
 
-	applyMiddleware({ app }: { app: Application }) {
+	async applyMiddleware({ app }: { app: Application }) {
+		const steamWebApi = await this.vault.read("/steam-web-api");
+
 		passport.use(
 			new SteamStrategy(
 				{
-					apiKey: STEAM_WEB_API_KEY,
+					apiKey: steamWebApi.data.data["api-key"],
 					realm: APP_URL,
 					returnURL: APP_STEAM_RETURN_URL,
 				},

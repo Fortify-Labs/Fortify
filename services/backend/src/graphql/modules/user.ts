@@ -213,7 +213,7 @@ export class UserModule implements GQLModule {
 					}
 
 					// Write influxdb queries to fetch data points
-					const queryApi = influx.queryApi();
+					const queryApi = await influx.queryApi();
 
 					let start: FluxParameterLike | undefined = undefined;
 					let stop: FluxParameterLike | undefined = undefined;
