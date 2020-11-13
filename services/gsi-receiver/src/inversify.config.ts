@@ -10,7 +10,6 @@ const container = new Container({ autoBindInjectable: true });
 container.bind(SecretsManager).to(Secrets).inSingletonScope();
 container.bind(Secrets).toSelf().inSingletonScope();
 
-container.bind(KafkaConnector).toConstantValue(new KafkaConnector());
-// container.bind(RedisConnector).toConstantValue(new RedisConnector());
+container.bind(KafkaConnector).toSelf().inSingletonScope();
 
 export { container };

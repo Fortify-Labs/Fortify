@@ -29,6 +29,7 @@ import {
 } from "@sentry/node";
 import { captureTwitchException } from "./lib/sentryUtils";
 import { ConsumerCrashEvent } from "kafkajs";
+import { Secrets } from "./secrets";
 
 const {
 	KAFKA_FROM_START = "false",
@@ -36,6 +37,10 @@ const {
 } = process.env;
 
 (async () => {
+	const {
+		twitchBot: { oauthToken },
+	} = await container.get(Secrets).getSecrets();
+
 	const commands = container.getAll<TwitchCommand>("command");
 	const helpCommand = container.get<TwitchCommand>(HelpCommand);
 
@@ -66,7 +71,7 @@ const {
 			secure: true,
 		},
 		identity: {
-			password: process.env.OAUTH_TOKEN,
+			password: oauthToken,
 			username: process.env.BOT_USERNAME,
 		},
 	};
@@ -212,4 +217,6 @@ const {
 })().catch((e) => {
 	debug("app::main")(e);
 	captureException(e);
+	// eslint-disable-next-line no-process-exit
+	process.exit(-1);
 });

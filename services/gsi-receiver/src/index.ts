@@ -15,10 +15,12 @@ import { KafkaConnector } from "@shared/connectors/kafka";
 import { AuthService, PermissionScope } from "@shared/services/auth";
 
 import { captureException, flush } from "@sentry/node";
+import { Secrets } from "./secrets";
 
 const { KAFKA_TOPIC, MY_PORT } = process.env;
 
 (async () => {
+	await container.get(Secrets).getSecrets();
 	const auth = container.get(AuthService);
 
 	const kafka = container.get(KafkaConnector);
@@ -126,4 +128,6 @@ const { KAFKA_TOPIC, MY_PORT } = process.env;
 })().catch((e) => {
 	debug("app::start")(e);
 	captureException(e);
+	// eslint-disable-next-line no-process-exit
+	process.exit(-1);
 });
