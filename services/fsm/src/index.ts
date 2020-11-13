@@ -29,7 +29,6 @@ import { ConsumerCrashEvent } from "kafkajs";
 import { Secrets } from "./secrets";
 
 const {
-	JWT_SECRET,
 	KAFKA_FROM_START,
 	KAFKA_START_OFFSET,
 	KAFKA_START_OFFSET_PARTITION = "0",
@@ -38,7 +37,9 @@ const {
 } = process.env;
 
 (async () => {
-	await container.get(Secrets).getSecrets();
+	const {
+		jwt: { jwt },
+	} = await container.get(Secrets).getSecrets();
 
 	const kafka = container.get(KafkaConnector);
 
@@ -94,7 +95,7 @@ const {
 					const gsi: Log = JSON.parse(value);
 					const ctx =
 						typeof gsi.auth === "string"
-							? verify(gsi.auth, JWT_SECRET ?? "")
+							? verify(gsi.auth, jwt ?? "")
 							: gsi.auth;
 
 					if (ctx instanceof Object) {

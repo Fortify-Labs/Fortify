@@ -22,6 +22,7 @@ import {
 import { GameEventType } from "@shared/events/gameEvents";
 import { LeaderboardPersistor } from "./services/leaderboardPersistor";
 import { MatchPersistor } from "./services/matchPersistor";
+import { Secrets } from "./secrets";
 
 const {
 	KAFKA_AUTO_COMMIT,
@@ -29,6 +30,8 @@ const {
 } = process.env;
 
 (async () => {
+	await container.get(Secrets).getSecrets();
+
 	const kafka = container.get(KafkaConnector);
 
 	const consumer = kafka.consumer({ groupId: KAFKA_GROUP_ID });
