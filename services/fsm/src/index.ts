@@ -19,13 +19,14 @@ import { CommandReducer } from "./definitions/commandReducer";
 import { verify } from "jsonwebtoken";
 
 import { Log, PublicPlayerState, PrivatePlayerState } from "./gsiTypes";
-import { Context } from "@shared/auth";
+import { Context } from "@shared/services/auth";
 
 import { StateTransformationService } from "./services/stateTransformer";
 
 import { FortifyEventTopics, FortifyEvent } from "@shared/events/events";
 import { SystemEventType } from "@shared/events/systemEvents";
 import { ConsumerCrashEvent } from "kafkajs";
+import { Secrets } from "./secrets";
 
 const {
 	JWT_SECRET,
@@ -37,6 +38,8 @@ const {
 } = process.env;
 
 (async () => {
+	await container.get(Secrets).getSecrets();
+
 	const kafka = container.get(KafkaConnector);
 
 	// Get state transformer service
@@ -227,4 +230,7 @@ const {
 })().catch((e) => {
 	debug("app::anonymous_function")(e);
 	captureException(e);
+
+	// eslint-disable-next-line no-process-exit
+	process.exit(-1);
 });

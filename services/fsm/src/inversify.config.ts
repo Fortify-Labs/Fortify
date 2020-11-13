@@ -4,8 +4,6 @@ import { Container } from "inversify";
 import { PostgresConnector } from "@shared/connectors/postgres";
 import { KafkaConnector } from "@shared/connectors/kafka";
 import { RedisConnector } from "@shared/connectors/redis";
-import { MatchService } from "@shared/services/match";
-import { EventService } from "@shared/services/eventService";
 
 import { StateReducer } from "./definitions/stateReducer";
 import { CommandReducer } from "./definitions/commandReducer";
@@ -18,7 +16,13 @@ import { DummyPrivateStateReducer } from "./reducers/private/privatePlayerState"
 import { PoolReducer } from "./reducers/public/poolReducer";
 import { RankTierReducer } from "./reducers/public/rankTierReducer";
 
+import { SecretsManager } from "@shared/services/secrets";
+import { Secrets } from "./secrets";
+
 const container = new Container({ autoBindInjectable: true });
+
+container.bind(SecretsManager).to(Secrets).inSingletonScope();
+container.bind(Secrets).toSelf().inSingletonScope();
 
 container
 	.bind<StateReducer<PublicPlayerState>>("public")
@@ -30,11 +34,8 @@ container
 	.to(DummyPrivateStateReducer);
 container.bind<CommandReducer>("command").to(ResetCommandReducer);
 
-container.bind(KafkaConnector).toConstantValue(new KafkaConnector());
-container.bind(PostgresConnector).toConstantValue(new PostgresConnector());
-container.bind(RedisConnector).toConstantValue(new RedisConnector());
-
-container.bind(MatchService).to(MatchService);
-container.bind(EventService).to(EventService);
+container.bind(KafkaConnector).toSelf().inSingletonScope();
+container.bind(PostgresConnector).toSelf().inSingletonScope();
+container.bind(RedisConnector).toSelf().inSingletonScope();
 
 export { container };
