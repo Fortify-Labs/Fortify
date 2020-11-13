@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 
+	"github.com/Fortify-Labs/Fortify/services/sentry-discord-webhook/internal/vault"
 	"github.com/Fortify-Labs/Fortify/services/sentry-discord-webhook/pkg/discord"
 	"github.com/Fortify-Labs/Fortify/services/sentry-discord-webhook/pkg/sentry"
 	"github.com/gofiber/fiber/v2"
@@ -26,6 +27,13 @@ func main() {
 		"Version", Version,
 		"Build", Build,
 	)
+
+	seal, err := vault.GetSealStatus()
+	if err != nil {
+		sugar.Panicw("Error while fetching vault seal status", "err", err)
+	}
+	sugar.Infow("Vault connected", "seal.ClusterName", seal.ClusterName, "seal.Version", seal.Version)
+	vault.GetSecrets()
 
 	app := fiber.New(fiber.Config{
 		DisableStartupMessage: os.Getenv("DISABLE_STARTUP_MESSAGE") != "",

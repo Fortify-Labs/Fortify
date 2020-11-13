@@ -3,9 +3,9 @@ package discord
 import (
 	"bytes"
 	"net/http"
-	"os"
 	"strings"
 
+	"github.com/Fortify-Labs/Fortify/services/sentry-discord-webhook/internal/vault"
 	"github.com/Fortify-Labs/Fortify/services/sentry-discord-webhook/pkg/sentry"
 	"go.uber.org/zap"
 )
@@ -37,26 +37,20 @@ func SendMessage(alert *sentry.IssueAlert) {
 		return
 	}
 
+	secrets := vault.GetSecrets()
+	webhooks := strings.Split(secrets.DiscordWebhooks, ";")
+
 	client := &http.Client{}
+	for _, url := range webhooks {
+		res, err := client.Post(url, "application/json", bytes.NewBuffer((jsonStr)))
 
-	rawwebhooks, isSet := os.LookupEnv("DISCORD_WEBHOOKS")
-
-	if isSet {
-		webhooks := strings.Split(rawwebhooks, ";")
-
-		for _, url := range webhooks {
-			res, err := client.Post(url, "application/json", bytes.NewBuffer((jsonStr)))
-
-			if err != nil {
-				panic(err)
-			}
-			defer res.Body.Close()
-
-			if res.StatusCode >= 200 && res.StatusCode < 300 {
-				sugar.Infow("Successfully executed webhook")
-			}
+		if err != nil {
+			panic(err)
 		}
-	} else {
-		sugar.Errorw("DISCORD_WEBHOOKS is not set")
+		defer res.Body.Close()
+
+		if res.StatusCode >= 200 && res.StatusCode < 300 {
+			sugar.Infow("Successfully executed webhook")
+		}
 	}
 }
