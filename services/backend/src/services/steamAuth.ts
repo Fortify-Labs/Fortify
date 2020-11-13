@@ -4,7 +4,7 @@ import { Application, Router, Request, Response } from "express";
 import passport from "passport";
 import { Strategy as SteamStrategy } from "passport-steam";
 
-import { generateJWT, PermissionScope } from "@shared/auth";
+import { AuthService, PermissionScope } from "@shared/services/auth";
 import { PostgresConnector } from "@shared/connectors/postgres";
 import { User } from "@shared/db/entities/user";
 
@@ -56,6 +56,7 @@ export class SteamAuthMiddleware {
 		@inject(PostgresConnector) private postgres: PostgresConnector,
 		@inject(RedisConnector) private redis: RedisConnector,
 		@inject(Secrets) private secrets: Secrets,
+		@inject(AuthService) private auth: AuthService,
 	) {}
 
 	async handleAuth(req: Request, res: Response) {
@@ -97,7 +98,7 @@ export class SteamAuthMiddleware {
 
 			res.cookie(
 				"auth",
-				await generateJWT(
+				await this.auth.generateJWT(
 					{
 						user: { id: dbUser.steamid },
 						scopes: [PermissionScope.User],

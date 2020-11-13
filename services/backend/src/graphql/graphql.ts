@@ -5,7 +5,7 @@ import { schema } from "./schemaLoader";
 
 import * as Sentry from "@sentry/node";
 import { Transaction } from "@sentry/types";
-import { Context } from "@shared/auth";
+import { Context } from "@shared/services/auth";
 
 @injectable()
 export class GraphQL {

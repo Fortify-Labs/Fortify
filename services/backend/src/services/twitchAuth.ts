@@ -7,11 +7,13 @@ import passport from "passport";
 import { Strategy, VerifyCallback } from "passport-oauth2";
 
 import fetch from "node-fetch";
-import { verifyJWT, PermissionScope } from "@shared/auth";
+import { AuthService, PermissionScope } from "@shared/services/auth";
 import { PostgresConnector } from "@shared/connectors/postgres";
 import { EventService } from "@shared/services/eventService";
 import { TwitchLinkedEvent } from "@shared/events/systemEvents";
 import { Secrets } from "../secrets";
+
+import { container } from "../inversify.config";
 
 const {
 	TWITCH_CALLBACK_URL = "",
@@ -25,6 +27,7 @@ export class TwitchAuthMiddleware {
 		@inject(PostgresConnector) private postgres: PostgresConnector,
 		@inject(EventService) private eventService: EventService,
 		@inject(Secrets) private secrets: Secrets,
+		@inject(AuthService) private auth: AuthService,
 	) {}
 
 	async applyMiddleware({ app }: { app: Application }) {
@@ -79,9 +82,10 @@ export class TwitchAuthMiddleware {
 					profile.refreshToken = refreshToken;
 
 					// Don't have to check for success here, as the middleware ensures that it successful already
-					const { user } = await verifyJWT(req.cookies.auth, [
-						PermissionScope.User,
-					]);
+					const { user } = await this.auth.verifyJWT(
+						req.cookies.auth,
+						[PermissionScope.User],
+					);
 
 					const userRepo = await this.postgres.getUserRepo();
 					const dbUser = await userRepo.findOne(user.id);
@@ -151,7 +155,9 @@ const ensureAuthCookie = async (
 	}
 
 	try {
-		const { success } = await verifyJWT(req.cookies.auth, [
+		const auth = container.get(AuthService);
+
+		const { success } = await auth.verifyJWT(req.cookies.auth, [
 			PermissionScope.User,
 		]);
 

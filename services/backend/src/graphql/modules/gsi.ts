@@ -1,11 +1,13 @@
 import { GQLModule } from "definitions/module";
 import { gql } from "apollo-server-express";
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 import { Resolvers } from "definitions/graphql/types";
-import { PermissionScope, generateJWT } from "@shared/auth";
+import { PermissionScope, AuthService } from "@shared/services/auth";
 
 @injectable()
 export class GSIModule implements GQLModule {
+	constructor(@inject(AuthService) private auth: AuthService) {}
+
 	typeDef = gql`
 		extend type Mutation {
 			generateGsiJwt(id: ID): String! @auth(requires: USER)
@@ -13,6 +15,8 @@ export class GSIModule implements GQLModule {
 	`;
 
 	resolver(): Resolvers {
+		const { auth } = this;
+
 		return {
 			Mutation: {
 				async generateGsiJwt(parent, args, context) {
@@ -25,7 +29,7 @@ export class GSIModule implements GQLModule {
 						id = args.id;
 					}
 
-					return generateJWT({
+					return auth.generateJWT({
 						user: { id },
 						scopes: [PermissionScope.GsiIngress],
 					});

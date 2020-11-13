@@ -10,7 +10,7 @@ import { EventService } from "@shared/services/eventService";
 
 import { User } from "@shared/db/entities/user";
 
-import { Context, PermissionScope, generateJWT } from "@shared/auth";
+import { Context, PermissionScope, AuthService } from "@shared/services/auth";
 
 import {
 	TwitchLinkedEvent,
@@ -25,6 +25,7 @@ export class DebugModule implements GQLModule {
 		@inject(PostgresConnector) private postgres: PostgresConnector,
 		@inject(EventService) private eventService: EventService,
 		@inject(RedisConnector) private redis: RedisConnector,
+		@inject(AuthService) private auth: AuthService,
 	) {}
 
 	typeDef = gql`
@@ -61,7 +62,7 @@ export class DebugModule implements GQLModule {
 	`;
 
 	resolver(): Resolvers {
-		const { postgres, eventService, redis } = this;
+		const { postgres, eventService, redis, auth } = this;
 
 		return {
 			Query: {
@@ -109,7 +110,7 @@ export class DebugModule implements GQLModule {
 						scopes: [PermissionScope.GsiIngress],
 					};
 
-					return generateJWT(gsiToken);
+					return auth.generateJWT(gsiToken);
 				},
 				async removeUser(parent, { steamid }) {
 					// Find user in database

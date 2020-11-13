@@ -12,13 +12,15 @@ import { json, urlencoded } from "body-parser";
 import { container } from "./inversify.config";
 import { KafkaConnector } from "@shared/connectors/kafka";
 
-import { verifyJWT, PermissionScope } from "@shared/auth";
+import { AuthService, PermissionScope } from "@shared/services/auth";
 
 import { captureException, flush } from "@sentry/node";
 
 const { KAFKA_TOPIC, MY_PORT } = process.env;
 
 (async () => {
+	const auth = container.get(AuthService);
+
 	const kafka = container.get(KafkaConnector);
 
 	const producer = kafka.producer();
@@ -33,7 +35,7 @@ const { KAFKA_TOPIC, MY_PORT } = process.env;
 		// Send an unsuccessful response on failed auth
 		if (req.body && req.body.auth) {
 			try {
-				const { user, success } = await verifyJWT(req.body.auth, [
+				const { user, success } = await auth.verifyJWT(req.body.auth, [
 					PermissionScope.GsiIngress,
 				]);
 
