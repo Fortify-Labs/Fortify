@@ -11,7 +11,7 @@ import { verifyJWT, PermissionScope } from "@shared/auth";
 import { PostgresConnector } from "@shared/connectors/postgres";
 import { EventService } from "@shared/services/eventService";
 import { TwitchLinkedEvent } from "@shared/events/systemEvents";
-import { VaultConnector } from "@shared/connectors/vault";
+import { Secrets } from "../secrets";
 
 const {
 	TWITCH_CALLBACK_URL = "",
@@ -24,18 +24,18 @@ export class TwitchAuthMiddleware {
 	constructor(
 		@inject(PostgresConnector) private postgres: PostgresConnector,
 		@inject(EventService) private eventService: EventService,
-		@inject(VaultConnector) private vault: VaultConnector,
+		@inject(Secrets) private secrets: Secrets,
 	) {}
 
 	async applyMiddleware({ app }: { app: Application }) {
-		const backendSecrets = await this.vault.read("/twitch-oauth");
+		const { twitchOauth } = this.secrets.secrets;
 
 		Strategy.prototype.userProfile = async function (accessToken, done) {
 			const options = {
 				url: "https://api.twitch.tv/helix/users",
 				method: "GET",
 				headers: {
-					"Client-ID": backendSecrets.data.data["client-id"] ?? "",
+					"Client-ID": twitchOauth["client-id"] ?? "",
 					Accept: "application/vnd.twitchtv.v5+json",
 					Authorization: "Bearer " + accessToken,
 				},
@@ -62,8 +62,8 @@ export class TwitchAuthMiddleware {
 				{
 					authorizationURL: "https://id.twitch.tv/oauth2/authorize",
 					tokenURL: "https://id.twitch.tv/oauth2/token",
-					clientID: backendSecrets.data.data["client-id"] ?? "",
-					clientSecret: backendSecrets.data.data.secret ?? "",
+					clientID: twitchOauth.clientID ?? "",
+					clientSecret: twitchOauth.secret ?? "",
 					callbackURL: TWITCH_CALLBACK_URL,
 					passReqToCallback: true,
 				},

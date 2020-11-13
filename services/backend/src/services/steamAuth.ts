@@ -10,7 +10,7 @@ import { User } from "@shared/db/entities/user";
 
 import { convert64to32SteamId } from "@shared/steamid";
 import { RedisConnector } from "@shared/connectors/redis";
-import { VaultConnector } from "@shared/connectors/vault";
+import { Secrets } from "../secrets";
 
 const {
 	APP_URL = "",
@@ -55,15 +55,15 @@ export class SteamAuthMiddleware {
 	constructor(
 		@inject(PostgresConnector) private postgres: PostgresConnector,
 		@inject(RedisConnector) private redis: RedisConnector,
-		@inject(VaultConnector) private vault: VaultConnector,
+		@inject(Secrets) private secrets: Secrets,
 	) {}
 
 	async handleAuth(req: Request, res: Response) {
 		const user = req.user as NodeSteamPassportProfile | undefined;
 
-		const jwt = await this.vault.read("/jwt");
+		const { jwt } = await this.secrets.getSecrets();
 
-		if (user && jwt.data.data.jwt) {
+		if (user && jwt) {
 			// Store user to DB
 			const userRepo = await this.postgres.getUserRepo();
 
@@ -115,12 +115,12 @@ export class SteamAuthMiddleware {
 	}
 
 	async applyMiddleware({ app }: { app: Application }) {
-		const steamWebApi = await this.vault.read("/steam-web-api");
+		const { steamWebApi } = this.secrets.secrets;
 
 		passport.use(
 			new SteamStrategy(
 				{
-					apiKey: steamWebApi.data.data["api-key"],
+					apiKey: steamWebApi["api-key"],
 					realm: APP_URL,
 					returnURL: APP_STEAM_RETURN_URL,
 				},

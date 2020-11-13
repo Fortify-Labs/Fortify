@@ -1,16 +1,17 @@
-import { VaultConnector } from "@shared/connectors/vault";
 import debug from "debug";
-import { container } from "inversify.config";
+import { container } from "../inversify.config";
 import { verify } from "jsonwebtoken";
+import { Secrets } from "../secrets";
 
 export const verifyToken = async (token: string) => {
 	try {
-		const vault = container.get(VaultConnector);
-		const jwt = await vault.read("/jwt");
+		const {
+			jwt: { jwt },
+		} = await container.get(Secrets).getSecrets();
 
 		return new Promise<string | Record<string, unknown>>(
 			(resolve, reject) => {
-				verify(token, jwt.data.data.jwt ?? "", (error, decoded) => {
+				verify(token, jwt ?? "", (error, decoded) => {
 					if (error) {
 						return reject(error);
 					} else {

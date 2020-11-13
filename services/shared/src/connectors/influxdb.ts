@@ -1,7 +1,7 @@
 import { inject, injectable } from "inversify";
 
 import { InfluxDB, Point } from "@influxdata/influxdb-client";
-import { VaultConnector } from "./vault";
+import { SecretsManager } from "../services/secrets";
 
 const {
 	SERVICE_NAME = "unknown",
@@ -15,17 +15,20 @@ const {
 export class InfluxDBConnector {
 	client: Promise<InfluxDB>;
 
-	constructor(@inject(VaultConnector) private vault: VaultConnector) {
+	constructor(
+		@inject(SecretsManager) private secretsManager: SecretsManager,
+	) {
 		this.client = this.newClient();
 	}
 
 	private async newClient() {
-		const influxdb = await this.vault.read("/influxdb");
-		const token = influxdb.data.data["historization-token"];
+		const {
+			influxdb: { historizationToken },
+		} = await this.secretsManager.getSecrets();
 
 		return new InfluxDB({
 			url: INFLUXDB_URL,
-			token,
+			token: historizationToken,
 		});
 	}
 

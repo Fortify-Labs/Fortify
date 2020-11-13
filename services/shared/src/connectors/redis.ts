@@ -1,3 +1,4 @@
+import { injectable } from "inversify";
 import Redis from "ioredis";
 
 const {
@@ -10,6 +11,7 @@ const {
 	REDIS_SENTINEL_NAME = "mymaster",
 } = process.env;
 
+@injectable()
 export class RedisConnector {
 	client: Redis.Redis;
 

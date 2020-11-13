@@ -6,7 +6,8 @@ import { createConnection, Connection } from "typeorm";
 import { User } from "../db/entities/user";
 import { Match } from "../db/entities/match";
 import { MatchSlot } from "../db/entities/matchSlot";
-import { VaultConnector } from "./vault";
+
+import { SecretsManager } from "../services/secrets";
 
 const {
 	POSTGRES_USER,
@@ -22,15 +23,18 @@ const {
 export class PostgresConnector {
 	connection: Promise<Connection>;
 
-	constructor(@inject(VaultConnector) private vault: VaultConnector) {
+	constructor(
+		@inject(SecretsManager) private secretsManager: SecretsManager,
+	) {
 		this.connection = this.setupConnection();
 
 		this.runMigration();
 	}
 
 	private async setupConnection() {
-		const postgres = await this.vault.read("/postgres");
-		const { password } = postgres.data.data;
+		const {
+			postgres: { password },
+		} = await this.secretsManager.getSecrets();
 
 		const connection = createConnection({
 			type: "postgres",
