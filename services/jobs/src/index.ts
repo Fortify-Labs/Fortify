@@ -15,6 +15,7 @@ import yargs from "yargs";
 import { FortifyScript } from "./scripts";
 import { RedisConnector } from "@shared/connectors/redis";
 import { PostgresConnector } from "@shared/connectors/postgres";
+import { Secrets } from "./secrets";
 
 yargs
 	.command(
@@ -29,6 +30,8 @@ yargs
 		},
 		async (argv) => {
 			try {
+				await container.get(Secrets).getSecrets();
+
 				debug("app::run")(argv);
 
 				if (container.isBound(argv.script)) {

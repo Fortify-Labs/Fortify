@@ -1,11 +1,12 @@
 import "reflect-metadata";
 import { Container } from "inversify";
 
+import { SecretsManager } from "@shared/services/secrets";
+import { Secrets } from "./secrets";
+
 import { PostgresConnector } from "@shared/connectors/postgres";
 import { KafkaConnector } from "@shared/connectors/kafka";
 import { RedisConnector } from "@shared/connectors/redis";
-
-import { EventService } from "@shared/services/eventService";
 
 import { FortifyScript } from "./scripts";
 
@@ -16,11 +17,12 @@ import { BroadcastNotificationScript } from "./scripts/broadcastNotifications";
 
 const container = new Container({ autoBindInjectable: true });
 
-container.bind(KafkaConnector).toConstantValue(new KafkaConnector());
-container.bind(PostgresConnector).toConstantValue(new PostgresConnector());
-container.bind(RedisConnector).toConstantValue(new RedisConnector());
+container.bind(SecretsManager).to(Secrets).inSingletonScope();
+container.bind(Secrets).toSelf().inSingletonScope();
 
-container.bind(EventService).to(EventService);
+container.bind(KafkaConnector).toSelf().inSingletonScope();
+container.bind(PostgresConnector).toSelf().inSingletonScope();
+container.bind(RedisConnector).toSelf().inSingletonScope();
 
 // Scripts are bound to their cli invocable name
 container.bind<FortifyScript>("dummy").to(DummyScript);
