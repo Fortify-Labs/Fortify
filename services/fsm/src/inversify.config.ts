@@ -18,11 +18,12 @@ import { RankTierReducer } from "./reducers/public/rankTierReducer";
 
 import { SecretsManager } from "@shared/services/secrets";
 import { Secrets } from "./secrets";
+import { HealthCheckable } from "@shared/services/healthCheck";
 
 const container = new Container({ autoBindInjectable: true });
 
-container.bind(SecretsManager).to(Secrets).inSingletonScope();
 container.bind(Secrets).toSelf().inSingletonScope();
+container.bind(SecretsManager).toService(Secrets);
 
 container
 	.bind<StateReducer<PublicPlayerState>>("public")
@@ -37,5 +38,9 @@ container.bind<CommandReducer>("command").to(ResetCommandReducer);
 container.bind(KafkaConnector).toSelf().inSingletonScope();
 container.bind(PostgresConnector).toSelf().inSingletonScope();
 container.bind(RedisConnector).toSelf().inSingletonScope();
+
+container.bind<HealthCheckable>("healthCheck").toService(KafkaConnector);
+container.bind<HealthCheckable>("healthCheck").toService(PostgresConnector);
+container.bind<HealthCheckable>("healthCheck").toService(RedisConnector);
 
 export { container };
