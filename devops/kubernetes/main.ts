@@ -25,7 +25,6 @@ const {
 	GA_TRACKING_ID,
 	REGISTRY,
 	VAULT_TOKEN = "",
-	VAULT_ADDR = "http://vault",
 } = process.env;
 
 // Sentry DSNs
@@ -87,7 +86,7 @@ export class Fortify extends Chart {
 
 		const vaultConfig = new ConfigMap(this, "vault-config", {
 			data: {
-				VAULT_ADDR,
+				VAULT_ADDR: "https://vault.default:8200",
 				VAULT_ENVIRONMENT: `/${ENVIRONMENT}`,
 			},
 		});
