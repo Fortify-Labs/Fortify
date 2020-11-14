@@ -23,6 +23,7 @@ import { GameEventType } from "@shared/events/gameEvents";
 import { LeaderboardPersistor } from "./services/leaderboardPersistor";
 import { MatchPersistor } from "./services/matchPersistor";
 import { Secrets } from "./secrets";
+import { HealthCheck } from "@shared/services/healthCheck";
 
 const {
 	KAFKA_AUTO_COMMIT,
@@ -31,6 +32,9 @@ const {
 
 (async () => {
 	await container.get(Secrets).getSecrets();
+
+	const healthCheck = container.get(HealthCheck);
+	healthCheck.start();
 
 	const kafka = container.get(KafkaConnector);
 
@@ -131,6 +135,8 @@ const {
 			process.exit(-1);
 		}
 	});
+
+	healthCheck.live = true;
 })().catch(async (e) => {
 	debug("app::anonymous_function")(e);
 	const sentryID = captureException(e);
