@@ -1,3 +1,4 @@
+import debug from "debug";
 import { injectable } from "inversify";
 
 import {
@@ -31,6 +32,7 @@ export class KafkaConnector implements HealthCheckable {
 			groupId: "healthcheck",
 			sessionTimeout: this.sessionTimeout,
 		});
+		consumer.run().catch(debug("app::kafka::healthCheck"));
 
 		let lastHeartbeat = 0;
 		consumer.on(
