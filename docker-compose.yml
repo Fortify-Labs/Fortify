@@ -81,6 +81,18 @@ services:
       - 8082:8080
     restart: unless-stopped
 
+  kowl:
+    image: quay.io/cloudhut/kowl:v1.2.0
+    restart: on-failure
+    hostname: kowl
+    volumes:
+      - ./devops/local/kowl/config.yaml:/etc/kowl/config.yaml
+    ports:
+      - "8083:8080"
+    entrypoint: ./kowl --config.filepath=/etc/kowl/config.yaml
+    depends_on:
+      - kafka
+
   redis-commander:
     hostname: redis-commander
     image: rediscommander/redis-commander:latest
