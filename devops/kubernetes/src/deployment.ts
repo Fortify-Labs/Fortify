@@ -4,6 +4,8 @@ import {
 	Deployment,
 	EnvVar,
 	PodDisruptionBudget,
+	Secret,
+	ConfigMap,
 } from "../imports/k8s";
 
 const { REGISTRY } = process.env;
@@ -27,8 +29,8 @@ export interface FortifyDeploymentOptions {
 	};
 
 	readonly env?: EnvVar[] | undefined;
-	readonly configmaps?: string[];
-	readonly secrets?: string[];
+	readonly configmaps?: ConfigMap[];
+	readonly secrets?: Secret[];
 
 	readonly minAvailable?: number;
 	readonly maxUnavailable?: number;
@@ -114,12 +116,12 @@ export class FortifyDeployment extends Construct {
 									  ]
 									: [],
 								envFrom: [
-									...configmaps.map((name) => ({
+									...configmaps.map(({ name }) => ({
 										configMapRef: {
 											name,
 										},
 									})),
-									...secrets.map((name) => ({
+									...secrets.map(({ name }) => ({
 										secretRef: {
 											name,
 										},
