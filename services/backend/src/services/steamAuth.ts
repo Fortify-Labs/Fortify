@@ -121,7 +121,7 @@ export class SteamAuthMiddleware {
 		passport.use(
 			new SteamStrategy(
 				{
-					apiKey: steamWebApi["api-key"],
+					apiKey: steamWebApi["apiKey"],
 					realm: APP_URL,
 					returnURL: APP_STEAM_RETURN_URL,
 				},

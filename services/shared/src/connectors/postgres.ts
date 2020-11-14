@@ -8,6 +8,7 @@ import { Match } from "../db/entities/match";
 import { MatchSlot } from "../db/entities/matchSlot";
 
 import { SecretsManager } from "../services/secrets";
+import { HealthCheckable } from "../services/healthCheck";
 
 const {
 	POSTGRES_USER,
@@ -20,13 +21,22 @@ const {
 
 // This way each service could specify the entities needed instead of all
 @injectable()
-export class PostgresConnector {
+export class PostgresConnector implements HealthCheckable {
 	connection: Promise<Connection>;
+
+	name = "Postgres";
+	healthCheck: () => Promise<boolean>;
 
 	constructor(
 		@inject(SecretsManager) private secretsManager: SecretsManager,
 	) {
 		this.connection = this.setupConnection();
+
+		this.healthCheck = async () => {
+			const conn = await this.connection;
+
+			return conn.isConnected && conn.query("SELECT now();");
+		};
 
 		this.runMigration();
 	}

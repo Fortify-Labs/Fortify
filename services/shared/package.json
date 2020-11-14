@@ -32,7 +32,9 @@
     "typescript": "^4.0.5"
   },
   "dependencies": {
+    "@godaddy/terminus": "^4.4.1",
     "@influxdata/influxdb-client": "^1.8.0",
+    "@influxdata/influxdb-client-apis": "^1.8.0",
     "@sentry/integrations": "^5.27.3",
     "@sentry/node": "^5.27.3",
     "bignumber.js": "^9.0.1",
