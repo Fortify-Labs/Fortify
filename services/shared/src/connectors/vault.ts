@@ -5,6 +5,7 @@ import vault from "node-vault";
 
 import { captureException } from "@sentry/node";
 import debug from "debug";
+import { HealthCheckable } from "src/services/healthCheck";
 
 // process.env.VAULT_ADDR
 // process.env.VAULT_PREFIX
@@ -17,8 +18,11 @@ const {
 } = process.env;
 
 @injectable()
-export class VaultConnector {
+export class VaultConnector implements HealthCheckable {
 	vault: vault.client;
+
+	name = "Vault";
+	healthCheck: () => Promise<boolean>;
 
 	constructor() {
 		this.vault = vault();
@@ -41,6 +45,12 @@ export class VaultConnector {
 					});
 			});
 		}
+
+		this.healthCheck = async () => {
+			const health = (await this.vault.health()) as VaultHealthResponse;
+
+			return health.initialized && !health.sealed;
+		};
 	}
 
 	read(path: string): Promise<VaultRead> {
@@ -71,4 +81,14 @@ export interface Metadata {
 	deletion_time: string;
 	destroyed: boolean;
 	version: number;
+}
+
+export interface VaultHealthResponse {
+	cluster_id: string;
+	cluster_name: string;
+	version: string;
+	server_time_utc: number;
+	standby: boolean;
+	sealed: boolean;
+	initialized: boolean;
 }

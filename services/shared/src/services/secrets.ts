@@ -27,6 +27,12 @@ export class SecretsManager {
 
 				this.secrets[name] = {};
 				for (const field of request.fields) {
+					if (!(field in secret.data.data)) {
+						throw new Error(
+							`Missing field ${field} in secret ${request.path}`,
+						);
+					}
+
 					this.secrets[name][field] = secret.data.data[field];
 				}
 			}

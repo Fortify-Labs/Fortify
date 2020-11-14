@@ -1,12 +1,15 @@
 package main
 
 import (
+	"net/http"
 	"os"
+	"time"
 
 	"github.com/Fortify-Labs/Fortify/services/sentry-discord-webhook/internal/vault"
 	"github.com/Fortify-Labs/Fortify/services/sentry-discord-webhook/pkg/discord"
 	"github.com/Fortify-Labs/Fortify/services/sentry-discord-webhook/pkg/sentry"
 	"github.com/gofiber/fiber/v2"
+	"github.com/heptiolabs/healthcheck"
 	"go.uber.org/zap"
 
 	_ "github.com/joho/godotenv/autoload"
@@ -33,8 +36,22 @@ func main() {
 		sugar.Panicw("Error while fetching vault seal status", "err", err)
 	}
 	sugar.Infow("Vault connected", "seal.ClusterName", seal.ClusterName, "seal.Version", seal.Version)
+	// Fetch secrets to validate that the connection works before going idle
 	vault.GetSecrets()
 
+	// Health checks
+	health := healthcheck.NewHandler()
+	upstreamHost := "discord.com"
+	health.AddReadinessCheck(
+		"upstream-dep-dns",
+		healthcheck.DNSResolveCheck(upstreamHost, 50*time.Millisecond))
+	// Add a liveness check to detect Goroutine leaks. If this fails we want
+	// to be restarted/rescheduled.
+	health.AddLivenessCheck("goroutine-threshold", healthcheck.GoroutineCountCheck(100))
+	// Listen on port 9000, as all other services
+	go http.ListenAndServe("0.0.0.0:9000", health)
+
+	// Application rest endpoints
 	app := fiber.New(fiber.Config{
 		DisableStartupMessage: os.Getenv("DISABLE_STARTUP_MESSAGE") != "",
 	})

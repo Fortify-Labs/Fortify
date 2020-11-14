@@ -1,7 +1,9 @@
 import { inject, injectable } from "inversify";
 
 import { InfluxDB, Point } from "@influxdata/influxdb-client";
+import { HealthAPI } from "@influxdata/influxdb-client-apis";
 import { SecretsManager } from "../services/secrets";
+import { HealthCheckable } from "../services/healthCheck";
 
 const {
 	SERVICE_NAME = "unknown",
@@ -12,12 +14,18 @@ const {
 } = process.env;
 
 @injectable()
-export class InfluxDBConnector {
+export class InfluxDBConnector implements HealthCheckable {
+	name = "Influxdb";
+	healthCheck: () => Promise<boolean>;
+
 	client: Promise<InfluxDB>;
+	healthAPI?: HealthAPI;
 
 	constructor(
 		@inject(SecretsManager) private secretsManager: SecretsManager,
 	) {
+		// Set it to false by default
+		this.healthCheck = async () => false;
 		this.client = this.newClient();
 	}
 
@@ -26,10 +34,16 @@ export class InfluxDBConnector {
 			influxdb: { historizationToken },
 		} = await this.secretsManager.getSecrets();
 
-		return new InfluxDB({
+		const influx = new InfluxDB({
 			url: INFLUXDB_URL,
 			token: historizationToken,
 		});
+
+		this.healthAPI = new HealthAPI(influx);
+		this.healthCheck = async () =>
+			(await this.healthAPI?.getHealth())?.status === "pass";
+
+		return influx;
 	}
 
 	async writePoints(points: Point[]) {

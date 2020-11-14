@@ -16,10 +16,14 @@ import { AuthService, PermissionScope } from "@shared/services/auth";
 
 import { captureException, flush } from "@sentry/node";
 import { Secrets } from "./secrets";
+import { HealthCheck } from "@shared/services/healthCheck";
 
 const { KAFKA_TOPIC, MY_PORT } = process.env;
 
 (async () => {
+	const healthCheck = container.get(HealthCheck);
+	healthCheck.start();
+
 	await container.get(Secrets).getSecrets();
 	const auth = container.get(AuthService);
 
@@ -97,6 +101,8 @@ const { KAFKA_TOPIC, MY_PORT } = process.env;
 		debug("app::startup")(
 			"GSI endpoint listening on port " + (MY_PORT ?? 8080) + "!",
 		);
+
+		healthCheck.live = true;
 	});
 
 	process.on("SIGTERM", shutDown);

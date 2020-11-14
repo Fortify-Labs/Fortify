@@ -27,6 +27,7 @@ import { FortifyEventTopics, FortifyEvent } from "@shared/events/events";
 import { SystemEventType } from "@shared/events/systemEvents";
 import { ConsumerCrashEvent } from "kafkajs";
 import { Secrets } from "./secrets";
+import { HealthCheck } from "@shared/services/healthCheck";
 
 const {
 	KAFKA_FROM_START,
@@ -40,6 +41,9 @@ const {
 	const {
 		jwt: { jwt },
 	} = await container.get(Secrets).getSecrets();
+
+	const healthCheck = container.get(HealthCheck);
+	healthCheck.start();
 
 	const kafka = container.get(KafkaConnector);
 
@@ -66,7 +70,7 @@ const {
 		topic: FortifyEventTopics.SYSTEM,
 	});
 
-	consumer.run({
+	await consumer.run({
 		autoCommit: KAFKA_AUTO_COMMIT !== "false" ?? true,
 		eachMessage: async ({ message, topic, partition }) => {
 			if (!message.value) {
@@ -228,6 +232,8 @@ const {
 			process.exit(-1);
 		}
 	});
+
+	healthCheck.live = true;
 })().catch((e) => {
 	debug("app::anonymous_function")(e);
 	captureException(e);

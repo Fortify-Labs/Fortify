@@ -18,8 +18,12 @@ import { TwitchAuthMiddleware } from "./services/twitchAuth";
 import express from "express";
 import * as bodyParser from "body-parser";
 import { Secrets } from "./secrets";
+import { HealthCheck } from "@shared/services/healthCheck";
 
 (async () => {
+	const healthCheck = container.get(HealthCheck);
+	healthCheck.start();
+
 	const secretsManager = container.get(Secrets);
 	await secretsManager.getSecrets();
 
@@ -40,6 +44,9 @@ import { Secrets } from "./secrets";
 		const errorID = captureException(e);
 		debug("app::index::steamAuth::applyMiddleware")(errorID);
 		debug("app::index::steamAuth::applyMiddleware")(e);
+
+		// eslint-disable-next-line no-process-exit
+		process.exit(-1);
 	});
 
 	const twitchAuthMiddleware = container.get(TwitchAuthMiddleware);
@@ -47,6 +54,9 @@ import { Secrets } from "./secrets";
 		const errorID = captureException(e);
 		debug("app::index::twitchAuth::applyMiddleware")(errorID);
 		debug("app::index::twitchAuth::applyMiddleware")(e);
+
+		// eslint-disable-next-line no-process-exit
+		process.exit(-1);
 	});
 
 	const server = app.listen(
@@ -69,6 +79,8 @@ import { Secrets } from "./secrets";
 			if (!address) {
 				debug("app::index")("🚀  Server ready");
 			}
+
+			healthCheck.live = true;
 		},
 	);
 })().catch((reason) => {
