@@ -43,9 +43,9 @@ export class HealthCheck {
 
 		options = {
 			healthChecks: {
-				"/liveness": async () => this.live,
+				"/live": async () => this.live,
 				"/startup": async () => this.live,
-				"/readiness": async () => {
+				"/ready": async () => {
 					const errors: unknown[] = [];
 					const checks = await Promise.all(
 						this.healthChecks.map((check) =>
