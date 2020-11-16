@@ -22,7 +22,10 @@ export class InfluxDBConnector implements HealthCheckable {
 	healthAPI?: HealthAPI;
 
 	constructor(
-		@inject(SecretsManager) private secretsManager: SecretsManager,
+		@inject(SecretsManager)
+		private secretsManager: SecretsManager<{
+			influxdb: { historizationToken: string | undefined };
+		}>,
 	) {
 		// Set it to false by default
 		this.healthCheck = async () => false;

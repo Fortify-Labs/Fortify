@@ -1,39 +1,39 @@
 import { inject, injectable } from "inversify";
 import { VaultConnector } from "../connectors/vault";
 
-export interface RequestedSecret {
-	path: string;
-	fields: string[];
-}
-
 @injectable()
-export class SecretsManager {
-	requestedSecrets?: Record<string, RequestedSecret>;
-	secrets: Record<string, Record<string, string | undefined>>;
+export class SecretsManager<
+	T extends Record<string, Record<string, string | undefined>>
+> {
+	requestedSecrets?: T;
+	secrets: T;
 
 	constructor(@inject(VaultConnector) private vault: VaultConnector) {
-		this.secrets = {};
+		this.secrets = {} as T;
 	}
 
-	async getSecrets(override = false) {
+	async getSecrets(override = false): Promise<T> {
 		if (
 			override ||
 			(this.requestedSecrets && !Object.keys(this.secrets).length)
 		) {
-			for (const name in this.requestedSecrets) {
-				const request = this.requestedSecrets[name];
+			for (const path in this.requestedSecrets) {
+				const fields = this.requestedSecrets[path];
 
-				const secret = await this.vault.read(request.path);
+				const secret = await this.vault.read("/" + path);
 
-				this.secrets[name] = {};
-				for (const field of request.fields) {
+				this.secrets[path] = {} as typeof fields;
+
+				for (const field in fields) {
 					if (!(field in secret.data.data)) {
 						throw new Error(
-							`Missing field ${field} in secret ${request.path}`,
+							`Missing field ${field} in secret ${path}`,
 						);
 					}
 
-					this.secrets[name][field] = secret.data.data[field];
+					this.secrets[path][field] = secret.data.data[
+						field
+					] as typeof fields[typeof field];
 				}
 			}
 		}

@@ -19,7 +19,10 @@ export interface Context {
 
 @injectable()
 export class AuthService {
-	constructor(@inject(SecretsManager) private secrets: SecretsManager) {}
+	constructor(
+		@inject(SecretsManager)
+		private secrets: SecretsManager<{ jwt: { jwt: string | undefined } }>,
+	) {}
 
 	async verifyJWT(token: string, scopes: PermissionScope[]) {
 		const {

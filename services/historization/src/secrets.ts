@@ -1,20 +1,19 @@
 import { injectable } from "inversify";
 import { SecretsManager } from "@shared/services/secrets";
 
+const requestedSecrets = {
+	influxdb: {
+		historizationToken: "",
+	},
+	postgres: {
+		password: "",
+	},
+	steamWebApi: {
+		apiKey: "",
+	},
+};
+
 @injectable()
-export class Secrets extends SecretsManager {
-	requestedSecrets = {
-		influxdb: {
-			path: "/influxdb",
-			fields: ["historizationToken"],
-		},
-		postgres: {
-			path: "/postgres",
-			fields: ["password"],
-		},
-		steamWebApi: {
-			path: "/steam-web-api",
-			fields: ["apiKey"],
-		},
-	};
+export class Secrets extends SecretsManager<typeof requestedSecrets> {
+	requestedSecrets = requestedSecrets;
 }

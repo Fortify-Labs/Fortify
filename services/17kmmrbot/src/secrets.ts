@@ -1,16 +1,16 @@
 import { injectable } from "inversify";
 import { SecretsManager } from "@shared/services/secrets";
 
+const requestedSecrets = {
+	twitchBot: {
+		oauthToken: "",
+	},
+	postgres: {
+		password: "",
+	},
+};
+
 @injectable()
-export class Secrets extends SecretsManager {
-	requestedSecrets = {
-		twitchBot: {
-			path: "/twitch-bot",
-			fields: ["oauthToken"],
-		},
-		postgres: {
-			path: "/postgres",
-			fields: ["password"],
-		},
-	};
+export class Secrets extends SecretsManager<typeof requestedSecrets> {
+	requestedSecrets = requestedSecrets;
 }

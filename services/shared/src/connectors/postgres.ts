@@ -28,7 +28,10 @@ export class PostgresConnector implements HealthCheckable {
 	healthCheck: () => Promise<boolean>;
 
 	constructor(
-		@inject(SecretsManager) private secretsManager: SecretsManager,
+		@inject(SecretsManager)
+		private secretsManager: SecretsManager<{
+			postgres: { password: string | undefined };
+		}>,
 	) {
 		this.connection = this.setupConnection();
 

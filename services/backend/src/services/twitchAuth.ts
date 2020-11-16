@@ -38,7 +38,7 @@ export class TwitchAuthMiddleware {
 				url: "https://api.twitch.tv/helix/users",
 				method: "GET",
 				headers: {
-					"Client-ID": twitchOauth["client-id"] ?? "",
+					"Client-ID": twitchOauth.clientID ?? "",
 					Accept: "application/vnd.twitchtv.v5+json",
 					Authorization: "Bearer " + accessToken,
 				},

@@ -62,9 +62,7 @@ export class SteamAuthMiddleware {
 	async handleAuth(req: Request, res: Response) {
 		const user = req.user as NodeSteamPassportProfile | undefined;
 
-		const { jwt } = await this.secrets.getSecrets();
-
-		if (user && jwt) {
+		if (user) {
 			// Store user to DB
 			const userRepo = await this.postgres.getUserRepo();
 
@@ -116,12 +114,12 @@ export class SteamAuthMiddleware {
 	}
 
 	async applyMiddleware({ app }: { app: Application }) {
-		const { steamWebApi } = this.secrets.secrets;
+		const { steamWebApi } = await this.secrets.getSecrets();
 
 		passport.use(
 			new SteamStrategy(
 				{
-					apiKey: steamWebApi["apiKey"],
+					apiKey: steamWebApi.apiKey,
 					realm: APP_URL,
 					returnURL: APP_STEAM_RETURN_URL,
 				},

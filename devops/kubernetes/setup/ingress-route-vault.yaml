@@ -2,7 +2,7 @@ kind: Certificate
 apiVersion: cert-manager.io/v1alpha2
 metadata:
   name: fortify-vault-ssl-cert
-  namespace: kube-system
+  namespace: default
 spec:
   commonName: fortify.dev
   dnsNames:

@@ -1,16 +1,16 @@
 import { injectable } from "inversify";
 import { SecretsManager } from "@shared/services/secrets";
 
+const requestedSecrets = {
+	jwt: {
+		jwt: "",
+	},
+	postgres: {
+		password: "",
+	},
+};
+
 @injectable()
-export class Secrets extends SecretsManager {
-	requestedSecrets = {
-		jwt: {
-			path: "/jwt",
-			fields: ["jwt"],
-		},
-		postgres: {
-			path: "/postgres",
-			fields: ["password"],
-		},
-	};
+export class Secrets extends SecretsManager<typeof requestedSecrets> {
+	requestedSecrets = requestedSecrets;
 }
