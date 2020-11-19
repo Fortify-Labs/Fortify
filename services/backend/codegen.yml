@@ -6,7 +6,7 @@ schema: "src/graphql/**/*.ts"
 generates:
   ./src/definitions/graphql/types.ts:
     config:
-      contextType: "@shared/auth#Context"
+      contextType: "@shared/services/auth#Context"
       useIndexSignature: true
     # hooks:
     #   afterOneFileWrite:

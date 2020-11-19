@@ -1,5 +1,22 @@
 version: "3.7"
 services:
+  vault:
+    image: vault:1.5.5
+    command: ["vault", "server", "-config=/vault/config"]
+    ports:
+      - "8200:8200"
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: "token"
+      VAULT_LOCAL_CONFIG: '{"backend": {"file": {"path": "/vault/file"}}, "default_lease_ttl": "168h", "max_lease_ttl": "720h"}'
+      VAULT_SUPPLEMENTAL_CONFIG: '{"ui":true, "listener": {"tcp":{"address": "0.0.0.0:8200", "tls_disable": 1}}}'
+      VAULT_ADDR: "http://127.0.0.1:8200"
+    volumes:
+      - vault-file-data:/vault/file
+      - vault-unseal-data:/vault/unseal
+      - ./devops/local/vault/docker-entrypoint.sh:/usr/local/bin/docker-entrypoint.sh
+    cap_add:
+      - IPC_LOCK
+
   postgres:
     image: "postgres:11"
     hostname: postgres
@@ -64,6 +81,18 @@ services:
       - 8082:8080
     restart: unless-stopped
 
+  kowl:
+    image: quay.io/cloudhut/kowl:v1.2.0
+    restart: on-failure
+    hostname: kowl
+    volumes:
+      - ./devops/local/kowl/config.yaml:/etc/kowl/config.yaml
+    ports:
+      - "8083:8080"
+    entrypoint: ./kowl --config.filepath=/etc/kowl/config.yaml
+    depends_on:
+      - kafka
+
   redis-commander:
     hostname: redis-commander
     image: rediscommander/redis-commander:latest
@@ -79,3 +108,5 @@ volumes:
   zookeeper-data:
   postgres-data:
   influx-data:
+  vault-file-data:
+  vault-unseal-data:

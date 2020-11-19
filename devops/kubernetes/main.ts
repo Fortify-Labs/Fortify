@@ -6,7 +6,7 @@ import { App, Chart } from "cdk8s";
 
 import { FortifyDeployment } from "./src/deployment";
 import { WebService } from "./src/webservice";
-import { Secret, ConfigMap } from "./imports/k8s";
+import { ConfigMap, Secret } from "./imports/k8s";
 
 import backendPackage from "../../services/backend/package.json";
 import frontendPackage from "../../services/frontend/package.json";
@@ -20,17 +20,11 @@ import { FortifyCronJob } from "./src/cronjob";
 import { ClusterSetupClean } from "./src/charts/clusterClean";
 
 const {
-	JWT_SECRET,
-	OAUTH_TOKEN,
 	DOMAIN = "fortify.gg",
-	POSTGRES_PASSWORD = "",
-	INFLUXDB_TOKEN = "",
-	STEAM_WEB_API_KEY = "",
-	TWITCH_CLIENT_ID = "",
-	TWITCH_SECRET = "",
+	ENVIRONMENT = "prod",
 	GA_TRACKING_ID,
-	SENTRY_WEBHOOK_CLIENT_SECRET,
-	SENTRY_DISCORD_WEBHOOKS,
+	REGISTRY,
+	VAULT_TOKEN = "",
 } = process.env;
 
 // Sentry DSNs
@@ -47,29 +41,8 @@ export class Fortify extends Chart {
 	constructor(scope: Construct, name: string) {
 		super(scope, name, { namespace: "fortify" });
 
-		// define resources here
-
-		// TODO: Move this to vault, once vault is setup
-		new Secret(this, "jwt-secret", {
-			metadata: {
-				name: "jwt-secret",
-			},
-			stringData: {
-				JWT_SECRET: JWT_SECRET ?? "",
-			},
-		});
-
-		new Secret(this, "twitch-bot-secret", {
-			metadata: {
-				name: "twitch-bot-secret",
-			},
-			stringData: {
-				OAUTH_TOKEN: OAUTH_TOKEN ?? "",
-			},
-		});
-
 		// Default env variables
-		new ConfigMap(this, "kafka-config", {
+		const kafkaConfig = new ConfigMap(this, "kafka-config", {
 			metadata: {
 				name: "kafka-config",
 			},
@@ -78,7 +51,7 @@ export class Fortify extends Chart {
 			},
 		});
 
-		new ConfigMap(this, "postgres-config", {
+		const postgresConfig = new ConfigMap(this, "postgres-config", {
 			metadata: {
 				name: "postgres-config",
 			},
@@ -89,17 +62,7 @@ export class Fortify extends Chart {
 			},
 		});
 
-		new Secret(this, "postgres-auth", {
-			metadata: {
-				name: "postgres-auth",
-			},
-			stringData: {
-				POSTGRES_USER: "postgres",
-				POSTGRES_PASSWORD,
-			},
-		});
-
-		new ConfigMap(this, "redis-config", {
+		const redisConfig = new ConfigMap(this, "redis-config", {
 			metadata: {
 				name: "redis-config",
 			},
@@ -110,7 +73,7 @@ export class Fortify extends Chart {
 			},
 		});
 
-		new ConfigMap(this, "influxdb-config", {
+		const influxdbConfig = new ConfigMap(this, "influxdb-config", {
 			metadata: {
 				name: "influxdb-config",
 			},
@@ -121,30 +84,16 @@ export class Fortify extends Chart {
 			},
 		});
 
-		new Secret(this, "influxdb-secret", {
-			metadata: {
-				name: "influxdb-secret",
-			},
-			stringData: {
-				INFLUXDB_TOKEN,
+		const vaultConfig = new ConfigMap(this, "vault-config", {
+			data: {
+				VAULT_ADDR: "https://vault.default:8200",
+				VAULT_ENVIRONMENT: `/${ENVIRONMENT}`,
 			},
 		});
-
-		new Secret(this, "steam-web-api-secret", {
-			metadata: {
-				name: "steam-web-api-secret",
-			},
+		const vaultSecret = new Secret(this, "vault-secret", {
 			stringData: {
-				STEAM_WEB_API_KEY,
-			},
-		});
-
-		new Secret(this, "twitch-secret", {
-			metadata: {
-				name: "twitch-secret",
-			},
-			stringData: {
-				TWITCH_SECRET,
+				// TODO: Refactor this into k8s service account based auth
+				VAULT_TOKEN,
 			},
 		});
 
@@ -174,10 +123,6 @@ export class Fortify extends Chart {
 					value: `https://api.${DOMAIN}/auth/steam/return`,
 				},
 				{
-					name: "TWITCH_CLIENT_ID",
-					value: TWITCH_CLIENT_ID,
-				},
-				{
 					name: "TWITCH_CALLBACK_URL",
 					value: `https://api.${DOMAIN}/auth/twitch/return`,
 				},
@@ -192,18 +137,13 @@ export class Fortify extends Chart {
 				{ name: "SENTRY_DSN", value: BACKEND_SENTRY_DSN },
 				{ name: "SENTRY_TRACE_SAMPLE_RATE", value: "0.2" },
 			],
-			secrets: [
-				"postgres-auth",
-				"jwt-secret",
-				"influxdb-secret",
-				"steam-web-api-secret",
-				"twitch-secret",
-			],
+			secrets: [vaultSecret],
 			configmaps: [
-				"postgres-config",
-				"kafka-config",
-				"redis-config",
-				"influxdb-config",
+				postgresConfig,
+				kafkaConfig,
+				redisConfig,
+				influxdbConfig,
+				vaultConfig,
 			],
 
 			traefik: {
@@ -280,8 +220,8 @@ export class Fortify extends Chart {
 				{ name: "KAFKA_TOPIC", value: "gsi" },
 				{ name: "SENTRY_DSN", value: GSI_RECEIVER_SENTRY_DSN },
 			],
-			secrets: ["jwt-secret"],
-			configmaps: ["kafka-config", "redis-config"],
+			secrets: [vaultSecret],
+			configmaps: [kafkaConfig, redisConfig, vaultConfig],
 			service: {
 				name: "gsi-receiver",
 				containerPort: 8080,
@@ -302,13 +242,11 @@ export class Fortify extends Chart {
 			version: "1.0.0",
 			env: [
 				{ name: "LISTEN_ADDRESS", value: ":8080" },
-				{ name: "DISCORD_WEBHOOKS", value: SENTRY_DISCORD_WEBHOOKS },
-				{
-					name: "SENTRY_CLIENT_SECRET",
-					value: SENTRY_WEBHOOK_CLIENT_SECRET,
-				},
+				{ name: "WEBHOOK_ENV", value: "prod" },
 				{ name: "DISABLE_STARTUP_MESSAGE", value: "true" },
 			],
+			configmaps: [vaultConfig],
+			secrets: [vaultSecret],
 			service: {
 				name: "sentry-discord-webhook",
 				containerPort: 8080,
@@ -320,6 +258,35 @@ export class Fortify extends Chart {
 				entryPoints: ["websecure"],
 				namespace: "fortify",
 				match: `Host(\`sentry.fortify.dev\`)`,
+			},
+		});
+
+		new WebService(this, "sentry-discord-dev-webhook", {
+			name: "sentry-discord-dev-webhook",
+			replicas: 1,
+			version: "1.0.0",
+			image: REGISTRY + "sentry-discord-webhook:1.0.0",
+			env: [
+				{ name: "LISTEN_ADDRESS", value: ":8080" },
+				{
+					name: "WEBHOOK_ENV",
+					value: "dev",
+				},
+				{ name: "DISABLE_STARTUP_MESSAGE", value: "true" },
+			],
+			configmaps: [vaultConfig],
+			secrets: [vaultSecret],
+			service: {
+				name: "sentry-discord-dev-webhook",
+				containerPort: 8080,
+				port: 8080,
+				portName: "http-sentry-discord-dev-webhook",
+			},
+
+			traefik: {
+				entryPoints: ["websecure"],
+				namespace: "fortify",
+				match: `Host(\`sentry-dev.fortify.dev\`)`,
 			},
 		});
 
@@ -337,8 +304,8 @@ export class Fortify extends Chart {
 				{ name: "BOT_BROADCAST_DISABLED", value: "false" },
 				{ name: "SENTRY_DSN", value: TWITCH_BOT_SENTRY_DSN },
 			],
-			secrets: ["postgres-auth", "twitch-bot-secret"],
-			configmaps: ["postgres-config", "redis-config", "kafka-config"],
+			secrets: [vaultSecret],
+			configmaps: [postgresConfig, redisConfig, kafkaConfig, vaultConfig],
 		});
 
 		new FortifyDeployment(this, "fsm", {
@@ -356,8 +323,8 @@ export class Fortify extends Chart {
 					value: FSM_SENTRY_DSN,
 				},
 			],
-			secrets: ["jwt-secret", "postgres-auth"],
-			configmaps: ["redis-config", "kafka-config", "postgres-config"],
+			secrets: [vaultSecret],
+			configmaps: [redisConfig, kafkaConfig, postgresConfig, vaultConfig],
 		});
 
 		new FortifyDeployment(this, "historization", {
@@ -380,16 +347,13 @@ export class Fortify extends Chart {
 				},
 			],
 			configmaps: [
-				"redis-config",
-				"kafka-config",
-				"influxdb-config",
-				"postgres-config",
+				redisConfig,
+				kafkaConfig,
+				influxdbConfig,
+				postgresConfig,
+				vaultConfig,
 			],
-			secrets: [
-				"influxdb-secret",
-				"postgres-auth",
-				"steam-web-api-secret",
-			],
+			secrets: [vaultSecret],
 		});
 
 		// CronJobs
@@ -410,8 +374,8 @@ export class Fortify extends Chart {
 					valueFrom: { fieldRef: { fieldPath: "metadata.name" } },
 				},
 			],
-			secrets: ["postgres-auth"],
-			configmaps: ["redis-config", "kafka-config", "postgres-config"],
+			secrets: [vaultSecret],
+			configmaps: [redisConfig, kafkaConfig, postgresConfig, vaultConfig],
 		});
 		new FortifyCronJob(this, "import-turbo", {
 			name: "import-turbo",
@@ -430,8 +394,8 @@ export class Fortify extends Chart {
 					valueFrom: { fieldRef: { fieldPath: "metadata.name" } },
 				},
 			],
-			secrets: ["postgres-auth"],
-			configmaps: ["redis-config", "kafka-config", "postgres-config"],
+			secrets: [vaultSecret],
+			configmaps: [redisConfig, kafkaConfig, postgresConfig, vaultConfig],
 		});
 		new FortifyCronJob(this, "import-duos", {
 			name: "import-duos",
@@ -450,8 +414,8 @@ export class Fortify extends Chart {
 					valueFrom: { fieldRef: { fieldPath: "metadata.name" } },
 				},
 			],
-			secrets: ["postgres-auth"],
-			configmaps: ["redis-config", "kafka-config", "postgres-config"],
+			secrets: [vaultSecret],
+			configmaps: [redisConfig, kafkaConfig, postgresConfig, vaultConfig],
 		});
 		new FortifyCronJob(this, "db-cleanup", {
 			name: "db-cleanup",
@@ -467,8 +431,8 @@ export class Fortify extends Chart {
 					valueFrom: { fieldRef: { fieldPath: "metadata.name" } },
 				},
 			],
-			secrets: ["postgres-auth"],
-			configmaps: ["redis-config", "kafka-config", "postgres-config"],
+			secrets: [vaultSecret],
+			configmaps: [redisConfig, kafkaConfig, postgresConfig, vaultConfig],
 		});
 	}
 }

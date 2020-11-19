@@ -1,5 +1,5 @@
 import { FortifyPlayerState } from "@shared/state";
-import { Context } from "@shared/auth";
+import { Context } from "@shared/services/auth";
 
 import { PublicPlayerState, PrivatePlayerState } from "../gsiTypes";
 

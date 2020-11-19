@@ -1,6 +1,6 @@
 {
   "name": "frontend",
-  "version": "1.2.28",
+  "version": "1.2.29",
   "author": "Thomas Kosiewski",
   "license": "AGPL-3.0-or-later",
   "private": true,
@@ -39,9 +39,9 @@
     "js-cookie": "^2.2.1",
     "next": "^10.0.1",
     "next-optimized-images": "^2.6.2",
-    "next-seo": "^4.15.1",
+    "next-seo": "^4.17.0",
     "react": "^17.0.1",
-    "react-cookie-consent": "^6.0.0",
+    "react-cookie-consent": "^6.1.0",
     "react-dom": "^17.0.1",
     "sass": "^1.29.0",
     "subscriptions-transport-ws": "^0.9.18"
@@ -54,7 +54,7 @@
     "@graphql-codegen/typescript-react-apollo": "^2.1.1",
     "@graphql-codegen/typescript-resolvers": "1.17.10",
     "@types/classnames": "^2.2.11",
-    "@types/d3": "^6.0.0",
+    "@types/d3": "^6.1.0",
     "@types/js-cookie": "^2.2.6",
     "@types/react": "^16.9.56",
     "@types/react-dom": "^16.9.9",

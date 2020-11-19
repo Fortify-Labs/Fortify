@@ -1,7 +1,7 @@
 import { injectable, inject } from "inversify";
 import { FortifyGameMode, FortifyPlayerState } from "@shared/state";
 
-import { Context } from "@shared/auth";
+import { Context } from "@shared/services/auth";
 
 import { PublicPlayerState } from "../../gsiTypes";
 import { StateReducer } from "../../definitions/stateReducer";

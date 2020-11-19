@@ -1,4 +1,4 @@
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 
 import debug = require("debug");
 
@@ -7,9 +7,11 @@ import { User } from "../db/entities/user";
 import { Match } from "../db/entities/match";
 import { MatchSlot } from "../db/entities/matchSlot";
 
+import { SecretsManager } from "../services/secrets";
+import { HealthCheckable } from "../services/healthCheck";
+
 const {
 	POSTGRES_USER,
-	POSTGRES_PASSWORD,
 	POSTGRES_HOST,
 	POSTGRES_PORT,
 	POSTGRES_DATABASE,
@@ -19,22 +21,40 @@ const {
 
 // This way each service could specify the entities needed instead of all
 @injectable()
-export class PostgresConnector {
+export class PostgresConnector implements HealthCheckable {
 	connection: Promise<Connection>;
 
-	constructor() {
+	name = "Postgres";
+	healthCheck: () => Promise<boolean>;
+
+	constructor(
+		@inject(SecretsManager)
+		private secretsManager: SecretsManager<{
+			postgres: { password: string | undefined };
+		}>,
+	) {
 		this.connection = this.setupConnection();
+
+		this.healthCheck = async () => {
+			const conn = await this.connection;
+
+			return conn.isConnected && conn.query("SELECT now();");
+		};
 
 		this.runMigration();
 	}
 
-	private setupConnection() {
+	private async setupConnection() {
+		const {
+			postgres: { password },
+		} = await this.secretsManager.getSecrets();
+
 		const connection = createConnection({
 			type: "postgres",
 			host: POSTGRES_HOST,
 			port: parseInt(POSTGRES_PORT ?? "5432"),
 			username: POSTGRES_USER,
-			password: POSTGRES_PASSWORD,
+			password,
 			database: POSTGRES_DATABASE ?? "fortify",
 			entities: ["../shared/build/src/db/entities/**/*.js"],
 			migrations: ["../shared/build/src/db/migrations/**/*.js"],

@@ -16,8 +16,18 @@ import { LeaderboardModule } from "./graphql/modules/leaderboard";
 
 import { PostgresConnector } from "@shared/connectors/postgres";
 import { RedisConnector } from "@shared/connectors/redis";
+import { InfluxDBConnector } from "@shared/connectors/influxdb";
+import { VaultConnector } from "@shared/connectors/vault";
+
+import { HealthCheckable } from "@shared/services/healthCheck";
+
+import { SecretsManager } from "@shared/services/secrets";
+import { Secrets } from "./secrets";
 
 const container = new Container({ autoBindInjectable: true });
+
+container.bind(Secrets).toSelf().inSingletonScope();
+container.bind(SecretsManager).toService(Secrets);
 
 container.bind<GQLModule>("module").to(BaseModule);
 container.bind<GQLModule>("module").to(DebugModule);
@@ -29,7 +39,13 @@ container.bind<GQLModule>("module").to(LeaderboardModule);
 
 container.bind<GQLDirective>("directive").to(AuthDirective);
 
-container.bind(PostgresConnector).toConstantValue(new PostgresConnector());
-container.bind(RedisConnector).toConstantValue(new RedisConnector());
+container.bind(InfluxDBConnector).toSelf().inSingletonScope();
+container.bind(PostgresConnector).toSelf().inSingletonScope();
+container.bind(RedisConnector).toSelf().inSingletonScope();
+
+container.bind<HealthCheckable>("healthCheck").toService(InfluxDBConnector);
+container.bind<HealthCheckable>("healthCheck").toService(PostgresConnector);
+container.bind<HealthCheckable>("healthCheck").toService(RedisConnector);
+container.bind<HealthCheckable>("healthCheck").toService(VaultConnector);
 
 export { container };

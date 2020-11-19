@@ -22,6 +22,8 @@ import {
 import { GameEventType } from "@shared/events/gameEvents";
 import { LeaderboardPersistor } from "./services/leaderboardPersistor";
 import { MatchPersistor } from "./services/matchPersistor";
+import { Secrets } from "./secrets";
+import { HealthCheck } from "@shared/services/healthCheck";
 
 const {
 	KAFKA_AUTO_COMMIT,
@@ -29,6 +31,11 @@ const {
 } = process.env;
 
 (async () => {
+	await container.get(Secrets).getSecrets();
+
+	const healthCheck = container.get(HealthCheck);
+	healthCheck.start();
+
 	const kafka = container.get(KafkaConnector);
 
 	const consumer = kafka.consumer({ groupId: KAFKA_GROUP_ID });
@@ -128,6 +135,8 @@ const {
 			process.exit(-1);
 		}
 	});
+
+	healthCheck.live = true;
 })().catch(async (e) => {
 	debug("app::anonymous_function")(e);
 	const sentryID = captureException(e);

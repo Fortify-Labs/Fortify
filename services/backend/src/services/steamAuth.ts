@@ -4,20 +4,19 @@ import { Application, Router, Request, Response } from "express";
 import passport from "passport";
 import { Strategy as SteamStrategy } from "passport-steam";
 
-import { generateJWT, PermissionScope } from "@shared/auth";
+import { AuthService, PermissionScope } from "@shared/services/auth";
 import { PostgresConnector } from "@shared/connectors/postgres";
 import { User } from "@shared/db/entities/user";
 
 import { convert64to32SteamId } from "@shared/steamid";
 import { RedisConnector } from "@shared/connectors/redis";
+import { Secrets } from "../secrets";
 
 const {
 	APP_URL = "",
 	APP_DOMAIN,
 	APP_SUCCESSFUL_AUTH_RETURN_URL = "/",
 	APP_STEAM_RETURN_URL,
-	JWT_SECRET,
-	STEAM_WEB_API_KEY,
 } = process.env;
 
 export interface NodeSteamPassportProfileJSON {
@@ -56,12 +55,14 @@ export class SteamAuthMiddleware {
 	constructor(
 		@inject(PostgresConnector) private postgres: PostgresConnector,
 		@inject(RedisConnector) private redis: RedisConnector,
+		@inject(Secrets) private secrets: Secrets,
+		@inject(AuthService) private auth: AuthService,
 	) {}
 
 	async handleAuth(req: Request, res: Response) {
 		const user = req.user as NodeSteamPassportProfile | undefined;
 
-		if (user && JWT_SECRET) {
+		if (user) {
 			// Store user to DB
 			const userRepo = await this.postgres.getUserRepo();
 
@@ -95,7 +96,7 @@ export class SteamAuthMiddleware {
 
 			res.cookie(
 				"auth",
-				await generateJWT(
+				await this.auth.generateJWT(
 					{
 						user: { id: dbUser.steamid },
 						scopes: [PermissionScope.User],
@@ -112,11 +113,13 @@ export class SteamAuthMiddleware {
 		res.redirect(APP_SUCCESSFUL_AUTH_RETURN_URL);
 	}
 
-	applyMiddleware({ app }: { app: Application }) {
+	async applyMiddleware({ app }: { app: Application }) {
+		const { steamWebApi } = await this.secrets.getSecrets();
+
 		passport.use(
 			new SteamStrategy(
 				{
-					apiKey: STEAM_WEB_API_KEY,
+					apiKey: steamWebApi.apiKey,
 					realm: APP_URL,
 					returnURL: APP_STEAM_RETURN_URL,
 				},

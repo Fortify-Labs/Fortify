@@ -1,6 +1,6 @@
 import { injectable } from "inversify";
 
-import { Context } from "@shared/auth";
+import { Context } from "@shared/services/auth";
 import { FortifyPlayerState } from "@shared/state";
 
 import { PrivatePlayerState } from "../../gsiTypes";

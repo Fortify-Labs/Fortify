@@ -1,17 +1,31 @@
+import debug from "debug";
+import { container } from "../inversify.config";
 import { verify } from "jsonwebtoken";
+import { Secrets } from "../secrets";
 
 export const verifyToken = async (token: string) => {
-	return new Promise<string | Record<string, unknown>>((resolve, reject) => {
-		verify(token, process.env.JWT_SECRET ?? "", (error, decoded) => {
-			if (error) {
-				return reject(error);
-			} else {
-				if (decoded) {
-					return resolve(decoded as Record<string, unknown>);
-				} else {
-					return resolve(decoded);
-				}
-			}
-		});
-	});
+	try {
+		const {
+			jwt: { jwt },
+		} = await container.get(Secrets).getSecrets();
+
+		return new Promise<string | Record<string, unknown>>(
+			(resolve, reject) => {
+				verify(token, jwt ?? "", (error, decoded) => {
+					if (error) {
+						return reject(error);
+					} else {
+						if (decoded) {
+							return resolve(decoded as Record<string, unknown>);
+						} else {
+							return resolve(decoded);
+						}
+					}
+				});
+			},
+		);
+	} catch (e) {
+		debug("app::util::verifyToken")(e);
+		return Promise.reject(e);
+	}
 };

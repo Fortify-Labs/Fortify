@@ -35,7 +35,6 @@ import { Middleware } from "../../imports/traefik.containo.us/middleware";
 
 const {
 	DOMAIN = "fortify.gg",
-	POSTGRES_PASSWORD = "",
 	ENVIRONMENT = "prod",
 	CLUSTER_BASIC_AUTH = "",
 } = process.env;
@@ -242,17 +241,6 @@ export class ClusterSetupClean extends Chart {
 		const postgresNS = new Namespace(this, "postgres-namespace", {
 			metadata: {
 				name: "postgres",
-			},
-		});
-
-		new Secret(this, "postgres-auth", {
-			metadata: {
-				name: "postgres-auth",
-				namespace: postgresNS.name,
-			},
-			stringData: {
-				POSTGRES_USER: "postgres",
-				POSTGRES_PASSWORD,
 			},
 		});
 
@@ -742,19 +730,6 @@ export class ClusterSetupClean extends Chart {
 			spec: {
 				basicAuth: {
 					secret: basicAuthSecret.name,
-				},
-			},
-		});
-
-		new Middleware(this, "redirect-scheme-middleware", {
-			metadata: {
-				name: "redirect-scheme-middleware",
-				namespace: "kube-system",
-			},
-			spec: {
-				redirectScheme: {
-					scheme: "https",
-					permanent: true,
 				},
 			},
 		});
