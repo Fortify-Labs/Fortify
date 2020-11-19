@@ -5,7 +5,7 @@ import { gql, ApolloError } from "apollo-server-express";
 import { Resolvers, MmrHistory } from "definitions/graphql/types";
 import { PostgresConnector } from "@shared/connectors/postgres";
 import { InfluxDBConnector } from "@shared/connectors/influxdb";
-import { PermissionScope } from "@shared/auth";
+import { PermissionScope } from "@shared/services/auth";
 
 import {
 	fluxDuration,
@@ -213,7 +213,7 @@ export class UserModule implements GQLModule {
 					}
 
 					// Write influxdb queries to fetch data points
-					const queryApi = influx.queryApi();
+					const queryApi = await influx.queryApi();
 
 					let start: FluxParameterLike | undefined = undefined;
 					let stop: FluxParameterLike | undefined = undefined;

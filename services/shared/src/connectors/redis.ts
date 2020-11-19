@@ -1,4 +1,6 @@
+import { injectable } from "inversify";
 import Redis from "ioredis";
+import { HealthCheckable } from "src/services/healthCheck";
 
 const {
 	// Single node configs
@@ -10,11 +12,19 @@ const {
 	REDIS_SENTINEL_NAME = "mymaster",
 } = process.env;
 
-export class RedisConnector {
+@injectable()
+export class RedisConnector implements HealthCheckable {
 	client: Redis.Redis;
+
+	name = "Redis";
+	healthCheck: () => Promise<boolean>;
 
 	constructor() {
 		this.client = this.createClient();
+
+		this.healthCheck = async () =>
+			this.client.status === "ready" &&
+			(await this.client.ping()) === "PONG";
 	}
 
 	createClient() {
@@ -33,10 +43,12 @@ export class RedisConnector {
 					}),
 				name: REDIS_SENTINEL_NAME,
 				reconnectOnError: () => true,
+				enableReadyCheck: true,
 			});
 		} else {
 			return new Redis(REDIS_URL, {
 				reconnectOnError: () => true,
+				enableReadyCheck: true,
 			});
 		}
 	}

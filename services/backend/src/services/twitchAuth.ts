@@ -7,14 +7,15 @@ import passport from "passport";
 import { Strategy, VerifyCallback } from "passport-oauth2";
 
 import fetch from "node-fetch";
-import { verifyJWT, PermissionScope } from "@shared/auth";
+import { AuthService, PermissionScope } from "@shared/services/auth";
 import { PostgresConnector } from "@shared/connectors/postgres";
 import { EventService } from "@shared/services/eventService";
 import { TwitchLinkedEvent } from "@shared/events/systemEvents";
+import { Secrets } from "../secrets";
+
+import { container } from "../inversify.config";
 
 const {
-	TWITCH_CLIENT_ID = "",
-	TWITCH_SECRET = "",
 	TWITCH_CALLBACK_URL = "",
 	TWITCH_SUCCESS_REDIRECT = "/",
 	TWITCH_FAILURE_REDIRECT = "/",
@@ -25,15 +26,19 @@ export class TwitchAuthMiddleware {
 	constructor(
 		@inject(PostgresConnector) private postgres: PostgresConnector,
 		@inject(EventService) private eventService: EventService,
+		@inject(Secrets) private secrets: Secrets,
+		@inject(AuthService) private auth: AuthService,
 	) {}
 
-	applyMiddleware({ app }: { app: Application }) {
+	async applyMiddleware({ app }: { app: Application }) {
+		const { twitchOauth } = this.secrets.secrets;
+
 		Strategy.prototype.userProfile = async function (accessToken, done) {
 			const options = {
 				url: "https://api.twitch.tv/helix/users",
 				method: "GET",
 				headers: {
-					"Client-ID": TWITCH_CLIENT_ID,
+					"Client-ID": twitchOauth.clientID ?? "",
 					Accept: "application/vnd.twitchtv.v5+json",
 					Authorization: "Bearer " + accessToken,
 				},
@@ -60,8 +65,8 @@ export class TwitchAuthMiddleware {
 				{
 					authorizationURL: "https://id.twitch.tv/oauth2/authorize",
 					tokenURL: "https://id.twitch.tv/oauth2/token",
-					clientID: TWITCH_CLIENT_ID,
-					clientSecret: TWITCH_SECRET,
+					clientID: twitchOauth.clientID ?? "",
+					clientSecret: twitchOauth.secret ?? "",
 					callbackURL: TWITCH_CALLBACK_URL,
 					passReqToCallback: true,
 				},
@@ -77,9 +82,10 @@ export class TwitchAuthMiddleware {
 					profile.refreshToken = refreshToken;
 
 					// Don't have to check for success here, as the middleware ensures that it successful already
-					const { user } = await verifyJWT(req.cookies.auth, [
-						PermissionScope.User,
-					]);
+					const { user } = await this.auth.verifyJWT(
+						req.cookies.auth,
+						[PermissionScope.User],
+					);
 
 					const userRepo = await this.postgres.getUserRepo();
 					const dbUser = await userRepo.findOne(user.id);
@@ -149,7 +155,9 @@ const ensureAuthCookie = async (
 	}
 
 	try {
-		const { success } = await verifyJWT(req.cookies.auth, [
+		const auth = container.get(AuthService);
+
+		const { success } = await auth.verifyJWT(req.cookies.auth, [
 			PermissionScope.User,
 		]);
 

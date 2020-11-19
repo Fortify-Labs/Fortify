@@ -12,13 +12,21 @@ import { json, urlencoded } from "body-parser";
 import { container } from "./inversify.config";
 import { KafkaConnector } from "@shared/connectors/kafka";
 
-import { verifyJWT, PermissionScope } from "@shared/auth";
+import { AuthService, PermissionScope } from "@shared/services/auth";
 
 import { captureException, flush } from "@sentry/node";
+import { Secrets } from "./secrets";
+import { HealthCheck } from "@shared/services/healthCheck";
 
 const { KAFKA_TOPIC, MY_PORT } = process.env;
 
 (async () => {
+	const healthCheck = container.get(HealthCheck);
+	healthCheck.start();
+
+	await container.get(Secrets).getSecrets();
+	const auth = container.get(AuthService);
+
 	const kafka = container.get(KafkaConnector);
 
 	const producer = kafka.producer();
@@ -33,7 +41,7 @@ const { KAFKA_TOPIC, MY_PORT } = process.env;
 		// Send an unsuccessful response on failed auth
 		if (req.body && req.body.auth) {
 			try {
-				const { user, success } = await verifyJWT(req.body.auth, [
+				const { user, success } = await auth.verifyJWT(req.body.auth, [
 					PermissionScope.GsiIngress,
 				]);
 
@@ -93,6 +101,8 @@ const { KAFKA_TOPIC, MY_PORT } = process.env;
 		debug("app::startup")(
 			"GSI endpoint listening on port " + (MY_PORT ?? 8080) + "!",
 		);
+
+		healthCheck.live = true;
 	});
 
 	process.on("SIGTERM", shutDown);
@@ -124,4 +134,6 @@ const { KAFKA_TOPIC, MY_PORT } = process.env;
 })().catch((e) => {
 	debug("app::start")(e);
 	captureException(e);
+	// eslint-disable-next-line no-process-exit
+	process.exit(-1);
 });

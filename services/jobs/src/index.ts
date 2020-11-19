@@ -15,6 +15,8 @@ import yargs from "yargs";
 import { FortifyScript } from "./scripts";
 import { RedisConnector } from "@shared/connectors/redis";
 import { PostgresConnector } from "@shared/connectors/postgres";
+import { Secrets } from "./secrets";
+import { HealthCheck } from "@shared/services/healthCheck";
 
 yargs
 	.command(
@@ -29,6 +31,10 @@ yargs
 		},
 		async (argv) => {
 			try {
+				await container.get(Secrets).getSecrets();
+				const healthCheck = container.get(HealthCheck);
+				healthCheck.start();
+
 				debug("app::run")(argv);
 
 				if (container.isBound(argv.script)) {
@@ -36,6 +42,7 @@ yargs
 						argv.script,
 					);
 
+					healthCheck.live = true;
 					await fortifyScript.handler();
 				} else {
 					debug("app::run")("No matching script found");

@@ -3,11 +3,11 @@
  */
 
 import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from 'graphql';
-import { Context } from '@shared/auth';
+import { Context } from '@shared/services/auth';
 export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
 export type RequireFields<T, K extends keyof T> = { [X in Exclude<keyof T, K>]?: T[X] } & { [P in K]-?: NonNullable<T[P]> };
-// Generated on 2020-11-09T18:47:11+01:00
+// Generated on 2020-11-13T21:51:57+01:00
 
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {

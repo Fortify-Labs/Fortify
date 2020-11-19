@@ -15,7 +15,7 @@
     "emitDecoratorMetadata": true,
     "resolveJsonModule": true,
     "esModuleInterop": true,
-
+    "skipLibCheck": true,
     "sourceMap": true,
     "inlineSources": true,
     "sourceRoot": "/"

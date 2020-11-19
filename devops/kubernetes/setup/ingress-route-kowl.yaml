@@ -1,0 +1,35 @@
+kind: Certificate
+apiVersion: cert-manager.io/v1alpha2
+metadata:
+  name: fortify-kowl-ssl-cert
+  namespace: fortify
+spec:
+  commonName: fortify.dev
+  dnsNames:
+    - fortify.dev
+    - kowl.fortify.dev
+  issuerRef:
+    kind: ClusterIssuer
+    name: cf-letsencrypt-staging
+  secretName: fortify-kowl-ssl-cert
+---
+kind: IngressRoute
+apiVersion: traefik.containo.us/v1alpha1
+metadata:
+  name: kowl
+  namespace: fortify
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - kind: Rule
+      match: Host(`kowl.fortify.dev`)
+      middlewares:
+        - name: basic-auth
+          namespace: kube-system
+      services:
+        - name: kowl
+          namespace: fortify
+          port: 80
+  tls:
+    secretName: fortify-kowl-ssl-cert

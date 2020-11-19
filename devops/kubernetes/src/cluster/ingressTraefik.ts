@@ -27,12 +27,7 @@ export class ClusterIngressTraefik extends Construct {
 			basicAuth = true,
 		} = options;
 
-		const middlewares: Record<string, unknown>[] = [
-			{
-				name: "redirect-scheme-middleware",
-				namespace: "kube-system",
-			},
-		];
+		const middlewares: Record<string, unknown>[] = [];
 
 		if (basicAuth) {
 			middlewares.push({

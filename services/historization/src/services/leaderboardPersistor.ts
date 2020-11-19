@@ -20,8 +20,7 @@ import { GetPlayerSummaries } from "@shared/definitions/playerSummaries";
 import { convert32to64SteamId, convert64to32SteamId } from "@shared/steamid";
 import { EventService } from "@shared/services/eventService";
 import { MMR } from "@shared/db/entities/user";
-
-const { STEAM_WEB_API_KEY } = process.env;
+import { Secrets } from "../secrets";
 
 @injectable()
 export class LeaderboardPersistor {
@@ -30,6 +29,7 @@ export class LeaderboardPersistor {
 		@inject(RedisConnector) private redis: RedisConnector,
 		@inject(PostgresConnector) private postgres: PostgresConnector,
 		@inject(EventService) private eventService: EventService,
+		@inject(Secrets) private secrets: Secrets,
 	) {}
 
 	async storeLeaderboard(event: ImportCompletedEvent) {
@@ -82,10 +82,14 @@ export class LeaderboardPersistor {
 			[],
 		);
 
+		const {
+			steamWebApi: { apiKey },
+		} = await this.secrets.getSecrets();
+
 		// Send requests to steam web api to get current display names
 		const requests = chunkedSteamIDs.map((steamids) =>
 			fetch(
-				`http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${STEAM_WEB_API_KEY}&steamids=${steamids.join(
+				`http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${apiKey}&steamids=${steamids.join(
 					",",
 				)}`,
 			).then((res) => res.json() as Promise<GetPlayerSummaries>),

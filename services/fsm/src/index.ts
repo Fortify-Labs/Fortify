@@ -19,16 +19,17 @@ import { CommandReducer } from "./definitions/commandReducer";
 import { verify } from "jsonwebtoken";
 
 import { Log, PublicPlayerState, PrivatePlayerState } from "./gsiTypes";
-import { Context } from "@shared/auth";
+import { Context } from "@shared/services/auth";
 
 import { StateTransformationService } from "./services/stateTransformer";
 
 import { FortifyEventTopics, FortifyEvent } from "@shared/events/events";
 import { SystemEventType } from "@shared/events/systemEvents";
 import { ConsumerCrashEvent } from "kafkajs";
+import { Secrets } from "./secrets";
+import { HealthCheck } from "@shared/services/healthCheck";
 
 const {
-	JWT_SECRET,
 	KAFKA_FROM_START,
 	KAFKA_START_OFFSET,
 	KAFKA_START_OFFSET_PARTITION = "0",
@@ -37,6 +38,13 @@ const {
 } = process.env;
 
 (async () => {
+	const {
+		jwt: { jwt },
+	} = await container.get(Secrets).getSecrets();
+
+	const healthCheck = container.get(HealthCheck);
+	healthCheck.start();
+
 	const kafka = container.get(KafkaConnector);
 
 	// Get state transformer service
@@ -62,7 +70,7 @@ const {
 		topic: FortifyEventTopics.SYSTEM,
 	});
 
-	consumer.run({
+	await consumer.run({
 		autoCommit: KAFKA_AUTO_COMMIT !== "false" ?? true,
 		eachMessage: async ({ message, topic, partition }) => {
 			if (!message.value) {
@@ -91,7 +99,7 @@ const {
 					const gsi: Log = JSON.parse(value);
 					const ctx =
 						typeof gsi.auth === "string"
-							? verify(gsi.auth, JWT_SECRET ?? "")
+							? verify(gsi.auth, jwt ?? "")
 							: gsi.auth;
 
 					if (ctx instanceof Object) {
@@ -224,7 +232,12 @@ const {
 			process.exit(-1);
 		}
 	});
+
+	healthCheck.live = true;
 })().catch((e) => {
 	debug("app::anonymous_function")(e);
 	captureException(e);
+
+	// eslint-disable-next-line no-process-exit
+	process.exit(-1);
 });
