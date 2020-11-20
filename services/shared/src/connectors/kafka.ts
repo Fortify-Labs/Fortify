@@ -17,23 +17,29 @@ export class KafkaConnector implements HealthCheckable {
 
 	name = "Kafka";
 	healthCheck: () => Promise<boolean>;
-	shutdown: () => Promise<void>;
+	shutdown: () => Promise<unknown>;
 
 	private sessionTimeout = 30000;
 
 	constructor() {
 		this.kafka = new Kafka({
-			brokers: JSON.parse(KAFKA_BROKERS ?? "null") ?? ["kafka:9092"],
+			brokers: JSON.parse(KAFKA_BROKERS ?? '["kafka:9092"]'),
 			clientId: KAFKA_CLIENT_ID,
 		});
 
 		// Health check setup
+		this.healthCheck = async () => {
+			return false;
+		};
+		this.shutdown = async () => {};
+	}
 
+	public async setupHealthCheck() {
 		const consumer = this.consumer({
 			groupId: "healthcheck",
 			sessionTimeout: this.sessionTimeout,
 		});
-		consumer.run().catch(debug("app::kafka::healthCheck"));
+		await consumer.run().catch(debug("app::kafka::healthCheck"));
 
 		let lastHeartbeat = 0;
 		consumer.on(
@@ -61,7 +67,10 @@ export class KafkaConnector implements HealthCheckable {
 			}
 		};
 
-		this.shutdown = async () => consumer.disconnect();
+		this.shutdown = async () => {
+			await consumer.stop();
+			await consumer.disconnect();
+		};
 	}
 
 	public producer(config?: ProducerConfig) {

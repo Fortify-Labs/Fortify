@@ -23,7 +23,7 @@ const { KAFKA_TOPIC, MY_PORT } = process.env;
 
 (async () => {
 	const healthCheck = container.get(HealthCheck);
-	healthCheck.start();
+	await healthCheck.start();
 
 	await container.get(Secrets).getSecrets();
 	const auth = container.get(AuthService);

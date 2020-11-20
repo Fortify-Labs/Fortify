@@ -17,6 +17,7 @@ export class RedisConnector implements HealthCheckable {
 	client: Redis.Redis;
 
 	name = "Redis";
+	setupHealthCheck = async () => {};
 	healthCheck: () => Promise<boolean>;
 	shutdown: () => Promise<void>;
 

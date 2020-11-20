@@ -43,7 +43,7 @@ const {
 	} = await container.get(Secrets).getSecrets();
 
 	const healthCheck = container.get(HealthCheck);
-	healthCheck.start();
+	await healthCheck.start();
 
 	const commands = container.getAll<TwitchCommand>("command");
 	const helpCommand = container.get<TwitchCommand>(HelpCommand);

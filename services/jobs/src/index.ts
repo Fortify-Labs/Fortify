@@ -33,7 +33,7 @@ yargs
 			try {
 				await container.get(Secrets).getSecrets();
 				const healthCheck = container.get(HealthCheck);
-				healthCheck.start();
+				await healthCheck.start();
 
 				debug("app::run")(argv);
 

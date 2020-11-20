@@ -22,6 +22,7 @@ export class VaultConnector implements HealthCheckable {
 	vault: vault.client;
 
 	name = "Vault";
+	setupHealthCheck = async () => {};
 	healthCheck: () => Promise<boolean>;
 	shutdown: () => Promise<void>;
 

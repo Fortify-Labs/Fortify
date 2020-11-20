@@ -22,7 +22,7 @@ import { HealthCheck } from "@shared/services/healthCheck";
 
 (async () => {
 	const healthCheck = container.get(HealthCheck);
-	healthCheck.start();
+	await healthCheck.start();
 
 	const secretsManager = container.get(Secrets);
 	await secretsManager.getSecrets();
