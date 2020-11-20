@@ -6,6 +6,7 @@ import {
 	PodDisruptionBudget,
 	Secret,
 	ConfigMap,
+	Probe,
 } from "../imports/k8s";
 
 const { REGISTRY } = process.env;
@@ -34,6 +35,9 @@ export interface FortifyDeploymentOptions {
 
 	readonly minAvailable?: number;
 	readonly maxUnavailable?: number;
+
+	livenessProbe?: Probe | null;
+	readinessProbe?: Probe | null;
 }
 
 export class FortifyDeployment extends Construct {
@@ -43,6 +47,29 @@ export class FortifyDeployment extends Construct {
 		options: FortifyDeploymentOptions
 	) {
 		super(scope, ns);
+
+		let { livenessProbe, readinessProbe } = options;
+
+		if (livenessProbe === undefined) {
+			livenessProbe = {
+				httpGet: {
+					path: "/live",
+					port: 9000,
+				},
+				initialDelaySeconds: 5,
+				periodSeconds: 10,
+			};
+		}
+		if (readinessProbe === undefined) {
+			readinessProbe = {
+				httpGet: {
+					path: "/ready",
+					port: 9000,
+				},
+				initialDelaySeconds: 5,
+				periodSeconds: 10,
+			};
+		}
 
 		const selectorLabels = {
 			app: Node.of(this).uniqueId,
@@ -128,22 +155,8 @@ export class FortifyDeployment extends Construct {
 									})),
 								],
 								env,
-								livenessProbe: {
-									httpGet: {
-										path: "/live",
-										port: 9000,
-									},
-									initialDelaySeconds: 5,
-									periodSeconds: 10,
-								},
-								readinessProbe: {
-									httpGet: {
-										path: "/ready",
-										port: 9000,
-									},
-									initialDelaySeconds: 5,
-									periodSeconds: 10,
-								},
+								livenessProbe: livenessProbe || undefined,
+								readinessProbe: readinessProbe || undefined,
 							},
 						],
 					},
