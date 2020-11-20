@@ -56,6 +56,7 @@ export class Fortify extends Chart {
 				name: "postgres-config",
 			},
 			data: {
+				POSTGRES_USER: "postgres",
 				POSTGRES_HOST: "postgres.postgres",
 				POSTGRES_PORT: "5432",
 				POSTGRES_DATABASE: "postgres",
@@ -86,7 +87,7 @@ export class Fortify extends Chart {
 
 		const vaultConfig = new ConfigMap(this, "vault-config", {
 			data: {
-				VAULT_ADDR: "https://vault.default:8200",
+				VAULT_ADDR: "http://vault.default:8200",
 				VAULT_ENVIRONMENT: `/${ENVIRONMENT}`,
 			},
 		});
@@ -204,6 +205,10 @@ export class Fortify extends Chart {
 				namespace: "fortify",
 				match: `Host(\`${DOMAIN}\`)`,
 			},
+
+			// TODO: Implement probes
+			livenessProbe: null,
+			readinessProbe: null,
 		});
 
 		new WebService(this, "gsi-receiver", {
@@ -239,7 +244,7 @@ export class Fortify extends Chart {
 		new WebService(this, "sentry-discord-webhook", {
 			name: "sentry-discord-webhook",
 			replicas: 1,
-			version: "1.0.0",
+			version: "1.1.0",
 			env: [
 				{ name: "LISTEN_ADDRESS", value: ":8080" },
 				{ name: "WEBHOOK_ENV", value: "prod" },
@@ -264,8 +269,8 @@ export class Fortify extends Chart {
 		new WebService(this, "sentry-discord-dev-webhook", {
 			name: "sentry-discord-dev-webhook",
 			replicas: 1,
-			version: "1.0.0",
-			image: REGISTRY + "sentry-discord-webhook:1.0.0",
+			version: "1.1.0",
+			image: REGISTRY + "sentry-discord-webhook:1.1.0",
 			env: [
 				{ name: "LISTEN_ADDRESS", value: ":8080" },
 				{

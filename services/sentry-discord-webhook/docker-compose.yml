@@ -2,7 +2,7 @@ version: "3"
 
 services:
   discord-webhook:
-    image: ghcr.io/fortify-labs/fortify/sentry-discord-webhook:1.0.0
+    image: ghcr.io/fortify-labs/fortify/sentry-discord-webhook:1.1.0
     build: .
 
     ports:
