@@ -1,6 +1,6 @@
 {
   "name": "shared",
-  "version": "1.8.0",
+  "version": "1.8.1",
   "description": "Shared library for fortify micro services",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
@@ -22,30 +22,30 @@
   },
   "devDependencies": {
     "@types/debug": "^4.1.5",
-    "@types/ioredis": "^4.17.7",
+    "@types/ioredis": "^4.17.8",
     "@types/jsonwebtoken": "^8.5.0",
-    "@types/node": "^14.14.7",
+    "@types/node": "^14.14.9",
     "@types/node-fetch": "^2.5.7",
     "dotenv": "^8.2.0",
     "gts": "^3.0.2",
     "ts-node": "^9.0.0",
-    "typescript": "^4.0.5"
+    "typescript": "^4.1.2"
   },
   "dependencies": {
     "@godaddy/terminus": "^4.4.1",
     "@influxdata/influxdb-client": "^1.8.0",
     "@influxdata/influxdb-client-apis": "^1.8.0",
-    "@sentry/integrations": "^5.27.3",
-    "@sentry/node": "^5.27.3",
+    "@sentry/integrations": "^5.27.4",
+    "@sentry/node": "^5.27.4",
     "bignumber.js": "^9.0.1",
-    "debug": "^4.2.0",
+    "debug": "^4.3.1",
     "inversify": "^5.0.1",
     "ioredis": "^4.19.2",
     "jsonwebtoken": "^8.5.1",
     "kafkajs": "^1.14.0",
     "node-fetch": "^2.6.1",
     "node-vault": "^0.9.20",
-    "pg": "^8.5.0",
+    "pg": "^8.5.1",
     "reflect-metadata": "^0.1.13",
     "typeorm": "^0.2.29"
   }

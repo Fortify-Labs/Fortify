@@ -18,6 +18,7 @@ export class RedisConnector implements HealthCheckable {
 
 	name = "Redis";
 	healthCheck: () => Promise<boolean>;
+	shutdown: () => Promise<void>;
 
 	constructor() {
 		this.client = this.createClient();
@@ -25,6 +26,8 @@ export class RedisConnector implements HealthCheckable {
 		this.healthCheck = async () =>
 			this.client.status === "ready" &&
 			(await this.client.ping()) === "PONG";
+
+		this.shutdown = async () => this.client.disconnect();
 	}
 
 	createClient() {

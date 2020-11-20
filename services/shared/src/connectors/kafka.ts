@@ -17,6 +17,7 @@ export class KafkaConnector implements HealthCheckable {
 
 	name = "Kafka";
 	healthCheck: () => Promise<boolean>;
+	shutdown: () => Promise<void>;
 
 	private sessionTimeout = 30000;
 
@@ -59,6 +60,8 @@ export class KafkaConnector implements HealthCheckable {
 				return false;
 			}
 		};
+
+		this.shutdown = async () => consumer.disconnect();
 	}
 
 	public producer(config?: ProducerConfig) {

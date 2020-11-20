@@ -1,6 +1,6 @@
 import { injectable, multiInject } from "inversify";
 
-import { createServer } from "http";
+import { createServer, Server } from "http";
 import {
 	createTerminus,
 	HealthCheckError,
@@ -11,6 +11,7 @@ import debug from "debug";
 export interface HealthCheckable {
 	name: string;
 	healthCheck: () => Promise<boolean>;
+	shutdown: () => Promise<unknown>;
 }
 
 @injectable()
@@ -18,6 +19,7 @@ export class HealthCheck {
 	live = false;
 
 	healthChecks: HealthCheckable[];
+	server?: Server;
 
 	constructor(
 		@multiInject("healthCheck") private services: HealthCheckable[],
@@ -36,7 +38,7 @@ export class HealthCheck {
 	}
 
 	start(options?: TerminusOptions) {
-		const server = createServer((req, res) => {
+		this.server = createServer((req, res) => {
 			res.statusCode = 404;
 			res.end("404 NOT FOUND");
 		});
@@ -70,15 +72,15 @@ export class HealthCheck {
 			...options,
 		};
 
-		createTerminus(server, options);
-		server.listen(
+		createTerminus(this.server, options);
+		this.server.listen(
 			process.env.KUBERNETES_SERVICE_HOST
 				? 9000
 				: process.env.LOCAL_HEALTH_CHECKS
 				? parseInt(process.env.LOCAL_HEALTH_CHECKS)
 				: undefined,
 			() => {
-				const address = server.address();
+				const address = this.server?.address();
 
 				if (address instanceof String) {
 					debug("app::health")(
@@ -91,5 +93,13 @@ export class HealthCheck {
 				}
 			},
 		);
+	}
+
+	async shutdown() {
+		await Promise.all(this.healthChecks.map((entry) => entry.shutdown()));
+
+		return new Promise<void>((resolve, reject) => {
+			this.server?.close((err) => (err ? reject(err) : resolve()));
+		});
 	}
 }
