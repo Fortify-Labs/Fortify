@@ -1,6 +1,6 @@
 {
   "name": "historization",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "A historization service responsible for persisting info",
   "author": {
     "name": "Thomas Kosiewski"
@@ -42,21 +42,21 @@
     "@sentry/cli": "^1.59.0",
     "@types/debug": "^4.1.5",
     "@types/jsonwebtoken": "^8.5.0",
-    "@types/node": "^14.14.7",
+    "@types/node": "^14.14.9",
     "@types/node-fetch": "^2.5.7",
     "@types/redis": "^2.8.28",
     "gts": "^3.0.2",
     "nodemon": "^2.0.6",
     "sync-dotenv": "^2.6.2",
     "ts-node": "^9.0.0",
-    "typescript": "^4.0.5"
+    "typescript": "^4.1.2"
   },
   "dependencies": {
     "@influxdata/influxdb-client": "^1.8.0",
     "@sentry/node": "^5.27.4",
     "bignumber.js": "^9.0.1",
     "cross-env": "^7.0.2",
-    "debug": "^4.2.0",
+    "debug": "^4.3.1",
     "dotenv": "^8.2.0",
     "inversify": "^5.0.1",
     "jsonwebtoken": "^8.5.1",

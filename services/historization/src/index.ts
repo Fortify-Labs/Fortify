@@ -34,7 +34,7 @@ const {
 	await container.get(Secrets).getSecrets();
 
 	const healthCheck = container.get(HealthCheck);
-	healthCheck.start();
+	await healthCheck.start();
 
 	const kafka = container.get(KafkaConnector);
 

@@ -25,7 +25,9 @@ export class PostgresConnector implements HealthCheckable {
 	connection: Promise<Connection>;
 
 	name = "Postgres";
+	setupHealthCheck = async () => {};
 	healthCheck: () => Promise<boolean>;
+	shutdown: () => Promise<unknown>;
 
 	constructor(
 		@inject(SecretsManager)
@@ -40,7 +42,9 @@ export class PostgresConnector implements HealthCheckable {
 
 			return conn.isConnected && conn.query("SELECT now();");
 		};
-
+		this.shutdown = async () =>
+			(await this.connection).isConnected &&
+			(await this.connection).close();
 		this.runMigration();
 	}
 

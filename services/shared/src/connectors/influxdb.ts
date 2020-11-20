@@ -17,6 +17,7 @@ const {
 export class InfluxDBConnector implements HealthCheckable {
 	name = "Influxdb";
 	healthCheck: () => Promise<boolean>;
+	shutdown: () => Promise<void>;
 
 	client: Promise<InfluxDB>;
 	healthAPI?: HealthAPI;
@@ -29,6 +30,7 @@ export class InfluxDBConnector implements HealthCheckable {
 	) {
 		// Set it to false by default
 		this.healthCheck = async () => false;
+		this.shutdown = async () => {};
 		this.client = this.newClient();
 	}
 
@@ -42,11 +44,14 @@ export class InfluxDBConnector implements HealthCheckable {
 			token: historizationToken,
 		});
 
-		this.healthAPI = new HealthAPI(influx);
+		return influx;
+	}
+
+	public async setupHealthCheck() {
+		this.healthAPI = new HealthAPI(await this.client);
+
 		this.healthCheck = async () =>
 			(await this.healthAPI?.getHealth())?.status === "pass";
-
-		return influx;
 	}
 
 	async writePoints(points: Point[]) {

@@ -33,7 +33,7 @@ yargs
 			try {
 				await container.get(Secrets).getSecrets();
 				const healthCheck = container.get(HealthCheck);
-				healthCheck.start();
+				await healthCheck.start();
 
 				debug("app::run")(argv);
 
@@ -53,6 +53,7 @@ yargs
 				await (
 					await container.get(PostgresConnector).connection
 				).close();
+				await healthCheck.shutdown();
 			} catch (e) {
 				debug("app::command::run")(e);
 				const exceptionID = captureException(e);
