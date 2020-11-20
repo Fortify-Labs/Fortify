@@ -9,7 +9,7 @@ import CookieConsent from "react-cookie-consent";
 import "../sass/mystyles.scss";
 import styles from "../css/_appStyles.module.css";
 
-import { Context } from "@shared/auth";
+import { Context } from "@shared/definitions/context";
 
 import packageJSON from "../package.json";
 import { getCookie } from "utils/cookie";

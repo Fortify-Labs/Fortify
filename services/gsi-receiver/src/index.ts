@@ -12,7 +12,8 @@ import { json, urlencoded } from "body-parser";
 import { container } from "./inversify.config";
 import { KafkaConnector } from "@shared/connectors/kafka";
 
-import { AuthService, PermissionScope } from "@shared/services/auth";
+import { PermissionScope } from "@shared/definitions/context";
+import { AuthService } from "@shared/services/auth";
 
 import { captureException, flush } from "@sentry/node";
 import { Secrets } from "./secrets";

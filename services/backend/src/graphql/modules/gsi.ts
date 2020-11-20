@@ -2,7 +2,8 @@ import { GQLModule } from "definitions/module";
 import { gql } from "apollo-server-express";
 import { inject, injectable } from "inversify";
 import { Resolvers } from "definitions/graphql/types";
-import { PermissionScope, AuthService } from "@shared/services/auth";
+import { PermissionScope } from "@shared/definitions/context";
+import { AuthService } from "@shared/services/auth";
 
 @injectable()
 export class GSIModule implements GQLModule {

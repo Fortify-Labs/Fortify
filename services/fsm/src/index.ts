@@ -19,7 +19,7 @@ import { CommandReducer } from "./definitions/commandReducer";
 import { verify } from "jsonwebtoken";
 
 import { Log, PublicPlayerState, PrivatePlayerState } from "./gsiTypes";
-import { Context } from "@shared/services/auth";
+import { Context } from "@shared/definitions/context";
 
 import { StateTransformationService } from "./services/stateTransformer";
 

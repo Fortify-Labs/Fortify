@@ -1,21 +1,7 @@
 import { inject, injectable } from "inversify";
 import { sign, SignOptions, verify } from "jsonwebtoken";
+import { Context, PermissionScope } from "../definitions/context";
 import { SecretsManager } from "./secrets";
-
-export enum PermissionScope {
-	Admin = "ADMIN",
-	User = "USER",
-	GsiIngress = "GSI_INGRESS",
-	Unknown = "UNKNOWN",
-}
-
-export interface Context {
-	user: {
-		id: string;
-	};
-
-	scopes: ReadonlyArray<PermissionScope>;
-}
 
 @injectable()
 export class AuthService {

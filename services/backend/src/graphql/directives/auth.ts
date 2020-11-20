@@ -4,7 +4,7 @@ import { GraphQLObjectType, GraphQLField } from "graphql";
 
 import { GQLDirective } from "../../definitions/directive";
 import { gql, ApolloError } from "apollo-server-express";
-import { Context, PermissionScope } from "@shared/services/auth";
+import { Context, PermissionScope } from "@shared/definitions/context";
 
 import { defaultFieldResolver } from "graphql";
 
