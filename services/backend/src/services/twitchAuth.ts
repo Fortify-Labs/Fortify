@@ -7,7 +7,8 @@ import passport from "passport";
 import { Strategy, VerifyCallback } from "passport-oauth2";
 
 import fetch from "node-fetch";
-import { AuthService, PermissionScope } from "@shared/services/auth";
+import { PermissionScope } from "@shared/definitions/context";
+import { AuthService } from "@shared/services/auth";
 import { PostgresConnector } from "@shared/connectors/postgres";
 import { EventService } from "@shared/services/eventService";
 import { TwitchLinkedEvent } from "@shared/events/systemEvents";

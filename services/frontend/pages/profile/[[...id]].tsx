@@ -10,7 +10,7 @@ import classNames from "classnames";
 
 import { getCookie } from "utils/cookie";
 import { decode } from "js-base64";
-import { Context, PermissionScope } from "@shared/auth";
+import { Context, PermissionScope } from "@shared/definitions/context";
 import { mapRankTierToName } from "@shared/ranks";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";

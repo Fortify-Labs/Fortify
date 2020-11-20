@@ -1,4 +1,4 @@
-import { Context } from "@shared/services/auth";
+import { Context } from "@shared/definitions/context";
 
 export interface Log {
 	block: Block[];

@@ -1,7 +1,7 @@
 import { StateReducer } from "../../definitions/stateReducer";
 import { PublicPlayerState } from "../../gsiTypes";
 import { FortifyPlayerState, FortifyGameMode } from "@shared/state";
-import { Context } from "@shared/services/auth";
+import { Context } from "@shared/definitions/context";
 import { injectable, inject } from "inversify";
 
 import { RankTierUpdateEvent } from "@shared/events/gameEvents";

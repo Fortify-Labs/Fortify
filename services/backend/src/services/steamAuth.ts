@@ -4,7 +4,8 @@ import { Application, Router, Request, Response } from "express";
 import passport from "passport";
 import { Strategy as SteamStrategy } from "passport-steam";
 
-import { AuthService, PermissionScope } from "@shared/services/auth";
+import { PermissionScope } from "@shared/definitions/context";
+import { AuthService } from "@shared/services/auth";
 import { PostgresConnector } from "@shared/connectors/postgres";
 import { User } from "@shared/db/entities/user";
 

@@ -10,7 +10,8 @@ import { EventService } from "@shared/services/eventService";
 
 import { User } from "@shared/db/entities/user";
 
-import { Context, PermissionScope, AuthService } from "@shared/services/auth";
+import { Context, PermissionScope } from "@shared/definitions/context";
+import { AuthService } from "@shared/services/auth";
 
 import {
 	TwitchLinkedEvent,

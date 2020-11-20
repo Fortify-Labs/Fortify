@@ -5,7 +5,7 @@ import { gql, ApolloError } from "apollo-server-express";
 import { Resolvers, MmrHistory } from "definitions/graphql/types";
 import { PostgresConnector } from "@shared/connectors/postgres";
 import { InfluxDBConnector } from "@shared/connectors/influxdb";
-import { PermissionScope } from "@shared/services/auth";
+import { PermissionScope } from "@shared/definitions/context";
 
 import {
 	fluxDuration,
