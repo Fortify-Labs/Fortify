@@ -18,8 +18,7 @@ import {
 	MatchFinalPlaceEvent,
 	MatchEndedEvent,
 } from "../events/gameEvents";
-
-const { STEAM_WEB_API_KEY } = process.env;
+import { SecretsManager } from "./secrets";
 
 export interface MatchServicePlayer {
 	accountID: string;
@@ -52,6 +51,12 @@ export class MatchService {
 		@inject(ExtractorService) private extractorService: ExtractorService,
 		@inject(LeaderboardService)
 		private leaderboardService: LeaderboardService,
+		@inject(SecretsManager)
+		private secrets: SecretsManager<{
+			steamWebApi: {
+				apiKey: string;
+			};
+		}>,
 	) {}
 
 	async generateMatchID(players: MatchServicePlayer[]) {
@@ -321,10 +326,14 @@ export class MatchService {
 			}
 
 			try {
+				const {
+					steamWebApi: { apiKey },
+				} = await this.secrets.getSecrets();
+
 				// TODO: Refactor this to be one request getting all 8 images instead of 8 requests getting one image
 				// Fetch image from steam web api
 				const playerSummaries = await fetch(
-					`http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${STEAM_WEB_API_KEY}&steamids=${convert32to64SteamId(
+					`http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${apiKey}&steamids=${convert32to64SteamId(
 						accountID,
 					)}`,
 				).then((res) => res.json() as Promise<GetPlayerSummaries>);
