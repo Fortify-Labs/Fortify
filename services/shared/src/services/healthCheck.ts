@@ -19,14 +19,11 @@ export interface HealthCheckable {
 export class HealthCheck {
 	live = false;
 
-	healthChecks: HealthCheckable[];
 	server?: Server;
 
 	constructor(
-		@multiInject("healthCheck") private services: HealthCheckable[],
-	) {
-		this.healthChecks = services;
-	}
+		@multiInject("healthCheck") private healthChecks: HealthCheckable[],
+	) {}
 
 	addHealthCheck(healthCheck: HealthCheckable) {
 		this.healthChecks.push(healthCheck);
@@ -103,16 +100,12 @@ export class HealthCheck {
 				},
 			);
 
-			process.on("SIGTERM", this.shutdown);
-			process.on("SIGINT", this.shutdown);
+			process.on("SIGTERM", () => this.shutdown());
+			process.on("SIGINT", () => this.shutdown());
 		});
 	}
 
 	async shutdown() {
-		await Promise.all(this.healthChecks.map((entry) => entry.shutdown()));
-
-		return new Promise<void>((resolve, reject) => {
-			this.server?.close((err) => (err ? reject(err) : resolve()));
-		});
+		return Promise.all(this.healthChecks.map((entry) => entry.shutdown()));
 	}
 }
