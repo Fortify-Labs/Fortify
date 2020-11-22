@@ -70,6 +70,12 @@ export class FortifyDeployment extends Construct {
 				periodSeconds: 10,
 			};
 		}
+		if (livenessProbe === null) {
+			livenessProbe = undefined;
+		}
+		if (readinessProbe === null) {
+			readinessProbe = undefined;
+		}
 
 		const selectorLabels = {
 			app: Node.of(this).uniqueId,
@@ -155,8 +161,8 @@ export class FortifyDeployment extends Construct {
 									})),
 								],
 								env,
-								livenessProbe: livenessProbe || undefined,
-								readinessProbe: readinessProbe || undefined,
+								livenessProbe,
+								readinessProbe,
 							},
 						],
 					},

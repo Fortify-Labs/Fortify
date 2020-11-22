@@ -1,6 +1,6 @@
 {
   "name": "backend",
-  "version": "1.5.1",
+  "version": "1.5.2",
   "private": true,
   "main": "build/index.js",
   "types": "build/index.d.ts",
@@ -61,7 +61,7 @@
     "chai-as-promised": "^7.1.1",
     "cpx": "^1.5.0",
     "debug": "^4.3.1",
-    "eslint": "^7.13.0",
+    "eslint": "^7.14.0",
     "eslint-config-google": "^0.14.0",
     "gts": "^3.0.2",
     "nodemon": "^2.0.6",

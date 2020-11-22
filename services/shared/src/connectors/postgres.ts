@@ -40,7 +40,7 @@ export class PostgresConnector implements HealthCheckable {
 		this.healthCheck = async () => {
 			const conn = await this.connection;
 
-			return conn.isConnected && conn.query("SELECT now();");
+			return conn.isConnected && (await conn.query("SELECT now();"));
 		};
 		this.shutdown = async () =>
 			(await this.connection).isConnected &&

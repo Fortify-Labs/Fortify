@@ -67,6 +67,10 @@ export class LobbyModule implements GQLModule {
 						throw new ApolloError(
 							"No Lobby ID passed",
 							"QUERY_LOBBY_ID",
+							{
+								context,
+								args,
+							},
 						);
 					}
 

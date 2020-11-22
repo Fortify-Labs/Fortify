@@ -6,6 +6,11 @@ import { schema } from "./schemaLoader";
 import * as Sentry from "@sentry/node";
 import { Transaction } from "@sentry/types";
 import { Context } from "@shared/definitions/context";
+import { GraphQLError } from "graphql";
+
+const { IGNORE_ERROR_CODES } = process.env;
+
+const ignorableErrorCodes = IGNORE_ERROR_CODES?.split(";");
 
 @injectable()
 export class GraphQL {
@@ -66,9 +71,16 @@ export class GraphQL {
 								for (const err of ctx.errors) {
 									// Only report internal server errors,
 									// all errors extending ApolloError should be user-facing
+									if (err instanceof ApolloError) {
+										continue;
+									}
+
 									if (
-										err instanceof ApolloError
-										// || err instanceof GraphQLError
+										err instanceof GraphQLError &&
+										err.extensions &&
+										ignorableErrorCodes?.includes(
+											err.extensions.code,
+										)
 									) {
 										continue;
 									}
@@ -119,6 +131,22 @@ export class GraphQL {
 										if (ctx.context.transaction) {
 											scope.setSpan(
 												ctx.context.transaction,
+											);
+										}
+
+										if (
+											err instanceof GraphQLError &&
+											err.extensions &&
+											err.extensions.code ===
+												"QUERY_LOBBY_ID"
+										) {
+											scope.setExtra(
+												"extensions",
+												JSON.stringify(
+													err.extensions,
+													null,
+													2,
+												),
 											);
 										}
 

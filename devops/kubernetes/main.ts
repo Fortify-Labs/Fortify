@@ -137,6 +137,11 @@ export class Fortify extends Chart {
 				},
 				{ name: "SENTRY_DSN", value: BACKEND_SENTRY_DSN },
 				{ name: "SENTRY_TRACE_SAMPLE_RATE", value: "0.2" },
+				{
+					name: "IGNORE_ERROR_CODES",
+					value:
+						"NOT_AUTHENTICATED;QUERY_PROFILE_NOT_ALLOWED;QUERY_LOBBY_FPS_LOBBY_ID;QUERY_LOBBY_FPS_NOT_FOUND",
+				},
 			],
 			secrets: [vaultSecret],
 			configmaps: [
