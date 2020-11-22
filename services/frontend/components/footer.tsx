@@ -30,6 +30,10 @@ export const Footer = () => {
 				</p>
 			</div>
 			<div className="content is-pulled-right">
+				<a href="https://status.fortify.gg" target="_blank">
+					Status
+				</a>{" "}
+				|{" "}
 				<Link href="/privacy" passHref>
 					<a>Privacy Policy</a>
 				</Link>{" "}
