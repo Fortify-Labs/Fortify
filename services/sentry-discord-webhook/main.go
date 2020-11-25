@@ -63,10 +63,16 @@ func main() {
 			return c.SendStatus(401)
 		}
 
-		alert, err := sentry.UnmarshalIssueAlert(body)
+		issueAlert, err := sentry.UnmarshalIssueAlert(body)
 
 		if err == nil {
-			discord.SendMessage(&alert)
+			discord.SendMessage(&issueAlert)
+		}
+
+		metricAlert, err := sentry.UnmarshalMetricAlert(body)
+
+		if err == nil {
+			discord.SendMetricAlertMessage(&metricAlert)
 		} else {
 			sugar.Errorw("An error occurred",
 				"err", err.Error(),

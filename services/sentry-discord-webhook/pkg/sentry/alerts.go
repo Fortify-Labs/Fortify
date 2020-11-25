@@ -196,3 +196,71 @@ type User struct {
 type Installation struct {
 	UUID *string `json:"uuid,omitempty"`
 }
+
+// This file was generated from JSON Schema using quicktype, do not modify it directly.
+// To parse and unparse this JSON data, add this code to your project and do:
+//
+//    metricAlert, err := UnmarshalMetricAlert(bytes)
+//    bytes, err = metricAlert.Marshal()
+
+func UnmarshalMetricAlert(data []byte) (MetricAlert, error) {
+	var r MetricAlert
+	err := json.Unmarshal(data, &r)
+	return r, err
+}
+
+func (r *MetricAlert) Marshal() ([]byte, error) {
+	return json.Marshal(r)
+}
+
+type MetricAlert struct {
+	Action       *string       `json:"action,omitempty"`
+	Actor        *Actor        `json:"actor,omitempty"`
+	Data         *Data         `json:"data,omitempty"`
+	Installation *Installation `json:"installation,omitempty"`
+}
+
+type Data struct {
+	DescriptionText  *string           `json:"description_text,omitempty"`
+	DescriptionTitle *string           `json:"description_title,omitempty"`
+	MetricAlert      *MetricAlertClass `json:"metric_alert,omitempty"`
+	WebURL           *string           `json:"web_url,omitempty"`
+}
+
+type MetricAlertClass struct {
+	AlertRule      *AlertRule  `json:"alert_rule,omitempty"`
+	DateClosed     interface{} `json:"date_closed"`
+	DateCreated    *string     `json:"date_created,omitempty"`
+	DateDetected   *string     `json:"date_detected,omitempty"`
+	DateStarted    *string     `json:"date_started,omitempty"`
+	ID             *string     `json:"id,omitempty"`
+	Identifier     *string     `json:"identifier,omitempty"`
+	OrganizationID *string     `json:"organization_id,omitempty"`
+	Projects       []string    `json:"projects,omitempty"`
+	Status         *int64      `json:"status,omitempty"`
+	StatusMethod   *int64      `json:"status_method,omitempty"`
+	Title          *string     `json:"title,omitempty"`
+	Type           *int64      `json:"type,omitempty"`
+}
+
+type AlertRule struct {
+	Aggregate          *string       `json:"aggregate,omitempty"`
+	CreatedBy          interface{}   `json:"created_by"`
+	Dataset            *string       `json:"dataset,omitempty"`
+	DateCreated        *string       `json:"date_created,omitempty"`
+	DateModified       *string       `json:"date_modified,omitempty"`
+	Environment        interface{}   `json:"environment"`
+	ID                 *string       `json:"id,omitempty"`
+	IncludeAllProjects *bool         `json:"include_all_projects,omitempty"`
+	Name               *string       `json:"name,omitempty"`
+	OrganizationID     *string       `json:"organization_id,omitempty"`
+	Projects           []string      `json:"projects,omitempty"`
+	Query              *string       `json:"query,omitempty"`
+	Resolution         *int64        `json:"resolution,omitempty"`
+	ResolveThreshold   interface{}   `json:"resolve_threshold"`
+	Status             *int64        `json:"status,omitempty"`
+	ThresholdPeriod    *int64        `json:"threshold_period,omitempty"`
+	ThresholdType      *int64        `json:"threshold_type,omitempty"`
+	TimeWindow         *int64        `json:"time_window,omitempty"`
+	Triggers           []interface{} `json:"triggers,omitempty"`
+}
