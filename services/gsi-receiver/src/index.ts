@@ -15,7 +15,7 @@ import { KafkaConnector } from "@shared/connectors/kafka";
 import { PermissionScope } from "@shared/definitions/context";
 import { AuthService } from "@shared/services/auth";
 
-import { captureException, flush } from "@sentry/node";
+import { captureException } from "@sentry/node";
 import { Secrets } from "./secrets";
 import { HealthCheck } from "@shared/services/healthCheck";
 
@@ -87,11 +87,11 @@ const { KAFKA_TOPIC, MY_PORT } = process.env;
 		}
 	});
 
-	app.get("/sentry", async (req, res) => {
-		const exception = new Error("Sentry error test");
-		const errorID = captureException(exception);
-		await flush();
-		res.status(200).json({ errorID });
+	app.get("/health", (req, res) => {
+		// This can be a simple response and no additional health checks done
+		// as we can assume that kubernetes wouldn't route any traffic to this instance
+		// in case the pod would become not ready
+		res.status(200).json({ success: true });
 	});
 
 	app.use((req, res) => {

@@ -18,7 +18,7 @@ export const verifyToken = async (token: string) => {
 						if (decoded) {
 							return resolve(decoded as Record<string, unknown>);
 						} else {
-							return resolve(decoded);
+							return reject(new Error("Undefined JWT decoded"));
 						}
 					}
 				});

@@ -24,7 +24,7 @@ export class VaultConnector implements HealthCheckable {
 	name = "Vault";
 	setupHealthCheck = async () => {};
 	healthCheck: () => Promise<boolean>;
-	shutdown: () => Promise<void>;
+	shutdown = async () => {};
 
 	constructor() {
 		this.vault = vault();
@@ -53,8 +53,6 @@ export class VaultConnector implements HealthCheckable {
 
 			return health.initialized && !health.sealed;
 		};
-
-		this.shutdown = async () => {};
 	}
 
 	read(path: string): Promise<VaultRead> {

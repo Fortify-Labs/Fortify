@@ -137,6 +137,11 @@ export class Fortify extends Chart {
 				},
 				{ name: "SENTRY_DSN", value: BACKEND_SENTRY_DSN },
 				{ name: "SENTRY_TRACE_SAMPLE_RATE", value: "0.2" },
+				{
+					name: "IGNORE_ERROR_CODES",
+					value:
+						"NOT_AUTHENTICATED;QUERY_PROFILE_NOT_ALLOWED;QUERY_LOBBY_FPS_LOBBY_ID;QUERY_LOBBY_FPS_NOT_FOUND",
+				},
 			],
 			secrets: [vaultSecret],
 			configmaps: [
@@ -244,7 +249,7 @@ export class Fortify extends Chart {
 		new WebService(this, "sentry-discord-webhook", {
 			name: "sentry-discord-webhook",
 			replicas: 1,
-			version: "1.1.0",
+			version: "1.1.1",
 			env: [
 				{ name: "LISTEN_ADDRESS", value: ":8080" },
 				{ name: "WEBHOOK_ENV", value: "prod" },
@@ -269,8 +274,8 @@ export class Fortify extends Chart {
 		new WebService(this, "sentry-discord-dev-webhook", {
 			name: "sentry-discord-dev-webhook",
 			replicas: 1,
-			version: "1.1.0",
-			image: REGISTRY + "sentry-discord-webhook:1.1.0",
+			version: "1.1.1",
+			image: REGISTRY + "sentry-discord-webhook:1.1.1",
 			env: [
 				{ name: "LISTEN_ADDRESS", value: ":8080" },
 				{

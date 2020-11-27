@@ -53,7 +53,8 @@ yargs
 				await (
 					await container.get(PostgresConnector).connection
 				).close();
-				await healthCheck.shutdown();
+
+				process.kill(process.pid, "SIGTERM");
 			} catch (e) {
 				debug("app::command::run")(e);
 				const exceptionID = captureException(e);

@@ -74,3 +74,7 @@ jobs:
       - run: npm run record
       - run: npm run build
       - run: kubectl apply -f dist/fortify.k8s.yaml
+      - uses: sarisia/actions-status-discord@v1
+        if: always()
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
