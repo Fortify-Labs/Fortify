@@ -1,4 +1,4 @@
-import { Context } from "@shared/definitions/context";
+import { Context } from "./context";
 
 export interface Log {
 	block: Block[];

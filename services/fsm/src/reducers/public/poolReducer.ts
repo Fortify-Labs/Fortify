@@ -19,7 +19,7 @@ export class PoolReducer implements StateReducer<PublicPlayerState> {
 
 	async processor(
 		state: FortifyPlayerState,
-		context: Context,
+		context: Pick<Context, "user">,
 		publicPlayerState: PublicPlayerState,
 	) {
 		// Parse each players units first

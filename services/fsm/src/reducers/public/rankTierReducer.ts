@@ -6,7 +6,7 @@ import { injectable, inject } from "inversify";
 
 import { RankTierUpdateEvent } from "@shared/events/gameEvents";
 import { EventService } from "@shared/services/eventService";
-import { StateTransformationService } from "../../services/stateTransformer";
+import { StateService } from "../../services/state";
 
 @injectable()
 export class RankTierReducer implements StateReducer<PublicPlayerState> {
@@ -14,13 +14,13 @@ export class RankTierReducer implements StateReducer<PublicPlayerState> {
 
 	constructor(
 		@inject(EventService) private eventService: EventService,
-		@inject(StateTransformationService)
-		private stateTransformationService: StateTransformationService,
+		@inject(StateService)
+		private stateTransformationService: StateService,
 	) {}
 
 	async processor(
 		state: FortifyPlayerState,
-		context: Context,
+		context: Pick<Context, "user">,
 		publicPlayerState: PublicPlayerState,
 	) {
 		const { account_id, rank_tier } = publicPlayerState;

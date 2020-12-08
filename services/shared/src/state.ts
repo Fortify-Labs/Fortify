@@ -1,3 +1,5 @@
+import { PrivatePlayerState, PublicPlayerState } from "./definitions/gsiTypes";
+
 export enum FortifyGameMode {
 	Invalid = 0,
 	Normal = 1,
@@ -55,4 +57,37 @@ export interface FortifyPlayer {
 		rank: number;
 		draftTier: number;
 	}>;
+}
+
+export interface StorableState {
+	toString(): string;
+}
+
+export enum UserCacheKey {
+	matchID = "matchID",
+	cache = "cache",
+}
+
+export interface PlayerSnapshot {
+	id: string;
+
+	public_player_state: PublicPlayerState;
+	private_player_state?: PrivatePlayerState;
+}
+
+export interface MatchState {
+	id: string;
+
+	// timestamps
+	created: number;
+	updated: number;
+	ended?: number;
+
+	updateCount: number;
+
+	mode: FortifyGameMode;
+	averageMMR: number;
+
+	players: Record<string, PlayerSnapshot>;
+	pool: Record<number, number>;
 }

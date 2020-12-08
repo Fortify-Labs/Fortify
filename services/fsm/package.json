@@ -1,6 +1,6 @@
 {
   "name": "fsm",
-  "version": "1.5.1",
+  "version": "1.6.0",
   "description": "Finite State Machine",
   "author": {
     "name": "Thomas Kosiewski"
@@ -39,25 +39,25 @@
     "dev": "DEBUG=app:* nodemon"
   },
   "devDependencies": {
-    "@sentry/cli": "^1.59.0",
+    "@sentry/cli": "^1.60.1",
     "@types/debug": "^4.1.5",
     "@types/jsonwebtoken": "^8.5.0",
-    "@types/node": "^14.14.9",
+    "@types/node": "^14.14.10",
     "@types/redis": "^2.8.28",
-    "gts": "^3.0.2",
+    "gts": "^3.0.3",
     "nodemon": "^2.0.6",
     "sync-dotenv": "^2.6.2",
-    "ts-node": "^9.0.0",
+    "ts-node": "^9.1.0",
     "typescript": "^4.1.2"
   },
   "dependencies": {
-    "@sentry/node": "^5.27.4",
-    "cross-env": "^7.0.2",
+    "@sentry/node": "^5.28.0",
+    "cross-env": "^7.0.3",
     "debug": "^4.3.1",
     "dotenv": "^8.2.0",
     "inversify": "^5.0.1",
     "jsonwebtoken": "^8.5.1",
-    "kafkajs": "^1.14.0",
+    "kafkajs": "^1.15.0",
     "redis": "^3.0.2",
     "reflect-metadata": "^0.1.13",
     "tsconfig-paths": "^3.9.0"

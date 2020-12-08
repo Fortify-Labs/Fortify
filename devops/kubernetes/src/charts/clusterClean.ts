@@ -596,7 +596,7 @@ export class ClusterSetupClean extends Chart {
 		});
 
 		// Influxdb RC1
-		const influxdbSSLabelsRC1 = {
+		const influxdbLabels = {
 			app: "influxdb-rc",
 		};
 
@@ -604,22 +604,22 @@ export class ClusterSetupClean extends Chart {
 			metadata: {
 				name: "influxdb-rc",
 				namespace: influxNS.name,
-				labels: influxdbSSLabelsRC1,
+				labels: influxdbLabels,
 			},
 			spec: {
 				replicas: 1,
 				selector: {
-					matchLabels: influxdbSSLabelsRC1,
+					matchLabels: influxdbLabels,
 				},
 				serviceName: "influxdb-rc",
 				template: {
 					metadata: {
-						labels: influxdbSSLabelsRC1,
+						labels: influxdbLabels,
 					},
 					spec: {
 						containers: [
 							{
-								image: "quay.io/influxdb/influxdb:2.0.0-rc",
+								image: "quay.io/influxdb/influxdb:2.0.2",
 								name: "influxdb",
 								ports: [
 									{
@@ -657,7 +657,7 @@ export class ClusterSetupClean extends Chart {
 			},
 		});
 
-		new Service(this, "influxdb-rc-service", {
+		new Service(this, "influxdb-service", {
 			metadata: {
 				name: influxdbSS.name,
 				namespace: influxNS.name,
@@ -670,7 +670,7 @@ export class ClusterSetupClean extends Chart {
 						targetPort: 8086,
 					},
 				],
-				selector: influxdbSSLabelsRC1,
+				selector: influxdbLabels,
 				type: "ClusterIP",
 			},
 		});

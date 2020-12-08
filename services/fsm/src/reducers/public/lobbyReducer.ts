@@ -3,9 +3,9 @@ import { FortifyGameMode, FortifyPlayerState } from "@shared/state";
 
 import { Context } from "@shared/definitions/context";
 
-import { PublicPlayerState } from "../../gsiTypes";
+import { PublicPlayerState } from "@shared/definitions/gsiTypes";
 import { StateReducer } from "../../definitions/stateReducer";
-import { StateTransformationService } from "../../services/stateTransformer";
+import { StateService } from "../../services/state";
 import { MatchService } from "@shared/services/match";
 
 import {
@@ -21,8 +21,7 @@ import { LeaderboardType } from "@shared/definitions/leaderboard";
 @injectable()
 export class LobbyPlayerReducer implements StateReducer<PublicPlayerState> {
 	constructor(
-		@inject(StateTransformationService)
-		private sts: StateTransformationService,
+		@inject(StateService) private sts: StateService,
 		@inject(MatchService) private matchService: MatchService,
 		@inject(EventService) private eventService: EventService,
 		@inject(ExtractorService) private extractorService: ExtractorService,
@@ -34,7 +33,7 @@ export class LobbyPlayerReducer implements StateReducer<PublicPlayerState> {
 
 	async processor(
 		state: FortifyPlayerState,
-		context: Context,
+		context: Pick<Context, "user">,
 		publicPlayerState: PublicPlayerState,
 		timestamp: string,
 	) {

@@ -2,7 +2,7 @@ import { injectable } from "inversify";
 import { FortifyPlayerState } from "@shared/state";
 import { poolSize } from "@shared/pool";
 
-import { Unit } from "../gsiTypes";
+import { Unit } from "@shared/definitions/gsiTypes";
 
 import { units, currentSeason, Unit as S1Unit } from "@shared/units";
 
