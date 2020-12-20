@@ -1,8 +1,9 @@
 import { injectable, inject } from "inversify";
 
-import { MatchState, UserCacheKey } from "@shared/state";
+import { MatchState, UserCache, UserCacheKey } from "@shared/state";
 import { RedisConnector } from "@shared/connectors/redis";
 import { captureException } from "@sentry/node";
+import debug from "debug";
 
 @injectable()
 export class StateService {
@@ -32,8 +33,37 @@ export class StateService {
 		return userMatchID;
 	}
 
-	async getUserMatchCache(steamid: string) {
-		// TODO: implement getUserMatchCache
+	async getUserCache(steamid: string): Promise<UserCache> {
+		const cache = await this.redis.client.get(
+			`user:${steamid}:${UserCacheKey.cache}`,
+		);
+
+		if (cache) {
+			return JSON.parse(cache);
+		} else {
+			return {
+				id: steamid,
+				players: {},
+			};
+		}
+	}
+	async setUserCache(steamid: string, cache: UserCache) {
+		const stringifiedCache = JSON.stringify(cache);
+		const userCache = await this.redis.client.set(
+			`user:${steamid}:${UserCacheKey.cache}`,
+			stringifiedCache,
+		);
+		await this.redis.client.expire(
+			`user:${steamid}:${UserCacheKey.cache}`,
+			// 2 hours
+			2 * 60 * 60,
+		);
+		await this.redis.client.publish(
+			`user:${steamid}:${UserCacheKey.cache}`,
+			stringifiedCache,
+		);
+
+		return userCache;
 	}
 
 	async getMatch(matchID: string): Promise<MatchState | null> {
@@ -41,18 +71,20 @@ export class StateService {
 
 		if (rawMatch) {
 			try {
-				const matchState = JSON.parse(matchID);
+				const matchState = JSON.parse(rawMatch);
 
 				return matchState;
 			} catch (e) {
-				captureException(e);
+				const exceptionID = captureException(e);
+				debug("app::getMatch")(exceptionID);
+				debug("app::getMatch")(e);
 			}
 		}
 
 		return null;
 	}
 
-	async setMatch(matchID: string, match: MatchState) {
+	async storeMatch(matchID: string, match: MatchState) {
 		const matchRes = await this.redis.client.set(
 			`match:${matchID}`,
 			JSON.stringify(match),

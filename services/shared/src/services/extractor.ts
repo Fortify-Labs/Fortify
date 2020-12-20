@@ -1,4 +1,4 @@
-import { FortifyPlayerState, FortifyPlayer, FortifyGameMode } from "../state";
+import { FortifyPlayerState, FortifyGameMode } from "../state";
 
 import { injectable, inject } from "inversify";
 
@@ -9,6 +9,17 @@ import { rankToMMRMapping, adjustedBigBossRanks } from "../ranks";
 
 import { ULLeaderboard } from "../definitions/leaderboard";
 import { Player } from "../definitions/player";
+
+export interface GetPlayerProps {
+	name: string;
+	global_leaderboard_rank?: number;
+	rank_tier?: number;
+}
+
+export interface AverageMMRCalculationProps {
+	global_leaderboard_rank?: number;
+	rank_tier?: number;
+}
 
 @injectable()
 export class ExtractorService {
@@ -41,31 +52,31 @@ export class ExtractorService {
 	}
 
 	async getPlayer(
-		player: FortifyPlayer,
+		player: GetPlayerProps,
 		leaderboard: ULLeaderboard | null,
 	): Promise<Player> {
 		// Interpolate the players mmr if not lord
-		if ((player.rankTier ?? 0) < 80) {
-			const minorRank = (player.rankTier ?? 0) % 10;
-			const majorRank = ((player.rankTier ?? 0) - minorRank) / 10;
+		if ((player.rank_tier ?? 0) < 80) {
+			const minorRank = (player.rank_tier ?? 0) % 10;
+			const majorRank = ((player.rank_tier ?? 0) - minorRank) / 10;
 
 			// Return the current players rank tier as negative rank
 			return {
 				mmr: rankToMMRMapping[majorRank][minorRank],
 				name: player.name,
-				rank: -(player.rankTier ?? 0),
+				rank: -(player.rank_tier ?? 0),
 			};
 		}
 
 		const userEntry = leaderboard?.leaderboard.find(
-			(entry) => entry.rank === player.globalLeaderboardRank,
+			(entry) => entry.rank === player.global_leaderboard_rank,
 		);
 
 		// If no rank & mmr is found, just default it to 15k and rank 0
 		return {
 			mmr: userEntry?.level_score ?? 15000,
 			name: player.name,
-			rank: player.globalLeaderboardRank ?? 0,
+			rank: player.global_leaderboard_rank ?? 0,
 		};
 	}
 
@@ -76,15 +87,14 @@ export class ExtractorService {
 	}
 
 	getAverageMMR(
-		lobbyPlayers: Record<string, FortifyPlayer>,
+		players: AverageMMRCalculationProps[],
 		leaderboard: ULLeaderboard | null,
-		user: FortifyPlayer | null,
+		user: AverageMMRCalculationProps | null,
 	) {
 		// Fetch all lord players' mmrs by leaderboard rank
 
-		const players = Object.values(lobbyPlayers);
 		const ranks = players
-			.map((player) => player.globalLeaderboardRank)
+			.map(({ global_leaderboard_rank }) => global_leaderboard_rank)
 			.filter((rank) => rank)
 			.sort();
 
@@ -98,10 +108,13 @@ export class ExtractorService {
 
 		// Check if there are any lords in the lobby in case the user is a spectator
 		const lordLobby: boolean = players
-			.map((player) => player.rankTier)
+			.map(({ rank_tier }) => rank_tier)
 			.reduce<boolean>((acc, rankTier) => acc || rankTier === 80, false);
 
-		for (const { rankTier, globalLeaderboardRank } of players) {
+		for (const {
+			rank_tier: rankTier,
+			global_leaderboard_rank: globalLeaderboardRank,
+		} of players) {
 			if (rankTier) {
 				const minorRank = rankTier % 10;
 				const majorRank = (rankTier - minorRank) / 10;
@@ -111,9 +124,9 @@ export class ExtractorService {
 				// If they are a lord, scale MMR as necessary to get the average
 				// If the user is not a lord, calculate the average normally
 				if (
-					(user?.rankTier ?? 0) >= 80 ||
-					((user?.rankTier === null ||
-						user?.rankTier === undefined) &&
+					(user?.rank_tier ?? 0) >= 80 ||
+					((user?.rank_tier === null ||
+						user?.rank_tier === undefined) &&
 						lordLobby)
 				) {
 					// If we find a lord without a leaderboard rank, ignore them in the average

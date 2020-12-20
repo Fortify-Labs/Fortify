@@ -1,4 +1,4 @@
-import { inject, injectable, multiInject } from "inversify";
+import { inject, injectable, multiInject, optional } from "inversify";
 import { VaultConnector } from "../connectors/vault";
 
 export interface SecretsRequest {
@@ -14,7 +14,9 @@ export class SecretsManager<
 
 	constructor(
 		@inject(VaultConnector) private vault: VaultConnector,
-		@multiInject("secrets") private secretsRequests: SecretsRequest[],
+		@multiInject("secrets")
+		@optional()
+		private secretsRequests: SecretsRequest[] = [],
 	) {
 		this.secrets = {} as T;
 	}

@@ -25,8 +25,9 @@ import { SystemEventType } from "@shared/events/systemEvents";
 import { ConsumerCrashEvent } from "kafkajs";
 import { Secrets } from "./secrets";
 import { HealthCheck } from "@shared/services/healthCheck";
+import { MatchService } from "@shared/services/match";
 import { MatchProcessor } from "./processors/match";
-import { FortifyGameMode, UserCacheKey } from "@shared/state";
+import { UserCacheKey } from "@shared/state";
 
 const {
 	KAFKA_FROM_START,
@@ -44,10 +45,12 @@ const {
 
 	const kafka = container.get(KafkaConnector);
 
-	// Get state transformer service
+	// Get state service
 	const stateService = container.get(StateService);
 	// Get match processor
 	const matchProcessor = container.get(MatchProcessor);
+	// Get match service
+	const matchService = container.get(MatchService);
 
 	// Get all reducers
 	const commandReducers = container.getAll<CommandReducer>("command");
@@ -98,9 +101,7 @@ const {
 
 						for (const block of gsi.block) {
 							// Get matchID for source account
-							const matchID = await stateService.getUserMatchID(
-								id,
-							);
+							let matchID = await stateService.getUserMatchID(id);
 
 							// Is matchID set?
 							if (matchID) {
@@ -156,14 +157,71 @@ const {
 									});
 								} else {
 									// Unset matchID cache for source account
-									stateService.resetUserCache(
+									await stateService.resetUserCache(
 										id,
 										UserCacheKey.matchID,
 									);
+									// Clean user cache
+									await stateService.resetUserCache(
+										id,
+										UserCacheKey.cache,
+									);
+									matchID = null;
 								}
-							} else {
-								// TODO: Calculate new matchID
-								const newMatchID: string | null = "123";
+							}
+
+							if (!matchID) {
+								const cache = await stateService.getUserCache(
+									id,
+								);
+
+								const utcTimestamp = new Date().getTime();
+
+								if (!cache.created) {
+									cache.created = utcTimestamp;
+								}
+								cache.updated = utcTimestamp;
+
+								for (const {
+									public_player_state,
+								} of block.data) {
+									if (public_player_state) {
+										const {
+											account_id,
+										} = public_player_state;
+
+										if (account_id) {
+											cache.players[account_id] = {
+												id: account_id.toString(),
+												public_player_state,
+											};
+										}
+									}
+								}
+								await stateService.setUserCache(id, cache);
+
+								let newMatchID: string | null = null;
+
+								// Calculate new matchID once we have collected 8 players
+								if (Object.keys(cache.players).length > 7) {
+									newMatchID = await matchService.generateMatchID(
+										Object.values(cache.players).map(
+											({
+												public_player_state: {
+													account_id,
+													final_place,
+													persona_name,
+													player_slot,
+												},
+											}) => ({
+												accountID: account_id.toString(),
+												finalPlace: final_place,
+												name: persona_name,
+												slot: player_slot,
+											}),
+										),
+									);
+								}
 
 								// As matchID calculation happens over a period of time
 								// the newMatchID is going to be null until information
@@ -173,25 +231,25 @@ const {
 										id,
 										newMatchID,
 									);
+									await stateService.resetUserCache(
+										id,
+										UserCacheKey.cache,
+									);
 
 									let matchData = await stateService.getMatch(
 										newMatchID,
 									);
 
 									if (!matchData) {
-										// TODO: Create initialized match object
 										matchData = {
 											id: newMatchID,
 											updateCount: 0,
-											averageMMR: 0,
-											created: 0,
-											mode: FortifyGameMode.Normal,
-											players: {},
-											pool: {},
-											updated: 0,
+											created: utcTimestamp,
+											updated: utcTimestamp,
+											players: cache.players,
 										};
 
-										await stateService.setMatch(
+										await stateService.storeMatch(
 											newMatchID,
 											matchData,
 										);

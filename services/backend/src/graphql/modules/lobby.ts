@@ -4,7 +4,7 @@ import { GQLModule } from "definitions/module";
 import { gql, ApolloError } from "apollo-server-express";
 import { Resolvers, Lobby } from "definitions/graphql/types";
 import { RedisConnector } from "@shared/connectors/redis";
-import { FortifyPlayerState } from "@shared/state";
+import { MatchState, UserCacheKey } from "@shared/state";
 import { PostgresConnector } from "@shared/connectors/postgres";
 import { GQLPubSub } from "../pubsub";
 
@@ -65,7 +65,7 @@ export class LobbyModule implements GQLModule {
 
 					if (!id) {
 						throw new ApolloError(
-							"No Lobby ID passed",
+							"No User ID passed",
 							"QUERY_LOBBY_ID",
 							{
 								context,
@@ -74,34 +74,51 @@ export class LobbyModule implements GQLModule {
 						);
 					}
 
-					const rawFPS = await redis.getAsync(`ps:${id}`);
-					if (!rawFPS) {
+					const matchID = await redis.getAsync(
+						`user:${id}:${UserCacheKey.matchID}`,
+					);
+
+					if (!matchID) {
 						throw new ApolloError(
-							`Could not find player state for ${id}`,
-							"QUERY_LOBBY_FPS_NOT_FOUND",
+							"No match ID has been determined yet",
+							"QUERY_LOBBY_MATCH_ID",
+							{
+								context,
+								args,
+							},
 						);
 					}
 
-					const fps: FortifyPlayerState = JSON.parse(rawFPS);
+					const rawMatch = await redis.getAsync(`match:${matchID}`);
+					if (!rawMatch) {
+						throw new ApolloError(
+							`Could not find match for id ${id}`,
+							"QUERY_LOBBY_MATCH_NOT_FOUND",
+						);
+					}
 
-					if (!fps.lobby.id) {
+					const matchState: MatchState = JSON.parse(rawMatch);
+
+					if (!matchState.id) {
 						throw new ApolloError(
 							"No lobby found yet",
 							"QUERY_LOBBY_FPS_LOBBY_ID",
 						);
 					}
 
-					const now = new Date();
-					const utc = new Date(
-						now.getTime() + now.getTimezoneOffset() * 60000,
-					);
+					const utc = new Date();
+					// const now = new Date();
+					// const utc = new Date(
+					// 	now.getTime() + now.getTimezoneOffset() * 60000,
+					// );
 
 					const duration =
-						(fps.lobby.ended ?? utc.getTime()) - fps.lobby.created;
+						(matchState.ended ?? utc.getTime()) -
+						matchState.created;
 
 					return {
-						id: fps.lobby.id,
-						averageMMR: fps.lobby.averageMMR,
+						id: matchState.id,
+						averageMMR: matchState.averageMMR,
 						duration: `${new Date(duration)
 							.toISOString()
 							.substr(11, 8)} min`,
@@ -111,45 +128,54 @@ export class LobbyModule implements GQLModule {
 			},
 			Subscription: {
 				lobby: {
-					subscribe(_, args, context) {
+					async subscribe(_, args, context) {
 						let id = context.user?.id;
 
-						if (args.id) {
+						if (args && args.id) {
 							id = args.id;
 						}
 
 						if (!id) {
 							throw new ApolloError(
-								"No Lobby ID passed",
+								"No User ID passed",
 								"SUBSCRIPTION_LOBBY_ID",
 							);
 						}
 
-						return pubSub.asyncIterator(`ps:${id}`);
+						const matchID = await redis.getAsync(
+							`user:${id}:${UserCacheKey.matchID}`,
+						);
+
+						if (!matchID) {
+							throw new ApolloError(
+								`No match id found for user ${id}`,
+								"LOBBY_POOL_MATCH_ID",
+							);
+						}
+
+						return pubSub.asyncIterator(`match:${matchID}`);
 					},
-					async resolve(
-						payload?: FortifyPlayerState,
-					): Promise<Lobby | null> {
-						if (!payload?.lobby.id) {
+					async resolve(payload?: MatchState): Promise<Lobby | null> {
+						if (!payload?.id) {
 							return null;
 						}
 
-						const now = new Date();
-						const utc = new Date(
-							now.getTime() + now.getTimezoneOffset() * 60000,
-						);
+						const utc = new Date();
+						// const now = new Date();
+						// const utc = new Date(
+						// 	now.getTime() + now.getTimezoneOffset() * 60000,
+						// );
 
 						const duration =
-							(payload.lobby.ended ?? utc.getTime()) -
-							payload.lobby.created;
+							(payload.ended ?? utc.getTime()) - payload.created;
 
 						return {
-							id: payload.lobby.id,
-							averageMMR: payload.lobby.averageMMR,
+							id: payload.id,
+							averageMMR: payload.averageMMR,
 							duration: `${new Date(duration)
 								.toISOString()
 								.substr(11, 8)} min`,
-							pool: JSON.stringify(payload.lobby.pool),
+							pool: JSON.stringify(payload.pool),
 						};
 					},
 				},
@@ -184,13 +210,29 @@ export class LobbyModule implements GQLModule {
 						);
 					}
 
-					const rawFPS = await redis.getAsync(`ps:${userID}`);
+					const matchID = await redis.getAsync(
+						`user:${userID}:${UserCacheKey.matchID}`,
+					);
 
-					const fps: FortifyPlayerState = rawFPS
-						? JSON.parse(rawFPS)
-						: new FortifyPlayerState(userID);
+					if (!matchID) {
+						throw new ApolloError(
+							`No match id found for user ${userID}`,
+							"LOBBY_POOL_MATCH_ID",
+						);
+					}
 
-					return JSON.stringify(fps.lobby.pool);
+					const rawMatch = await redis.getAsync(`match:${matchID}`);
+
+					if (!rawMatch) {
+						throw new ApolloError(
+							`No lobby found for ${matchID}`,
+							"LOBBY_POOL_RAW_MATCH",
+						);
+					}
+
+					const fps: MatchState = JSON.parse(rawMatch);
+
+					return JSON.stringify(fps.pool);
 				},
 			},
 			LobbySlot: {

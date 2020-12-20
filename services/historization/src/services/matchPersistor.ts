@@ -5,6 +5,7 @@ import {
 	MatchFinalPlaceEvent,
 	MatchEndedEvent,
 	RankTierUpdateEvent,
+	SmurfDetectedEvent,
 } from "@shared/events/gameEvents";
 import { FortifyEvent } from "@shared/events/events";
 import { MatchService } from "@shared/services/match";
@@ -44,6 +45,11 @@ export class MatchPersistor {
 					event,
 				);
 				return this.updateRankTier(rankTierUpdateEvent);
+			}
+
+			if (event.type === GameEventType.SMURF_DETECTED) {
+				const smurfEvent = SmurfDetectedEvent.deserialize(event);
+				return this.storeSmurfEvent(smurfEvent);
 			}
 		} catch (e) {
 			debug("app::MatchPersistor")(e);
@@ -125,5 +131,19 @@ export class MatchPersistor {
 
 			await userRepo.save(user);
 		}
+	}
+
+	// {"timestamp":"2020-12-20T17:47:29.804Z","originalAccountID":"52601326","smurfAccountID":"1028035860","type":5}
+	async storeSmurfEvent(smurfEvent: SmurfDetectedEvent) {
+		const userRepo = await this.postgres.getUserRepo();
+
+		const { smurfAccountID, originalAccountID: mainAccountID } = smurfEvent;
+
+		const mainAccount = await userRepo.findOneOrFail(mainAccountID);
+		const smurfAccount = await userRepo.findOneOrFail(smurfAccountID);
+
+		smurfAccount.mainAccount = mainAccount;
+
+		return userRepo.save(smurfAccount);
 	}
 }

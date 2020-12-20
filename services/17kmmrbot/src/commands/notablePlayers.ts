@@ -7,13 +7,14 @@ import { ChatUserstate, Client } from "tmi.js";
 
 import { ExtractorService } from "@shared/services/extractor";
 
-import { FortifyGameMode } from "@shared/state";
+import { FortifyGameMode, MatchState, UserCacheKey } from "@shared/state";
 import { LeaderboardService } from "@shared/services/leaderboard";
 import {
 	ULLeaderboard,
 	LeaderboardType,
 } from "@shared/definitions/leaderboard";
 
+import { RedisConnector } from "@shared/connectors/redis";
 import { majorRankNameMapping } from "@shared/ranks";
 import { captureTwitchException } from "../lib/sentryUtils";
 
@@ -23,6 +24,7 @@ export class NotablePlayersCommand implements TwitchCommand {
 		@inject(ExtractorService) private extractorService: ExtractorService,
 		@inject(LeaderboardService)
 		private leaderboardService: LeaderboardService,
+		@inject(RedisConnector) private redis: RedisConnector,
 	) {}
 
 	invocations = ["!np", "!lobby"];
@@ -39,47 +41,50 @@ export class NotablePlayersCommand implements TwitchCommand {
 		try {
 			const user = await this.extractorService.getUser(channel);
 
-			// Fetch fortify player state by steamid
-			const fps = await this.extractorService.getPlayerState(
-				user.steamid,
+			const matchID = await this.redis.getAsync(
+				`user:${user.steamid}:${UserCacheKey.matchID}`,
 			);
 
-			if (!fps) {
+			if (!matchID) {
 				return client.say(
 					channel,
-					"No player state found for " + user.name,
+					"No match id found for " + user.name,
 				);
 			}
 
-			const gameMode = await this.extractorService.getGameMode(fps);
+			// Fetch fortify player state by steamid
+			const rawMatch = await this.redis.getAsync(`match:${matchID}`);
 
-			if (
-				!gameMode ||
-				gameMode === FortifyGameMode[FortifyGameMode.Invalid]
-			) {
+			if (!rawMatch) {
+				return client.say(channel, "No match found for " + user.name);
+			}
+
+			const matchState: MatchState = JSON.parse(rawMatch);
+
+			if (!matchState.mode) {
 				return client.say(channel, "No game mode detected");
 			}
 
 			let leaderboard: ULLeaderboard | null = null;
 
-			if (gameMode === FortifyGameMode[FortifyGameMode.Normal]) {
+			if (matchState.mode === FortifyGameMode.Normal) {
 				leaderboard = await this.leaderboardService.fetchLeaderboard(
 					LeaderboardType.Standard,
 				);
-			} else if (gameMode === FortifyGameMode[FortifyGameMode.Turbo]) {
+			} else if (matchState.mode === FortifyGameMode.Turbo) {
 				leaderboard = await this.leaderboardService.fetchLeaderboard(
 					LeaderboardType.Turbo,
 				);
-			} else if (gameMode === FortifyGameMode[FortifyGameMode.Duos]) {
+			} else if (matchState.mode === FortifyGameMode.Duos) {
 				leaderboard = await this.leaderboardService.fetchLeaderboard(
 					LeaderboardType.Duos,
 				);
 			}
 
 			// Get current user to calculate average based on the user (or spectator)
-			const lobbyUser = fps.lobby.players[user.steamid];
+			const lobbyUser = matchState.players[user.steamid];
 
-			if (Object.keys(fps.lobby.players).length !== 8) {
+			if (Object.keys(matchState.players).length !== 8) {
 				return client.say(
 					channel,
 					"Collecting game data, please try again in a little bit",
@@ -87,18 +92,46 @@ export class NotablePlayersCommand implements TwitchCommand {
 			}
 
 			const averageMMR = this.extractorService.getAverageMMR(
-				fps.lobby.players,
+				Object.values(matchState.players).map(
+					({
+						public_player_state: {
+							global_leaderboard_rank,
+							rank_tier,
+						},
+					}) => ({
+						global_leaderboard_rank,
+						rank_tier,
+					}),
+				),
 				leaderboard,
-				lobbyUser,
+				{
+					global_leaderboard_rank:
+						lobbyUser.public_player_state.global_leaderboard_rank,
+					rank_tier: lobbyUser.public_player_state.rank_tier,
+				},
 			);
 
-			let response = `${gameMode} [${averageMMR} avg MMR]: `;
+			let response = `${
+				FortifyGameMode[matchState.mode]
+			} [${averageMMR} avg MMR]: `;
 
 			// Get players and sort them by mmr rank
-			const playerPromises = Object.values(
-				fps.lobby.players,
-			).map((player) =>
-				this.extractorService.getPlayer(player, leaderboard),
+			const playerPromises = Object.values(matchState.players).map(
+				({
+					public_player_state: {
+						persona_name,
+						global_leaderboard_rank,
+						rank_tier,
+					},
+				}) =>
+					this.extractorService.getPlayer(
+						{
+							name: persona_name,
+							global_leaderboard_rank,
+							rank_tier,
+						},
+						leaderboard,
+					),
 			);
 
 			const players = (await Promise.all(playerPromises)).sort((a, b) =>

@@ -11,6 +11,8 @@ import {
 	Unit,
 } from "@shared/units";
 import { poolSize } from "@shared/pool";
+import { RedisConnector } from "@shared/connectors/redis";
+import { MatchState, UserCacheKey } from "@shared/state";
 
 @injectable()
 export class LeftCommand implements TwitchCommand {
@@ -21,6 +23,7 @@ export class LeftCommand implements TwitchCommand {
 
 	constructor(
 		@inject(ExtractorService) private extractorService: ExtractorService,
+		@inject(RedisConnector) private redis: RedisConnector,
 	) {}
 
 	async handler(
@@ -31,17 +34,24 @@ export class LeftCommand implements TwitchCommand {
 	): Promise<unknown> {
 		const user = await this.extractorService.getUser(channel);
 
-		// Fetch fortify player state by steamid
-		const fps = await this.extractorService.getPlayerState(user.steamid);
+		const matchID = await this.redis.getAsync(
+			`user:${user.steamid}:${UserCacheKey.matchID}`,
+		);
 
-		if (!fps) {
-			return client.say(
-				channel,
-				`No player state found for ${user.name}`,
-			);
+		if (!matchID) {
+			return client.say(channel, "No match id found for " + user.name);
 		}
 
-		if (Object.keys(fps.lobby.players).length < 8 || !fps.lobby.pool) {
+		// Fetch fortify player state by steamid
+		const rawMatch = await this.redis.getAsync(`match:${matchID}`);
+
+		if (!rawMatch) {
+			return client.say(channel, "No match found for " + user.name);
+		}
+
+		const matchState: MatchState = JSON.parse(rawMatch);
+
+		if (Object.keys(matchState.players).length < 8 || !matchState.pool) {
 			return client.say(
 				channel,
 				"Collecting game data, please try again in a little bit",
@@ -64,7 +74,7 @@ export class LeftCommand implements TwitchCommand {
 				const tier = parseInt(tierName);
 
 				// Copy & pasted from frontend "lobby/pool"-component
-				const pool = fps.lobby.pool;
+				const pool = matchState.pool;
 				const currentUnits = units[currentSeason];
 				const mappedUnits = Object.entries(currentUnits).reduce<
 					Record<string, Unit & { name: string }>
@@ -135,7 +145,7 @@ export class LeftCommand implements TwitchCommand {
 		}
 
 		const { id, draftTier } = unit;
-		const left = fps.lobby.pool[id];
+		const left = matchState.pool[id];
 		const total = poolSize[draftTier] ?? 0;
 
 		return client.say(

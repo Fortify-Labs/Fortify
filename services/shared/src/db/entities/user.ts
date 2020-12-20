@@ -5,6 +5,7 @@ import {
 	OneToMany,
 	CreateDateColumn,
 	UpdateDateColumn,
+	ManyToOne,
 } from "typeorm";
 import { MatchSlot } from "./matchSlot";
 
@@ -82,6 +83,11 @@ export class User {
 	// --- Relations ---
 	@OneToMany(() => MatchSlot, (slot) => slot.user)
 	matchSlots!: MatchSlot[];
+
+	// --- Smurfs ---
+
+	@ManyToOne(() => User, { nullable: true })
+	mainAccount?: User;
 
 	// --- Dates ---
 
