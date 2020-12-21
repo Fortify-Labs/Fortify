@@ -3,8 +3,8 @@ import { injectable, inject } from "inversify";
 import { PostgresConnector } from "../connectors/postgres";
 import { Match } from "../db/entities/match";
 import { MatchSlot } from "../db/entities/matchSlot";
-import { ExtractorService } from "./extractor";
-import { FortifyPlayer, FortifyGameMode } from "../state";
+import { AverageMMRCalculationProps, ExtractorService } from "./extractor";
+import { FortifyGameMode } from "../state";
 import { LeaderboardService } from "./leaderboard";
 import { LeaderboardType } from "../definitions/leaderboard";
 import { currentSeason } from "../units";
@@ -152,16 +152,6 @@ export class MatchService {
 			}
 		} while (!foundMatchID);
 
-		// Old method of generating the match id
-		// do {
-		// 	// Check if matchID already is in DB
-		// 	// if found in DB, loop until an unused matchID has been generated
-		// 	// this assures us to always get a clean and unused technical match id
-		// 	nonce += 1;
-		// 	matchID = matchIDGenerator(players, nonce);
-		// 	match = await matchRepo.findOne(matchID);
-		// } while (match);
-
 		return matchID;
 	}
 
@@ -195,15 +185,11 @@ export class MatchService {
 			match.created = timestamp;
 			match.updated = timestamp;
 
-			const playerRecord = players.reduce<Record<string, FortifyPlayer>>(
-				(acc, player) => {
-					// we can set the name to an empty string here
-					// as the player's name is not needed for mmr average calculations
-					acc[player.accountID] = { ...player, name: "" };
-
-					return acc;
-				},
-				{},
+			const playerRecord = players.map<AverageMMRCalculationProps>(
+				({ globalLeaderboardRank, rankTier }) => ({
+					global_leaderboard_rank: globalLeaderboardRank,
+					rank_tier: rankTier,
+				}),
 			);
 
 			if (

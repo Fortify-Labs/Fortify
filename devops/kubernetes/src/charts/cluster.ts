@@ -1,15 +1,15 @@
 import { Chart } from "cdk8s";
 import { Construct } from "constructs";
 import {
-	Namespace,
-	Secret,
-	ServiceAccount,
-	ClusterRole,
-	ClusterRoleBinding,
-	ConfigMap,
-	DaemonSet,
-	StatefulSet,
-	Service,
+	KubeNamespace,
+	KubeSecret,
+	KubeServiceAccount,
+	KubeClusterRole,
+	KubeClusterRoleBinding,
+	KubeConfigMap,
+	KubeDaemonSet,
+	KubeStatefulSet,
+	KubeService,
 	ObjectMeta,
 } from "../../imports/k8s";
 import {
@@ -74,7 +74,7 @@ export class ClusterSetup extends Chart {
 	constructor(scope: Construct, name: string) {
 		super(scope, name, { namespace: "fortify" });
 
-		new Namespace(this, "fortify-namespace", {
+		new KubeNamespace(this, "fortify-namespace", {
 			metadata: {
 				name: "fortify",
 				namespace: undefined,
@@ -86,7 +86,7 @@ export class ClusterSetup extends Chart {
 
 		// --- Kafka setup ---
 
-		new Namespace(this, "kafka-namespace", {
+		new KubeNamespace(this, "kafka-namespace", {
 			metadata: {
 				name: "kafka",
 				namespace: undefined,
@@ -207,7 +207,7 @@ export class ClusterSetup extends Chart {
 
 		// --- Postgres setup ---
 
-		new Namespace(this, "postgres-namespace", {
+		new KubeNamespace(this, "postgres-namespace", {
 			metadata: {
 				name: "postgres",
 				namespace: undefined,
@@ -217,7 +217,7 @@ export class ClusterSetup extends Chart {
 			},
 		});
 
-		new Secret(this, "postgres-auth", {
+		new KubeSecret(this, "postgres-auth", {
 			metadata: {
 				name: "postgres-auth",
 				namespace: "postgres",
@@ -280,7 +280,7 @@ export class ClusterSetup extends Chart {
 
 		// --- Redis setup ---
 
-		new Namespace(this, "redis-namespace", {
+		new KubeNamespace(this, "redis-namespace", {
 			metadata: {
 				name: "redis",
 				namespace: undefined,
@@ -328,7 +328,7 @@ export class ClusterSetup extends Chart {
 
 		// --- Logs ---
 
-		new Namespace(this, "logs-namespace", {
+		new KubeNamespace(this, "logs-namespace", {
 			metadata: {
 				name: "logs",
 				namespace: undefined,
@@ -434,14 +434,14 @@ export class ClusterSetup extends Chart {
 
 		// --- Fluentd setup ---
 
-		new ServiceAccount(this, "fluentd-service-account", {
+		new KubeServiceAccount(this, "fluentd-service-account", {
 			metadata: {
 				name: "fluentd",
 				namespace: "logs",
 			},
 		});
 
-		new ClusterRole(this, "fluentd-cluster-role", {
+		new KubeClusterRole(this, "fluentd-cluster-role", {
 			metadata: {
 				name: "fluentd",
 				namespace: "logs",
@@ -455,7 +455,7 @@ export class ClusterSetup extends Chart {
 			],
 		});
 
-		new ClusterRoleBinding(this, "fluentd-cluster-role-binding", {
+		new KubeClusterRoleBinding(this, "fluentd-cluster-role-binding", {
 			metadata: {
 				name: "fluentd",
 			},
@@ -473,7 +473,7 @@ export class ClusterSetup extends Chart {
 			],
 		});
 
-		new ConfigMap(this, "fluentd-config", {
+		new KubeConfigMap(this, "fluentd-config", {
 			metadata: {
 				name: "fluentd-kubernetes-conf",
 				namespace: "logs",
@@ -488,7 +488,7 @@ export class ClusterSetup extends Chart {
 			version: "v1",
 		};
 
-		new DaemonSet(this, "fluentd-ds", {
+		new KubeDaemonSet(this, "fluentd-ds", {
 			metadata: {
 				name: "fluentd",
 				namespace: "logs",
@@ -627,7 +627,7 @@ export class ClusterSetup extends Chart {
 
 		// --- InfluxDB setup ---
 
-		new Namespace(this, "influxdb-namespace", {
+		new KubeNamespace(this, "influxdb-namespace", {
 			metadata: {
 				name: "influxdb",
 				labels: {
@@ -640,7 +640,7 @@ export class ClusterSetup extends Chart {
 			app: "influxdb",
 		};
 
-		new StatefulSet(this, "influxdb-statefulset", {
+		new KubeStatefulSet(this, "influxdb-statefulset", {
 			metadata: {
 				name: "influxdb",
 				namespace: "influxdb",
@@ -697,7 +697,7 @@ export class ClusterSetup extends Chart {
 			},
 		});
 
-		new Service(this, "influxdb-service", {
+		new KubeService(this, "influxdb-service", {
 			metadata: {
 				name: "influxdb",
 				namespace: "influxdb",

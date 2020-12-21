@@ -1,28 +1,28 @@
 import { injectable, inject } from "inversify";
 
-import { FortifyPlayerState } from "@shared/state";
 import { CommandReducer } from "../definitions/commandReducer";
-import { StateTransformationService } from "../services/stateTransformer";
-import { SystemEventType } from "@shared/events/systemEvents";
+import { StateService } from "../services/state";
+import {
+	FSMResetRequestEvent,
+	SystemEventType,
+} from "@shared/events/systemEvents";
 import { FortifyEvent } from "@shared/events/events";
 
 @injectable()
 export class ResetCommandReducer implements CommandReducer {
 	constructor(
-		@inject(StateTransformationService)
-		private sts: StateTransformationService,
+		@inject(StateService)
+		private stateService: StateService,
 	) {}
 
 	name = "ResetCommandReducer";
 
-	async processor(
-		state: FortifyPlayerState,
-		event: FortifyEvent<SystemEventType>,
-	) {
+	async processor(event: FortifyEvent<SystemEventType>) {
 		if (event.type === SystemEventType.FSM_RESET_REQUEST) {
-			state = this.sts.resetState(state);
+			const resetRequest = FSMResetRequestEvent.deserialize(event);
+			return this.stateService.resetUserCaches(resetRequest.steamid);
 		}
 
-		return state;
+		return true;
 	}
 }

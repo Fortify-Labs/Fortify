@@ -1,5 +1,5 @@
 import { Construct } from "constructs";
-import { ConfigMap, Service, Deployment } from "../imports/k8s";
+import { KubeConfigMap, KubeService, KubeDeployment } from "../imports/k8s";
 
 export interface RedisCommanderConfig {
 	REDIS_HOST?: string;
@@ -25,7 +25,7 @@ export class RedisCommander extends Construct {
 			namespace,
 		} = config ?? {};
 
-		new ConfigMap(this, "config", {
+		new KubeConfigMap(this, "config", {
 			metadata: {
 				name: "redis-commander-config",
 				namespace,
@@ -39,7 +39,7 @@ export class RedisCommander extends Construct {
 			},
 		});
 
-		new Service(this, "service", {
+		new KubeService(this, "KubeService", {
 			metadata: {
 				name: "redis-commander",
 				namespace,
@@ -57,7 +57,7 @@ export class RedisCommander extends Construct {
 			},
 		});
 
-		new Deployment(this, "deployment", {
+		new KubeDeployment(this, "KubeDeployment", {
 			metadata: {
 				name: "redis-commander",
 				namespace,

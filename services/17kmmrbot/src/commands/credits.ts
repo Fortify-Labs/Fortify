@@ -15,7 +15,7 @@ export class CreditsCommand implements TwitchCommand {
 		if (message.toLowerCase().startsWith("!credit")) {
 			client.say(
 				channel,
-				"Kiss @ Thomas (GreyCodes). Check out https://fortify.gg",
+				"Check out https://fortify.gg & https://github.com/Fortify-Labs/Fortify",
 			);
 		}
 	};

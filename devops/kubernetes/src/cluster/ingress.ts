@@ -1,5 +1,5 @@
 import { Construct } from "constructs";
-import { Ingress, Secret } from "../../imports/k8s";
+import { KubeIngressV1Beta1, KubeSecret } from "../../imports/k8s";
 
 const { ENVIRONMENT = "prod", CLUSTER_BASIC_AUTH = "" } = process.env;
 
@@ -30,7 +30,7 @@ export class ClusterIngress extends Construct {
 		let annotations = {};
 
 		if (basicAuth) {
-			const basicAuthSecret = new Secret(this, "basic-auth", {
+			const basicAuthSecret = new KubeSecret(this, "basic-auth", {
 				type: "Opaque",
 				metadata: {
 					name: "basic-auth",
@@ -52,7 +52,7 @@ export class ClusterIngress extends Construct {
 			};
 		}
 
-		new Ingress(this, `${name}-${ENVIRONMENT}-ingress`, {
+		new KubeIngressV1Beta1(this, `${name}-${ENVIRONMENT}-ingress`, {
 			metadata: {
 				name: `${name}-${ENVIRONMENT}-ingress`,
 				namespace,

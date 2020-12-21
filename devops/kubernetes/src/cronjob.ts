@@ -1,5 +1,10 @@
 import { Construct } from "constructs";
-import { ConfigMap, CronJob, EnvVar, Secret } from "../imports/k8s";
+import {
+	KubeConfigMap,
+	KubeCronJobV1Beta1,
+	EnvVar,
+	KubeSecret,
+} from "../imports/k8s";
 
 const { REGISTRY, JOBS_SENTRY_DSN } = process.env;
 
@@ -17,8 +22,8 @@ export interface FortifyCronJobOptions {
 	readonly imageName?: string;
 
 	readonly env?: EnvVar[] | undefined;
-	readonly configmaps?: ConfigMap[];
-	readonly secrets?: Secret[];
+	readonly configmaps?: KubeConfigMap[];
+	readonly secrets?: KubeSecret[];
 }
 
 export class FortifyCronJob extends Construct {
@@ -46,7 +51,7 @@ export class FortifyCronJob extends Construct {
 				":" +
 				(options.version ?? "invalid");
 
-		new CronJob(this, "cronjob", {
+		new KubeCronJobV1Beta1(this, "cronjob", {
 			metadata: {
 				name: options.name,
 			},

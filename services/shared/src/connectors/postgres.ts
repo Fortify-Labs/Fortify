@@ -7,7 +7,7 @@ import { User } from "../db/entities/user";
 import { Match } from "../db/entities/match";
 import { MatchSlot } from "../db/entities/matchSlot";
 
-import { SecretsManager } from "../services/secrets";
+import { SecretsManager, SecretsRequest } from "../services/secrets";
 import { HealthCheckable } from "../services/healthCheck";
 
 const {
@@ -18,6 +18,21 @@ const {
 	// NODE_ENV,
 	DB_LOG,
 } = process.env;
+
+type PostgresSecrets = {
+	postgres: {
+		password: string;
+	};
+};
+
+@injectable()
+export class PostgresSecretsRequest implements SecretsRequest {
+	requestedSecrets = {
+		postgres: {
+			password: "",
+		},
+	} as PostgresSecrets;
+}
 
 // This way each service could specify the entities needed instead of all
 @injectable()
@@ -31,9 +46,7 @@ export class PostgresConnector implements HealthCheckable {
 
 	constructor(
 		@inject(SecretsManager)
-		private secretsManager: SecretsManager<{
-			postgres: { password: string | undefined };
-		}>,
+		private secretsManager: SecretsManager<PostgresSecrets>,
 	) {
 		this.connection = this.setupConnection();
 

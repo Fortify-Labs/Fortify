@@ -22,18 +22,18 @@ func (r *IssueAlert) Marshal() ([]byte, error) {
 
 // IssueAlert - Incoming webhook message from sentry
 type IssueAlert struct {
-	Action       *string         `json:"action,omitempty"`
-	Actor        *Actor          `json:"actor,omitempty"`
+	Action *string `json:"action,omitempty"`
+	// Actor        *Actor          `json:"actor,omitempty"`
 	Data         *IssueAlertData `json:"data,omitempty"`
 	Installation *Installation   `json:"installation,omitempty"`
 }
 
-// Actor - Sentry actor causing the message
-type Actor struct {
-	ID   *string `json:"id,omitempty"`
-	Name *string `json:"name,omitempty"`
-	Type *string `json:"type,omitempty"`
-}
+// // Actor - Sentry actor causing the message
+// type Actor struct {
+// 	ID   *int64  `json:"id,omitempty"`
+// 	Name *string `json:"name,omitempty"`
+// 	Type *string `json:"type,omitempty"`
+// }
 
 // IssueAlertData - Sentry alert data & information
 type IssueAlertData struct {
@@ -203,23 +203,27 @@ type Installation struct {
 //    metricAlert, err := UnmarshalMetricAlert(bytes)
 //    bytes, err = metricAlert.Marshal()
 
+// UnmarshalMetricAlert - Unmarshal a metric alert
 func UnmarshalMetricAlert(data []byte) (MetricAlert, error) {
 	var r MetricAlert
 	err := json.Unmarshal(data, &r)
 	return r, err
 }
 
+// Marshal - Marshal a metric alert
 func (r *MetricAlert) Marshal() ([]byte, error) {
 	return json.Marshal(r)
 }
 
+// MetricAlert - Sentry metric alert
 type MetricAlert struct {
-	Action       *string       `json:"action,omitempty"`
-	Actor        *Actor        `json:"actor,omitempty"`
+	Action *string `json:"action,omitempty"`
+	// Actor        *Actor        `json:"actor,omitempty"`
 	Data         *Data         `json:"data,omitempty"`
 	Installation *Installation `json:"installation,omitempty"`
 }
 
+// Data - Alert data
 type Data struct {
 	DescriptionText  *string           `json:"description_text,omitempty"`
 	DescriptionTitle *string           `json:"description_title,omitempty"`
@@ -227,6 +231,7 @@ type Data struct {
 	WebURL           *string           `json:"web_url,omitempty"`
 }
 
+// MetricAlertClass - A metric alert class
 type MetricAlertClass struct {
 	AlertRule      *AlertRule  `json:"alert_rule,omitempty"`
 	DateClosed     interface{} `json:"date_closed"`
@@ -243,6 +248,7 @@ type MetricAlertClass struct {
 	Type           *int64      `json:"type,omitempty"`
 }
 
+// AlertRule - A sentry alert rule
 type AlertRule struct {
 	Aggregate          *string       `json:"aggregate,omitempty"`
 	CreatedBy          interface{}   `json:"created_by"`

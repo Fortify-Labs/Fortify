@@ -13,21 +13,21 @@ import { container } from "./inversify.config";
 
 import { KafkaConnector } from "@shared/connectors/kafka";
 
-import { StateReducer } from "./definitions/stateReducer";
 import { CommandReducer } from "./definitions/commandReducer";
 
-import { verify } from "jsonwebtoken";
-
-import { Log, PublicPlayerState, PrivatePlayerState } from "./gsiTypes";
+import { Log } from "@shared/definitions/gsiTypes";
 import { Context } from "@shared/definitions/context";
 
-import { StateTransformationService } from "./services/stateTransformer";
+import { StateService } from "./services/state";
 
 import { FortifyEventTopics, FortifyEvent } from "@shared/events/events";
 import { SystemEventType } from "@shared/events/systemEvents";
 import { ConsumerCrashEvent } from "kafkajs";
 import { Secrets } from "./secrets";
 import { HealthCheck } from "@shared/services/healthCheck";
+import { MatchService } from "@shared/services/match";
+import { MatchProcessor } from "./processors/match";
+import { UserCacheKey } from "@shared/state";
 
 const {
 	KAFKA_FROM_START,
@@ -38,26 +38,22 @@ const {
 } = process.env;
 
 (async () => {
-	const {
-		jwt: { jwt },
-	} = await container.get(Secrets).getSecrets();
+	await container.get(Secrets).getSecrets();
 
 	const healthCheck = container.get(HealthCheck);
 	await healthCheck.start();
 
 	const kafka = container.get(KafkaConnector);
 
-	// Get state transformer service
-	const stateTransformer = container.get(StateTransformationService);
+	// Get state service
+	const stateService = container.get(StateService);
+	// Get match processor
+	const matchProcessor = container.get(MatchProcessor);
+	// Get match service
+	const matchService = container.get(MatchService);
 
 	// Get all reducers
 	const commandReducers = container.getAll<CommandReducer>("command");
-	const publicStateReducers = container.getAll<
-		StateReducer<PublicPlayerState>
-	>("public");
-	const privateStateReducers = container.getAll<
-		StateReducer<PrivatePlayerState>
-	>("private");
 
 	const consumer = kafka.consumer({ groupId: KAFKA_GROUP_ID });
 
@@ -84,102 +80,190 @@ const {
 				const steamid = event["steamid"] as string | null;
 
 				if (steamid) {
-					let state = await stateTransformer.loadState(steamid);
-
 					for (const commandReducer of commandReducers) {
-						state = await commandReducer.processor(state, event);
+						await commandReducer.processor(event);
 					}
-
-					await stateTransformer.saveState(state, steamid);
 				}
 			}
 
 			if (topic === "gsi") {
 				try {
 					const gsi: Log = JSON.parse(value);
-					const ctx =
-						typeof gsi.auth === "string"
-							? verify(gsi.auth, jwt ?? "")
-							: gsi.auth;
+					const ctx = gsi.auth;
 
 					if (ctx instanceof Object) {
-						const context = ctx as Context;
+						const context = ctx as Pick<Context, "user">;
 
-						let state = await stateTransformer.loadState(
-							context.user.id,
-						);
+						// Get source account id
+						const {
+							user: { id },
+						} = context;
 
-						for (const { data } of gsi.block) {
-							for (const {
-								public_player_state,
-								private_player_state,
-							} of data) {
-								if (public_player_state) {
-									for (const reducer of publicStateReducers) {
-										try {
-											state = await reducer.processor(
-												state,
-												context,
+						for (const block of gsi.block) {
+							// Get matchID for source account
+							let matchID = await stateService.getUserMatchID(id);
+
+							// Is matchID set?
+							if (matchID) {
+								// Fetch match data using matchID
+								const matchData = await stateService.getMatch(
+									matchID,
+								);
+								// Check if gsi block contains same users & slots as in match data
+								const containsSameUsers = block.data.reduce<boolean>(
+									(acc, data) => {
+										// If the accumulator was assigned a false value
+										// propagate it to the result
+										if (!acc) return acc;
+
+										const { public_player_state } = data;
+
+										if (public_player_state) {
+											const {
+												account_id,
+												player_slot,
+											} = public_player_state;
+
+											if (
+												!matchData?.players[account_id]
+											) {
+												// Could not find player in match data
+												return false;
+											}
+
+											if (
+												matchData.players[account_id]
+													.public_player_state
+													.player_slot !== player_slot
+											) {
+												// In this case we have a previously known account but in a different slot
+												return false;
+											}
+										}
+
+										// In this case we probably dealt with a private player state datum
+										return acc;
+									},
+									true,
+								);
+
+								if (containsSameUsers && matchData) {
+									// Proceed to processing match data
+									return matchProcessor.process({
+										matchState: matchData,
+										sourceAccountID: id,
+										timestamp: gsi.timestamp,
+										block,
+									});
+								} else {
+									// Unset matchID cache for source account
+									await stateService.resetUserCache(
+										id,
+										UserCacheKey.matchID,
+									);
+									// Clean user cache
+									await stateService.resetUserCache(
+										id,
+										UserCacheKey.cache,
+									);
+									matchID = null;
+								}
+							}
+
+							if (!matchID) {
+								const cache = await stateService.getUserCache(
+									id,
+								);
+
+								const utcTimestamp = new Date().getTime();
+
+								if (!cache.created) {
+									cache.created = utcTimestamp;
+								}
+								cache.updated = utcTimestamp;
+
+								for (const {
+									public_player_state,
+								} of block.data) {
+									if (public_player_state) {
+										const {
+											account_id,
+										} = public_player_state;
+
+										if (account_id) {
+											cache.players[account_id] = {
+												id: account_id.toString(),
 												public_player_state,
-												gsi.timestamp,
-											);
-										} catch (e) {
-											debug(
-												"app::consumer::public_player_state",
-											)(e);
-											captureException(e, {
-												contexts: {
-													reducer: {
-														name: reducer.name,
-														type:
-															"public_player_state",
-													},
-													message,
-												},
-												user: {
-													id: context.user.id,
-												},
-											});
+											};
 										}
 									}
 								}
+								await stateService.setUserCache(id, cache);
 
-								if (private_player_state) {
-									for (const reducer of privateStateReducers) {
-										try {
-											state = await reducer.processor(
-												state,
-												context,
-												private_player_state,
-												gsi.timestamp,
-											);
-										} catch (e) {
-											debug(
-												"app::consumer::private_player_state",
-											)(e);
-											captureException(e, {
-												contexts: {
-													reducer: {
-														name: reducer.name,
-														type:
-															"private_player_state",
-													},
-													message,
+								let newMatchID: string | null = null;
+
+								// Calculate new matchID once we have collected 8 players
+								if (Object.keys(cache.players).length > 7) {
+									newMatchID = await matchService.generateMatchID(
+										Object.values(cache.players).map(
+											({
+												public_player_state: {
+													account_id,
+													final_place,
+													persona_name,
+													player_slot,
 												},
-												user: {
-													id: context.user.id,
-												},
-											});
-										}
+											}) => ({
+												accountID: account_id.toString(),
+												finalPlace: final_place,
+												name: persona_name,
+												slot: player_slot,
+											}),
+										),
+									);
+								}
+
+								// As matchID calculation happens over a period of time
+								// the newMatchID is going to be null until information
+								// of all 8 players is received
+								if (newMatchID) {
+									await stateService.setUserMatchID(
+										id,
+										newMatchID,
+									);
+									await stateService.resetUserCache(
+										id,
+										UserCacheKey.cache,
+									);
+
+									let matchData = await stateService.getMatch(
+										newMatchID,
+									);
+
+									if (!matchData) {
+										matchData = {
+											id: newMatchID,
+											updateCount: 0,
+											created: utcTimestamp,
+											updated: utcTimestamp,
+											players: cache.players,
+										};
+
+										await stateService.storeMatch(
+											newMatchID,
+											matchData,
+										);
 									}
+
+									return matchProcessor.process({
+										matchState: matchData,
+										sourceAccountID: id,
+										timestamp: gsi.timestamp,
+										block,
+									});
 								}
 							}
 						}
-
-						await stateTransformer.saveState(
-							state,
-							context.user.id,
-						);
 					}
 				} catch (e) {
 					debug("app::consumer::run")(e);

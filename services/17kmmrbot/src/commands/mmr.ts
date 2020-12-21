@@ -11,9 +11,10 @@ import {
 	LeaderboardType,
 	ULLeaderboard,
 } from "@shared/definitions/leaderboard";
-import { FortifyGameMode } from "@shared/state";
+import { FortifyGameMode, MatchState, UserCacheKey } from "@shared/state";
 import { Player } from "@shared/definitions/player";
 import { captureTwitchException } from "../lib/sentryUtils";
+import { RedisConnector } from "@shared/connectors/redis";
 
 @injectable()
 export class MMRCommand implements TwitchCommand {
@@ -21,6 +22,7 @@ export class MMRCommand implements TwitchCommand {
 		@inject(ExtractorService) private extractorService: ExtractorService,
 		@inject(LeaderboardService)
 		private leaderboardService: LeaderboardService,
+		@inject(RedisConnector) private redis: RedisConnector,
 	) {}
 
 	invocations = ["!mmr"];
@@ -36,19 +38,27 @@ export class MMRCommand implements TwitchCommand {
 		try {
 			const user = await this.extractorService.getUser(channel);
 
-			// Fetch fortify player state by steamid
-			const fps = await this.extractorService.getPlayerState(
-				user.steamid,
+			const matchID = await this.redis.getAsync(
+				`user:${user.steamid}:${UserCacheKey.matchID}`,
 			);
 
-			if (!fps) {
+			if (!matchID) {
 				return client.say(
 					channel,
-					"No player state found for " + user.name,
+					"No match id found for " + user.name,
 				);
 			}
 
-			const lobbyUser = fps.lobby.players[user.steamid];
+			// Fetch fortify player state by steamid
+			const rawMatch = await this.redis.getAsync(`match:${matchID}`);
+
+			if (!rawMatch) {
+				return client.say(channel, "No match found for " + user.name);
+			}
+
+			const matchState: MatchState = JSON.parse(rawMatch);
+
+			const lobbyUser = matchState.players[user.steamid];
 
 			if (!lobbyUser) {
 				return client.say(
@@ -59,38 +69,46 @@ export class MMRCommand implements TwitchCommand {
 
 			let player: Player | null = null;
 
-			if ((lobbyUser.rankTier ?? 0) < 80) {
-				player = await this.extractorService.getPlayer(lobbyUser, null);
+			if ((lobbyUser.public_player_state.rank_tier ?? 0) < 80) {
+				player = await this.extractorService.getPlayer(
+					{
+						name: lobbyUser.public_player_state.persona_name,
+						global_leaderboard_rank:
+							lobbyUser.public_player_state
+								.global_leaderboard_rank,
+						rank_tier: lobbyUser.public_player_state.rank_tier,
+					},
+					null,
+				);
 			} else {
-				const gameMode = await this.extractorService.getGameMode(fps);
-
-				if (
-					!gameMode ||
-					gameMode === FortifyGameMode[FortifyGameMode.Invalid]
-				) {
+				if (!matchState.mode) {
 					return client.say(channel, "No game mode detected");
 				}
 
 				let leaderboard: ULLeaderboard | null = null;
 
-				if (gameMode === FortifyGameMode[FortifyGameMode.Normal]) {
+				if (matchState.mode === FortifyGameMode.Normal) {
 					leaderboard = await this.leaderboardService.fetchLeaderboard(
 						LeaderboardType.Standard,
 					);
-				} else if (
-					gameMode === FortifyGameMode[FortifyGameMode.Turbo]
-				) {
+				} else if (matchState.mode === FortifyGameMode.Turbo) {
 					leaderboard = await this.leaderboardService.fetchLeaderboard(
 						LeaderboardType.Turbo,
 					);
-				} else if (gameMode === FortifyGameMode[FortifyGameMode.Duos]) {
+				} else if (matchState.mode === FortifyGameMode.Duos) {
 					leaderboard = await this.leaderboardService.fetchLeaderboard(
 						LeaderboardType.Duos,
 					);
 				}
 
 				player = await this.extractorService.getPlayer(
-					lobbyUser,
+					{
+						name: lobbyUser.public_player_state.persona_name,
+						global_leaderboard_rank:
+							lobbyUser.public_player_state
+								.global_leaderboard_rank,
+						rank_tier: lobbyUser.public_player_state.rank_tier,
+					},
 					leaderboard,
 				);
 			}

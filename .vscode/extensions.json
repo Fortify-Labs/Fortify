@@ -1,0 +1,26 @@
+{
+	"recommendations": [
+		"formulahendry.auto-close-tag",
+		"formulahendry.auto-rename-tag",
+		"coenraads.bracket-pair-colorizer",
+		"streetsidesoftware.code-spell-checker",
+		"ms-azuretools.vscode-docker",
+		"mikestead.dotenv",
+		"editorconfig.editorconfig",
+		"github.vscode-pull-request-github",
+		"codezombiech.gitignore",
+		"golang.go",
+		"kumar-harsh.graphql-for-vscode",
+		"davidanson.vscode-markdownlint",
+		"eg2.vscode-npm-script",
+		"christian-kohler.npm-intellisense",
+		"esbenp.prettier-vscode",
+		"ms-python.vscode-pylance",
+		"meganrogge.template-string-converter",
+		"wayou.vscode-todo-highlight",
+		"gruntfuggly.todo-tree",
+		"geekidos.vdf",
+		"vscode-icons-team.vscode-icons",
+		"visualstudioexptteam.vscodeintellicode"
+	]
+}
