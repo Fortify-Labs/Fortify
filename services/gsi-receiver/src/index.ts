@@ -111,17 +111,17 @@ const { KAFKA_TOPIC, MY_PORT } = process.env;
 
 	async function shutDown() {
 		try {
-			await producer.disconnect();
+			server.close(async () => {
+				debug("app::shutdown")("Closing remaining connections");
+				await producer.disconnect();
+				debug("app::shutdown")("Closed remaining connections");
+				// eslint-disable-next-line no-process-exit
+				process.exit(0);
+			});
 		} finally {
 			debug("app::shutdown")(
 				"Received kill signal, shutting down gracefully",
 			);
-
-			server.close(() => {
-				debug("app::shutdown")("Closed out remaining connections");
-				// eslint-disable-next-line no-process-exit
-				process.exit(0);
-			});
 
 			setTimeout(() => {
 				debug("app::shutdown")(

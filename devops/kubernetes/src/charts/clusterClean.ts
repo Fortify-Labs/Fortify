@@ -1,14 +1,14 @@
 import { Chart } from "cdk8s";
 import { Construct } from "constructs";
 import {
-	Namespace,
-	Secret,
-	ServiceAccount,
-	ClusterRole,
-	ClusterRoleBinding,
-	DaemonSet,
-	StatefulSet,
-	Service,
+	KubeNamespace,
+	KubeSecret,
+	KubeServiceAccount,
+	KubeClusterRole,
+	KubeClusterRoleBinding,
+	KubeDaemonSet,
+	KubeStatefulSet,
+	KubeService,
 	ObjectMeta,
 } from "../../imports/k8s";
 import {
@@ -61,7 +61,7 @@ export class ClusterSetupClean extends Chart {
 	constructor(scope: Construct, name: string) {
 		super(scope, name);
 
-		const fortifyNS = new Namespace(this, "fortify-namespace", {
+		const fortifyNS = new KubeNamespace(this, "fortify-namespace", {
 			metadata: {
 				name: "fortify",
 			},
@@ -69,7 +69,7 @@ export class ClusterSetupClean extends Chart {
 
 		// --- Kafka setup ---
 
-		const kafkaNS = new Namespace(this, "kafka-namespace", {
+		const kafkaNS = new KubeNamespace(this, "kafka-namespace", {
 			metadata: {
 				name: "kafka",
 			},
@@ -238,7 +238,7 @@ export class ClusterSetupClean extends Chart {
 
 		// --- Postgres setup ---
 
-		const postgresNS = new Namespace(this, "postgres-namespace", {
+		const postgresNS = new KubeNamespace(this, "postgres-namespace", {
 			metadata: {
 				name: "postgres",
 			},
@@ -295,7 +295,7 @@ export class ClusterSetupClean extends Chart {
 
 		// --- Redis setup ---
 
-		const redisNS = new Namespace(this, "redis-namespace", {
+		const redisNS = new KubeNamespace(this, "redis-namespace", {
 			metadata: {
 				name: "redis",
 			},
@@ -341,7 +341,7 @@ export class ClusterSetupClean extends Chart {
 
 		// --- Logs ---
 
-		const logsNS = new Namespace(this, "logs-namespace", {
+		const logsNS = new KubeNamespace(this, "logs-namespace", {
 			metadata: {
 				name: "logs",
 			},
@@ -433,14 +433,18 @@ export class ClusterSetupClean extends Chart {
 
 		// --- Fluentd setup ---
 
-		const fluentdSA = new ServiceAccount(this, "fluentd-service-account", {
-			metadata: {
-				name: "fluentd",
-				namespace: logsNS.name,
-			},
-		});
+		const fluentdSA = new KubeServiceAccount(
+			this,
+			"fluentd-service-account",
+			{
+				metadata: {
+					name: "fluentd",
+					namespace: logsNS.name,
+				},
+			}
+		);
 
-		new ClusterRole(this, "fluentd-cluster-role", {
+		new KubeClusterRole(this, "fluentd-cluster-role", {
 			metadata: {
 				name: "fluentd",
 				namespace: logsNS.name,
@@ -454,7 +458,7 @@ export class ClusterSetupClean extends Chart {
 			],
 		});
 
-		new ClusterRoleBinding(this, "fluentd-cluster-role-binding", {
+		new KubeClusterRoleBinding(this, "fluentd-cluster-role-binding", {
 			metadata: {
 				name: "fluentd",
 			},
@@ -477,7 +481,7 @@ export class ClusterSetupClean extends Chart {
 			version: "v1",
 		};
 
-		new DaemonSet(this, "fluentd-ds", {
+		new KubeDaemonSet(this, "fluentd-ds", {
 			metadata: {
 				name: "fluentd",
 				namespace: logsNS.name,
@@ -589,75 +593,79 @@ export class ClusterSetupClean extends Chart {
 
 		// --- InfluxDB setup ---
 
-		const influxNS = new Namespace(this, "influxdb-namespace", {
+		const influxNS = new KubeNamespace(this, "influxdb-namespace", {
 			metadata: {
 				name: "influxdb",
 			},
 		});
 
 		// Influxdb RC1
-		const influxdbSSLabelsRC1 = {
+		const influxdbLabels = {
 			app: "influxdb-rc",
 		};
 
-		const influxdbSS = new StatefulSet(this, "influxdb-rc-statefulset", {
-			metadata: {
-				name: "influxdb-rc",
-				namespace: influxNS.name,
-				labels: influxdbSSLabelsRC1,
-			},
-			spec: {
-				replicas: 1,
-				selector: {
-					matchLabels: influxdbSSLabelsRC1,
+		const influxdbSS = new KubeStatefulSet(
+			this,
+			"influxdb-rc-statefulset",
+			{
+				metadata: {
+					name: "influxdb-rc",
+					namespace: influxNS.name,
+					labels: influxdbLabels,
 				},
-				serviceName: "influxdb-rc",
-				template: {
-					metadata: {
-						labels: influxdbSSLabelsRC1,
+				spec: {
+					replicas: 1,
+					selector: {
+						matchLabels: influxdbLabels,
 					},
-					spec: {
-						containers: [
-							{
-								image: "quay.io/influxdb/influxdb:2.0.0-rc",
-								name: "influxdb",
-								ports: [
-									{
-										containerPort: 8086,
-										name: "influxdb",
-									},
-								],
-								volumeMounts: [
-									{
-										mountPath: "/root/.influxdbv2",
-										name: "influxdb-rc-data",
-									},
-								],
-								imagePullPolicy: "Always",
-							},
-						],
-					},
-				},
-				volumeClaimTemplates: [
-					{
+					serviceName: "influxdb-rc",
+					template: {
 						metadata: {
-							name: "influxdb-rc-data",
-							namespace: "influxdb",
+							labels: influxdbLabels,
 						},
 						spec: {
-							accessModes: ["ReadWriteOnce"],
-							resources: {
-								requests: {
-									storage: "2Gi",
+							containers: [
+								{
+									image: "quay.io/influxdb/influxdb:2.0.2",
+									name: "influxdb",
+									ports: [
+										{
+											containerPort: 8086,
+											name: "influxdb",
+										},
+									],
+									volumeMounts: [
+										{
+											mountPath: "/root/.influxdbv2",
+											name: "influxdb-rc-data",
+										},
+									],
+									imagePullPolicy: "Always",
+								},
+							],
+						},
+					},
+					volumeClaimTemplates: [
+						{
+							metadata: {
+								name: "influxdb-rc-data",
+								namespace: "influxdb",
+							},
+							spec: {
+								accessModes: ["ReadWriteOnce"],
+								resources: {
+									requests: {
+										storage: "2Gi",
+									},
 								},
 							},
-						},
-					} as any,
-				],
-			},
-		});
+						} as any,
+					],
+				},
+			}
+		);
 
-		new Service(this, "influxdb-rc-service", {
+		new KubeService(this, "influxdb-service", {
 			metadata: {
 				name: influxdbSS.name,
 				namespace: influxNS.name,
@@ -670,7 +678,7 @@ export class ClusterSetupClean extends Chart {
 						targetPort: 8086,
 					},
 				],
-				selector: influxdbSSLabelsRC1,
+				selector: influxdbLabels,
 				type: "ClusterIP",
 			},
 		});
@@ -711,7 +719,7 @@ export class ClusterSetupClean extends Chart {
 			},
 		});
 
-		const basicAuthSecret = new Secret(this, "basic-auth-secret", {
+		const basicAuthSecret = new KubeSecret(this, "basic-auth-secret", {
 			type: "Opaque",
 			metadata: {
 				name: "basic-auth",

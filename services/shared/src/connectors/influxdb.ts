@@ -2,7 +2,7 @@ import { inject, injectable } from "inversify";
 
 import { InfluxDB, Point } from "@influxdata/influxdb-client";
 import { HealthAPI } from "@influxdata/influxdb-client-apis";
-import { SecretsManager } from "../services/secrets";
+import { SecretsManager, SecretsRequest } from "../services/secrets";
 import { HealthCheckable } from "../services/healthCheck";
 
 const {
@@ -12,6 +12,21 @@ const {
 	INFLUXDB_BUCKET = "fortify",
 	INFLUXDB_URL = "http://localhost:9999",
 } = process.env;
+
+type InfluxDBSecret = {
+	influxdb: {
+		historizationToken: string | undefined;
+	};
+};
+
+@injectable()
+export class InfluxDBSecretsRequest implements SecretsRequest {
+	requestedSecrets = {
+		influxdb: {
+			historizationToken: "",
+		},
+	} as InfluxDBSecret;
+}
 
 @injectable()
 export class InfluxDBConnector implements HealthCheckable {
@@ -24,9 +39,7 @@ export class InfluxDBConnector implements HealthCheckable {
 
 	constructor(
 		@inject(SecretsManager)
-		private secretsManager: SecretsManager<{
-			influxdb: { historizationToken: string | undefined };
-		}>,
+		private secretsManager: SecretsManager<InfluxDBSecret>,
 	) {
 		// Set it to false by default
 		this.healthCheck = async () => false;

@@ -13,6 +13,7 @@ export enum GameEventType {
 	FINAL_PLACE,
 	MATCH_ENDED,
 	RANK_TIER_UPDATE,
+	SMURF_DETECTED,
 }
 
 export class GameEvent extends FortifyEventClass<GameEventType> {
@@ -117,6 +118,27 @@ export class RankTierUpdateEvent extends FortifyEventClass<GameEventType> {
 
 		if (accountID && rankTier && mode)
 			return new this(accountID, rankTier, mode);
+		else throw new DeserializationError();
+	}
+}
+
+export class SmurfDetectedEvent extends FortifyEventClass<GameEventType> {
+	public _topic = FortifyEventTopics.GAME;
+	public type = GameEventType.SMURF_DETECTED;
+
+	constructor(
+		public originalAccountID: string,
+		public smurfAccountID: string,
+	) {
+		super();
+	}
+
+	public static deserialize<GameEventType>(obj: FortifyEvent<GameEventType>) {
+		const originalAccountID = obj["originalAccountID"] as string | null;
+		const smurfAccountID = obj["smurfAccountID"] as string | null;
+
+		if (originalAccountID && smurfAccountID)
+			return new this(originalAccountID, smurfAccountID);
 		else throw new DeserializationError();
 	}
 }

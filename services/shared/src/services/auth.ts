@@ -1,13 +1,28 @@
 import { inject, injectable } from "inversify";
 import { sign, SignOptions, verify } from "jsonwebtoken";
 import { Context, PermissionScope } from "../definitions/context";
-import { SecretsManager } from "./secrets";
+import { SecretsManager, SecretsRequest } from "./secrets";
+
+type AuthServiceSecrets = {
+	jwt: {
+		jwt: string | undefined;
+	};
+};
+
+@injectable()
+export class AuthServiceSecretsRequest implements SecretsRequest {
+	requestedSecrets = {
+		jwt: {
+			jwt: "",
+		},
+	} as AuthServiceSecrets;
+}
 
 @injectable()
 export class AuthService {
 	constructor(
 		@inject(SecretsManager)
-		private secrets: SecretsManager<{ jwt: { jwt: string | undefined } }>,
+		private secrets: SecretsManager<AuthServiceSecrets>,
 	) {}
 
 	async verifyJWT(token: string, scopes: PermissionScope[]) {

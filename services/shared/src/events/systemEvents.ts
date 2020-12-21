@@ -72,9 +72,7 @@ export class FSMResetRequestEvent extends FortifyEventClass<SystemEventType> {
 	}
 }
 
-export class TwitchMessageBroadcastEvent extends FortifyEventClass<
-	SystemEventType
-> {
+export class TwitchMessageBroadcastEvent extends FortifyEventClass<SystemEventType> {
 	public _topic = FortifyEventTopics.SYSTEM;
 	public type = SystemEventType.TWITCH_MESSAGE_BROADCAST;
 
@@ -111,9 +109,7 @@ export class ImportCompletedEvent extends FortifyEventClass<SystemEventType> {
 	}
 }
 
-export class HistorizationCompletedEvent extends FortifyEventClass<
-	SystemEventType
-> {
+export class HistorizationCompletedEvent extends FortifyEventClass<SystemEventType> {
 	public _topic = FortifyEventTopics.SYSTEM;
 	public type = SystemEventType.HISTORIZATION_COMPLETED;
 

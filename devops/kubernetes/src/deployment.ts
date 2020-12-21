@@ -1,11 +1,11 @@
 import { Construct, Node } from "constructs";
 import {
-	Service,
-	Deployment,
+	KubeService,
+	KubeDeployment,
 	EnvVar,
-	PodDisruptionBudget,
-	Secret,
-	ConfigMap,
+	KubePodDisruptionBudgetV1Beta1,
+	KubeSecret,
+	KubeConfigMap,
 	Probe,
 } from "../imports/k8s";
 
@@ -30,8 +30,8 @@ export interface FortifyDeploymentOptions {
 	};
 
 	readonly env?: EnvVar[] | undefined;
-	readonly configmaps?: ConfigMap[];
-	readonly secrets?: Secret[];
+	readonly configmaps?: KubeConfigMap[];
+	readonly secrets?: KubeSecret[];
 
 	readonly minAvailable?: number;
 	readonly maxUnavailable?: number;
@@ -78,7 +78,7 @@ export class FortifyDeployment extends Construct {
 		}
 
 		const selectorLabels = {
-			app: Node.of(this).uniqueId,
+			app: Node.of(this).id,
 		};
 		const labels = {
 			...selectorLabels,
@@ -104,7 +104,7 @@ export class FortifyDeployment extends Construct {
 				(options.version ?? "invalid");
 
 		if (options.service) {
-			new Service(this, "service", {
+			new KubeService(this, "service", {
 				metadata: {
 					name: options.service.name,
 				},
@@ -122,7 +122,7 @@ export class FortifyDeployment extends Construct {
 			});
 		}
 
-		new Deployment(this, "deployment", {
+		new KubeDeployment(this, "deployment", {
 			metadata: {
 				name: options.name + "-deployment",
 			},
@@ -171,7 +171,7 @@ export class FortifyDeployment extends Construct {
 		});
 
 		if (options.minAvailable || options.maxUnavailable) {
-			new PodDisruptionBudget(this, "pdb", {
+			new KubePodDisruptionBudgetV1Beta1(this, "pdb", {
 				metadata: {
 					name: options.name + "-pdb",
 				},

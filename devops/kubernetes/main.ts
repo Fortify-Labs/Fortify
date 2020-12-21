@@ -6,7 +6,7 @@ import { App, Chart } from "cdk8s";
 
 import { FortifyDeployment } from "./src/deployment";
 import { WebService } from "./src/webservice";
-import { ConfigMap, Secret } from "./imports/k8s";
+import { KubeConfigMap, KubeSecret } from "./imports/k8s";
 
 import backendPackage from "../../services/backend/package.json";
 import frontendPackage from "../../services/frontend/package.json";
@@ -42,7 +42,7 @@ export class Fortify extends Chart {
 		super(scope, name, { namespace: "fortify" });
 
 		// Default env variables
-		const kafkaConfig = new ConfigMap(this, "kafka-config", {
+		const kafkaConfig = new KubeConfigMap(this, "kafka-config", {
 			metadata: {
 				name: "kafka-config",
 			},
@@ -51,7 +51,7 @@ export class Fortify extends Chart {
 			},
 		});
 
-		const postgresConfig = new ConfigMap(this, "postgres-config", {
+		const postgresConfig = new KubeConfigMap(this, "postgres-config", {
 			metadata: {
 				name: "postgres-config",
 			},
@@ -63,7 +63,7 @@ export class Fortify extends Chart {
 			},
 		});
 
-		const redisConfig = new ConfigMap(this, "redis-config", {
+		const redisConfig = new KubeConfigMap(this, "redis-config", {
 			metadata: {
 				name: "redis-config",
 			},
@@ -74,7 +74,7 @@ export class Fortify extends Chart {
 			},
 		});
 
-		const influxdbConfig = new ConfigMap(this, "influxdb-config", {
+		const influxdbConfig = new KubeConfigMap(this, "influxdb-config", {
 			metadata: {
 				name: "influxdb-config",
 			},
@@ -85,13 +85,13 @@ export class Fortify extends Chart {
 			},
 		});
 
-		const vaultConfig = new ConfigMap(this, "vault-config", {
+		const vaultConfig = new KubeConfigMap(this, "vault-config", {
 			data: {
 				VAULT_ADDR: "http://vault.default:8200",
 				VAULT_ENVIRONMENT: `/${ENVIRONMENT}`,
 			},
 		});
-		const vaultSecret = new Secret(this, "vault-secret", {
+		const vaultSecret = new KubeSecret(this, "vault-secret", {
 			stringData: {
 				// TODO: Refactor this into k8s service account based auth
 				VAULT_TOKEN,
@@ -136,7 +136,7 @@ export class Fortify extends Chart {
 					value: `https://${DOMAIN}/`,
 				},
 				{ name: "SENTRY_DSN", value: BACKEND_SENTRY_DSN },
-				{ name: "SENTRY_TRACE_SAMPLE_RATE", value: "0.2" },
+				{ name: "SENTRY_TRACE_SAMPLE_RATE", value: "0" },
 				{
 					name: "IGNORE_ERROR_CODES",
 					value:
@@ -197,6 +197,7 @@ export class Fortify extends Chart {
 					name: "NODE_ENV",
 					value: "production",
 				},
+				{ name: "SENTRY_TRACE_SAMPLE_RATE", value: "0" },
 			],
 			service: {
 				name: "frontend",
@@ -229,6 +230,7 @@ export class Fortify extends Chart {
 				},
 				{ name: "KAFKA_TOPIC", value: "gsi" },
 				{ name: "SENTRY_DSN", value: GSI_RECEIVER_SENTRY_DSN },
+				{ name: "SENTRY_TRACE_SAMPLE_RATE", value: "0" },
 			],
 			secrets: [vaultSecret],
 			configmaps: [kafkaConfig, redisConfig, vaultConfig],
@@ -249,11 +251,12 @@ export class Fortify extends Chart {
 		new WebService(this, "sentry-discord-webhook", {
 			name: "sentry-discord-webhook",
 			replicas: 1,
-			version: "1.1.1",
+			version: "1.1.2",
 			env: [
 				{ name: "LISTEN_ADDRESS", value: ":8080" },
 				{ name: "WEBHOOK_ENV", value: "prod" },
 				{ name: "DISABLE_STARTUP_MESSAGE", value: "true" },
+				{ name: "SENTRY_TRACE_SAMPLE_RATE", value: "0" },
 			],
 			configmaps: [vaultConfig],
 			secrets: [vaultSecret],
@@ -274,8 +277,8 @@ export class Fortify extends Chart {
 		new WebService(this, "sentry-discord-dev-webhook", {
 			name: "sentry-discord-dev-webhook",
 			replicas: 1,
-			version: "1.1.1",
-			image: REGISTRY + "sentry-discord-webhook:1.1.1",
+			version: "1.1.2",
+			image: REGISTRY + "sentry-discord-webhook:1.1.2",
 			env: [
 				{ name: "LISTEN_ADDRESS", value: ":8080" },
 				{
@@ -313,6 +316,7 @@ export class Fortify extends Chart {
 				{ name: "KAFKA_TOPIC", value: "gsi" },
 				{ name: "BOT_BROADCAST_DISABLED", value: "false" },
 				{ name: "SENTRY_DSN", value: TWITCH_BOT_SENTRY_DSN },
+				{ name: "SENTRY_TRACE_SAMPLE_RATE", value: "0" },
 			],
 			secrets: [vaultSecret],
 			configmaps: [postgresConfig, redisConfig, kafkaConfig, vaultConfig],
@@ -332,6 +336,7 @@ export class Fortify extends Chart {
 					name: "SENTRY_DSN",
 					value: FSM_SENTRY_DSN,
 				},
+				{ name: "SENTRY_TRACE_SAMPLE_RATE", value: "0" },
 			],
 			secrets: [vaultSecret],
 			configmaps: [redisConfig, kafkaConfig, postgresConfig, vaultConfig],
@@ -355,6 +360,7 @@ export class Fortify extends Chart {
 					name: "SENTRY_DSN",
 					value: HISTORIZATION_SENTRY_DSN,
 				},
+				{ name: "SENTRY_TRACE_SAMPLE_RATE", value: "0" },
 			],
 			configmaps: [
 				redisConfig,
@@ -383,6 +389,7 @@ export class Fortify extends Chart {
 					name: "KAFKA_CLIENT_ID",
 					valueFrom: { fieldRef: { fieldPath: "metadata.name" } },
 				},
+				{ name: "SENTRY_TRACE_SAMPLE_RATE", value: "0" },
 			],
 			secrets: [vaultSecret],
 			configmaps: [redisConfig, kafkaConfig, postgresConfig, vaultConfig],
@@ -403,6 +410,7 @@ export class Fortify extends Chart {
 					name: "KAFKA_CLIENT_ID",
 					valueFrom: { fieldRef: { fieldPath: "metadata.name" } },
 				},
+				{ name: "SENTRY_TRACE_SAMPLE_RATE", value: "0" },
 			],
 			secrets: [vaultSecret],
 			configmaps: [redisConfig, kafkaConfig, postgresConfig, vaultConfig],
@@ -423,6 +431,7 @@ export class Fortify extends Chart {
 					name: "KAFKA_CLIENT_ID",
 					valueFrom: { fieldRef: { fieldPath: "metadata.name" } },
 				},
+				{ name: "SENTRY_TRACE_SAMPLE_RATE", value: "0" },
 			],
 			secrets: [vaultSecret],
 			configmaps: [redisConfig, kafkaConfig, postgresConfig, vaultConfig],
@@ -440,6 +449,7 @@ export class Fortify extends Chart {
 					name: "KAFKA_CLIENT_ID",
 					valueFrom: { fieldRef: { fieldPath: "metadata.name" } },
 				},
+				{ name: "SENTRY_TRACE_SAMPLE_RATE", value: "0" },
 			],
 			secrets: [vaultSecret],
 			configmaps: [redisConfig, kafkaConfig, postgresConfig, vaultConfig],

@@ -1,3 +1,5 @@
+import { PrivatePlayerState, PublicPlayerState } from "./definitions/gsiTypes";
+
 export enum FortifyGameMode {
 	Invalid = 0,
 	Normal = 1,
@@ -55,4 +57,84 @@ export interface FortifyPlayer {
 		rank: number;
 		draftTier: number;
 	}>;
+}
+
+export interface UserCache {
+	id: string;
+
+	created?: number;
+	updated?: number;
+	ended?: number;
+
+	players: Record<string, PlayerSnapshot>;
+}
+
+export enum UserCacheKey {
+	matchID = "matchID",
+	cache = "cache",
+}
+
+export interface PlayerSnapshot {
+	/**
+	 * Account ID
+	 */
+	id: string;
+
+	/**
+	 * Optional boolean indicating wether
+	 * said account has been already detected as smurf
+	 */
+	smurfDetected?: boolean;
+
+	/**
+	 * Raw GSI public player state
+	 */
+	public_player_state: PublicPlayerState;
+	/**
+	 * Raw GSI private player state
+	 */
+	private_player_state?: PrivatePlayerState;
+}
+
+export interface MatchState {
+	/**
+	 * Match ID
+	 */
+	id: string;
+
+	/**
+	 * Creation timestamp
+	 */
+	created: number;
+	/**
+	 * Update timestamp
+	 */
+	updated: number;
+	/**
+	 * Ended timestamp
+	 */
+	ended?: number;
+
+	/**
+	 * Counting amount of updates happened to object
+	 */
+	updateCount: number;
+
+	/**
+	 * Game mode
+	 */
+	mode?: FortifyGameMode;
+	/**
+	 * Average lobby MMR
+	 */
+	averageMMR?: number;
+
+	/**
+	 * Lobby players
+	 */
+	players: Record<string, PlayerSnapshot>;
+	/**
+	 * Unit pool
+	 */
+	pool?: Record<number, number>;
 }
