@@ -1,4 +1,4 @@
-import { injectable, multiInject } from "inversify";
+import { injectable, multiInject, optional } from "inversify";
 
 import { createServer, Server } from "http";
 import {
@@ -22,7 +22,9 @@ export class HealthCheck {
 	server?: Server;
 
 	constructor(
-		@multiInject("healthCheck") private healthChecks: HealthCheckable[],
+		@multiInject("healthCheck")
+		@optional()
+		private healthChecks: HealthCheckable[] = [],
 	) {}
 
 	addHealthCheck(healthCheck: HealthCheckable) {
