@@ -1,4 +1,5 @@
-import { Construct, Node } from "constructs";
+import { Names } from "cdk8s";
+import { Construct } from "constructs";
 import {
 	KubeService,
 	KubeDeployment,
@@ -78,7 +79,7 @@ export class FortifyDeployment extends Construct {
 		}
 
 		const selectorLabels = {
-			app: Node.of(this).id,
+			app: Names.toDnsLabel(this),
 		};
 		const labels = {
 			...selectorLabels,
