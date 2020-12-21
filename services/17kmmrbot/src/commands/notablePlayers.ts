@@ -7,7 +7,12 @@ import { ChatUserstate, Client } from "tmi.js";
 
 import { ExtractorService } from "@shared/services/extractor";
 
-import { FortifyGameMode, MatchState, UserCacheKey } from "@shared/state";
+import {
+	FortifyGameMode,
+	MatchState,
+	PlayerSnapshot,
+	UserCacheKey,
+} from "@shared/state";
 import { LeaderboardService } from "@shared/services/leaderboard";
 import {
 	ULLeaderboard,
@@ -82,7 +87,9 @@ export class NotablePlayersCommand implements TwitchCommand {
 			}
 
 			// Get current user to calculate average based on the user (or spectator)
-			const lobbyUser = matchState.players[user.steamid];
+			const lobbyUser = matchState.players[user.steamid] as
+				| PlayerSnapshot
+				| undefined;
 
 			if (Object.keys(matchState.players).length !== 8) {
 				return client.say(
@@ -106,8 +113,8 @@ export class NotablePlayersCommand implements TwitchCommand {
 				leaderboard,
 				{
 					global_leaderboard_rank:
-						lobbyUser.public_player_state.global_leaderboard_rank,
-					rank_tier: lobbyUser.public_player_state.rank_tier,
+						lobbyUser?.public_player_state.global_leaderboard_rank,
+					rank_tier: lobbyUser?.public_player_state.rank_tier,
 				},
 			);
 
