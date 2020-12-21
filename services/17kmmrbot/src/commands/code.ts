@@ -164,7 +164,7 @@ export class CodeCommand implements TwitchCommand {
 					unit_id,
 					position: { x, y },
 					rank,
-				} of units) {
+				} of opps.units ?? []) {
 					if (y >= 0) {
 						// Store each board unit
 						shareCode.boardUnitIDs[7 - x][7 - y] = unit_id;
