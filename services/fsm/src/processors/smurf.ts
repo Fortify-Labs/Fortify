@@ -38,7 +38,12 @@ export class SmurfDetector {
 					publicPlayerState.account_id.toString() !== sourceAccountID
 				) {
 					// Only send smurf detected event once per match for each potential account
-					if (!matchState.players[sourceAccountID].smurfDetected) {
+					if (
+						// This check is needed as someone can switch from a match
+						// to either a new match or freestyle
+						matchState.players[sourceAccountID] &&
+						!matchState.players[sourceAccountID].smurfDetected
+					) {
 						const smurfDetectedEvent = new SmurfDetectedEvent(
 							sourceAccountID,
 							publicPlayerState.account_id.toString(),

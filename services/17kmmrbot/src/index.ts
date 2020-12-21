@@ -189,7 +189,16 @@ const {
 			}
 		} catch (e) {
 			debug("app::message")(e);
-			captureTwitchException(e, channel, tags, message);
+			const exceptionID = captureTwitchException(
+				e,
+				channel,
+				tags,
+				message,
+			);
+			await client.say(
+				channel,
+				`Something went wrong. (Exception ID: ${exceptionID})`,
+			);
 		}
 	});
 

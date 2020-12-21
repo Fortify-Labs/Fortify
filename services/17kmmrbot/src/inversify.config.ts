@@ -17,6 +17,7 @@ import { MMRCommand } from "./commands/mmr";
 import { LeftCommand } from "./commands/left";
 import { HelpCommand } from "./commands/help";
 import { MatchCommand } from "./commands/match";
+import { CodeCommand } from "./commands/code";
 
 import { SecretsManager } from "@shared/services/secrets";
 import { HealthCheckable } from "@shared/services/healthCheck";
@@ -33,6 +34,7 @@ container.bind<TwitchCommand>("command").to(CreditsCommand);
 container.bind<TwitchCommand>("command").to(MMRCommand);
 container.bind<TwitchCommand>("command").to(LeftCommand);
 container.bind<TwitchCommand>("command").to(MatchCommand);
+container.bind<TwitchCommand>("command").to(CodeCommand);
 
 // Separate help command from other commands to avoid a circular dependency
 container.bind<TwitchCommand>(HelpCommand).toSelf();

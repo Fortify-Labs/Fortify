@@ -1,6 +1,6 @@
 {
   "name": "17kmmrbot",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "Fortify twitch bot",
   "private": "true",
   "engines": {
@@ -54,6 +54,7 @@
     "reflect-metadata": "^0.1.13",
     "tmi.js": "^1.7.0",
     "tsconfig-paths": "^3.9.0",
-    "typeorm": "^0.2.29"
+    "typeorm": "^0.2.29",
+    "underlords": "^1.0.2"
   }
 }

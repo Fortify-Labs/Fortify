@@ -100,6 +100,7 @@ export interface PublicPlayerState {
 	lobby_team: number;
 	is_mirrored_match: boolean;
 	underlord: number;
+	underlord_selected_talents?: number[];
 	party_index: number;
 	board_unit_limit: number;
 	combat_type: number;
