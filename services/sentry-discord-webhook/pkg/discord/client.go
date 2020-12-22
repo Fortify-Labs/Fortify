@@ -16,6 +16,11 @@ func SendMessage(alert *sentry.IssueAlert) {
 	defer logger.Sync() // flushes buffer, if any
 	sugar := logger.Sugar()
 
+	if alert.Data.TriggeredRule == nil || alert.Data.Event == nil {
+		sugar.Infow("TriggeredRule or Event is nil")
+		return
+	}
+
 	webhook := Webhook{
 		Username:  "Fortify Monitoring",
 		AvatarURL: "https://fortify.gg/favicon.ico",

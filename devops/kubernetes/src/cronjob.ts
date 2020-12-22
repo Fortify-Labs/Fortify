@@ -24,6 +24,8 @@ export interface FortifyCronJobOptions {
 	readonly env?: EnvVar[] | undefined;
 	readonly configmaps?: KubeConfigMap[];
 	readonly secrets?: KubeSecret[];
+
+	readonly suspend?: boolean;
 }
 
 export class FortifyCronJob extends Construct {
@@ -57,6 +59,7 @@ export class FortifyCronJob extends Construct {
 			},
 			spec: {
 				schedule: options.schedule,
+				suspend: options.suspend ?? false,
 				jobTemplate: {
 					spec: {
 						template: {

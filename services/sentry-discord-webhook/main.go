@@ -59,6 +59,12 @@ func main() {
 	app.Post("/sentry", func(c *fiber.Ctx) error {
 		body := c.Body()
 
+		defer func() {
+			if r := recover(); r != nil {
+				sugar.Errorw("Could not handle ", "body", string(body), "r", r)
+			}
+		}()
+
 		if !sentry.VerifySignature(body, c.Get("Sentry-Hook-Signature")) {
 			return c.SendStatus(401)
 		}

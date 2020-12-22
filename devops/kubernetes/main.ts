@@ -251,7 +251,7 @@ export class Fortify extends Chart {
 		new WebService(this, "sentry-discord-webhook", {
 			name: "sentry-discord-webhook",
 			replicas: 1,
-			version: "1.1.2",
+			version: "1.1.3",
 			env: [
 				{ name: "LISTEN_ADDRESS", value: ":8080" },
 				{ name: "WEBHOOK_ENV", value: "prod" },
@@ -277,8 +277,8 @@ export class Fortify extends Chart {
 		new WebService(this, "sentry-discord-dev-webhook", {
 			name: "sentry-discord-dev-webhook",
 			replicas: 1,
-			version: "1.1.2",
-			image: REGISTRY + "sentry-discord-webhook:1.1.2",
+			version: "1.1.3",
+			image: REGISTRY + "sentry-discord-webhook:1.1.3",
 			env: [
 				{ name: "LISTEN_ADDRESS", value: ":8080" },
 				{
@@ -441,6 +441,7 @@ export class Fortify extends Chart {
 			version: jobsPackage.version,
 
 			// Every hour
+			suspend: true,
 			schedule: "0 * * * *",
 			script: "clean_db",
 
