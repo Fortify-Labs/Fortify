@@ -17,7 +17,7 @@ func SendMessage(alert *sentry.IssueAlert) {
 	sugar := logger.Sugar()
 
 	if alert.Data.TriggeredRule == nil || alert.Data.Event == nil {
-		sugar.Infow("TriggeredRule or Event is nil")
+		sugar.Infow("TriggeredRule or Event is nil", "alert", alert)
 		return
 	}
 
@@ -65,6 +65,16 @@ func SendMetricAlertMessage(alert *sentry.MetricAlert) {
 	logger, _ := zap.NewProduction()
 	defer logger.Sync() // flushes buffer, if any
 	sugar := logger.Sugar()
+
+	if alert.Data == nil ||
+		alert.Data.MetricAlert == nil ||
+		alert.Data.MetricAlert.Title == nil ||
+		alert.Data.WebURL == nil ||
+		alert.Data.DescriptionTitle == nil {
+
+		sugar.Infow("Data, MetricAlert, WebURL or DescriptionTitle is nil", "alert", alert)
+		return
+	}
 
 	webhook := Webhook{
 		Username:  "Fortify Monitoring",

@@ -132,7 +132,11 @@ export class MatchProcessor {
 			);
 
 			if (isStandard) {
-				matchState.mode = FortifyGameMode.Normal;
+				if (Object.values(matchState.players).length > 8) {
+					matchState.mode = FortifyGameMode.Duos;
+				} else {
+					matchState.mode = FortifyGameMode.Normal;
+				}
 			} else {
 				matchState.mode = FortifyGameMode.Turbo;
 			}

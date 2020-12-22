@@ -25,7 +25,7 @@ import { SystemEventType } from "@shared/events/systemEvents";
 import { ConsumerCrashEvent } from "kafkajs";
 import { Secrets } from "./secrets";
 import { HealthCheck } from "@shared/services/healthCheck";
-import { MatchService } from "@shared/services/match";
+import { MatchService, MatchServicePlayer } from "@shared/services/match";
 import { MatchProcessor } from "./processors/match";
 import { UserCacheKey } from "@shared/state";
 
@@ -202,30 +202,56 @@ const {
 
 								let newMatchID: string | null = null;
 
-								// Calculate new matchID once we have collected 8 players
+								// Calculate new matchID once we have collected more than 8 players
 								if (Object.keys(cache.players).length > 7) {
-									newMatchID = await matchService.generateMatchID(
-										Object.values(cache.players).map(
-											({
-												public_player_state: {
-													account_id,
-													final_place,
-													persona_name,
-													player_slot,
-												},
-											}) => ({
-												accountID: account_id.toString(),
-												finalPlace: final_place,
-												name: persona_name,
-												slot: player_slot,
-											}),
-										),
+									// Check if we have received data from a duos lobby
+									const hasDuosData = Object.values(
+										cache.players,
+									).reduce(
+										(acc, player) =>
+											acc ||
+											player.public_player_state
+												.player_slot > 8,
+										false,
 									);
+
+									const matchServicePlayers: MatchServicePlayer[] = Object.values(
+										cache.players,
+									).map(
+										({
+											public_player_state: {
+												account_id,
+												final_place,
+												persona_name,
+												player_slot,
+											},
+										}) => ({
+											accountID: account_id.toString(),
+											finalPlace: final_place,
+											name: persona_name,
+											slot: player_slot,
+										}),
+									);
+
+									if (hasDuosData) {
+										if (
+											Object.keys(cache.players).length >
+											15
+										) {
+											newMatchID = await matchService.generateMatchID(
+												matchServicePlayers,
+											);
+										}
+									} else {
+										newMatchID = await matchService.generateMatchID(
+											matchServicePlayers,
+										);
+									}
 								}
 
 								// As matchID calculation happens over a period of time
 								// the newMatchID is going to be null until information
-								// of all 8 players is received
+								// of all players is received
 								if (newMatchID) {
 									await stateService.setUserMatchID(
 										id,
