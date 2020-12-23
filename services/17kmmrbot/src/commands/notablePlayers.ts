@@ -87,14 +87,17 @@ export class NotablePlayersCommand implements TwitchCommand {
 
 				// As the leaderboard ranks in the public player state are not duos rankings,
 				// I am not going to be printing any mmr here.
-				let response = `${
-					FortifyGameMode[matchState.mode]
-				}: ${Object.values(matchState.players).map(
-					(player) => `${player.public_player_state.persona_name}, `,
-				)}`;
-				response = response.slice(0, -2);
-
-				return client.say(channel, response);
+				return client.say(
+					channel,
+					`${FortifyGameMode[matchState.mode]}: ${Object.values(
+						matchState.players,
+					)
+						.map(
+							(player) =>
+								`${player.public_player_state.persona_name}`,
+						)
+						.join(", ")}`,
+				);
 			}
 
 			// Get current user to calculate average based on the user (or spectator)

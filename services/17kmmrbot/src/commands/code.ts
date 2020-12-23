@@ -11,6 +11,9 @@ import { EquippedItemV8, ShareCodeV8 } from "underlords";
 @injectable()
 export class CodeCommand implements TwitchCommand {
 	invocations = ["!code"];
+	showInHelp = true;
+	description =
+		"Prints a share code of the current board / the board of the player specified by name";
 
 	constructor(
 		@inject(ExtractorService) public extractorService: ExtractorService,
