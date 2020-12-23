@@ -27,8 +27,8 @@ export class PoolProcessor {
 		// 1. Reset the unit pool counts
 		for (const { id, draftTier } of Object.values(this.mappedUnits)) {
 			state.pool[id] =
-				poolSize[draftTier] ??
-				0 * (state.mode === FortifyGameMode.Duos ? 2 : 1);
+				(poolSize[draftTier] ?? 0) *
+				(state.mode === FortifyGameMode.Duos ? 2 : 1);
 		}
 
 		// 2. For each player, remove units from the pool
