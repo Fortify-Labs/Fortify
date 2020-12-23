@@ -1,6 +1,6 @@
 {
   "name": "fsm",
-  "version": "1.6.5",
+  "version": "1.6.6",
   "description": "Finite State Machine",
   "author": {
     "name": "Thomas Kosiewski"

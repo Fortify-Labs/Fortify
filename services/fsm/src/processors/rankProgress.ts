@@ -8,6 +8,13 @@ export class RankProgressTracker {
 	constructor(public eventService: EventService) {}
 
 	async process(matchState: MatchState, timestamp: string) {
+		// Skip rank progress tracking
+		// as the rank_tier and leaderboard rank
+		// in the public player state object are from standard
+		if (matchState.mode === FortifyGameMode.Duos) {
+			return;
+		}
+
 		const promises: Promise<void>[] = [];
 
 		for (const {
