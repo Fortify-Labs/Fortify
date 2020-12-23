@@ -12,7 +12,7 @@ import {
 } from "@shared/units";
 import { poolSize } from "@shared/pool";
 import { RedisConnector } from "@shared/connectors/redis";
-import { MatchState, UserCacheKey } from "@shared/state";
+import { FortifyGameMode, MatchState, UserCacheKey } from "@shared/state";
 
 @injectable()
 export class LeftCommand implements TwitchCommand {
@@ -111,7 +111,10 @@ export class LeftCommand implements TwitchCommand {
 
 						return acc;
 					}, 0);
-				const total = draftTiers[tier].length * poolSize[tier];
+				const total =
+					draftTiers[tier].length *
+					poolSize[tier] *
+					(matchState.mode === FortifyGameMode.Duos ? 2 : 1);
 
 				return client.say(
 					channel,
@@ -146,7 +149,9 @@ export class LeftCommand implements TwitchCommand {
 
 		const { id, draftTier } = unit;
 		const left = matchState.pool[id];
-		const total = poolSize[draftTier] ?? 0;
+		const total =
+			(poolSize[draftTier] ?? 0) *
+			(matchState.mode === FortifyGameMode.Duos ? 2 : 1);
 
 		return client.say(
 			channel,

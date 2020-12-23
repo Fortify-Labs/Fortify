@@ -91,7 +91,7 @@ export class NotablePlayersCommand implements TwitchCommand {
 				| PlayerSnapshot
 				| undefined;
 
-			if (Object.keys(matchState.players).length !== 8) {
+			if (Object.keys(matchState.players).length < 8) {
 				return client.say(
 					channel,
 					"Collecting game data, please try again in a little bit",
