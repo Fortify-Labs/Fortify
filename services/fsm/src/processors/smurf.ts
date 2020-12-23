@@ -19,7 +19,7 @@ export class SmurfDetector {
 	async process({
 		block,
 		matchState,
-		sourceAccountID,
+		sourceAccountID: mainAccountID,
 		timestamp,
 	}: SmurfDetectorProps): Promise<MatchState> {
 		// If we receive a private player state for
@@ -35,18 +35,22 @@ export class SmurfDetector {
 
 				if (
 					publicPlayerState &&
-					publicPlayerState.account_id.toString() !== sourceAccountID
+					publicPlayerState.account_id !== null &&
+					publicPlayerState.account_id !== undefined &&
+					publicPlayerState.account_id.toString() !== mainAccountID
 				) {
+					const smurfAccountID = publicPlayerState.account_id.toString();
+
 					// Only send smurf detected event once per match for each potential account
 					if (
 						// This check is needed as someone can switch from a match
 						// to either a new match or freestyle
-						matchState.players[sourceAccountID] &&
-						!matchState.players[sourceAccountID].smurfDetected
+						matchState.players[smurfAccountID] &&
+						!matchState.players[smurfAccountID].smurfDetected
 					) {
 						const smurfDetectedEvent = new SmurfDetectedEvent(
-							sourceAccountID,
-							publicPlayerState.account_id.toString(),
+							mainAccountID,
+							smurfAccountID,
 						);
 						smurfDetectedEvent.timestamp = new Date(timestamp);
 						await this.eventService.sendEvent(
@@ -54,9 +58,7 @@ export class SmurfDetector {
 							`match-${matchState.id}`,
 						);
 
-						matchState.players[
-							sourceAccountID
-						].smurfDetected = true;
+						matchState.players[smurfAccountID].smurfDetected = true;
 					}
 				}
 			}

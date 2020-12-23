@@ -133,11 +133,10 @@ export class MatchPersistor {
 		}
 	}
 
-	// {"timestamp":"2020-12-20T17:47:29.804Z","originalAccountID":"52601326","smurfAccountID":"1028035860","type":5}
 	async storeSmurfEvent(smurfEvent: SmurfDetectedEvent) {
 		const userRepo = await this.postgres.getUserRepo();
 
-		const { smurfAccountID, originalAccountID: mainAccountID } = smurfEvent;
+		const { smurfAccountID, mainAccountID } = smurfEvent;
 
 		const mainAccount = await userRepo.findOneOrFail(mainAccountID);
 		const smurfAccount = await userRepo.findOneOrFail(smurfAccountID);

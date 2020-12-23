@@ -126,19 +126,21 @@ export class SmurfDetectedEvent extends FortifyEventClass<GameEventType> {
 	public _topic = FortifyEventTopics.GAME;
 	public type = GameEventType.SMURF_DETECTED;
 
-	constructor(
-		public originalAccountID: string,
-		public smurfAccountID: string,
-	) {
+	constructor(public mainAccountID: string, public smurfAccountID: string) {
 		super();
 	}
 
 	public static deserialize<GameEventType>(obj: FortifyEvent<GameEventType>) {
+		// TODO: Delete line after a release or two
 		const originalAccountID = obj["originalAccountID"] as string | null;
+		const mainAccountID = obj["mainAccountID"] as string | null;
 		const smurfAccountID = obj["smurfAccountID"] as string | null;
 
-		if (originalAccountID && smurfAccountID)
-			return new this(originalAccountID, smurfAccountID);
+		if ((originalAccountID || mainAccountID) && smurfAccountID)
+			return new this(
+				mainAccountID ?? originalAccountID!,
+				smurfAccountID,
+			);
 		else throw new DeserializationError();
 	}
 }
