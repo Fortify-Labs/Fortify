@@ -136,10 +136,18 @@ export class MatchPersistor {
 	async storeSmurfEvent(smurfEvent: SmurfDetectedEvent) {
 		const userRepo = await this.postgres.getUserRepo();
 
-		const { smurfAccountID, mainAccountID } = smurfEvent;
+		const { smurfAccountID, mainAccountID, timestamp } = smurfEvent;
 
 		const mainAccount = await userRepo.findOneOrFail(mainAccountID);
-		const smurfAccount = await userRepo.findOneOrFail(smurfAccountID);
+		let smurfAccount = await userRepo.findOne(smurfAccountID);
+
+		if (!smurfAccount) {
+			smurfAccount = new User();
+			smurfAccount.steamid = smurfAccountID;
+			smurfAccount.created = timestamp;
+			smurfAccount.name = smurfAccountID;
+			smurfAccount.updated = timestamp;
+		}
 
 		smurfAccount.mainAccount = mainAccount;
 

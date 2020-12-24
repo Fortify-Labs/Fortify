@@ -96,7 +96,7 @@ export interface PublicPlayerState {
 	losses: number;
 	player_loadout: PlayerLoadout[];
 	net_worth: number;
-	combat_result: number;
+	combat_result?: number;
 	lobby_team: number;
 	is_mirrored_match: boolean;
 	underlord: number;
