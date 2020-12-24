@@ -599,7 +599,7 @@ export class ClusterSetupClean extends Chart {
 			},
 		});
 
-		// Influxdb RC1
+		// Influxdb
 		const influxdbLabels = {
 			app: "influxdb-rc",
 		};
