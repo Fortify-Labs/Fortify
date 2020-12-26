@@ -18,6 +18,8 @@ import { HealthCheck } from "@shared/services/healthCheck";
 import { Connector } from "@shared/definitions/connector";
 import { Logging } from "@shared/logging";
 
+const { NODE_ENV } = process.env;
+
 yargs
 	.command(
 		"run [script]",
@@ -41,7 +43,7 @@ yargs
 				const healthCheck = container.get(HealthCheck);
 				await healthCheck.start();
 
-				logger.info("arguments", argv);
+				logger.info("arguments", { argv });
 
 				if (container.isBound(argv.script)) {
 					const fortifyScript = container.get<FortifyScript>(
@@ -76,8 +78,8 @@ yargs
 			}
 		},
 	)
-	.showHelpOnFail(true)
-	.help("help", "Show help on failure")
+	.showHelpOnFail(NODE_ENV !== "production")
+	.help("help", "Show help message")
 	.demandCommand()
 	.recommendCommands()
 	.strict().argv;

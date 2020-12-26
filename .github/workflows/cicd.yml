@@ -65,7 +65,7 @@ jobs:
           node-version: "14"
       - uses: azure/setup-kubectl@v1
         with:
-          version: "v1.19.2"
+          version: "v1.20.0"
 
       - run: echo DOMAIN=fortify.gg >> $GITHUB_ENV
       - run: mkdir -p ~/.kube/ && touch ~/.kube/config && echo ${{ secrets.KUBECONFIG }} | base64 --decode > ~/.kube/config
