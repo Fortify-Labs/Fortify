@@ -58,8 +58,13 @@ export class MatchPersistor {
 				return this.storeSmurfEvent(smurfEvent);
 			}
 		} catch (e) {
-			this.logger.error("An error occured in the match persistor", { e });
-			this.logger.error(e);
+			this.logger.error("An error occurred in the match persistor", {
+				e,
+				event,
+			});
+			this.logger.error(e, {
+				event,
+			});
 		}
 	}
 
