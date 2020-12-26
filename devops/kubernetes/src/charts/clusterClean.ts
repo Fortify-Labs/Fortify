@@ -3,10 +3,6 @@ import { Construct } from "constructs";
 import {
 	KubeNamespace,
 	KubeSecret,
-	KubeServiceAccount,
-	KubeClusterRole,
-	KubeClusterRoleBinding,
-	KubeDaemonSet,
 	KubeStatefulSet,
 	KubeService,
 	ObjectMeta,
@@ -32,6 +28,7 @@ import { Kibana } from "../../imports/kibana.k8s.elastic.co/kibana";
 import { Certificate } from "../../imports/cert-manager.io/certificate";
 import { ClusterIngressTraefik } from "../cluster/ingressTraefik";
 import { Middleware } from "../../imports/traefik.containo.us/middleware";
+import { FluentdConstruct } from "./fluentd/fluentd";
 
 const {
 	DOMAIN = "fortify.gg",
@@ -433,163 +430,7 @@ export class ClusterSetupClean extends Chart {
 
 		// --- Fluentd setup ---
 
-		const fluentdSA = new KubeServiceAccount(
-			this,
-			"fluentd-service-account",
-			{
-				metadata: {
-					name: "fluentd",
-					namespace: logsNS.name,
-				},
-			}
-		);
-
-		new KubeClusterRole(this, "fluentd-cluster-role", {
-			metadata: {
-				name: "fluentd",
-				namespace: logsNS.name,
-			},
-			rules: [
-				{
-					apiGroups: [""],
-					resources: ["pods", "namespaces"],
-					verbs: ["get", "list", "watch"],
-				},
-			],
-		});
-
-		new KubeClusterRoleBinding(this, "fluentd-cluster-role-binding", {
-			metadata: {
-				name: "fluentd",
-			},
-			roleRef: {
-				kind: "ClusterRole",
-				name: "fluentd",
-				apiGroup: "rbac.authorization.k8s.io",
-			},
-			subjects: [
-				{
-					kind: "ServiceAccount",
-					name: "fluentd",
-					namespace: logsNS.name,
-				},
-			],
-		});
-
-		const fluentDsLabels = {
-			"k8s-app": "fluentd-logging",
-			version: "v1",
-		};
-
-		new KubeDaemonSet(this, "fluentd-ds", {
-			metadata: {
-				name: "fluentd",
-				namespace: logsNS.name,
-				labels: fluentDsLabels,
-			},
-			spec: {
-				selector: {
-					matchLabels: fluentDsLabels,
-				},
-				template: {
-					metadata: {
-						labels: fluentDsLabels,
-					},
-					spec: {
-						serviceAccount: fluentdSA.name,
-						serviceAccountName: fluentdSA.name,
-						tolerations: [
-							{
-								key: "node-role.kubernetes.io/master",
-								effect: "NoSchedule",
-							},
-						],
-						containers: [
-							{
-								name: "fluentd",
-								image:
-									"fluent/fluentd-kubernetes-daemonset:v1-debian-elasticsearch",
-								env: [
-									{
-										name: "FLUENT_ELASTICSEARCH_HOST",
-										value: "elasticsearch-es-http",
-									},
-									{
-										name: "FLUENT_ELASTICSEARCH_PORT",
-										value: "9200",
-									},
-									{
-										name: "FLUENT_ELASTICSEARCH_SCHEME",
-										value: "http",
-									},
-									// Option to configure elasticsearch plugin with self signed certs
-									{
-										name: "FLUENT_ELASTICSEARCH_SSL_VERIFY",
-										value: "true",
-									},
-									// Option to configure elasticsearch plugin with tls
-									{
-										name:
-											"FLUENT_ELASTICSEARCH_SSL_VERSION",
-										value: "TLSv1_2",
-									},
-									// X-Pack Authentication
-									{
-										name: "FLUENT_ELASTICSEARCH_USER",
-										value: "elastic",
-									},
-									{
-										name: "FLUENT_ELASTICSEARCH_PASSWORD",
-										valueFrom: {
-											secretKeyRef: {
-												key: "elastic",
-												name:
-													"elasticsearch-es-elastic-user",
-											},
-										},
-									},
-								],
-								resources: {
-									limits: {
-										memory: "200Mi",
-									},
-									requests: {
-										cpu: "100m",
-										memory: "200Mi",
-									},
-								},
-								volumeMounts: [
-									{
-										name: "varlog",
-										mountPath: "/var/log",
-									},
-									{
-										name: "varlibdockercontainers",
-										mountPath: "/var/lib/docker/containers",
-										readOnly: true,
-									},
-								],
-							},
-						],
-						terminationGracePeriodSeconds: 30,
-						volumes: [
-							{
-								name: "varlog",
-								hostPath: {
-									path: "/var/log",
-								},
-							},
-							{
-								name: "varlibdockercontainers",
-								hostPath: {
-									path: "/var/lib/docker/containers",
-								},
-							},
-						],
-					},
-				},
-			},
-		});
+		new FluentdConstruct(this, "fluentd");
 
 		// --- InfluxDB setup ---
 

@@ -7,6 +7,7 @@ import { KafkaConnector } from "@shared/connectors/kafka";
 
 import { SecretsManager } from "@shared/services/secrets";
 import { Secrets } from "./secrets";
+import { Connector } from "@shared/definitions/connector";
 
 const container = new Container({ autoBindInjectable: true });
 
@@ -14,6 +15,8 @@ container.bind(Secrets).toSelf().inSingletonScope();
 container.bind(SecretsManager).toService(Secrets);
 
 container.bind(KafkaConnector).toSelf().inSingletonScope();
+
+container.bind<Connector>("connector").toService(KafkaConnector);
 
 container.bind<HealthCheckable>("healthCheck").toService(KafkaConnector);
 

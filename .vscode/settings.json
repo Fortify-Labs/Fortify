@@ -5,6 +5,7 @@
 	"Deserialization",
 	"Dota",
 	"Envs",
+	"Fluentd",
 	"GHCR",
 	"Persistor",
 	"Scaleway",

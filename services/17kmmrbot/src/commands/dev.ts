@@ -1,5 +1,4 @@
 import { injectable, inject } from "inversify";
-import debug = require("debug");
 
 import { ChatUserstate, Client } from "tmi.js";
 
@@ -9,13 +8,20 @@ import { ExtractorService } from "@shared/services/extractor";
 
 import { FSMResetRequestEvent } from "@shared/events/systemEvents";
 import { captureTwitchException } from "../lib/sentryUtils";
+import { Logging } from "@shared/logging";
+import winston from "winston";
 
 @injectable()
 export class DevCommands implements TwitchCommand {
+	logger: winston.Logger;
+
 	constructor(
 		@inject(KafkaConnector) private kafka: KafkaConnector,
 		@inject(ExtractorService) private extractorService: ExtractorService,
-	) {}
+		private logging: Logging,
+	) {
+		this.logger = logging.createLogger();
+	}
 
 	invocations = ["!reset", "!join", "!leave", "!version"];
 
@@ -60,8 +66,27 @@ export class DevCommands implements TwitchCommand {
 
 					await client.join(channelName);
 				} catch (e) {
-					debug("app::devCommands::join")(e);
-					captureTwitchException(e, channel, tags, message);
+					const exceptionID = captureTwitchException(
+						e,
+						channel,
+						tags,
+						message,
+					);
+					this.logger.error("Join command failed", {
+						exceptionID,
+						e,
+						channel,
+						tags,
+						message,
+						command: "!join",
+					});
+					this.logger.error(e, {
+						exceptionID,
+						channel,
+						tags,
+						message,
+						command: "!join",
+					});
 				}
 			}
 
@@ -71,8 +96,27 @@ export class DevCommands implements TwitchCommand {
 
 					await client.part(channelName);
 				} catch (e) {
-					debug("app::devCommands::leave")(e);
-					captureTwitchException(e, channel, tags, message);
+					const exceptionID = captureTwitchException(
+						e,
+						channel,
+						tags,
+						message,
+					);
+					this.logger.error("Leave command failed", {
+						exceptionID,
+						e,
+						channel,
+						tags,
+						message,
+						command: "!leave",
+					});
+					this.logger.error(e, {
+						exceptionID,
+						channel,
+						tags,
+						message,
+						command: "!leave",
+					});
 				}
 			}
 
@@ -83,8 +127,27 @@ export class DevCommands implements TwitchCommand {
 				);
 			}
 		} catch (e) {
-			debug("app::devCommands")(e);
-			captureTwitchException(e, channel, tags, message);
+			const exceptionID = captureTwitchException(
+				e,
+				channel,
+				tags,
+				message,
+			);
+			this.logger.error("A dev command failed", {
+				exceptionID,
+				e,
+				channel,
+				tags,
+				message,
+				command: "!dev",
+			});
+			this.logger.error(e, {
+				exceptionID,
+				channel,
+				tags,
+				message,
+				command: "!dev",
+			});
 		}
 	};
 }

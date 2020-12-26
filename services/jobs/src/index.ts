@@ -1,8 +1,6 @@
 import { config } from "dotenv";
 config();
 
-import debug from "debug";
-
 import { sharedSetup } from "@shared/index";
 global.__rootdir__ = __dirname || process.cwd();
 sharedSetup();
@@ -17,6 +15,8 @@ import { RedisConnector } from "@shared/connectors/redis";
 import { PostgresConnector } from "@shared/connectors/postgres";
 import { Secrets } from "./secrets";
 import { HealthCheck } from "@shared/services/healthCheck";
+import { Connector } from "@shared/definitions/connector";
+import { Logging } from "@shared/logging";
 
 yargs
 	.command(
@@ -30,12 +30,18 @@ yargs
 			});
 		},
 		async (argv) => {
+			const logger = container.get(Logging).createLogger();
 			try {
 				await container.get(Secrets).getSecrets();
+				await Promise.all(
+					container
+						.getAll<Connector>("connector")
+						.map((connector) => connector.connect()),
+				);
 				const healthCheck = container.get(HealthCheck);
 				await healthCheck.start();
 
-				debug("app::run")(argv);
+				logger.info(argv);
 
 				if (container.isBound(argv.script)) {
 					const fortifyScript = container.get<FortifyScript>(
@@ -45,7 +51,7 @@ yargs
 					healthCheck.live = true;
 					await fortifyScript.handler();
 				} else {
-					debug("app::run")("No matching script found");
+					logger.error(`No matching script found for ${argv.script}`);
 				}
 
 				// Close connections to gracefully complete
@@ -56,10 +62,16 @@ yargs
 
 				process.kill(process.pid, "SIGTERM");
 			} catch (e) {
-				debug("app::command::run")(e);
 				const exceptionID = captureException(e);
-				debug("app::command::run")(exceptionID);
-				await flush();
+
+				logger.error("Command run failed", {
+					e,
+					exceptionID,
+				});
+
+				logger.error(e, { exceptionID });
+
+				await flush(10000).catch(() => {});
 				throw e;
 			}
 		},

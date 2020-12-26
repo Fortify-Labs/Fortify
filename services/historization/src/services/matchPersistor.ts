@@ -9,7 +9,6 @@ import {
 } from "@shared/events/gameEvents";
 import { FortifyEvent } from "@shared/events/events";
 import { MatchService } from "@shared/services/match";
-import debug from "debug";
 import { PostgresConnector } from "@shared/connectors/postgres";
 import { InfluxDBConnector } from "@shared/connectors/influxdb";
 import { Point } from "@influxdata/influxdb-client";
@@ -17,14 +16,21 @@ import { rankToMMRMapping } from "@shared/ranks";
 import { MMR, User } from "@shared/db/entities/user";
 import { FortifyGameMode } from "@shared/state";
 import { LeaderboardType } from "@shared/definitions/leaderboard";
+import { Logging } from "@shared/logging";
+import winston from "winston";
 
 @injectable()
 export class MatchPersistor {
+	logger: winston.Logger;
+
 	constructor(
 		@inject(MatchService) private matchService: MatchService,
 		@inject(PostgresConnector) private postgres: PostgresConnector,
 		@inject(InfluxDBConnector) private influx: InfluxDBConnector,
-	) {}
+		@inject(Logging) private logging: Logging,
+	) {
+		this.logger = logging.createLogger();
+	}
 
 	async handleEvent(event: FortifyEvent<GameEventType>) {
 		try {
@@ -52,7 +58,8 @@ export class MatchPersistor {
 				return this.storeSmurfEvent(smurfEvent);
 			}
 		} catch (e) {
-			debug("app::MatchPersistor")(e);
+			this.logger.error("An error occured in the match persistor", { e });
+			this.logger.error(e);
 		}
 	}
 

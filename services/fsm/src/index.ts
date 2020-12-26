@@ -1,8 +1,6 @@
 import { config } from "dotenv";
 config();
 
-import debug from "debug";
-
 import { sharedSetup } from "@shared/index";
 global.__rootdir__ = __dirname || process.cwd();
 sharedSetup();
@@ -28,6 +26,8 @@ import { HealthCheck } from "@shared/services/healthCheck";
 import { MatchService, MatchServicePlayer } from "@shared/services/match";
 import { MatchProcessor } from "./processors/match";
 import { UserCacheKey } from "@shared/state";
+import { Connector } from "@shared/definitions/connector";
+import { Logging } from "@shared/logging";
 
 const {
 	KAFKA_FROM_START,
@@ -38,7 +38,15 @@ const {
 } = process.env;
 
 (async () => {
+	const logger = container.get(Logging).createLogger();
+
 	await container.get(Secrets).getSecrets();
+
+	await Promise.all(
+		container
+			.getAll<Connector>("connector")
+			.map((connector) => connector.connect()),
+	);
 
 	const healthCheck = container.get(HealthCheck);
 	await healthCheck.start();
@@ -292,7 +300,6 @@ const {
 						}
 					}
 				} catch (e) {
-					debug("app::consumer::run")(e);
 					const exceptionID = captureException(e, {
 						contexts: {
 							kafka: {
@@ -302,7 +309,20 @@ const {
 							},
 						},
 					});
-					debug("app::consumer::run")(exceptionID);
+					logger.error("Consumer run failed", {
+						e,
+						exceptionID,
+						contexts: {
+							kafka: {
+								topic,
+								partition,
+								message: JSON.stringify(message, null, 2),
+							},
+						},
+					});
+					logger.error(e, {
+						exceptionID,
+					});
 					throw e;
 				}
 			}
@@ -318,25 +338,28 @@ const {
 	}
 
 	consumer.on("consumer.disconnect", () => {
-		debug("app::kafka::consumer.disconnect")("Consumer disconnected");
+		logger.warn("Kafka consumer disconnected");
 		// const sentryID = captureMessage("Consumer disconnected");
 		// debug("app::kafka::consumer.disconnect")(sentryID);
 	});
 	consumer.on("consumer.connect", () => {
-		debug("app::kafka::consumer.connect")("Consumer connected");
+		logger.info("Kafka consumer connected");
 		// const sentryID = captureMessage("Consumer connected");
 		// debug("app::kafka::consumer.connect")(sentryID);
 	});
 	consumer.on("consumer.crash", async (crashEvent: ConsumerCrashEvent) => {
-		debug("app::kafka::consumer.crash")(crashEvent);
-		const sentryID = captureException(crashEvent.payload.error, {
+		const exceptionID = captureException(crashEvent.payload.error, {
 			extra: {
 				groupId: crashEvent.payload.groupId,
 			},
 		});
-		debug("app::kafka::consumer.crash")(sentryID);
+		logger.error("Kafka consumer crashed", {
+			crashEvent,
+			exceptionID,
+		});
+
 		try {
-			await flush();
+			await flush(10000);
 		} finally {
 			// eslint-disable-next-line no-process-exit
 			process.exit(-1);
@@ -344,10 +367,43 @@ const {
 	});
 
 	healthCheck.live = true;
-})().catch((e) => {
-	debug("app::anonymous_function")(e);
-	captureException(e);
 
-	// eslint-disable-next-line no-process-exit
-	process.exit(-1);
+	process.on("SIGTERM", shutDown);
+	process.on("SIGINT", shutDown);
+
+	async function shutDown() {
+		await flush(10000).catch(() => {});
+
+		setTimeout(() => {
+			logger.warn(
+				"Could not close connections in time, forcefully shutting down",
+			);
+			// eslint-disable-next-line no-process-exit
+			process.exit(1);
+		}, 10000);
+
+		try {
+			await consumer.stop();
+			await consumer.disconnect();
+
+			logger.info("Received kill signal, shutting down gracefully");
+			// eslint-disable-next-line no-process-exit
+			process.exit(0);
+		} finally {
+			logger.info("Received kill signal, finally shutting down");
+		}
+	}
+})().catch((e) => {
+	const logger = container.get(Logging).createLogger();
+
+	const exceptionID = captureException(e);
+
+	logger.error(e, {
+		exceptionID,
+	});
+
+	flush(10000)
+		.catch(() => {})
+		// eslint-disable-next-line no-process-exit
+		.finally(() => process.exit(-1));
 });

@@ -1,11 +1,12 @@
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 
 import { readFile } from "fs";
 import vault from "node-vault";
 
 import { captureException } from "@sentry/node";
-import debug from "debug";
 import { HealthCheckable } from "src/services/healthCheck";
+import { Logging } from "../logging";
+import winston from "winston";
 
 // process.env.VAULT_ADDR
 // process.env.VAULT_PREFIX
@@ -20,20 +21,25 @@ const {
 @injectable()
 export class VaultConnector implements HealthCheckable {
 	vault: vault.client;
+	logger: winston.Logger;
 
 	name = "Vault";
 	setupHealthCheck = async () => {};
 	healthCheck: () => Promise<boolean>;
 	shutdown = async () => {};
 
-	constructor() {
+	constructor(@inject(Logging) public logging: Logging) {
 		this.vault = vault();
+		this.logger = logging.createLogger();
 
 		if (K8S_ROLE_NAME && K8S_SERVICE_ACCOUNT_TOKEN_PATH) {
 			readFile(K8S_SERVICE_ACCOUNT_TOKEN_PATH, (err, data) => {
 				if (err) {
-					debug("app::VaultConnector::ReadServiceAccountToken")(err);
-					captureException(err);
+					const exceptionID = captureException(err);
+					this.logger.error("Failed to read service account token", {
+						err,
+						exceptionID,
+					});
 					return;
 				}
 
@@ -42,16 +48,26 @@ export class VaultConnector implements HealthCheckable {
 				this.vault
 					.kubernetesLogin({ role: K8S_ROLE_NAME, jwt })
 					.catch((reason) => {
-						debug("app::VaultConnector::KubernetesLogin")(reason);
-						captureException(reason);
+						const exceptionID = captureException(reason);
+						this.logger.error("Kubernetes login failed", {
+							reason,
+							exceptionID,
+						});
 					});
 			});
 		}
 
 		this.healthCheck = async () => {
-			const health = (await this.vault.health()) as VaultHealthResponse;
+			try {
+				const health = (await this.vault.health()) as VaultHealthResponse;
 
-			return health.initialized && !health.sealed;
+				return health.initialized && !health.sealed;
+			} catch (e) {
+				this.logger.error("Vault health check failed", { e });
+				this.logger.error(e);
+
+				return false;
+			}
 		};
 	}
 

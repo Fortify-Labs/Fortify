@@ -2,7 +2,6 @@ import "reflect-metadata";
 
 import * as dotenv from "dotenv";
 dotenv.config();
-import debug = require("debug");
 
 import { Client, Options } from "tmi.js";
 
@@ -32,15 +31,26 @@ import { ConsumerCrashEvent } from "kafkajs";
 import { Secrets } from "./secrets";
 import { HealthCheck } from "@shared/services/healthCheck";
 
+import { Logging } from "@shared/logging";
+import { Connector } from "@shared/definitions/connector";
+
 const {
 	KAFKA_FROM_START = "false",
 	KAFKA_GROUP_ID = "17kmmrbot-group",
 } = process.env;
 
 (async () => {
+	const logger = container.get(Logging).createLogger();
+
 	const {
 		twitchBot: { oauthToken },
 	} = await container.get(Secrets).getSecrets();
+
+	await Promise.all(
+		container
+			.getAll<Connector>("connector")
+			.map((connector) => connector.connect()),
+	);
 
 	const healthCheck = container.get(HealthCheck);
 	await healthCheck.start();
@@ -88,23 +98,18 @@ const {
 	async function shutDown() {
 		try {
 			await Promise.allSettled([
-				(await postgres.connection).close(),
+				postgres.shutdown(),
 				consumer.disconnect(),
-				container.get(RedisConnector).client.quit(),
+				container.get(RedisConnector).shutdown(),
 				client.disconnect(),
 				flush(10000),
 			]);
-			debug("app::shutDown")("Postgres connection closed");
-			debug("app::shutDown")("Kafka consumer closed");
-			debug("app::shutDown")("Redis connection closed");
-			debug("app::shutDown")("Twitch connection closed");
-			debug("app::shutDown")("Flushed sentry");
+			logger.info("Closed all remaining connections and flushed sentry");
 		} catch (e) {
-			debug("app::shutDown")(e);
+			logger.error("An error occurred while closing connections", { e });
+			logger.error(e);
 		} finally {
-			debug("app::shutDown")(
-				"Received kill signal, shutting down gracefully",
-			);
+			logger.info("Received kill signal, shutting down gracefully");
 
 			// eslint-disable-next-line no-process-exit
 			process.exit(0);
@@ -112,25 +117,24 @@ const {
 	}
 
 	consumer.on("consumer.disconnect", () => {
-		debug("app::kafka::consumer.disconnect")("Consumer disconnected");
+		logger.info("Kafka consumer disconnected");
 		// const sentryID = captureMessage("Consumer disconnected");
 		// debug("app::kafka::consumer.disconnect")(sentryID);
 	});
 	consumer.on("consumer.connect", () => {
-		debug("app::kafka::consumer.connect")("Consumer connected");
+		logger.info("Kafka consumer connected");
 		// const sentryID = captureMessage("Consumer connected");
 		// debug("app::kafka::consumer.connect")(sentryID);
 	});
 	consumer.on("consumer.crash", async (crashEvent: ConsumerCrashEvent) => {
-		debug("app::kafka::consumer.crash")(crashEvent);
-		const sentryID = captureException(crashEvent.payload.error, {
+		const exceptionID = captureException(crashEvent.payload.error, {
 			extra: {
 				groupId: crashEvent.payload.groupId,
 			},
 		});
-		debug("app::kafka::consumer.crash")(sentryID);
+		logger.error("Kafka consumer crashed", { crashEvent, exceptionID });
 		try {
-			await flush();
+			await flush(10000);
 		} finally {
 			// eslint-disable-next-line no-process-exit
 			process.exit(-1);
@@ -142,7 +146,11 @@ const {
 		eachMessage: async (payload) => {
 			commandProcessor
 				.process(payload, client)
-				.catch(debug("app::consumerRun"));
+				.catch(
+					(e) =>
+						logger.error("Consumer run failed", { e }) &&
+						logger.error(e),
+				);
 
 			return;
 		},
@@ -188,13 +196,28 @@ const {
 				}
 			}
 		} catch (e) {
-			debug("app::message")(e);
 			const exceptionID = captureTwitchException(
 				e,
 				channel,
 				tags,
 				message,
 			);
+			logger.error(
+				"An error occurred while processing a twitch message",
+				{
+					exceptionID,
+					e,
+					channel,
+					tags,
+					message,
+				},
+			);
+			logger.error(e, {
+				exceptionID,
+				channel,
+				tags,
+				message,
+			});
 			await client.say(
 				channel,
 				`Something went wrong. (Exception ID: ${exceptionID})`,
@@ -203,8 +226,7 @@ const {
 	});
 
 	client.on("connected", (address, port) => {
-		debug("app::main::connected")(address, port);
-		captureMessage("Twitch bot connected", {
+		const messageID = captureMessage("Twitch bot connected", {
 			contexts: {
 				arguments: {
 					address,
@@ -212,26 +234,32 @@ const {
 				},
 			},
 		});
+		logger.info("Connected to Twitch", { address, port, messageID });
 	});
 
 	const connected = await client.connect();
 
 	client.on("disconnected", async (reason) => {
-		debug("app::main::disconnected")(reason);
-		captureMessage("Twitch bot disconnected", {
+		const messageID = captureMessage("Twitch bot disconnected", {
 			extra: {
 				reason,
 			},
 		});
+
+		logger.info("Disconnected from Twitch", { reason, messageID });
 	});
 
-	debug("app::main")("Twitch bot connected");
-	debug("app::main")(connected);
+	logger.info("Twitch bot connected", { connected });
 
 	healthCheck.live = true;
 })().catch((e) => {
-	debug("app::main")(e);
-	captureException(e);
-	// eslint-disable-next-line no-process-exit
-	process.exit(-1);
+	const exceptionID = captureException(e);
+	const logger = container.get(Logging).createLogger();
+	logger.error("An error occurred in the main context", { e, exceptionID });
+	logger.error(e, { exceptionID });
+
+	flush(10000)
+		.catch(() => {})
+		// eslint-disable-next-line no-process-exit
+		.finally(() => process.exit(-1));
 });

@@ -1,5 +1,4 @@
 import { injectable, inject } from "inversify";
-import debug from "debug";
 
 import { Point } from "@influxdata/influxdb-client";
 import fetch from "node-fetch";
@@ -21,16 +20,23 @@ import { convert32to64SteamId, convert64to32SteamId } from "@shared/steamid";
 import { EventService } from "@shared/services/eventService";
 import { MMR } from "@shared/db/entities/user";
 import { Secrets } from "../secrets";
+import { Logging } from "@shared/logging";
+import winston from "winston";
 
 @injectable()
 export class LeaderboardPersistor {
+	logger: winston.Logger;
+
 	constructor(
 		@inject(InfluxDBConnector) private influx: InfluxDBConnector,
 		@inject(RedisConnector) private redis: RedisConnector,
 		@inject(PostgresConnector) private postgres: PostgresConnector,
 		@inject(EventService) private eventService: EventService,
 		@inject(Secrets) private secrets: Secrets,
-	) {}
+		@inject(Logging) private logging: Logging,
+	) {
+		this.logger = logging.createLogger();
+	}
 
 	async storeLeaderboard(event: ImportCompletedEvent) {
 		// Fetch corresponding leaderboard from redis
@@ -40,9 +46,11 @@ export class LeaderboardPersistor {
 		);
 
 		if (!rawLeaderboard) {
-			return debug("app::storeLeaderboard")(
-				"No leaderboard found in redis",
-			);
+			this.logger.error("No leaderboard found in redis", {
+				leaderboardType,
+				event,
+			});
+			return;
 		}
 
 		const leaderboard: ULLeaderboard = JSON.parse(rawLeaderboard);
@@ -194,15 +202,19 @@ export class LeaderboardPersistor {
 
 		await userRepo.save(users);
 
-		debug("app::leaderboardPersistor")(
+		this.logger.info(
 			`Successfully persisted ${points.length} data points for ${leaderboardType}`,
+			{
+				leaderboardType,
+				count: points.length,
+			},
 		);
 
 		// Send historization finished event
 		const finishedEvent = new HistorizationCompletedEvent(leaderboardType);
 		await this.eventService.sendEvent(finishedEvent);
 
-		debug("app::leaderboardPersistor")(
+		this.logger.info(
 			`Sent HistorizationCompletedEvent for ${leaderboardType}`,
 		);
 	}

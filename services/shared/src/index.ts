@@ -1,8 +1,8 @@
 import "reflect-metadata";
-import debug = require("debug");
 
 import * as Sentry from "@sentry/node";
 import { RewriteFrames } from "@sentry/integrations";
+import { Logging } from "./logging";
 
 const { SENTRY_DSN } = process.env;
 
@@ -10,7 +10,9 @@ export const sharedSetup = (
 	name = process.env.npm_package_name,
 	release = process.env.npm_package_version,
 ) => {
-	debug("app::sharedSetup")(`Launching ${name} v${release}`);
+	const logger = new Logging().createLogger();
+
+	logger.info(`Launching ${name} v${release}`);
 
 	let tracesSampleRate = 1.0;
 
@@ -19,13 +21,9 @@ export const sharedSetup = (
 			process.env.SENTRY_TRACE_SAMPLE_RATE || "1.0",
 		);
 
-		debug("app::sharedSetup")(
-			`Using tracesSampleRate of ${tracesSampleRate}`,
-		);
+		logger.info("Using custom tracesSampleRate", { tracesSampleRate });
 	} catch (e) {
-		debug("app::sharedSetup")(
-			`Using default tracesSampleRate of ${tracesSampleRate}`,
-		);
+		logger.info("Using default tracesSampleRate", { tracesSampleRate });
 	}
 
 	Sentry.init({
