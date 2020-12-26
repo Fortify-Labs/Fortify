@@ -41,7 +41,7 @@ yargs
 				const healthCheck = container.get(HealthCheck);
 				await healthCheck.start();
 
-				logger.info(argv);
+				logger.info("arguments", argv);
 
 				if (container.isBound(argv.script)) {
 					const fortifyScript = container.get<FortifyScript>(

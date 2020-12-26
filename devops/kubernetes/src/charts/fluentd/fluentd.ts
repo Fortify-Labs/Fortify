@@ -16,14 +16,14 @@ export class FluentdConstruct extends Construct {
 		new KubeServiceAccount(this, "service-account", {
 			metadata: {
 				name: "fluentd",
-				namespace: "kube-system",
+				namespace: "logs",
 			},
 		});
 
 		new KubeClusterRole(this, "cluster-role", {
 			metadata: {
 				name: "fluentd",
-				namespace: "kube-system",
+				namespace: "logs",
 			},
 			rules: [
 				{
@@ -47,7 +47,7 @@ export class FluentdConstruct extends Construct {
 				{
 					kind: "ServiceAccount",
 					name: "fluentd",
-					namespace: "kube-system",
+					namespace: "logs",
 				},
 			],
 		});
@@ -58,7 +58,7 @@ export class FluentdConstruct extends Construct {
 		new KubeConfigMap(this, "configs", {
 			metadata: {
 				name: "fluentd-configs",
-				namespace: "kube-system",
+				namespace: "logs",
 			},
 			binaryData: readdirSync(directory).reduce<Record<string, string>>(
 				(acc, file) => {
@@ -75,7 +75,7 @@ export class FluentdConstruct extends Construct {
 		new KubeDaemonSet(this, "daemon-set", {
 			metadata: {
 				name: "fluentd",
-				namespace: "kube-system",
+				namespace: "logs",
 				labels: {
 					"k8s-app": "fluentd-logging",
 					version: "v1",
@@ -151,11 +151,11 @@ export class FluentdConstruct extends Construct {
 								],
 								resources: {
 									limits: {
-										memory: "200Mi",
+										memory: "400Mi",
 									},
 									requests: {
 										cpu: "100m",
-										memory: "200Mi",
+										memory: "400Mi",
 									},
 								},
 								volumeMounts: [

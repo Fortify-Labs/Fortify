@@ -46,6 +46,13 @@ export class FortifyCronJob extends Construct {
 			value: JOBS_SENTRY_DSN,
 		});
 
+		if (!env.find((envvar) => envvar.name === "NODE_ENV")) {
+			env.push({
+				name: "NODE_ENV",
+				value: "production",
+			});
+		}
+
 		const image =
 			options.image ??
 			(REGISTRY ?? "") +
