@@ -5,7 +5,6 @@ import { sharedSetup } from "@shared/index";
 global.__rootdir__ = __dirname || process.cwd();
 sharedSetup();
 
-import debug from "debug";
 import express from "express";
 import { json, urlencoded } from "body-parser";
 
@@ -15,18 +14,30 @@ import { KafkaConnector } from "@shared/connectors/kafka";
 import { PermissionScope } from "@shared/definitions/context";
 import { AuthService } from "@shared/services/auth";
 
-import { captureException } from "@sentry/node";
+import { captureException, flush } from "@sentry/node";
 import { Secrets } from "./secrets";
 import { HealthCheck } from "@shared/services/healthCheck";
+
+import { Logging } from "@shared/logging";
+import { Connector } from "@shared/definitions/connector";
 
 const { KAFKA_TOPIC, MY_PORT } = process.env;
 
 (async () => {
-	const healthCheck = container.get(HealthCheck);
-	await healthCheck.start();
+	const logger = container.get(Logging).createLogger();
 
 	await container.get(Secrets).getSecrets();
+
+	await Promise.all(
+		container
+			.getAll<Connector>("connector")
+			.map((connector) => connector.connect()),
+	);
+
 	const auth = container.get(AuthService);
+
+	const healthCheck = container.get(HealthCheck);
+	await healthCheck.start();
 
 	const kafka = container.get(KafkaConnector);
 
@@ -72,15 +83,20 @@ const { KAFKA_TOPIC, MY_PORT } = process.env;
 						.end("UNAUTHORIZED");
 				}
 			} catch (e) {
-				debug("app::gsi::exception")(e);
-				captureException(e, {
+				const exceptionID = captureException(e, {
 					extra: {
 						jwtPayload: (req.body.auth as
 							| string
 							| undefined)?.split(".")[1],
 					},
 				});
-				res.status(500).contentType("text/html").end("SERVER ERROR");
+				logger.error("GSI message processing failed", {
+					e,
+					exceptionID,
+				});
+				res.status(500)
+					.contentType("text/html")
+					.end(`SERVER ERROR (${exceptionID})`);
 			}
 		} else {
 			res.status(401).contentType("text/html").end("UNAUTHORIZED");
@@ -99,9 +115,7 @@ const { KAFKA_TOPIC, MY_PORT } = process.env;
 	});
 
 	const server = app.listen(MY_PORT ?? 4000, () => {
-		debug("app::startup")(
-			"GSI endpoint listening on port " + (MY_PORT ?? 8080) + "!",
-		);
+		logger.info(`GSI endpoint listening on port ${MY_PORT ?? 8080}!`);
 
 		healthCheck.live = true;
 	});
@@ -110,21 +124,21 @@ const { KAFKA_TOPIC, MY_PORT } = process.env;
 	process.on("SIGINT", shutDown);
 
 	async function shutDown() {
+		await flush(10000).catch(() => {});
+
 		try {
 			server.close(async () => {
-				debug("app::shutdown")("Closing remaining connections");
+				logger.info("Closing remaining connections");
 				await producer.disconnect();
-				debug("app::shutdown")("Closed remaining connections");
+				logger.info("Closed remaining connections");
 				// eslint-disable-next-line no-process-exit
 				process.exit(0);
 			});
 		} finally {
-			debug("app::shutdown")(
-				"Received kill signal, shutting down gracefully",
-			);
+			logger.info("Received kill signal, shutting down gracefully");
 
 			setTimeout(() => {
-				debug("app::shutdown")(
+				logger.warn(
 					"Could not close connections in time, forcefully shutting down",
 				);
 				// eslint-disable-next-line no-process-exit
@@ -133,8 +147,14 @@ const { KAFKA_TOPIC, MY_PORT } = process.env;
 		}
 	}
 })().catch((e) => {
-	debug("app::start")(e);
-	captureException(e);
-	// eslint-disable-next-line no-process-exit
-	process.exit(-1);
+	const logger = container.get(Logging).createLogger();
+
+	const exceptionID = captureException(e);
+
+	logger.error(e, { exceptionID });
+
+	flush(10000)
+		.catch(() => {})
+		// eslint-disable-next-line no-process-exit
+		.finally(() => process.exit(-1));
 });

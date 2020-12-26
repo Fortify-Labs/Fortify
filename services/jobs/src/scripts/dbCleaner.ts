@@ -1,17 +1,22 @@
 import { injectable, inject } from "inversify";
-import debug = require("debug");
 
 import { FortifyScript } from "../scripts";
 import { PostgresConnector } from "@shared/connectors/postgres";
 import { Match } from "@shared/db/entities/match";
+import { Logging } from "@shared/logging";
+import winston from "winston";
 
 @injectable()
 export class DBCleanupScript implements FortifyScript {
 	name = "DBCleanupScript";
+	logger: winston.Logger;
 
 	constructor(
 		@inject(PostgresConnector) private postgres: PostgresConnector,
-	) {}
+		@inject(Logging) private logging: Logging,
+	) {
+		this.logger = logging.createLogger();
+	}
 
 	async handler() {
 		// Clean up all fault matches
@@ -67,7 +72,7 @@ export class DBCleanupScript implements FortifyScript {
 			await matchRepo.remove(emptyOldMatches);
 		}
 
-		debug("app::DBCleanupScript")(
+		this.logger.info(
 			`DB cleanup completed. Removed ${emptyOldMatches.length} matches`,
 		);
 	}

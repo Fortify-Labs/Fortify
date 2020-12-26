@@ -95,6 +95,13 @@ export class FortifyDeployment extends Construct {
 			? [...options.env, { name: "DEBUG", value: "app::*" }]
 			: [];
 
+		if (!env.find((envvar) => envvar.name === "NODE_ENV")) {
+			env.push({
+				name: "NODE_ENV",
+				value: "production",
+			});
+		}
+
 		// env.push({ name: "ENVOY_ADMIN_API", value: "http://127.0.0.1:15000" });
 
 		const image =

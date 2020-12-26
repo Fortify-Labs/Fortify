@@ -5,11 +5,10 @@ dotenvExpand(dotenv.config());
 import { sharedSetup } from "@shared/index";
 global.__rootdir__ = __dirname || process.cwd();
 sharedSetup();
-import { captureException } from "@sentry/node";
+import { captureException, flush } from "@sentry/node";
 
 import { container } from "./inversify.config";
 import { GraphQL } from "./graphql/graphql";
-import debug from "debug";
 
 import { OpenAPIDocs } from "./services/openapidocs";
 import { SteamAuthMiddleware } from "./services/steamAuth";
@@ -19,13 +18,23 @@ import express from "express";
 import * as bodyParser from "body-parser";
 import { Secrets } from "./secrets";
 import { HealthCheck } from "@shared/services/healthCheck";
+import { Logging } from "@shared/logging";
+import { Connector } from "@shared/definitions/connector";
 
 (async () => {
-	const healthCheck = container.get(HealthCheck);
-	await healthCheck.start();
+	const logger = container.get(Logging).createLogger();
 
 	const secretsManager = container.get(Secrets);
 	await secretsManager.getSecrets();
+
+	await Promise.all(
+		container
+			.getAll<Connector>("connector")
+			.map((connector) => connector.connect()),
+	);
+
+	const healthCheck = container.get(HealthCheck);
+	await healthCheck.start();
 
 	const app = express();
 	app.use(bodyParser.json());
@@ -41,22 +50,36 @@ import { HealthCheck } from "@shared/services/healthCheck";
 
 	const authMiddleware = container.get(SteamAuthMiddleware);
 	authMiddleware.applyMiddleware({ app }).catch((e) => {
-		const errorID = captureException(e);
-		debug("app::index::steamAuth::applyMiddleware")(errorID);
-		debug("app::index::steamAuth::applyMiddleware")(e);
+		const exceptionID = captureException(e);
+		logger.error("Steam auth middleware apply failed", {
+			exceptionID,
+			e,
+		});
+		logger.error(e, {
+			exceptionID,
+		});
 
-		// eslint-disable-next-line no-process-exit
-		process.exit(-1);
+		flush(10000)
+			.catch(() => {})
+			// eslint-disable-next-line no-process-exit
+			.finally(() => process.exit(-1));
 	});
 
 	const twitchAuthMiddleware = container.get(TwitchAuthMiddleware);
 	twitchAuthMiddleware.applyMiddleware({ app }).catch((e) => {
-		const errorID = captureException(e);
-		debug("app::index::twitchAuth::applyMiddleware")(errorID);
-		debug("app::index::twitchAuth::applyMiddleware")(e);
+		const exceptionID = captureException(e);
+		logger.error("Twitch auth middleware apply failed", {
+			exceptionID,
+			e,
+		});
+		logger.error(e, {
+			exceptionID,
+		});
 
-		// eslint-disable-next-line no-process-exit
-		process.exit(-1);
+		flush(10000)
+			.catch(() => {})
+			// eslint-disable-next-line no-process-exit
+			.finally(() => process.exit(-1));
 	});
 
 	const server = app.listen(
@@ -67,26 +90,63 @@ import { HealthCheck } from "@shared/services/healthCheck";
 			const address = server.address();
 
 			if (address instanceof Object) {
-				debug("app::index")(
+				logger.info(
 					`🚀  Server ready at http://localhost:${address.port}${graphQLServer.graphqlPath}`,
 				);
 			}
 
 			if (address instanceof String) {
-				debug("app::index")(`🚀  Server ready at ${address}`);
+				logger.info(`🚀  Server ready at ${address}`);
 			}
 
 			if (!address) {
-				debug("app::index")("🚀  Server ready");
+				logger.info("🚀  Server ready");
 			}
 
 			healthCheck.live = true;
 		},
 	);
-})().catch((reason) => {
-	const sentryID = captureException(reason);
-	debug("app::index::catch")(sentryID);
-	debug("app::index::catch")(reason);
-	// eslint-disable-next-line no-process-exit
-	process.exit(-1);
+
+	process.on("SIGTERM", shutDown);
+	process.on("SIGINT", shutDown);
+
+	async function shutDown() {
+		await flush(10000).catch(() => {});
+
+		setTimeout(() => {
+			logger.warn(
+				"Could not close connections in time, forcefully shutting down",
+			);
+			// eslint-disable-next-line no-process-exit
+			process.exit(1);
+		}, 10000);
+
+		try {
+			server.close(async () => {
+				logger.info("Received kill signal, shutting down gracefully");
+				// eslint-disable-next-line no-process-exit
+				process.exit(0);
+			});
+		} finally {
+			logger.info("Received kill signal, finally shutting down");
+		}
+	}
+})().catch((e) => {
+	const exceptionID = captureException(e);
+
+	const logger = container.get(Logging).createLogger();
+
+	logger.error("An error occurred in the main context", {
+		exceptionID,
+		e,
+	});
+
+	logger.error(e, {
+		exceptionID,
+	});
+
+	flush(10000)
+		.catch(() => {})
+		// eslint-disable-next-line no-process-exit
+		.finally(() => process.exit(-1));
 });

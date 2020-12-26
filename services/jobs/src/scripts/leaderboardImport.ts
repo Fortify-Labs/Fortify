@@ -1,6 +1,5 @@
 import { injectable, inject } from "inversify";
 import fetch from "node-fetch";
-import debug = require("debug");
 
 import { FortifyScript } from "../scripts";
 
@@ -10,8 +9,10 @@ import {
 } from "@shared/definitions/leaderboard";
 import { RedisConnector } from "@shared/connectors/redis";
 import { EventService } from "@shared/services/eventService";
+import { Logging } from "@shared/logging";
 
 import { ImportCompletedEvent } from "@shared/events/systemEvents";
+import winston from "winston";
 
 const { LEADERBOARD_TYPE = "standard" } = process.env;
 
@@ -19,10 +20,15 @@ const { LEADERBOARD_TYPE = "standard" } = process.env;
 export class LeaderboardImportService implements FortifyScript {
 	name = "LeaderboardImportService";
 
+	logger: winston.Logger;
+
 	constructor(
 		@inject(RedisConnector) private redis: RedisConnector,
 		@inject(EventService) private eventService: EventService,
-	) {}
+		@inject(Logging) private logging: Logging,
+	) {
+		this.logger = logging.createLogger();
+	}
 
 	async handler() {
 		const type = LEADERBOARD_TYPE;
@@ -32,7 +38,7 @@ export class LeaderboardImportService implements FortifyScript {
 		).then((value) => value.json());
 
 		if ((leaderboard as unknown) === "RequestFailure") {
-			debug("app::leaderboardImport")(
+			this.logger.error(
 				`RequestFailure! Could not fetch ${type} leaderboard.`,
 			);
 			throw new Error(
@@ -41,7 +47,7 @@ export class LeaderboardImportService implements FortifyScript {
 		}
 
 		if (!leaderboard.success) {
-			debug("app::leaderboardImport")(
+			this.logger.error(
 				`Unsuccessful response! Success boolean in response is false for ${type} leaderboard.`,
 			);
 			throw new Error(
@@ -49,23 +55,21 @@ export class LeaderboardImportService implements FortifyScript {
 			);
 		}
 
-		debug("app::leaderboardImport")(`${type} leaderboard fetched`);
+		this.logger.info(`${type} leaderboard fetched`);
 
 		await this.redis.setAsync(
 			"ul:leaderboard:" + type.toLowerCase(),
 			JSON.stringify(leaderboard),
 		);
 
-		debug("app::leaderboardImport")(`${type} leaderboard stored to redis`);
+		this.logger.info(`${type} leaderboard stored to redis`);
 
 		const mappedType = type as LeaderboardType;
 		if (Object.values(LeaderboardType).includes(mappedType)) {
 			const finishedEvent = new ImportCompletedEvent(mappedType);
 			await this.eventService.sendEvent(finishedEvent);
 
-			debug("app::leaderboardImport")(
-				`Sent ImportCompletedEvent for ${type}`,
-			);
+			this.logger.info(`Sent ImportCompletedEvent for ${type}`);
 		}
 	}
 }

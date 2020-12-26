@@ -1,6 +1,6 @@
 import { inject, injectable } from "inversify";
 
-import debug = require("debug");
+import winston from "winston";
 
 import { createConnection, Connection } from "typeorm";
 import { User } from "../db/entities/user";
@@ -9,6 +9,8 @@ import { MatchSlot } from "../db/entities/matchSlot";
 
 import { SecretsManager, SecretsRequest } from "../services/secrets";
 import { HealthCheckable } from "../services/healthCheck";
+import { Logging } from "../logging";
+import { Connector } from "../definitions/connector";
 
 const {
 	POSTGRES_USER,
@@ -36,32 +38,37 @@ export class PostgresSecretsRequest implements SecretsRequest {
 
 // This way each service could specify the entities needed instead of all
 @injectable()
-export class PostgresConnector implements HealthCheckable {
-	connection: Promise<Connection>;
+export class PostgresConnector implements HealthCheckable, Connector {
+	_connection?: Connection;
 
 	name = "Postgres";
 	setupHealthCheck = async () => {};
 	healthCheck: () => Promise<boolean>;
 	shutdown: () => Promise<unknown>;
+	logger: winston.Logger;
 
 	constructor(
 		@inject(SecretsManager)
 		private secretsManager: SecretsManager<PostgresSecrets>,
+		@inject(Logging) public logging: Logging,
 	) {
-		this.connection = this.setupConnection();
+		this.logger = logging.createLogger();
 
 		this.healthCheck = async () => {
-			const conn = await this.connection;
-
-			return conn.isConnected && (await conn.query("SELECT now();"));
+			return (
+				this._connection?.isConnected &&
+				(await this._connection.query("SELECT now();"))
+			);
 		};
-		this.shutdown = async () =>
-			(await this.connection).isConnected &&
-			(await this.connection).close();
-		this.runMigration();
+		this.shutdown = async () => {
+			if (this._connection?.isConnected) {
+				await this._connection?.close();
+				this._connection = undefined;
+			}
+		};
 	}
 
-	private async setupConnection() {
+	async connect() {
 		const {
 			postgres: { password },
 		} = await this.secretsManager.getSecrets();
@@ -79,48 +86,56 @@ export class PostgresConnector implements HealthCheckable {
 			// synchronize: NODE_ENV === "development",
 			synchronize: false,
 			logging: DB_LOG === "true",
-			poolErrorHandler: debug("app::db"),
+			poolErrorHandler: (e) => {
+				this.logger.error("Postgres pool connection error occurred", {
+					e,
+				});
+				this.logger.error(e);
+			},
 		});
 
 		connection
 			.then((db) => {
-				debug("app::db")("DB connection established");
+				this.logger.info("Postgres connection established");
 				return db;
 			})
 			.catch((reason) => {
-				debug("app::db")("Connection rejected");
-				debug("app::db")(reason);
+				this.logger.error("Connection rejected", { reason });
+				this.logger.error(reason);
 
 				// Try to reconnect to the db every 5 seconds
-				setTimeout(() => {
-					this.connection = this.setupConnection();
+				setTimeout(async () => {
+					this._connection = await this.connect();
 				}, 5000);
 			});
+
+		this._connection = await connection;
+		await this.runMigration();
 
 		return connection;
 	}
 
-	private async runMigration() {
-		const connection = await this.connection;
+	get connection() {
+		if (!this._connection) {
+			throw new Error("Not connected to Postgres");
+		}
 
-		await connection.runMigrations();
+		return this._connection;
+	}
+
+	private async runMigration() {
+		await this.connection.runMigrations();
 	}
 
 	async getUserRepo() {
-		return this.connection.then((connection) =>
-			connection.getRepository(User),
-		);
+		return this.connection.getRepository(User);
 	}
 
 	async getMatchRepo() {
-		return this.connection.then((connection) =>
-			connection.getRepository(Match),
-		);
+		return this.connection.getRepository(Match);
 	}
 
 	async getMatchSlotRepo() {
-		return this.connection.then((connection) =>
-			connection.getRepository(MatchSlot),
-		);
+		return this.connection.getRepository(MatchSlot);
 	}
 }

@@ -14,6 +14,7 @@ import { DummyScript } from "./scripts/dummy";
 import { LeaderboardImportService } from "./scripts/leaderboardImport";
 import { DBCleanupScript } from "./scripts/dbCleaner";
 import { BroadcastNotificationScript } from "./scripts/broadcastNotifications";
+import { Connector } from "@shared/definitions/connector";
 // import { HealthCheckable } from "@shared/services/healthCheck";
 
 const container = new Container({ autoBindInjectable: true });
@@ -28,6 +29,10 @@ container.bind(RedisConnector).toSelf().inSingletonScope();
 // container.bind<HealthCheckable>("healthCheck").toService(KafkaConnector);
 // container.bind<HealthCheckable>("healthCheck").toService(PostgresConnector);
 // container.bind<HealthCheckable>("healthCheck").toService(RedisConnector);
+
+container.bind<Connector>("connector").toService(KafkaConnector);
+container.bind<Connector>("connector").toService(PostgresConnector);
+container.bind<Connector>("connector").toService(RedisConnector);
 
 // Scripts are bound to their cli invocable name
 container.bind<FortifyScript>("dummy").to(DummyScript);

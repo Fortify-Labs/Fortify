@@ -1,7 +1,5 @@
 import { injectable, inject } from "inversify";
 
-import debug = require("debug");
-
 import { TwitchCommand } from "../definitions/twitchCommand";
 import { ChatUserstate, Client } from "tmi.js";
 
@@ -15,15 +13,22 @@ import { FortifyGameMode, MatchState, UserCacheKey } from "@shared/state";
 import { Player } from "@shared/definitions/player";
 import { captureTwitchException } from "../lib/sentryUtils";
 import { RedisConnector } from "@shared/connectors/redis";
+import { Logging } from "@shared/logging";
+import winston from "winston";
 
 @injectable()
 export class MMRCommand implements TwitchCommand {
+	logger: winston.Logger;
+
 	constructor(
 		@inject(ExtractorService) private extractorService: ExtractorService,
 		@inject(LeaderboardService)
 		private leaderboardService: LeaderboardService,
 		@inject(RedisConnector) private redis: RedisConnector,
-	) {}
+		private logging: Logging,
+	) {
+		this.logger = logging.createLogger();
+	}
 
 	invocations = ["!mmr"];
 	showInHelp = true;
@@ -118,8 +123,30 @@ export class MMRCommand implements TwitchCommand {
 				`Player: ${user.name} [#${player.rank}, MMR: ${player.mmr}]`,
 			);
 		} catch (e) {
-			debug("app::mmr")(e);
-			captureTwitchException(e, channel, tags, message);
+			const exceptionID = captureTwitchException(
+				e,
+				channel,
+				tags,
+				message,
+			);
+			this.logger.error(
+				"An exception occurred during the execution of the MMR command",
+				{
+					exceptionID,
+					e,
+					channel,
+					tags,
+					message,
+					command: "!mmr",
+				},
+			);
+			this.logger.error(e, {
+				exceptionID,
+				channel,
+				tags,
+				message,
+				command: "!mmr",
+			});
 		}
 
 		return false;

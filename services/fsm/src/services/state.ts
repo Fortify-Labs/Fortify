@@ -3,13 +3,21 @@ import { injectable, inject } from "inversify";
 import { MatchState, UserCache, UserCacheKey } from "@shared/state";
 import { RedisConnector } from "@shared/connectors/redis";
 import { captureException } from "@sentry/node";
-import debug from "debug";
+import { Logging } from "@shared/logging";
+import winston from "winston";
 
 @injectable()
 export class StateService {
-	constructor(@inject(RedisConnector) private redis: RedisConnector) {}
+	logger: winston.Logger;
 
-	async getUserMatchID(steamid: string): Promise<string | null> {
+	constructor(
+		@inject(RedisConnector) private redis: RedisConnector,
+		@inject(Logging) private logging: Logging,
+	) {
+		this.logger = logging.createLogger();
+	}
+
+	async getUserMatchID(steamid: string): Promise<string | null | undefined> {
 		return this.redis.client.get(`user:${steamid}:${UserCacheKey.matchID}`);
 	}
 	async setUserMatchID(
@@ -76,8 +84,14 @@ export class StateService {
 				return matchState;
 			} catch (e) {
 				const exceptionID = captureException(e);
-				debug("app::getMatch")(exceptionID);
-				debug("app::getMatch")(e);
+				this.logger.error(
+					"An exception occurred while getting a match",
+					{
+						e,
+						exceptionID,
+					},
+				);
+				this.logger.error(e, { exceptionID });
 			}
 		}
 

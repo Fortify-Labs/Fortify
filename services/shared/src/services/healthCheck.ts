@@ -1,4 +1,4 @@
-import { injectable, multiInject, optional } from "inversify";
+import { inject, injectable, multiInject, optional } from "inversify";
 
 import { createServer, Server } from "http";
 import {
@@ -6,7 +6,8 @@ import {
 	HealthCheckError,
 	TerminusOptions,
 } from "@godaddy/terminus";
-import debug from "debug";
+import { Logging } from "../logging";
+import winston from "winston";
 
 export interface HealthCheckable {
 	name: string;
@@ -20,12 +21,16 @@ export class HealthCheck {
 	live = false;
 
 	server?: Server;
+	logger: winston.Logger;
 
 	constructor(
 		@multiInject("healthCheck")
 		@optional()
 		private healthChecks: HealthCheckable[] = [],
-	) {}
+		@inject(Logging) public logging: Logging,
+	) {
+		this.logger = logging.createLogger();
+	}
 
 	addHealthCheck(healthCheck: HealthCheckable) {
 		this.healthChecks.push(healthCheck);
@@ -65,7 +70,7 @@ export class HealthCheck {
 
 						if (errors.length) {
 							throw new HealthCheckError(
-								"healthcheck failed",
+								"Health check failed",
 								errors,
 							);
 						}
@@ -73,7 +78,11 @@ export class HealthCheck {
 						return checks.every((check) => check);
 					},
 				},
-				logger: debug("app::terminus"),
+				logger: (msg, err) =>
+					err
+						? this.logger.error(msg, { err }) &&
+						  this.logger.error(err)
+						: this.logger.info(msg),
 				...options,
 			};
 
@@ -89,11 +98,11 @@ export class HealthCheck {
 					const address = this.server?.address();
 
 					if (address instanceof String) {
-						debug("app::health")(
+						this.logger.info(
 							`🚀  Health Check Server ready at ${address}`,
 						);
 					} else if (address instanceof Object) {
-						debug("app::health")(
+						this.logger.info(
 							`🚀  Health Check Server ready at ${address.family}://${address.address}:${address.port}`,
 						);
 					}
@@ -102,8 +111,24 @@ export class HealthCheck {
 				},
 			);
 
-			process.on("SIGTERM", () => this.shutdown());
-			process.on("SIGINT", () => this.shutdown());
+			process.on("SIGTERM", () =>
+				this.shutdown().catch((e) => {
+					this.logger.error(
+						"An error occurred during SIGTERM shutdown in health check service",
+						{ e },
+					);
+					this.logger.error(e);
+				}),
+			);
+			process.on("SIGINT", () =>
+				this.shutdown().catch((e) => {
+					this.logger.error(
+						"An error occurred during SIGINT shutdown in health check service",
+						{ e },
+					);
+					this.logger.error(e);
+				}),
+			);
 		});
 	}
 

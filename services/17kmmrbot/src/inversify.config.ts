@@ -21,6 +21,7 @@ import { CodeCommand } from "./commands/code";
 
 import { SecretsManager } from "@shared/services/secrets";
 import { HealthCheckable } from "@shared/services/healthCheck";
+import { Connector } from "@shared/definitions/connector";
 
 const container = new Container({ autoBindInjectable: true });
 
@@ -42,6 +43,10 @@ container.bind<TwitchCommand>(HelpCommand).toSelf();
 container.bind(KafkaConnector).toSelf().inSingletonScope();
 container.bind(PostgresConnector).toSelf().inSingletonScope();
 container.bind(RedisConnector).toSelf().inSingletonScope();
+
+container.bind<Connector>("connector").toService(KafkaConnector);
+container.bind<Connector>("connector").toService(PostgresConnector);
+container.bind<Connector>("connector").toService(RedisConnector);
 
 container.bind<HealthCheckable>("healthCheck").toService(KafkaConnector);
 container.bind<HealthCheckable>("healthCheck").toService(PostgresConnector);

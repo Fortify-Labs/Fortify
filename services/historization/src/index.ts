@@ -1,8 +1,6 @@
 import { config } from "dotenv";
 config();
 
-import debug from "debug";
-
 import { sharedSetup } from "@shared/index";
 global.__rootdir__ = __dirname || process.cwd();
 sharedSetup();
@@ -24,6 +22,8 @@ import { LeaderboardPersistor } from "./services/leaderboardPersistor";
 import { MatchPersistor } from "./services/matchPersistor";
 import { Secrets } from "./secrets";
 import { HealthCheck } from "@shared/services/healthCheck";
+import { Connector } from "@shared/definitions/connector";
+import { Logging } from "@shared/logging";
 
 const {
 	KAFKA_AUTO_COMMIT,
@@ -31,7 +31,15 @@ const {
 } = process.env;
 
 (async () => {
+	const logger = container.get(Logging).createLogger();
+
 	await container.get(Secrets).getSecrets();
+
+	await Promise.all(
+		container
+			.getAll<Connector>("connector")
+			.map((connector) => connector.connect()),
+	);
 
 	const healthCheck = container.get(HealthCheck);
 	await healthCheck.start();
@@ -82,7 +90,6 @@ const {
 					}
 				}
 			} catch (e) {
-				debug("app::consumer::run")(e);
 				const exceptionID = captureException(e, {
 					contexts: {
 						kafka: {
@@ -94,7 +101,11 @@ const {
 						},
 					},
 				});
-				debug("app::consumer::run")(exceptionID);
+				logger.error("Consumer run failed", {
+					e,
+					exceptionID,
+				});
+				logger.error(e, { exceptionID });
 
 				// In case something doesn't work for a given topic (e.g. influx down and historization fails)
 				// pause the consumption of said topic for 30 seconds
@@ -111,23 +122,25 @@ const {
 	});
 
 	consumer.on("consumer.disconnect", () => {
-		debug("app::kafka::consumer.disconnect")("Consumer disconnected");
+		logger.warn("Kafka Consumer disconnected");
 		// const sentryID = captureMessage("Consumer disconnected");
 		// debug("app::kafka::consumer.disconnect")(sentryID);
 	});
 	consumer.on("consumer.connect", () => {
-		debug("app::kafka::consumer.connect")("Consumer connected");
+		logger.info("Kafka consumer connected");
 		// const sentryID = captureMessage("Consumer connected");
 		// debug("app::kafka::consumer.connect")(sentryID);
 	});
 	consumer.on("consumer.crash", async (crashEvent: ConsumerCrashEvent) => {
-		debug("app::kafka::consumer.crash")(crashEvent);
-		const sentryID = captureException(crashEvent.payload.error, {
+		const exceptionID = captureException(crashEvent.payload.error, {
 			extra: {
 				groupId: crashEvent.payload.groupId,
 			},
 		});
-		debug("app::kafka::consumer.crash")(sentryID);
+		logger.error("Kafka consumer crashed", {
+			crashEvent,
+			exceptionID,
+		});
 		try {
 			await flush();
 		} finally {
@@ -136,10 +149,45 @@ const {
 		}
 	});
 
+	process.on("SIGTERM", shutDown);
+	process.on("SIGINT", shutDown);
+
+	async function shutDown() {
+		await flush(10000).catch(() => {});
+
+		setTimeout(() => {
+			logger.warn(
+				"Could not close connections in time, forcefully shutting down",
+			);
+			// eslint-disable-next-line no-process-exit
+			process.exit(1);
+		}, 10000);
+
+		try {
+			await consumer.stop();
+			await consumer.disconnect();
+
+			logger.info("Received kill signal, shutting down gracefully");
+
+			// eslint-disable-next-line no-process-exit
+			process.exit(0);
+		} finally {
+			logger.info("Received kill signal, finally shutting down");
+		}
+	}
+
 	healthCheck.live = true;
 })().catch(async (e) => {
-	debug("app::anonymous_function")(e);
-	const sentryID = captureException(e);
-	debug("app::anonymous_function")(sentryID);
+	const logger = container.get(Logging).createLogger();
+
+	const exceptionID = captureException(e);
+
+	logger.error("An exception occurred in the main context", {
+		e,
+		exceptionID,
+	});
+
+	logger.error(e, { exceptionID });
+
 	await flush();
 });

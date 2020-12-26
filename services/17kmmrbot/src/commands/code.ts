@@ -102,6 +102,20 @@ export class CodeCommand implements TwitchCommand {
 						shareCode.boardUnitIDs[x][y] = 255;
 						shareCode.underlordRanks = [rank, 0];
 					}
+				} else {
+					// if y is -1 then it's benched
+					// Store each board unit
+					shareCode.benchedUnitIDs[x] = unit_id;
+					// Store units ranks
+					shareCode.benchUnitRanks[x] = rank;
+
+					// Store each equipped unit item
+					const item = entindexToItem[entindex];
+					if (item) {
+						shareCode.benchUnitItems[x] = new EquippedItemV8(
+							item.item_id,
+						);
+					}
 				}
 			}
 
@@ -116,29 +130,6 @@ export class CodeCommand implements TwitchCommand {
 				selectedTalents.forEach((talent, index) => {
 					shareCode.selectedTalents[index] = [talent, 0];
 				});
-			}
-
-			for (const {
-				entindex,
-				unit_id,
-				position: { x, y },
-				rank,
-			} of units) {
-				// if y is -1 then it's benched
-				if (y < 0 && unit_id < 1000) {
-					// Store each board unit
-					shareCode.benchedUnitIDs[x] = unit_id;
-					// Store units ranks
-					shareCode.benchUnitRanks[x] = rank;
-
-					// Store each equipped unit item
-					const item = entindexToItem[entindex];
-					if (item) {
-						shareCode.benchUnitItems[x] = new EquippedItemV8(
-							item.item_id,
-						);
-					}
-				}
 			}
 
 			// Store unequipped items

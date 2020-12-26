@@ -11,7 +11,6 @@ import { currentSeason } from "../units";
 import { User } from "../db/entities/user";
 import { GetPlayerSummaries } from "../definitions/playerSummaries";
 import fetch from "node-fetch";
-import debug from "debug";
 import { convert32to64SteamId } from "../steamid";
 import {
 	MatchStartedEvent,
@@ -19,6 +18,8 @@ import {
 	MatchEndedEvent,
 } from "../events/gameEvents";
 import { SecretsManager } from "./secrets";
+import { Logging } from "../logging";
+import winston from "winston";
 
 export interface MatchServicePlayer {
 	accountID: string;
@@ -46,6 +47,8 @@ export const matchIDGenerator = (
 
 @injectable()
 export class MatchService {
+	logger: winston.Logger;
+
 	constructor(
 		@inject(PostgresConnector) private postgres: PostgresConnector,
 		@inject(ExtractorService) private extractorService: ExtractorService,
@@ -57,7 +60,10 @@ export class MatchService {
 				apiKey: string;
 			};
 		}>,
-	) {}
+		@inject(Logging) private logging: Logging,
+	) {
+		this.logger = logging.createLogger();
+	}
 
 	async generateMatchID(players: MatchServicePlayer[]) {
 		const matchRepo = await this.postgres.getMatchRepo();
@@ -80,7 +86,7 @@ export class MatchService {
 			nonce += 1;
 			// Generate ID based on steamid and slot
 			matchID = matchIDGenerator(players, nonce);
-			match = await matchRepo.findOne(matchID, {
+			match = await matchRepo?.findOne(matchID, {
 				relations: ["slots", "slots.user"],
 			});
 
@@ -155,16 +161,14 @@ export class MatchService {
 		return matchID;
 	}
 
-	async storeMatchStart({
-		matchID,
-		players,
-		gameMode,
-		timestamp,
-	}: MatchStartedEvent) {
+	async storeMatchStart(event: MatchStartedEvent) {
+		const { matchID, players, gameMode, timestamp } = event;
+
 		try {
 			if (!matchID) {
-				debug("app::storeMatchStart")(
+				this.logger.warn(
 					"No matchID set in MatchStartedEvent; Skipping event",
+					{ event },
 				);
 				return;
 			}
@@ -172,7 +176,7 @@ export class MatchService {
 			const matchRepo = await this.postgres.getMatchRepo();
 
 			// In case we receive the match started event multiple times
-			const dbMatch = await matchRepo.findOne(matchID);
+			const dbMatch = await matchRepo?.findOne(matchID);
 			if (dbMatch) {
 				return;
 			}
@@ -224,7 +228,7 @@ export class MatchService {
 				globalLeaderboardRank,
 				rankTier,
 			} of players) {
-				let matchSlot = await matchSlotRepo.findOne({
+				let matchSlot = await matchSlotRepo?.findOne({
 					where: { match, slot },
 				});
 
@@ -255,9 +259,11 @@ export class MatchService {
 				match.slots.push(matchSlot);
 			}
 
-			await matchRepo.save(match);
+			await matchRepo?.save(match);
 		} catch (e) {
-			debug("app::storeMatchStart")(e);
+			this.logger.error("Store match start event failed", { e, event });
+			this.logger.error(e, { event });
+
 			throw e;
 		}
 	}
@@ -272,7 +278,7 @@ export class MatchService {
 	) {
 		try {
 			const userRepo = await this.postgres.getUserRepo();
-			let user = await userRepo.findOne(accountID);
+			let user = await userRepo?.findOne(accountID);
 			if (!user) {
 				user = new User();
 				user.steamid = accountID;
@@ -328,33 +334,33 @@ export class MatchService {
 					user.profilePicture = player.avatarfull;
 				}
 			} catch (e) {
-				debug("app::services::match")(e);
+				this.logger.error("Steam Web API image request failed", { e });
+				this.logger.error(e);
 			}
 
-			return userRepo.save(user);
+			return userRepo?.save(user);
 		} catch (e) {
-			debug("app::getOrCreateUser")(e);
+			this.logger.error("Get or create user failed", { e });
+			this.logger.error(e);
 			throw e;
 		}
 	}
 
-	async storeFinalPlace({
-		matchID,
-		steamID,
-		finalPlace,
-		timestamp,
-	}: MatchFinalPlaceEvent) {
+	async storeFinalPlace(event: MatchFinalPlaceEvent) {
+		const { matchID, steamID, finalPlace, timestamp } = event;
+
 		try {
 			if (!matchID) {
-				debug("app::storeFinalPlace")(
+				this.logger.error(
 					"No matchID set in MatchFinalPlaceEvent. Skipping event",
+					{ event },
 				);
 				return;
 			}
 
 			const matchRepo = await this.postgres.getMatchRepo();
 
-			let match = await matchRepo.findOne(matchID, {
+			let match = await matchRepo?.findOne(matchID, {
 				relations: ["slots", "slots.user"],
 			});
 
@@ -374,7 +380,7 @@ export class MatchService {
 
 				match.id = matchID;
 				match.created = timestamp;
-				await matchRepo.save(match);
+				await matchRepo?.save(match);
 
 				const user = await this.getOrCreateUser(steamID, timestamp, "");
 
@@ -397,25 +403,31 @@ export class MatchService {
 
 			match.updated = timestamp;
 
-			return matchRepo.save(match);
+			return matchRepo?.save(match);
 		} catch (e) {
-			debug("app::storeFinalPlace")(e);
+			this.logger.error(
+				"An exception occurred while storing a final place. Skipping event",
+				{ e, event },
+			);
+			this.logger.error(e);
 			throw e;
 		}
 	}
 
-	async storeMatchEnd({ matchID, timestamp }: MatchEndedEvent) {
+	async storeMatchEnd(event: MatchEndedEvent) {
+		const { matchID, timestamp } = event;
 		try {
 			if (!matchID) {
-				debug("app::storeMatchEnd")(
+				this.logger.error(
 					"No matchID set in MatchEndedEvent; Skipping event",
+					{ event },
 				);
 				return;
 			}
 
 			const matchRepo = await this.postgres.getMatchRepo();
 
-			let match = await matchRepo.findOne(matchID, {
+			let match = await matchRepo?.findOne(matchID, {
 				relations: ["slots", "slots.user"],
 			});
 
@@ -439,9 +451,13 @@ export class MatchService {
 			match.updated = timestamp;
 			match.ended = timestamp;
 
-			return matchRepo.save(match);
+			return matchRepo?.save(match);
 		} catch (e) {
-			debug("app::storeMatchEnd")(e);
+			this.logger.error(
+				"An exception occurred while storing a match end. Skipping event",
+				{ e, event },
+			);
+			this.logger.error(e);
 			throw e;
 		}
 	}

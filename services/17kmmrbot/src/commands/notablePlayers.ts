@@ -1,5 +1,3 @@
-import debug = require("debug");
-
 import { injectable, inject } from "inversify";
 import { TwitchCommand } from "../definitions/twitchCommand";
 
@@ -22,15 +20,22 @@ import {
 import { RedisConnector } from "@shared/connectors/redis";
 import { majorRankNameMapping } from "@shared/ranks";
 import { captureTwitchException } from "../lib/sentryUtils";
+import { Logging } from "@shared/logging";
+import winston from "winston";
 
 @injectable()
 export class NotablePlayersCommand implements TwitchCommand {
+	logger: winston.Logger;
+
 	constructor(
 		@inject(ExtractorService) private extractorService: ExtractorService,
 		@inject(LeaderboardService)
 		private leaderboardService: LeaderboardService,
 		@inject(RedisConnector) private redis: RedisConnector,
-	) {}
+		private logging: Logging,
+	) {
+		this.logger = logging.createLogger();
+	}
 
 	invocations = ["!np", "!lobby"];
 	showInHelp = true;
@@ -186,13 +191,32 @@ export class NotablePlayersCommand implements TwitchCommand {
 
 			client.say(channel, response);
 		} catch (e) {
-			debug("app::notablePlayers")(e);
 			const exceptionID = captureTwitchException(
 				e,
 				channel,
 				tags,
 				message,
 			);
+
+			this.logger.error(
+				"An error occurred while executing the notable player command",
+				{
+					exceptionID,
+					e,
+					channel,
+					tags,
+					message,
+					command: "!np",
+				},
+			);
+			this.logger.error(e, {
+				exceptionID,
+				channel,
+				tags,
+				message,
+				command: "!np",
+			});
+
 			await client.say(
 				channel,
 				`Something went wrong. (Exception ID: ${exceptionID})`,
