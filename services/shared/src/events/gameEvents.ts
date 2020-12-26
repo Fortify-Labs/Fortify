@@ -70,7 +70,7 @@ export class MatchFinalPlaceEvent extends FortifyEventClass<GameEventType> {
 		const finalPlace = obj["finalPlace"] as number | null;
 		const timestamp = obj["timestamp"] as string | null;
 
-		if (matchID && steamID && finalPlace && timestamp) {
+		if (matchID && steamID && !!finalPlace && timestamp) {
 			const mfpe = new this(matchID, steamID, finalPlace);
 			mfpe.timestamp = new Date(timestamp);
 			return mfpe;
@@ -116,7 +116,7 @@ export class RankTierUpdateEvent extends FortifyEventClass<GameEventType> {
 		const rankTier = obj["rankTier"] as number | null;
 		const mode = obj["mode"] as FortifyGameMode | null;
 
-		if (accountID && rankTier && mode)
+		if (accountID && !!rankTier && mode)
 			return new this(accountID, rankTier, mode);
 		else throw new DeserializationError();
 	}
