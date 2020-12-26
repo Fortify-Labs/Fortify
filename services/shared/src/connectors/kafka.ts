@@ -41,8 +41,17 @@ export class KafkaConnector implements HealthCheckable, Connector {
 			logCreator: () => ({ namespace, level, log }) => {
 				const { message, timestamp, ...extra } = log;
 
+				let winstonLevel = toWinstonLogLevel(level);
+
+				if (
+					extra.error ===
+					"The group is rebalancing, so a rejoin is needed"
+				) {
+					winstonLevel = "info";
+				}
+
 				this.logger.log({
-					level: toWinstonLogLevel(level),
+					level: winstonLevel,
 					message,
 					"@timestamp": timestamp,
 					extra,
