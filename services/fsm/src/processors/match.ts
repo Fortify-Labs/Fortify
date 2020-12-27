@@ -65,6 +65,7 @@ export class MatchProcessor {
 				) {
 					// Check if a final place has changed
 					if (
+						final_place > 0 &&
 						matchState.players[account_id].public_player_state
 							.final_place !== final_place
 					) {
