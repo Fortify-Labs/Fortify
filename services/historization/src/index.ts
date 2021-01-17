@@ -23,7 +23,7 @@ import { MatchPersistor } from "./services/matchPersistor";
 import { Secrets } from "./secrets";
 import { HealthCheck } from "@shared/services/healthCheck";
 import { Connector } from "@shared/definitions/connector";
-import { Logging } from "@shared/logging";
+import { Logger } from "@shared/logger";
 
 const {
 	KAFKA_AUTO_COMMIT,
@@ -31,7 +31,7 @@ const {
 } = process.env;
 
 (async () => {
-	const logger = container.get(Logging).createLogger();
+	const logger = container.get(Logger);
 
 	await container.get(Secrets).getSecrets();
 
@@ -178,7 +178,7 @@ const {
 
 	healthCheck.live = true;
 })().catch(async (e) => {
-	const logger = container.get(Logging).createLogger();
+	const logger = container.get(Logger);
 
 	const exceptionID = captureException(e);
 

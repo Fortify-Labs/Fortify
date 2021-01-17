@@ -5,22 +5,18 @@ import { captureMessage } from "@sentry/node";
 import { FortifyScript } from "../scripts";
 import { EventService } from "@shared/services/eventService";
 import { TwitchMessageBroadcastEvent } from "@shared/events/systemEvents";
-import { Logging } from "@shared/logging";
-import winston from "winston";
+import { Logger } from "@shared/logger";
 
 const { MESSAGE } = process.env;
 
 @injectable()
 export class BroadcastNotificationScript implements FortifyScript {
 	name = "BroadcastNotificationScript";
-	logger: winston.Logger;
 
 	constructor(
 		@inject(EventService) private eventService: EventService,
-		@inject(Logging) private logging: Logging,
-	) {
-		this.logger = logging.createLogger();
-	}
+		@inject(Logger) private logger: Logger,
+	) {}
 
 	async handler() {
 		if (MESSAGE) {

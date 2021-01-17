@@ -16,7 +16,7 @@ import { PostgresConnector } from "@shared/connectors/postgres";
 import { Secrets } from "./secrets";
 import { HealthCheck } from "@shared/services/healthCheck";
 import { Connector } from "@shared/definitions/connector";
-import { Logging } from "@shared/logging";
+import { Logger } from "@shared/logger";
 
 const { NODE_ENV } = process.env;
 
@@ -32,7 +32,7 @@ yargs
 			});
 		},
 		async (argv) => {
-			const logger = container.get(Logging).createLogger();
+			const logger = container.get(Logger);
 			try {
 				await container.get(Secrets).getSecrets();
 				await Promise.all(

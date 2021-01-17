@@ -1,17 +1,12 @@
 import { inject, injectable } from "inversify";
-import { Logging } from "@shared/logging";
+import { Logger } from "@shared/logger";
 import { FortifyScript } from "../scripts";
-import winston from "winston";
 
 @injectable()
 export class DummyScript implements FortifyScript {
 	name = "DummyScript";
 
-	logger: winston.Logger;
-
-	constructor(@inject(Logging) private logging: Logging) {
-		this.logger = logging.createLogger();
-	}
+	constructor(@inject(Logger) private logger: Logger) {}
 
 	async handler() {
 		this.logger.info("Dummy script handler called");

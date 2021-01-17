@@ -9,10 +9,9 @@ import {
 } from "@shared/definitions/leaderboard";
 import { RedisConnector } from "@shared/connectors/redis";
 import { EventService } from "@shared/services/eventService";
-import { Logging } from "@shared/logging";
+import { Logger } from "@shared/logger";
 
 import { ImportCompletedEvent } from "@shared/events/systemEvents";
-import winston from "winston";
 
 const { LEADERBOARD_TYPE = "standard" } = process.env;
 
@@ -20,15 +19,11 @@ const { LEADERBOARD_TYPE = "standard" } = process.env;
 export class LeaderboardImportService implements FortifyScript {
 	name = "LeaderboardImportService";
 
-	logger: winston.Logger;
-
 	constructor(
 		@inject(RedisConnector) private redis: RedisConnector,
 		@inject(EventService) private eventService: EventService,
-		@inject(Logging) private logging: Logging,
-	) {
-		this.logger = logging.createLogger();
-	}
+		@inject(Logger) private logger: Logger,
+	) {}
 
 	async handler() {
 		const type = LEADERBOARD_TYPE;

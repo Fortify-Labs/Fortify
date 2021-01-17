@@ -18,13 +18,13 @@ import { captureException, flush } from "@sentry/node";
 import { Secrets } from "./secrets";
 import { HealthCheck } from "@shared/services/healthCheck";
 
-import { Logging } from "@shared/logging";
+import { Logger } from "@shared/logger";
 import { Connector } from "@shared/definitions/connector";
 
 const { KAFKA_TOPIC, MY_PORT } = process.env;
 
 (async () => {
-	const logger = container.get(Logging).createLogger();
+	const logger = container.get(Logger);
 
 	await container.get(Secrets).getSecrets();
 
@@ -147,7 +147,7 @@ const { KAFKA_TOPIC, MY_PORT } = process.env;
 		}
 	}
 })().catch((e) => {
-	const logger = container.get(Logging).createLogger();
+	const logger = container.get(Logger);
 
 	const exceptionID = captureException(e);
 

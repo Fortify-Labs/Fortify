@@ -27,7 +27,7 @@ import { MatchService, MatchServicePlayer } from "@shared/services/match";
 import { MatchProcessor } from "./processors/match";
 import { UserCacheKey } from "@shared/state";
 import { Connector } from "@shared/definitions/connector";
-import { Logging } from "@shared/logging";
+import { Logger } from "@shared/logger";
 
 const {
 	KAFKA_FROM_START,
@@ -38,7 +38,7 @@ const {
 } = process.env;
 
 (async () => {
-	const logger = container.get(Logging).createLogger();
+	const logger = container.get(Logger);
 
 	await container.get(Secrets).getSecrets();
 
@@ -394,7 +394,7 @@ const {
 		}
 	}
 })().catch((e) => {
-	const logger = container.get(Logging).createLogger();
+	const logger = container.get(Logger);
 
 	const exceptionID = captureException(e);
 

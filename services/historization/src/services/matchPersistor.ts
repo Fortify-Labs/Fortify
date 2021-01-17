@@ -16,21 +16,16 @@ import { rankToMMRMapping } from "@shared/ranks";
 import { MMR, User } from "@shared/db/entities/user";
 import { FortifyGameMode } from "@shared/state";
 import { LeaderboardType } from "@shared/definitions/leaderboard";
-import { Logging } from "@shared/logging";
-import winston from "winston";
+import { Logger } from "@shared/logger";
 
 @injectable()
 export class MatchPersistor {
-	logger: winston.Logger;
-
 	constructor(
 		@inject(MatchService) private matchService: MatchService,
 		@inject(PostgresConnector) private postgres: PostgresConnector,
 		@inject(InfluxDBConnector) private influx: InfluxDBConnector,
-		@inject(Logging) private logging: Logging,
-	) {
-		this.logger = logging.createLogger();
-	}
+		@inject(Logger) private logger: Logger,
+	) {}
 
 	async handleEvent(event: FortifyEvent<GameEventType>) {
 		try {

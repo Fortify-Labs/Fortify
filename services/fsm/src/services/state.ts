@@ -3,19 +3,14 @@ import { injectable, inject } from "inversify";
 import { MatchState, UserCache, UserCacheKey } from "@shared/state";
 import { RedisConnector } from "@shared/connectors/redis";
 import { captureException } from "@sentry/node";
-import { Logging } from "@shared/logging";
-import winston from "winston";
+import { Logger } from "@shared/logger";
 
 @injectable()
 export class StateService {
-	logger: winston.Logger;
-
 	constructor(
 		@inject(RedisConnector) private redis: RedisConnector,
-		@inject(Logging) private logging: Logging,
-	) {
-		this.logger = logging.createLogger();
-	}
+		@inject(Logger) private logger: Logger,
+	) {}
 
 	async getUserMatchID(steamid: string): Promise<string | null | undefined> {
 		return this.redis.client.get(`user:${steamid}:${UserCacheKey.matchID}`);

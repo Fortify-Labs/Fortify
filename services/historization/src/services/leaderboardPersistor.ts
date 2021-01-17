@@ -20,23 +20,18 @@ import { convert32to64SteamId, convert64to32SteamId } from "@shared/steamid";
 import { EventService } from "@shared/services/eventService";
 import { MMR } from "@shared/db/entities/user";
 import { Secrets } from "../secrets";
-import { Logging } from "@shared/logging";
-import winston from "winston";
+import { Logger } from "@shared/logger";
 
 @injectable()
 export class LeaderboardPersistor {
-	logger: winston.Logger;
-
 	constructor(
 		@inject(InfluxDBConnector) private influx: InfluxDBConnector,
 		@inject(RedisConnector) private redis: RedisConnector,
 		@inject(PostgresConnector) private postgres: PostgresConnector,
 		@inject(EventService) private eventService: EventService,
 		@inject(Secrets) private secrets: Secrets,
-		@inject(Logging) private logging: Logging,
-	) {
-		this.logger = logging.createLogger();
-	}
+		@inject(Logger) private logger: Logger,
+	) {}
 
 	async storeLeaderboard(event: ImportCompletedEvent) {
 		// Fetch corresponding leaderboard from redis

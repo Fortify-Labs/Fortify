@@ -13,22 +13,17 @@ import { FortifyGameMode, MatchState, UserCacheKey } from "@shared/state";
 import { Player } from "@shared/definitions/player";
 import { captureTwitchException } from "../lib/sentryUtils";
 import { RedisConnector } from "@shared/connectors/redis";
-import { Logging } from "@shared/logging";
-import winston from "winston";
+import { Logger } from "@shared/logger";
 
 @injectable()
 export class MMRCommand implements TwitchCommand {
-	logger: winston.Logger;
-
 	constructor(
 		@inject(ExtractorService) private extractorService: ExtractorService,
 		@inject(LeaderboardService)
 		private leaderboardService: LeaderboardService,
 		@inject(RedisConnector) private redis: RedisConnector,
-		private logging: Logging,
-	) {
-		this.logger = logging.createLogger();
-	}
+		@inject(Logger) private logger: Logger,
+	) {}
 
 	invocations = ["!mmr"];
 	showInHelp = true;

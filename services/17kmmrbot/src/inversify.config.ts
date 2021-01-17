@@ -3,6 +3,8 @@ import { Container } from "inversify";
 
 import { TwitchCommand } from "./definitions/twitchCommand";
 
+import { Logger } from "@shared/logger";
+
 import { Secrets } from "./secrets";
 
 import { PostgresConnector } from "@shared/connectors/postgres";
@@ -24,6 +26,8 @@ import { HealthCheckable } from "@shared/services/healthCheck";
 import { Connector } from "@shared/definitions/connector";
 
 const container = new Container({ autoBindInjectable: true });
+
+container.bind(Logger).toSelf().inSingletonScope();
 
 container.bind(Secrets).toSelf().inSingletonScope();
 container.bind(SecretsManager).toService(Secrets);

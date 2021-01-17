@@ -1,7 +1,7 @@
 import { container } from "../inversify.config";
 import { verify } from "jsonwebtoken";
 import { Secrets } from "../secrets";
-import { Logging } from "@shared/logging";
+import { Logger } from "@shared/logger";
 
 export const verifyToken = async (token: string) => {
 	try {
@@ -25,7 +25,7 @@ export const verifyToken = async (token: string) => {
 			},
 		);
 	} catch (e) {
-		const logger = container.get(Logging).createLogger();
+		const logger = container.get(Logger);
 		logger.error("An error occurred while verifying JWT", { e });
 		logger.error(e);
 

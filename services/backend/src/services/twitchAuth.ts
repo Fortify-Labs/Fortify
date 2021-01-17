@@ -120,7 +120,9 @@ export class TwitchAuthMiddleware {
 		);
 
 		passport.serializeUser((user, done) => done(null, user));
-		passport.deserializeUser((user, done) => done(null, user));
+		passport.deserializeUser<Express.User | undefined>((user, done) =>
+			done(null, user),
+		);
 
 		const authRouter = Router();
 		authRouter.use(cookieParser());

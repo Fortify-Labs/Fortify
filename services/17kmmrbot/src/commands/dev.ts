@@ -8,20 +8,15 @@ import { ExtractorService } from "@shared/services/extractor";
 
 import { FSMResetRequestEvent } from "@shared/events/systemEvents";
 import { captureTwitchException } from "../lib/sentryUtils";
-import { Logging } from "@shared/logging";
-import winston from "winston";
+import { Logger } from "@shared/logger";
 
 @injectable()
 export class DevCommands implements TwitchCommand {
-	logger: winston.Logger;
-
 	constructor(
 		@inject(KafkaConnector) private kafka: KafkaConnector,
 		@inject(ExtractorService) private extractorService: ExtractorService,
-		private logging: Logging,
-	) {
-		this.logger = logging.createLogger();
-	}
+		@inject(Logger) private logger: Logger,
+	) {}
 
 	invocations = ["!reset", "!join", "!leave", "!version"];
 

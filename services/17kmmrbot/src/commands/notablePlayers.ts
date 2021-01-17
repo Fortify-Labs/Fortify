@@ -20,22 +20,17 @@ import {
 import { RedisConnector } from "@shared/connectors/redis";
 import { majorRankNameMapping } from "@shared/ranks";
 import { captureTwitchException } from "../lib/sentryUtils";
-import { Logging } from "@shared/logging";
-import winston from "winston";
+import { Logger } from "@shared/logger";
 
 @injectable()
 export class NotablePlayersCommand implements TwitchCommand {
-	logger: winston.Logger;
-
 	constructor(
 		@inject(ExtractorService) private extractorService: ExtractorService,
 		@inject(LeaderboardService)
 		private leaderboardService: LeaderboardService,
 		@inject(RedisConnector) private redis: RedisConnector,
-		private logging: Logging,
-	) {
-		this.logger = logging.createLogger();
-	}
+		@inject(Logger) private logger: Logger,
+	) {}
 
 	invocations = ["!np", "!lobby"];
 	showInHelp = true;

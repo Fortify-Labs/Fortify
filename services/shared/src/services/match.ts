@@ -324,14 +324,29 @@ export class MatchService {
 
 				// TODO: Refactor this to be one request getting all 8 images instead of 8 requests getting one image
 				// Fetch image from steam web api
-				const playerSummaries = await fetch(
+				const playerSummariesRaw = await fetch(
 					`http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${apiKey}&steamids=${convert32to64SteamId(
 						accountID,
 					)}`,
-				).then((res) => res.json() as Promise<GetPlayerSummaries>);
-				if (playerSummaries.response.players.length > 0) {
-					const player = playerSummaries.response.players[0];
-					user.profilePicture = player.avatarfull;
+				);
+				try {
+					const playerSummaries = await (playerSummariesRaw.json() as Promise<GetPlayerSummaries>);
+					if (playerSummaries.response.players.length > 0) {
+						const player = playerSummaries.response.players[0];
+						user.profilePicture = player.avatarfull;
+					}
+				} catch (e) {
+					this.logger.error("Steam Web API image request failed", {
+						e,
+					});
+					this.logger.error(e);
+
+					playerSummariesRaw
+						.text()
+						.then((text) =>
+							this.logger.error("Web API response", { text }),
+						)
+						.catch((e) => this.logger.error(e));
 				}
 			} catch (e) {
 				this.logger.error("Steam Web API image request failed", { e });

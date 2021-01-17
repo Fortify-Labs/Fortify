@@ -3,20 +3,16 @@ import { injectable, inject } from "inversify";
 import { FortifyScript } from "../scripts";
 import { PostgresConnector } from "@shared/connectors/postgres";
 import { Match } from "@shared/db/entities/match";
-import { Logging } from "@shared/logging";
-import winston from "winston";
+import { Logger } from "@shared/logger";
 
 @injectable()
 export class DBCleanupScript implements FortifyScript {
 	name = "DBCleanupScript";
-	logger: winston.Logger;
 
 	constructor(
 		@inject(PostgresConnector) private postgres: PostgresConnector,
-		@inject(Logging) private logging: Logging,
-	) {
-		this.logger = logging.createLogger();
-	}
+		@inject(Logger) private logger: Logger,
+	) {}
 
 	async handler() {
 		// Clean up all fault matches

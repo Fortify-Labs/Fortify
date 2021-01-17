@@ -31,7 +31,7 @@ import { ConsumerCrashEvent } from "kafkajs";
 import { Secrets } from "./secrets";
 import { HealthCheck } from "@shared/services/healthCheck";
 
-import { Logging } from "@shared/logging";
+import { Logger } from "@shared/logger";
 import { Connector } from "@shared/definitions/connector";
 
 const {
@@ -40,7 +40,7 @@ const {
 } = process.env;
 
 (async () => {
-	const logger = container.get(Logging).createLogger();
+	const logger = container.get(Logger);
 
 	const {
 		twitchBot: { oauthToken },
@@ -254,7 +254,7 @@ const {
 	healthCheck.live = true;
 })().catch((e) => {
 	const exceptionID = captureException(e);
-	const logger = container.get(Logging).createLogger();
+	const logger = container.get(Logger);
 	logger.error("An error occurred in the main context", { e, exceptionID });
 	logger.error(e, { exceptionID });
 

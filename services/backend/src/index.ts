@@ -18,11 +18,11 @@ import express from "express";
 import * as bodyParser from "body-parser";
 import { Secrets } from "./secrets";
 import { HealthCheck } from "@shared/services/healthCheck";
-import { Logging } from "@shared/logging";
+import { Logger } from "@shared/logger";
 import { Connector } from "@shared/definitions/connector";
 
 (async () => {
-	const logger = container.get(Logging).createLogger();
+	const logger = container.get(Logger);
 
 	const secretsManager = container.get(Secrets);
 	await secretsManager.getSecrets();
@@ -134,7 +134,7 @@ import { Connector } from "@shared/definitions/connector";
 })().catch((e) => {
 	const exceptionID = captureException(e);
 
-	const logger = container.get(Logging).createLogger();
+	const logger = container.get(Logger);
 
 	logger.error("An error occurred in the main context", {
 		exceptionID,
