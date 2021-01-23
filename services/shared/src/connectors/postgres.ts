@@ -1,7 +1,5 @@
 import { inject, injectable } from "inversify";
 
-import winston from "winston";
-
 import { createConnection, Connection } from "typeorm";
 import { User } from "../db/entities/user";
 import { Match } from "../db/entities/match";
@@ -9,7 +7,7 @@ import { MatchSlot } from "../db/entities/matchSlot";
 
 import { SecretsManager, SecretsRequest } from "../services/secrets";
 import { HealthCheckable } from "../services/healthCheck";
-import { Logging } from "../logging";
+import { Logger } from "../logger";
 import { Connector } from "../definitions/connector";
 
 const {
@@ -45,15 +43,12 @@ export class PostgresConnector implements HealthCheckable, Connector {
 	setupHealthCheck = async () => {};
 	healthCheck: () => Promise<boolean>;
 	shutdown: () => Promise<unknown>;
-	logger: winston.Logger;
 
 	constructor(
 		@inject(SecretsManager)
 		private secretsManager: SecretsManager<PostgresSecrets>,
-		@inject(Logging) public logging: Logging,
+		@inject(Logger) public logger: Logger,
 	) {
-		this.logger = logging.createLogger();
-
 		this.healthCheck = async () => {
 			return (
 				this._connection?.isConnected &&

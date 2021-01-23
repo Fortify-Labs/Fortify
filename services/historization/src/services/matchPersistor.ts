@@ -6,12 +6,15 @@ import {
 	MatchEndedEvent,
 	RankTierUpdateEvent,
 	SmurfDetectedEvent,
+	AllianceStatsEvent,
+	ItemStatsEvent,
+	UnitStatsEvent,
+	CombinedStatsEvent,
 } from "@shared/events/gameEvents";
 import { FortifyEvent } from "@shared/events/events";
 import { MatchService } from "@shared/services/match";
 import { PostgresConnector } from "@shared/connectors/postgres";
-import { InfluxDBConnector } from "@shared/connectors/influxdb";
-import { Point } from "@influxdata/influxdb-client";
+import { InfluxDBConnector, Point } from "@shared/connectors/influxdb";
 import { rankToMMRMapping } from "@shared/ranks";
 import { MMR, User } from "@shared/db/entities/user";
 import { FortifyGameMode } from "@shared/state";
@@ -52,6 +55,51 @@ export class MatchPersistor {
 				const smurfEvent = SmurfDetectedEvent.deserialize(event);
 				return this.storeSmurfEvent(smurfEvent);
 			}
+
+			if (event.type === GameEventType.ALLIANCE_STATS) {
+				const allianceStatsEvent = AllianceStatsEvent.deserialize(
+					event,
+				);
+
+				const point = this.mapAllianceStats(allianceStatsEvent);
+
+				return this.influx.writePoints([point], "alliance_stats");
+			}
+			if (event.type === GameEventType.ITEM_STATS) {
+				const itemStatsEvent = ItemStatsEvent.deserialize(event);
+
+				const point = this.mapItemStats(itemStatsEvent);
+
+				return this.influx.writePoints([point], "item_stats");
+			}
+			if (event.type === GameEventType.UNIT_STATS) {
+				const unitStats = UnitStatsEvent.deserialize(event);
+
+				const point = this.mapUnitStats(unitStats);
+
+				return this.influx.writePoints([point], "unit_stats");
+			}
+
+			if (event.type === GameEventType.COMBINED_STATS) {
+				const combinedStats = CombinedStatsEvent.deserialize(event);
+
+				const alliancePoints = combinedStats.allianceStatsEvents.map(
+					(allianceStatsEvent) =>
+						this.mapAllianceStats(allianceStatsEvent),
+				);
+				const itemPoints = combinedStats.itemStatsEvents.map(
+					(itemStatsEvent) => this.mapItemStats(itemStatsEvent),
+				);
+				const unitPoints = combinedStats.unitStatsEvents.map(
+					(unitStatsEvent) => this.mapUnitStats(unitStatsEvent),
+				);
+
+				return Promise.allSettled([
+					this.influx.writePoints(alliancePoints, "alliance_stats"),
+					this.influx.writePoints(itemPoints, "item_stats"),
+					this.influx.writePoints(unitPoints, "unit_stats"),
+				]);
+			}
 		} catch (e) {
 			this.logger.error("An error occurred in the match persistor", {
 				e,
@@ -60,7 +108,84 @@ export class MatchPersistor {
 			this.logger.error(e, {
 				event,
 			});
+			throw e;
 		}
+	}
+	mapUnitStats({
+		activeAlliances,
+		averageMMR,
+		equippedItems,
+		rank,
+		roundNumber,
+		timestamp,
+		unitID,
+		value,
+	}: UnitStatsEvent): Point {
+		let point = new Point("unit")
+			.floatField("win", value)
+			.intField("rank", rank)
+			.intField("averageMMR", averageMMR)
+			.tag("unitID", unitID.toFixed(0))
+			.tag("round", roundNumber.toFixed(0))
+			.tag("rank", rank.toFixed(0))
+			.tag("averageMMR", averageMMR.toFixed(0))
+			.timestamp(new Date(timestamp).getTime() * 1000000);
+
+		activeAlliances.sort().forEach((alliance, index) => {
+			point = point.intField(`alliance${index}`, alliance);
+		});
+
+		equippedItems.sort().forEach((item, index) => {
+			point = point.intField(`item${index}`, item);
+		});
+
+		return point;
+	}
+
+	mapItemStats({
+		activeAlliances,
+		averageMMR,
+		itemID,
+		roundNumber,
+		timestamp,
+		value,
+	}: ItemStatsEvent): Point {
+		let point = new Point("item")
+			.floatField("win", value)
+			.intField("averageMMR", averageMMR)
+			.tag("itemID", itemID.toFixed(0))
+			.tag("round", roundNumber.toFixed(0))
+			.tag("averageMMR", averageMMR.toFixed(0))
+			.timestamp(new Date(timestamp).getTime() * 1000000);
+
+		activeAlliances.sort().forEach((alliance, index) => {
+			point = point.intField(`alliance${index}`, alliance);
+		});
+
+		return point;
+	}
+
+	mapAllianceStats({
+		activeAlliances,
+		allianceID,
+		averageMMR,
+		roundNumber,
+		timestamp,
+		value,
+	}: AllianceStatsEvent): Point {
+		let point = new Point("alliance")
+			.floatField("win", value)
+			.intField("averageMMR", averageMMR)
+			.tag("allianceID", allianceID.toFixed(0))
+			.tag("round", roundNumber.toFixed(0))
+			.tag("averageMMR", averageMMR.toFixed(0))
+			.timestamp(new Date(timestamp).getTime() * 1000000);
+
+		activeAlliances.sort().forEach((alliance, index) => {
+			point = point.intField(`alliance${index}`, alliance);
+		});
+
+		return point;
 	}
 
 	async startHandler(startedEvent: MatchStartedEvent) {
@@ -120,7 +245,7 @@ export class MatchPersistor {
 					),
 			];
 
-			await this.influx.writePoints(points);
+			await this.influx.writePoints(points, "mmr");
 
 			// Store interpolate mmr into postgres
 			const ratings: MMR = {

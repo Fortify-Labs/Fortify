@@ -14,6 +14,9 @@ import { SmurfDetector } from "./smurf";
 import { LeaderboardService } from "@shared/services/leaderboard";
 import { ExtractorService } from "@shared/services/extractor";
 import { LeaderboardType } from "@shared/definitions/leaderboard";
+import { StateChangeHandler } from "./stateChange";
+import { captureException } from "@sentry/node";
+import { Logger } from "@shared/logger";
 
 const { REQUIRED_UPDATES = "10" } = process.env;
 
@@ -35,6 +38,8 @@ export class MatchProcessor {
 		public smurfDetector: SmurfDetector,
 		public leaderboardService: LeaderboardService,
 		public extractorService: ExtractorService,
+		public stateChangeHandler: StateChangeHandler,
+		public logger: Logger,
 	) {}
 
 	async process({
@@ -83,6 +88,27 @@ export class MatchProcessor {
 						);
 					}
 
+					try {
+						await this.stateChangeHandler.updatedPublicPlayerState({
+							previous:
+								matchState.players[account_id]
+									.public_player_state,
+							next: public_player_state,
+							matchState,
+							timestamp,
+						});
+					} catch (e) {
+						const exceptionID = captureException(e);
+						this.logger.error(
+							"An error occurred while handling public player state changes",
+							{
+								exceptionID,
+								e,
+							},
+						);
+						this.logger.error(e);
+					}
+
 					// Update player object
 					matchState.players[account_id] = {
 						id: account_id.toString(),
@@ -108,6 +134,29 @@ export class MatchProcessor {
 						(matchState.players[account_id].private_player_state
 							?.sequence_number ?? 0)
 					) {
+						try {
+							await this.stateChangeHandler.updatedPrivatePlayerState(
+								{
+									previous:
+										matchState.players[account_id]
+											.private_player_state,
+									next: private_player_state,
+									matchState,
+									timestamp,
+								},
+							);
+						} catch (e) {
+							const exceptionID = captureException(e);
+							this.logger.error(
+								"An error occurred while handling private player state changes",
+								{
+									exceptionID,
+									e,
+								},
+							);
+							this.logger.error(e);
+						}
+
 						matchState.players[account_id] = {
 							...matchState.players[account_id],
 							private_player_state,

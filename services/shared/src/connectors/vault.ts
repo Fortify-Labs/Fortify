@@ -5,8 +5,7 @@ import vault from "node-vault";
 
 import { captureException } from "@sentry/node";
 import { HealthCheckable } from "src/services/healthCheck";
-import { Logging } from "../logging";
-import winston from "winston";
+import { Logger } from "../logger";
 
 // process.env.VAULT_ADDR
 // process.env.VAULT_PREFIX
@@ -21,16 +20,14 @@ const {
 @injectable()
 export class VaultConnector implements HealthCheckable {
 	vault: vault.client;
-	logger: winston.Logger;
 
 	name = "Vault";
 	setupHealthCheck = async () => {};
 	healthCheck: () => Promise<boolean>;
 	shutdown = async () => {};
 
-	constructor(@inject(Logging) public logging: Logging) {
+	constructor(@inject(Logger) public logger: Logger) {
 		this.vault = vault();
-		this.logger = logging.createLogger();
 
 		if (K8S_ROLE_NAME && K8S_SERVICE_ACCOUNT_TOKEN_PATH) {
 			readFile(K8S_SERVICE_ACCOUNT_TOKEN_PATH, (err, data) => {

@@ -18,8 +18,7 @@ import {
 	MatchEndedEvent,
 } from "../events/gameEvents";
 import { SecretsManager } from "./secrets";
-import { Logging } from "../logging";
-import winston from "winston";
+import { Logger } from "../logger";
 
 export interface MatchServicePlayer {
 	accountID: string;
@@ -47,8 +46,6 @@ export const matchIDGenerator = (
 
 @injectable()
 export class MatchService {
-	logger: winston.Logger;
-
 	constructor(
 		@inject(PostgresConnector) private postgres: PostgresConnector,
 		@inject(ExtractorService) private extractorService: ExtractorService,
@@ -60,10 +57,8 @@ export class MatchService {
 				apiKey: string;
 			};
 		}>,
-		@inject(Logging) private logging: Logging,
-	) {
-		this.logger = logging.createLogger();
-	}
+		@inject(Logger) private logger: Logger,
+	) {}
 
 	async generateMatchID(players: MatchServicePlayer[]) {
 		const matchRepo = await this.postgres.getMatchRepo();

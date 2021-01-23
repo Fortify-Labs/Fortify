@@ -6,8 +6,7 @@ import {
 	HealthCheckError,
 	TerminusOptions,
 } from "@godaddy/terminus";
-import { Logging } from "../logging";
-import winston from "winston";
+import { Logger } from "../logger";
 
 export interface HealthCheckable {
 	name: string;
@@ -21,16 +20,13 @@ export class HealthCheck {
 	live = false;
 
 	server?: Server;
-	logger: winston.Logger;
 
 	constructor(
 		@multiInject("healthCheck")
 		@optional()
 		private healthChecks: HealthCheckable[] = [],
-		@inject(Logging) public logging: Logging,
-	) {
-		this.logger = logging.createLogger();
-	}
+		@inject(Logger) public logger: Logger,
+	) {}
 
 	addHealthCheck(healthCheck: HealthCheckable) {
 		this.healthChecks.push(healthCheck);
