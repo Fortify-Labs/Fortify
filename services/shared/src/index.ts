@@ -2,7 +2,7 @@ import "reflect-metadata";
 
 import * as Sentry from "@sentry/node";
 import { RewriteFrames } from "@sentry/integrations";
-import { Logging } from "./logging";
+import { Logger } from "./logger";
 
 const { SENTRY_DSN } = process.env;
 
@@ -10,7 +10,7 @@ export const sharedSetup = (
 	name = process.env.npm_package_name,
 	release = process.env.npm_package_version,
 ) => {
-	const logger = new Logging().createLogger();
+	const logger = new Logger();
 
 	logger.info(`Launching ${name} v${release}`);
 

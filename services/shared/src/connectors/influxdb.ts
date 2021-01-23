@@ -4,9 +4,10 @@ import { InfluxDB, Point } from "@influxdata/influxdb-client";
 import { HealthAPI } from "@influxdata/influxdb-client-apis";
 import { SecretsManager, SecretsRequest } from "../services/secrets";
 import { HealthCheckable } from "../services/healthCheck";
-import { Logging } from "../logging";
-import winston from "winston";
+import { Logger } from "../logger";
 import { Connector } from "../definitions/connector";
+
+export { Point };
 
 const {
 	SERVICE_NAME = "unknown",
@@ -39,15 +40,12 @@ export class InfluxDBConnector implements HealthCheckable, Connector {
 
 	private _client?: InfluxDB;
 	healthAPI?: HealthAPI;
-	logger: winston.Logger;
 
 	constructor(
 		@inject(SecretsManager)
 		private secretsManager: SecretsManager<InfluxDBSecret>,
-		@inject(Logging) private logging: Logging,
+		@inject(Logger) private logger: Logger,
 	) {
-		this.logger = logging.createLogger();
-
 		// Set it to false by default
 		this.healthCheck = async () => false;
 	}
@@ -82,8 +80,8 @@ export class InfluxDBConnector implements HealthCheckable, Connector {
 			(await this.healthAPI?.getHealth())?.status === "pass";
 	}
 
-	async writePoints(points: Point[]) {
-		const writeApi = this.client.getWriteApi(INFLUXDB_ORG, INFLUXDB_BUCKET);
+	async writePoints(points: Point[], bucket = INFLUXDB_BUCKET) {
+		const writeApi = this.client.getWriteApi(INFLUXDB_ORG, bucket);
 
 		// Not sure about this, potentially make it dynamic
 		writeApi.useDefaultTags({ service: SERVICE_NAME });

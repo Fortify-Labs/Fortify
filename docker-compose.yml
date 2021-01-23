@@ -61,9 +61,9 @@ services:
     restart: unless-stopped
 
   influxdb:
-    image: quay.io/influxdb/influxdb:2.0.0-beta
+    image: quay.io/influxdb/influxdb:v2.0.3
     ports:
-      - 9999:9999
+      - 8086:8086
     volumes:
       - influx-data:/root/.influxdbv2
     restart: unless-stopped

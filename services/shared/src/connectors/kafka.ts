@@ -8,8 +8,7 @@ import {
 	logLevel,
 } from "kafkajs";
 import { Connector } from "../definitions/connector";
-import winston from "winston";
-import { Logging } from "../logging";
+import { Logger } from "../logger";
 import { HealthCheckable } from "../services/healthCheck";
 
 const { KAFKA_CLIENT_ID, KAFKA_BROKERS } = process.env;
@@ -17,7 +16,6 @@ const { KAFKA_CLIENT_ID, KAFKA_BROKERS } = process.env;
 @injectable()
 export class KafkaConnector implements HealthCheckable, Connector {
 	private _kafka?: Kafka;
-	public logger: winston.Logger;
 
 	name = "Kafka";
 	healthCheck: () => Promise<boolean>;
@@ -25,9 +23,7 @@ export class KafkaConnector implements HealthCheckable, Connector {
 
 	private sessionTimeout = 30000;
 
-	constructor(@inject(Logging) public logging: Logging) {
-		this.logger = logging.createLogger();
-
+	constructor(@inject(Logger) public logger: Logger) {
 		// Health check setup
 		this.healthCheck = async () => {
 			return false;

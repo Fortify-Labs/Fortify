@@ -14,6 +14,10 @@ export enum GameEventType {
 	MATCH_ENDED,
 	RANK_TIER_UPDATE,
 	SMURF_DETECTED,
+	UNIT_STATS,
+	ITEM_STATS,
+	ALLIANCE_STATS,
+	COMBINED_STATS,
 }
 
 export class GameEvent extends FortifyEventClass<GameEventType> {
@@ -142,5 +146,198 @@ export class SmurfDetectedEvent extends FortifyEventClass<GameEventType> {
 				smurfAccountID,
 			);
 		else throw new DeserializationError();
+	}
+}
+
+export class UnitStatsEvent extends FortifyEventClass<GameEventType> {
+	public _topic = FortifyEventTopics.GAME;
+	public type = GameEventType.UNIT_STATS;
+
+	constructor(
+		public unitID: number,
+		public rank: number,
+		/**
+		 * `1` - if unit won a fight
+		 * `0.5` - if a unit tied a fight
+		 * `0` - if unit lost a fight
+		 */
+		public value: number,
+		public roundNumber: number,
+		public averageMMR: number,
+		public activeAlliances: number[],
+		public equippedItems: number[],
+	) {
+		super();
+	}
+
+	public static deserialize<GameEventType>(obj: FortifyEvent<GameEventType>) {
+		const unitID = obj["unitID"] as number;
+		const rank = obj["rank"] as number;
+		const value = obj["value"] as number;
+		const roundNumber = obj["roundNumber"] as number;
+		const averageMMR = obj["averageMMR"] as number;
+		const activeAlliances = obj["activeAlliances"] as number[];
+		const equippedItems = obj["equippedItems"] as number[];
+
+		// A check for not null & undefined is required, as JS would convert a zero to false
+		if (
+			unitID !== null &&
+			unitID !== undefined &&
+			rank !== null &&
+			rank !== undefined &&
+			value !== null &&
+			value !== undefined &&
+			roundNumber !== null &&
+			roundNumber !== undefined &&
+			averageMMR !== null &&
+			averageMMR !== undefined &&
+			activeAlliances &&
+			equippedItems
+		) {
+			return new this(
+				unitID,
+				rank,
+				value,
+				roundNumber,
+				averageMMR,
+				activeAlliances,
+				equippedItems,
+			);
+		} else throw new DeserializationError();
+	}
+}
+
+export class ItemStatsEvent extends FortifyEventClass<GameEventType> {
+	public _topic = FortifyEventTopics.GAME;
+	public type = GameEventType.ITEM_STATS;
+
+	constructor(
+		public itemID: number,
+		/**
+		 * `1` - if an item won a fight
+		 * `0.5` - if an item tied a fight
+		 * `0` - if an item lost a fight
+		 */
+		public value: number,
+		public roundNumber: number,
+		public averageMMR: number,
+		public activeAlliances: number[],
+	) {
+		super();
+	}
+
+	public static deserialize<GameEventType>(obj: FortifyEvent<GameEventType>) {
+		const itemID = obj["itemID"] as number;
+		const value = obj["value"] as number;
+		const roundNumber = obj["roundNumber"] as number;
+		const averageMMR = obj["averageMMR"] as number;
+		const activeAlliances = obj["activeAlliances"] as number[];
+
+		// A check for not null & undefined is required, as JS would convert a zero to false
+		if (
+			itemID !== null &&
+			itemID !== undefined &&
+			value !== null &&
+			value !== undefined &&
+			roundNumber !== null &&
+			roundNumber !== undefined &&
+			averageMMR !== null &&
+			averageMMR !== undefined &&
+			activeAlliances
+		) {
+			return new this(
+				itemID,
+				value,
+				roundNumber,
+				averageMMR,
+				activeAlliances,
+			);
+		} else throw new DeserializationError();
+	}
+}
+
+export class AllianceStatsEvent extends FortifyEventClass<GameEventType> {
+	public _topic = FortifyEventTopics.GAME;
+	public type = GameEventType.ALLIANCE_STATS;
+
+	constructor(
+		public allianceID: number,
+		/**
+		 * `1` - if an alliance won a fight
+		 * `0.5` - if an alliance tied a fight
+		 * `0` - if an alliance lost a fight
+		 */
+		public value: number,
+		public roundNumber: number,
+		public averageMMR: number,
+		public activeAlliances: number[],
+	) {
+		super();
+	}
+
+	public static deserialize<GameEventType>(obj: FortifyEvent<GameEventType>) {
+		const allianceID = obj["allianceID"] as number;
+		const value = obj["value"] as number;
+		const roundNumber = obj["roundNumber"] as number;
+		const averageMMR = obj["averageMMR"] as number;
+		const activeAlliances = obj["activeAlliances"] as number[];
+
+		// A check for not null & undefined is required, as JS would convert a zero to false
+		if (
+			allianceID !== null &&
+			allianceID !== undefined &&
+			value !== null &&
+			value !== undefined &&
+			roundNumber !== null &&
+			roundNumber !== undefined &&
+			averageMMR !== null &&
+			averageMMR !== undefined &&
+			activeAlliances
+		) {
+			return new this(
+				allianceID,
+				value,
+				roundNumber,
+				averageMMR,
+				activeAlliances,
+			);
+		} else throw new DeserializationError();
+	}
+}
+
+export class CombinedStatsEvent extends FortifyEventClass<GameEventType> {
+	public _topic = FortifyEventTopics.GAME;
+	public type = GameEventType.COMBINED_STATS;
+
+	constructor(
+		public unitStatsEvents: UnitStatsEvent[],
+		public itemStatsEvents: ItemStatsEvent[],
+		public allianceStatsEvents: AllianceStatsEvent[],
+	) {
+		super();
+	}
+
+	public static deserialize<GameEventType>(obj: FortifyEvent<GameEventType>) {
+		const unitStatsEvents = obj["unitStatsEvents"] as UnitStatsEvent[];
+		const itemStatsEvents = obj["itemStatsEvents"] as ItemStatsEvent[];
+		const allianceStatsEvents = obj[
+			"allianceStatsEvents"
+		] as AllianceStatsEvent[];
+
+		// A check for not null & undefined is required, as JS would convert a zero to false
+		if (
+			unitStatsEvents !== null &&
+			unitStatsEvents !== undefined &&
+			itemStatsEvents !== null &&
+			itemStatsEvents !== undefined &&
+			allianceStatsEvents !== null &&
+			allianceStatsEvents !== undefined
+		) {
+			return new this(
+				unitStatsEvents,
+				itemStatsEvents,
+				allianceStatsEvents,
+			);
+		} else throw new DeserializationError();
 	}
 }

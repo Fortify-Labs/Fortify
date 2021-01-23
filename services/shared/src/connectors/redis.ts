@@ -1,8 +1,7 @@
 import { inject, injectable } from "inversify";
 import Redis from "ioredis";
 import { Connector } from "../definitions/connector";
-import winston from "winston";
-import { Logging } from "../logging";
+import { Logger } from "../logger";
 import { HealthCheckable } from "../services/healthCheck";
 
 const {
@@ -18,16 +17,13 @@ const {
 @injectable()
 export class RedisConnector implements HealthCheckable, Connector {
 	private _client?: Redis.Redis;
-	logger: winston.Logger;
 
 	name = "Redis";
 	setupHealthCheck = async () => {};
 	healthCheck: () => Promise<boolean>;
 	shutdown: () => Promise<void>;
 
-	constructor(@inject(Logging) private logging: Logging) {
-		this.logger = logging.createLogger();
-
+	constructor(@inject(Logger) private logger: Logger) {
 		this.healthCheck = async () =>
 			this._client?.status === "ready" &&
 			(await this._client.ping()) === "PONG";
