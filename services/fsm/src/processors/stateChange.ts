@@ -87,6 +87,7 @@ export class StateChangeHandler {
 					playerItemStatsEvents,
 					playerAllianceStatsEvents,
 				);
+				combinedEvents.timestamp = new Date(timestamp);
 				await this.eventService.sendEvent(
 					combinedEvents,
 					`match-${matchState.id}`,
@@ -189,28 +190,32 @@ export class StateChangeHandler {
 			synergies?.map((synergy) => synergy.keyword) ?? [];
 
 		return (
-			units?.map(({ unit_id, entindex, rank }) => {
-				const event = new UnitStatsEvent(
-					unit_id,
-					rank,
-					// value
-					wonFight,
-					// round number
-					-1,
-					averageMMR,
-					activeAlliances,
-					// Get equipped items
-					item_slots
-						?.filter(
-							(itemSlot) =>
-								itemSlot.assigned_unit_entindex === entindex,
-						)
-						.map((itemSlot) => itemSlot.item_id) ?? [],
-				);
-				event.timestamp = new Date(timestamp);
+			units
+				// This way only units that are on the board will be tracked
+				?.filter((unit) => unit.position.y >= 0)
+				.map(({ unit_id, entindex, rank }) => {
+					const event = new UnitStatsEvent(
+						unit_id,
+						rank,
+						// value
+						wonFight,
+						// round number
+						-1,
+						averageMMR,
+						activeAlliances,
+						// Get equipped items
+						item_slots
+							?.filter(
+								(itemSlot) =>
+									itemSlot.assigned_unit_entindex ===
+									entindex,
+							)
+							.map((itemSlot) => itemSlot.item_id) ?? [],
+					);
+					event.timestamp = new Date(timestamp);
 
-				return event;
-			}) ?? []
+					return event;
+				}) ?? []
 		);
 	}
 
@@ -246,17 +251,23 @@ export class StateChangeHandler {
 			synergies?.map((synergy) => synergy.keyword) ?? [];
 
 		return (
-			item_slots?.map((itemSlot) => {
-				const event = new ItemStatsEvent(
-					itemSlot.item_id,
-					wonFight,
-					-1,
-					averageMMR,
-					activeAlliances,
-				);
-				event.timestamp = new Date(timestamp);
-				return event;
-			}) ?? []
+			item_slots
+				?.filter(
+					(itemSlot) =>
+						itemSlot.assigned_unit_entindex !== null &&
+						itemSlot.assigned_unit_entindex !== undefined,
+				)
+				.map((itemSlot) => {
+					const event = new ItemStatsEvent(
+						itemSlot.item_id,
+						wonFight,
+						-1,
+						averageMMR,
+						activeAlliances,
+					);
+					event.timestamp = new Date(timestamp);
+					return event;
+				}) ?? []
 		);
 	}
 }

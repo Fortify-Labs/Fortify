@@ -467,7 +467,7 @@ export class ClusterSetupClean extends Chart {
 						spec: {
 							containers: [
 								{
-									image: "quay.io/influxdb/influxdb:2.0.2",
+									image: "quay.io/influxdb/influxdb:v2.0.3",
 									name: "influxdb",
 									ports: [
 										{

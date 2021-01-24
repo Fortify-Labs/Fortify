@@ -1,7 +1,7 @@
 version: "3.7"
 services:
   vault:
-    image: vault:1.5.5
+    image: vault:1.6.1
     command: ["vault", "server", "-config=/vault/config"]
     ports:
       - "8200:8200"
@@ -82,7 +82,7 @@ services:
     restart: unless-stopped
 
   kowl:
-    image: quay.io/cloudhut/kowl:v1.2.0
+    image: quay.io/cloudhut/kowl:v1.2.2
     restart: on-failure
     hostname: kowl
     volumes:
