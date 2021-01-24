@@ -124,7 +124,7 @@ export class MatchPersistor {
 		let point = new Point("unit")
 			.floatField("win", value)
 			.intField("rank", rank)
-			.intField("averageMMR", averageMMR)
+			// .intField("averageMMR", averageMMR)
 			.tag("unitID", unitID.toFixed(0))
 			.tag("round", roundNumber.toFixed(0))
 			.tag("rank", rank.toFixed(0))
@@ -152,7 +152,7 @@ export class MatchPersistor {
 	}: ItemStatsEvent): Point {
 		let point = new Point("item")
 			.floatField("win", value)
-			.intField("averageMMR", averageMMR)
+			// .intField("averageMMR", averageMMR)
 			.tag("itemID", itemID.toFixed(0))
 			.tag("round", roundNumber.toFixed(0))
 			.tag("averageMMR", averageMMR.toFixed(0))
@@ -175,7 +175,7 @@ export class MatchPersistor {
 	}: AllianceStatsEvent): Point {
 		let point = new Point("alliance")
 			.floatField("win", value)
-			.intField("averageMMR", averageMMR)
+			// .intField("averageMMR", averageMMR)
 			.tag("allianceID", allianceID.toFixed(0))
 			.tag("round", roundNumber.toFixed(0))
 			.tag("averageMMR", averageMMR.toFixed(0))
