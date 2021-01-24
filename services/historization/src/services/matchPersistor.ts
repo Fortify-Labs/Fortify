@@ -131,13 +131,13 @@ export class MatchPersistor {
 			.tag("averageMMR", averageMMR.toFixed(0))
 			.timestamp(new Date(timestamp).getTime() * 1000000);
 
-		activeAlliances.sort().forEach((alliance, index) => {
-			point = point.intField(`alliance${index}`, alliance);
-		});
+		for (const alliance of activeAlliances.sort()) {
+			point = point.tag(`alliance-${alliance.toFixed(0)}`, "1");
+		}
 
-		equippedItems.sort().forEach((item, index) => {
-			point = point.intField(`item${index}`, item);
-		});
+		for (const item of equippedItems.sort()) {
+			point = point.tag(`item-${item.toFixed(0)}`, "1");
+		}
 
 		return point;
 	}
@@ -158,9 +158,9 @@ export class MatchPersistor {
 			.tag("averageMMR", averageMMR.toFixed(0))
 			.timestamp(new Date(timestamp).getTime() * 1000000);
 
-		activeAlliances.sort().forEach((alliance, index) => {
-			point = point.intField(`alliance${index}`, alliance);
-		});
+		for (const alliance of activeAlliances.sort()) {
+			point = point.tag(`alliance-${alliance.toFixed(0)}`, "1");
+		}
 
 		return point;
 	}
@@ -181,9 +181,9 @@ export class MatchPersistor {
 			.tag("averageMMR", averageMMR.toFixed(0))
 			.timestamp(new Date(timestamp).getTime() * 1000000);
 
-		activeAlliances.sort().forEach((alliance, index) => {
-			point = point.intField(`alliance${index}`, alliance);
-		});
+		for (const alliance of activeAlliances.sort()) {
+			point = point.tag(`alliance-${alliance.toFixed(0)}`, "1");
+		}
 
 		return point;
 	}
