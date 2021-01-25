@@ -54,12 +54,12 @@ export class StateChangeHandler {
 
 			const playerFightOutcome =
 				next.combat_result === 0
-					? 0
-					: next.combat_result === 1
 					? 0.5
-					: next.combat_result === 2
+					: next.combat_result === 1
 					? 1
-					: 0;
+					: // : next.combat_result === 2
+					  // ? 0
+					  0;
 
 			const playerSourceData: StateSourceData = {
 				publicPlayerState: next,
@@ -123,7 +123,7 @@ export class StateChangeHandler {
 
 					const opponentSourceData: StateSourceData = {
 						publicPlayerState: opponent.public_player_state,
-						fightOutcome: 1 - playerFightOutcome,
+						fightOutcome: Math.abs(1 - playerFightOutcome),
 						averageMMR: matchState.averageMMR,
 					};
 

@@ -97,8 +97,10 @@ export interface PublicPlayerState {
 	player_loadout: PlayerLoadout[];
 	net_worth: number;
 	/**
-	 * `combat_result === 0` - if player won
-	 * `combat_result === 1` - if combat was drawn
+	 * `combat_result === 0` - if combat was drawn
+	 *
+	 * `combat_result === 1` - if player won
+	 *
 	 * `combat_result === 2` - if opponent won
 	 */
 	combat_result?: number;
