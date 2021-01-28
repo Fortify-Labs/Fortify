@@ -3,7 +3,6 @@ package main
 import (
 	"net/http"
 	"os"
-	"time"
 
 	"github.com/Fortify-Labs/Fortify/services/sentry-discord-webhook/internal/vault"
 	"github.com/Fortify-Labs/Fortify/services/sentry-discord-webhook/pkg/discord"
@@ -41,10 +40,12 @@ func main() {
 
 	// Health checks
 	health := healthcheck.NewHandler()
-	upstreamHost := "discord.com"
-	health.AddReadinessCheck(
-		"upstream-dep-dns",
-		healthcheck.DNSResolveCheck(upstreamHost, 50*time.Millisecond))
+
+	// upstreamHost := "discord.com"
+	// health.AddReadinessCheck(
+	// 	"upstream-dep-dns",
+	// 	healthcheck.DNSResolveCheck(upstreamHost, 50*time.Millisecond))
+
 	// Add a liveness check to detect Goroutine leaks. If this fails we want
 	// to be restarted/rescheduled.
 	health.AddLivenessCheck("goroutine-threshold", healthcheck.GoroutineCountCheck(100))
