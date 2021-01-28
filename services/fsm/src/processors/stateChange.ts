@@ -4,7 +4,7 @@ import {
 	PublicPlayerState,
 } from "@shared/definitions/gsiTypes";
 import { EventService } from "@shared/services/eventService";
-import { MatchState } from "@shared/state";
+import { FortifyGameMode, MatchState } from "@shared/state";
 import { Logger } from "@shared/logger";
 import {
 	AllianceStatsEvent,
@@ -32,6 +32,7 @@ export interface StateSourceData {
 	 */
 	fightOutcome: number;
 	averageMMR?: number;
+	gameMode?: FortifyGameMode;
 }
 
 @injectable()
@@ -65,6 +66,7 @@ export class StateChangeHandler {
 				publicPlayerState: next,
 				fightOutcome: playerFightOutcome,
 				averageMMR: matchState.averageMMR,
+				gameMode: matchState.mode,
 				timestamp,
 			};
 			// Track unit stats
@@ -103,6 +105,7 @@ export class StateChangeHandler {
 		publicPlayerState: { synergies, units, item_slots },
 		fightOutcome: wonFight,
 		averageMMR = 0,
+		gameMode,
 		timestamp,
 	}: StateSourceData): UnitStatsEvent[] {
 		const activeAlliances =
@@ -136,6 +139,8 @@ export class StateChangeHandler {
 									entindex,
 							)
 							.map((itemSlot) => itemSlot.item_id) ?? [],
+						// Game mode
+						gameMode,
 					);
 					event.timestamp = new Date(timestamp);
 
@@ -149,6 +154,7 @@ export class StateChangeHandler {
 		fightOutcome: wonFight,
 		averageMMR = 0,
 		timestamp,
+		gameMode,
 	}: StateSourceData): AllianceStatsEvent[] {
 		const activeAlliances =
 			synergies?.map((synergy) => synergy.keyword) ?? [];
@@ -166,6 +172,7 @@ export class StateChangeHandler {
 				estimatedRoundNumber,
 				averageMMR,
 				activeAlliances,
+				gameMode,
 			);
 			event.timestamp = new Date(timestamp);
 			return event;
@@ -177,6 +184,7 @@ export class StateChangeHandler {
 		fightOutcome: wonFight,
 		averageMMR = 0,
 		timestamp,
+		gameMode,
 	}: StateSourceData): ItemStatsEvent[] {
 		const activeAlliances =
 			synergies?.map((synergy) => synergy.keyword) ?? [];
@@ -201,6 +209,7 @@ export class StateChangeHandler {
 						estimatedRoundNumber,
 						averageMMR,
 						activeAlliances,
+						gameMode,
 					);
 					event.timestamp = new Date(timestamp);
 					return event;
