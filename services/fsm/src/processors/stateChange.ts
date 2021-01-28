@@ -92,88 +92,7 @@ export class StateChangeHandler {
 					combinedEvents,
 					`match-${matchState.id}`,
 				);
-
-				// Send all events
-				// await Promise.allSettled(
-				// 	[
-				// 		...playerUnitEvents,
-				// 		...playerAllianceStatsEvents,
-				// 		...playerItemStatsEvents,
-				// 	].map((event) =>
-				// 		this.eventService.sendEvent(
-				// 			event,
-				// 			`match-${matchState.id}`,
-				// 		),
-				// 	),
-				// );
 			}
-
-			// For now, we'll leave out opponent stats tracking
-			/*
-			if (next.opponent_player_slot) {
-				const opponent = Object.values(matchState.players).find(
-					(player) =>
-						player.public_player_state.player_slot ===
-						next.opponent_player_slot,
-				);
-
-				if (opponent) {
-					// With the next public player state and the current opponents public player state
-					// start generating stats tracking events
-
-					const opponentSourceData: StateSourceData = {
-						publicPlayerState: opponent.public_player_state,
-						fightOutcome: Math.abs(1 - playerFightOutcome),
-						averageMMR: matchState.averageMMR,
-					};
-
-					// Track unit stats
-					const opponentUnitEvents = this.getUnitStatsEvents(
-						opponentSourceData,
-					);
-
-					// Track alliance stats
-					const opponentAllianceStatsEvents = this.getAllianceStatsEvents(
-						opponentSourceData,
-					);
-
-					// Track item stats
-					const opponentItemStatsEvents = this.getItemStatsEvents(
-						opponentSourceData,
-					);
-
-					// Enable the stats generation by default
-					// This has been added in case of an emergency disable
-					if (STATS_EVENTS_GENERATION_ENABLED === "true") {
-						// Send all events
-						await Promise.allSettled(
-							[
-								...opponentUnitEvents,
-								...opponentAllianceStatsEvents,
-								...opponentItemStatsEvents,
-							].map((event) =>
-								this.eventService.sendEvent(
-									event,
-									`match-${matchState.id}`,
-								),
-							),
-						);
-					}
-				} else {
-					this.logger.warn("No opponent found with player slot", {
-						previous,
-						next,
-						matchState,
-					});
-				}
-			} else {
-				this.logger.warn("No opponent_player_slot found", {
-					previous,
-					next,
-					matchState,
-				});
-			}
-			*/
 		}
 	}
 
@@ -189,6 +108,12 @@ export class StateChangeHandler {
 		const activeAlliances =
 			synergies?.map((synergy) => synergy.keyword) ?? [];
 
+		// First iteration of round number tracking
+		const underlordRank =
+			units?.find((unit) => unit.unit_id >= 1000)?.rank ?? 0;
+		const estimatedRoundNumber =
+			underlordRank >= 1 ? 5 + 5 * underlordRank : 0;
+
 		return (
 			units
 				// This way only units that are on the board will be tracked
@@ -200,7 +125,7 @@ export class StateChangeHandler {
 						// value
 						wonFight,
 						// round number
-						-1,
+						estimatedRoundNumber,
 						averageMMR,
 						activeAlliances,
 						// Get equipped items
@@ -220,7 +145,7 @@ export class StateChangeHandler {
 	}
 
 	private getAllianceStatsEvents({
-		publicPlayerState: { synergies },
+		publicPlayerState: { synergies, units },
 		fightOutcome: wonFight,
 		averageMMR = 0,
 		timestamp,
@@ -228,11 +153,17 @@ export class StateChangeHandler {
 		const activeAlliances =
 			synergies?.map((synergy) => synergy.keyword) ?? [];
 
+		// First iteration of round number tracking
+		const underlordRank =
+			units?.find((unit) => unit.unit_id >= 1000)?.rank ?? 0;
+		const estimatedRoundNumber =
+			underlordRank >= 1 ? 5 + 5 * underlordRank : 0;
+
 		return activeAlliances.map((alliance) => {
 			const event = new AllianceStatsEvent(
 				alliance,
 				wonFight,
-				-1,
+				estimatedRoundNumber,
 				averageMMR,
 				activeAlliances,
 			);
@@ -242,13 +173,19 @@ export class StateChangeHandler {
 	}
 
 	private getItemStatsEvents({
-		publicPlayerState: { synergies, item_slots },
+		publicPlayerState: { synergies, item_slots, units },
 		fightOutcome: wonFight,
 		averageMMR = 0,
 		timestamp,
 	}: StateSourceData): ItemStatsEvent[] {
 		const activeAlliances =
 			synergies?.map((synergy) => synergy.keyword) ?? [];
+
+		// First iteration of round number tracking
+		const underlordRank =
+			units?.find((unit) => unit.unit_id >= 1000)?.rank ?? 0;
+		const estimatedRoundNumber =
+			underlordRank >= 1 ? 5 + 5 * underlordRank : 0;
 
 		return (
 			item_slots
@@ -261,7 +198,7 @@ export class StateChangeHandler {
 					const event = new ItemStatsEvent(
 						itemSlot.item_id,
 						wonFight,
-						-1,
+						estimatedRoundNumber,
 						averageMMR,
 						activeAlliances,
 					);
