@@ -48,13 +48,14 @@ export class GraphQL {
 			},
 			subscriptions: {
 				onConnect: (connectionParams) => {
-					//
-					if (
-						!("authorization" in connectionParams) &&
-						!("Authorization" in connectionParams)
-					) {
-						throw new ApolloError("Missing auth token");
-					}
+					// Also allow unauthenticated access
+
+					// if (
+					// 	!("authorization" in connectionParams) &&
+					// 	!("Authorization" in connectionParams)
+					// ) {
+					// 	throw new ApolloError("Missing auth token");
+					// }
 
 					return connectionParams;
 				},

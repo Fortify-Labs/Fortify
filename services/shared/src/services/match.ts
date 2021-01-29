@@ -7,7 +7,7 @@ import { AverageMMRCalculationProps, ExtractorService } from "./extractor";
 import { FortifyGameMode } from "../state";
 import { LeaderboardService } from "./leaderboard";
 import { LeaderboardType } from "../definitions/leaderboard";
-import { currentSeason } from "../units";
+import { currentSeason } from "../season";
 import { User } from "../db/entities/user";
 import { GetPlayerSummaries } from "../definitions/playerSummaries";
 import fetch from "node-fetch";

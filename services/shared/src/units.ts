@@ -9,8 +9,6 @@ export interface Unit {
 	content_enable_group?: string;
 }
 
-export const currentSeason = "s1_5";
-
 // We'll keep the record definition on the variable to ensure type safety
 const s1: Record<string, Unit> = s1Units.set_balance;
 const s1_5: Record<string, Unit> = s1Dot5Units.set_balance;

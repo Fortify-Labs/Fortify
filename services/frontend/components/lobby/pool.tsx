@@ -4,7 +4,8 @@ import Image from "next/image";
 
 import { useLobbyPoolQuery } from "gql/LobbyPool.graphql";
 
-import { currentSeason, units, Unit, unitMappings } from "@shared/units";
+import { units, Unit, unitMappings } from "@shared/units";
+import { currentSeason } from "@shared/season";
 import { poolSize } from "@shared/pool";
 import { VStack } from "components/vstack";
 
