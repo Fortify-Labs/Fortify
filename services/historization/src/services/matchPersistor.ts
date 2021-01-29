@@ -121,6 +121,7 @@ export class MatchPersistor {
 		unitID,
 		value,
 		gameMode,
+		extra,
 	}: UnitStatsEvent): Point {
 		let point = new Point("unit")
 			.floatField("win", value)
@@ -139,6 +140,17 @@ export class MatchPersistor {
 
 		for (const item of equippedItems.sort()) {
 			point = point.tag(`item-${item.toFixed(0)}`, "1");
+		}
+
+		if (extra) {
+			if (extra.underlordTalents) {
+				for (const underlordTalent of extra.underlordTalents.sort()) {
+					point = point.tag(
+						`underlordTalent-${underlordTalent.toFixed(0)}`,
+						"1",
+					);
+				}
+			}
 		}
 
 		return point;

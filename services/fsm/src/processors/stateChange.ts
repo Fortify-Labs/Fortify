@@ -9,6 +9,7 @@ import { Logger } from "@shared/logger";
 import {
 	AllianceStatsEvent,
 	CombinedStatsEvent,
+	ExtraArgs,
 	ItemStatsEvent,
 	UnitStatsEvent,
 } from "@shared/events/gameEvents";
@@ -102,7 +103,12 @@ export class StateChangeHandler {
 	async updatedPrivatePlayerState(args: StateUpdate<PrivatePlayerState>) {}
 
 	private getUnitStatsEvents({
-		publicPlayerState: { synergies, units, item_slots },
+		publicPlayerState: {
+			synergies,
+			units,
+			item_slots,
+			underlord_selected_talents,
+		},
 		fightOutcome: wonFight,
 		averageMMR = 0,
 		gameMode,
@@ -117,36 +123,48 @@ export class StateChangeHandler {
 		const estimatedRoundNumber =
 			underlordRank >= 1 ? 5 + 5 * underlordRank : 0;
 
-		return (
-			units
-				// This way only units that are on the board will be tracked
-				?.filter((unit) => unit.position.y >= 0)
-				.map(({ unit_id, entindex, rank }) => {
-					const event = new UnitStatsEvent(
-						unit_id,
-						rank,
-						// value
-						wonFight,
-						// round number
-						estimatedRoundNumber,
-						averageMMR,
-						activeAlliances,
-						// Get equipped items
-						item_slots
-							?.filter(
-								(itemSlot) =>
-									itemSlot.assigned_unit_entindex ===
-									entindex,
-							)
-							.map((itemSlot) => itemSlot.item_id) ?? [],
-						// Game mode
-						gameMode,
-					);
-					event.timestamp = new Date(timestamp);
+		const unitStats = [];
 
-					return event;
-				}) ?? []
-		);
+		for (const { position, unit_id, entindex, rank } of units ?? []) {
+			if (position.y >= 0) {
+				let extra: ExtraArgs = {};
+
+				// If the unit we're dealing with is a underlord
+				if (unit_id > 1000) {
+					extra = {
+						underlordTalents: (
+							underlord_selected_talents ?? []
+						).map((talent) => talent - 100000),
+					};
+				}
+
+				const event = new UnitStatsEvent(
+					unit_id,
+					rank,
+					// value
+					wonFight,
+					// round number
+					estimatedRoundNumber,
+					averageMMR,
+					activeAlliances,
+					// Get equipped items
+					item_slots
+						?.filter(
+							(itemSlot) =>
+								itemSlot.assigned_unit_entindex === entindex,
+						)
+						.map((itemSlot) => itemSlot.item_id) ?? [],
+					// Game mode
+					gameMode,
+					extra,
+				);
+				event.timestamp = new Date(timestamp);
+
+				unitStats.push(event);
+			}
+		}
+
+		return unitStats;
 	}
 
 	private getAllianceStatsEvents({

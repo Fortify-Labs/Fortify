@@ -149,6 +149,10 @@ export class SmurfDetectedEvent extends FortifyEventClass<GameEventType> {
 	}
 }
 
+export interface ExtraArgs {
+	underlordTalents?: number[];
+}
+
 export class UnitStatsEvent extends FortifyEventClass<GameEventType> {
 	public _topic = FortifyEventTopics.GAME;
 	public type = GameEventType.UNIT_STATS;
@@ -167,6 +171,7 @@ export class UnitStatsEvent extends FortifyEventClass<GameEventType> {
 		public activeAlliances: number[],
 		public equippedItems: number[],
 		public gameMode: FortifyGameMode = FortifyGameMode.Invalid,
+		public extra?: ExtraArgs,
 	) {
 		super();
 	}
@@ -180,6 +185,7 @@ export class UnitStatsEvent extends FortifyEventClass<GameEventType> {
 		const activeAlliances = obj["activeAlliances"] as number[];
 		const equippedItems = obj["equippedItems"] as number[];
 		const gameMode = obj["gameMode"] as FortifyGameMode;
+		const extra = obj["extra"] as ExtraArgs | undefined;
 
 		// A check for not null & undefined is required, as JS would convert a zero to false
 		if (
@@ -205,6 +211,7 @@ export class UnitStatsEvent extends FortifyEventClass<GameEventType> {
 				activeAlliances,
 				equippedItems,
 				gameMode,
+				extra,
 			);
 		} else throw new DeserializationError();
 	}
