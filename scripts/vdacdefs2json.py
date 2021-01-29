@@ -31,6 +31,7 @@ with open("/tmp/vdacdefs") as vdacdefs_file:
     # As arrays can be nested, a height index and a list of nested indexes will be used
     array_height = -1
     array_nested_index = [0]
+    array_object_stack = []
 
     for line in vdacdefs_file.readlines():
         # Remove every =
@@ -43,6 +44,8 @@ with open("/tmp/vdacdefs") as vdacdefs_file:
         stripped_line = line.strip()
 
         if stripped_line.startswith("["):
+            array_object_stack.append("arrayOpen")
+
             if array_height > -1:
                 # If it's a nested array, we need to prepend the index of the previous array and a line breaks
                 line = line.replace(stripped_line, str(
@@ -56,15 +59,33 @@ with open("/tmp/vdacdefs") as vdacdefs_file:
             if array_height > len(array_nested_index) - 1:
                 array_nested_index.insert(array_height, 0)
         elif stripped_line.startswith("]"):
+            array_object_stack.pop()
+
             array_nested_index[array_height] = 0
             array_height -= 1
 
             line = line.replace("]", "}")
         elif array_height > -1 and len(stripped_line):
-            # If we are inside an array, prepend the array index
-            line = line.replace(stripped_line, str(
-                array_nested_index[array_height]) + " " + stripped_line)
-            array_nested_index[array_height] += 1
+            # Inside an array, we might have different types
+            # Such as string, numbers or even nested objects
+            # Strings and numbers are fine, as they result in a 
+            # one to one mapping
+            # For objects, special handling is required
+            if stripped_line.startswith("{"):
+              array_object_stack.append("objectOpen")
+              line = line.replace(stripped_line, str(
+                  array_nested_index[array_height]) + "\n" + stripped_line)
+              array_nested_index[array_height] += 1
+            elif stripped_line.startswith("}"):
+              array_object_stack.pop()
+
+            type = array_object_stack[len(array_object_stack) - 1]
+
+            if type is not None and type is not "objectOpen" and not stripped_line.startswith("}"):
+              # If we are inside an array, prepend the array index
+              line = line.replace(stripped_line, str(
+                  array_nested_index[array_height]) + " " + stripped_line)
+              array_nested_index[array_height] += 1
 
         # Append the cleaned line to the line array
         vdacdefs_file_lines.append(line)
@@ -86,7 +107,7 @@ with open("/tmp/vdacdefs") as vdacdefs_file:
 
 # Convert every possible float and int value to the corresponding data type
 def convert_entries_to_numerical(element: Union[str, dict, list, float, int]):
-    if type(element) is str:
+    if isinstance(element, str):
         try:
             # Try converting to float
             element = float(element)
@@ -97,12 +118,12 @@ def convert_entries_to_numerical(element: Union[str, dict, list, float, int]):
             pass
 
         return element
-    elif type(element) is dict:
+    elif isinstance(element, dict):
         for key, entry in element.items():
             element[key] = convert_entries_to_numerical(entry)
 
         return element
-    elif type(element) is list:
+    elif isinstance(element, list):
         return [convert_entries_to_numerical(entry) for entry in element]
 
 
