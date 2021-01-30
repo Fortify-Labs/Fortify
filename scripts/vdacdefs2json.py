@@ -126,8 +126,24 @@ def convert_entries_to_numerical(element: Union[str, dict, list, float, int]):
     elif isinstance(element, list):
         return [convert_entries_to_numerical(entry) for entry in element]
 
+def convert_indexed_lists_to_non_indexed(element: Union[str, dict, list, float, int]):
+  if isinstance(element, dict):
+    keys = list(element.keys())
+    if len(keys) > 0 and keys[0] == "0":
+      element = list(element.values())
+    else:
+      for key, entry in element.items():
+        element[key] = convert_indexed_lists_to_non_indexed(entry)
+
+      return element
+  
+  if isinstance(element, list):
+    return [convert_indexed_lists_to_non_indexed(el) for el in element]
+  
+  return element
 
 dacdefs = convert_entries_to_numerical(dacdefs)
+dacdefs = convert_indexed_lists_to_non_indexed(dacdefs)
 
 # Dump the parsed dict to a JSON file
 with open(output_file_path, "w") as json_file:
