@@ -7,14 +7,14 @@
       "tier": 1,
       "type": "equipment_offensive",
       "aiPrefAttackSpeed": "true",
-      "attack_damage": {
-        "0": 33,
-        "1": 36,
-        "2": 39,
-        "3": 41,
-        "4": 43,
-        "5": 45
-      },
+      "attack_damage": [
+        33,
+        36,
+        39,
+        41,
+        43,
+        45
+      ],
       "offensive_attack_damage": 40,
       "defensive_parry_percent": 50,
       "icon": "claymore"
@@ -27,14 +27,14 @@
       "displayName": "#dac_item_void_stone",
       "description": "#dac_item_void_stone_desc",
       "requires_ability": "true",
-      "mana_per_second": {
-        "0": 10,
-        "1": 11,
-        "2": 12,
-        "3": 13,
-        "4": 14,
-        "5": 15
-      },
+      "mana_per_second": [
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
       "offensive_bonus_damage_full_mana": 30,
       "defensive_bonus_mres_full_mana": 70,
       "support_hp_regen_full_mana": 50,
@@ -47,14 +47,14 @@
       "type": "equipment_defensive",
       "displayName": "#dac_item_vitality_booster",
       "description": "#dac_item_vitality_booster_desc",
-      "health_bonus": {
-        "0": 375,
-        "1": 400,
-        "2": 425,
-        "3": 450,
-        "4": 475,
-        "5": 500
-      },
+      "health_bonus": [
+        375,
+        400,
+        425,
+        450,
+        475,
+        500
+      ],
       "offensive_bonus_damage": 2,
       "defensive_health_bonus": 600,
       "support_extra_lives": 5,
@@ -66,14 +66,14 @@
       "description": "#dac_item_chainmail_desc",
       "tier": 1,
       "type": "equipment_defensive",
-      "bonus_armor": {
-        "0": 7,
-        "1": 8,
-        "2": 9,
-        "3": 9,
-        "4": 10,
-        "5": 10
-      },
+      "bonus_armor": [
+        7,
+        8,
+        9,
+        9,
+        10,
+        10
+      ],
       "defensive_bonus_armor": 10,
       "offensive_damage_return": 25,
       "support_aoe_armor": 3,
@@ -87,14 +87,14 @@
       "tier": 1,
       "type": "equipment_offensive",
       "aiPrefAttackDPS": "true",
-      "attack_speed": {
-        "0": 25,
-        "1": 27,
-        "2": 29,
-        "3": 31,
-        "4": 33,
-        "5": 35
-      },
+      "attack_speed": [
+        25,
+        27,
+        29,
+        31,
+        33,
+        35
+      ],
       "offensive_aspd": 30,
       "defensive_ministun_attacks": 3,
       "defensive_ministun_duration": 0.5,
@@ -108,14 +108,14 @@
       "aiAura": "true",
       "displayName": "#dac_item_headdress",
       "description": "#dac_item_headdress_desc",
-      "health_regen": {
-        "0": 20,
-        "1": 25,
-        "2": 29,
-        "3": 32,
-        "4": 34,
-        "5": 35
-      },
+      "health_regen": [
+        20,
+        25,
+        29,
+        32,
+        34,
+        35
+      ],
       "defensive_health_regen": 25,
       "support_aura_aoe": 1,
       "offensive_explosion_aoe": 1,
@@ -129,21 +129,21 @@
       "aiPrefAttackDPS": "true",
       "displayName": "#dac_item_mask_of_death",
       "description": "#dac_item_mask_of_death_desc",
-      "lifesteal_percentage": {
-        "0": 30,
-        "1": 33,
-        "2": 36,
-        "3": 38,
-        "4": 40,
-        "5": 42
-      },
+      "lifesteal_percentage": [
+        30,
+        33,
+        36,
+        38,
+        40,
+        42
+      ],
       "defensive_spell_lifesteal_percentage": 25,
       "support_extra_lifesteal_per_attack": 1,
       "offensive_aspd_per_missing_health": 0.5,
-      "precache": {
-        "0": "particles/generic_gameplay/generic_lifesteal.vpcf",
-        "1": "particles/items/soul_sucking_syphon/soul_syphon.vpcf"
-      },
+      "precache": [
+        "particles/generic_gameplay/generic_lifesteal.vpcf",
+        "particles/items/soul_sucking_syphon/soul_syphon.vpcf"
+      ],
       "icon": "mask_of_death"
     },
     "hood_of_defiance_new": {
@@ -152,14 +152,14 @@
       "type": "equipment_defensive",
       "displayName": "#dac_item_hood_of_defiance",
       "description": "#dac_item_hood_of_defiance_desc",
-      "bonus_magical_resistance": {
-        "0": 50,
-        "1": 55,
-        "2": 58,
-        "3": 60,
-        "4": 62,
-        "5": 63
-      },
+      "bonus_magical_resistance": [
+        50,
+        55,
+        58,
+        60,
+        62,
+        63
+      ],
       "health_regen": 10,
       "defensive_bonus_magical_resistance": 30,
       "defensive_health_regen": 25,
@@ -174,21 +174,21 @@
       "aiRequiresAbility": "true",
       "displayName": "#dac_item_kaya",
       "description": "#dac_item_kaya_desc",
-      "bonus_spell_damage": {
-        "0": 20,
-        "1": 23,
-        "2": 25,
-        "3": 26,
-        "4": 27,
-        "5": 28
-      },
+      "bonus_spell_damage": [
+        20,
+        23,
+        25,
+        26,
+        27,
+        28
+      ],
       "offensive_bonus_spell_damage": 30,
       "defensive_outgoing_damage_into_shell": 30,
       "support_bonus_debuff_duration": 25,
       "icon": "kaya",
-      "precache": {
-        "0": "particles/units/heroes/hero_abaddon/abaddon_aphotic_shield_hit.vpcf"
-      }
+      "precache": [
+        "particles/units/heroes/hero_abaddon/abaddon_aphotic_shield_hit.vpcf"
+      ]
     },
     "talisman_of_evasion": {
       "id": 10109,
@@ -196,14 +196,14 @@
       "type": "equipment_defensive",
       "displayName": "#dac_item_talisman_of_evasion",
       "description": "#dac_item_talisman_of_evasion_desc",
-      "evasion_pct": {
-        "0": 25,
-        "1": 28,
-        "2": 31,
-        "3": 33,
-        "4": 34,
-        "5": 35
-      },
+      "evasion_pct": [
+        25,
+        28,
+        31,
+        33,
+        34,
+        35
+      ],
       "defensive_evasion_pct": 30,
       "offensive_chance_to_counter": 20,
       "support_bonus_mana": 100,
@@ -216,23 +216,23 @@
       "tier": 3,
       "type": "equipment_support",
       "aiPrefAttackDPS": "true",
-      "attack_speed": {
-        "0": 30,
-        "1": 33,
-        "2": 35,
-        "3": 36,
-        "4": 37,
-        "5": 38
-      },
+      "attack_speed": [
+        30,
+        33,
+        35,
+        36,
+        37,
+        38
+      ],
       "percent_gold": 25,
       "support_summon_percent_gold": 100,
       "gold": 1,
       "offensive_target_health_percent": 20,
       "offensive_percent_crit": 200,
       "defensive_heal_amount": 25,
-      "precache": {
-        "0": "particles/gameplay/gold/gold_gain.vpcf"
-      },
+      "precache": [
+        "particles/gameplay/gold/gold_gain.vpcf"
+      ],
       "icon": "hand_of_midas"
     },
     "vanguard_new": {
@@ -241,14 +241,14 @@
       "type": "equipment_defensive",
       "displayName": "#dac_item_vanguard",
       "description": "#dac_item_vanguard_desc",
-      "health_bonus": {
-        "0": 375,
-        "1": 400,
-        "2": 425,
-        "3": 450,
-        "4": 475,
-        "5": 500
-      },
+      "health_bonus": [
+        375,
+        400,
+        425,
+        450,
+        475,
+        500
+      ],
       "block_damage": 70,
       "block_chance": 50,
       "defensive_health_bonus": 800,
@@ -265,14 +265,14 @@
       "description": "#dac_item_crystalis_desc",
       "attack_damage": 25,
       "bonus_damage_chance": 20,
-      "bonus_damage_multiplier": {
-        "0": 200,
-        "1": 225,
-        "2": 250,
-        "3": 275,
-        "4": 300,
-        "5": 325
-      },
+      "bonus_damage_multiplier": [
+        200,
+        225,
+        250,
+        275,
+        300,
+        325
+      ],
       "offensive_bonus_damage_multiplier": 300,
       "support_bonus_damage": 40,
       "icon": "crystalis"
@@ -284,23 +284,23 @@
       "tier": 2,
       "type": "equipment_offensive",
       "aiPrefAttackDPS": "true",
-      "target_armor": {
-        "0": 5,
-        "1": 6,
-        "2": 7,
-        "3": 7,
-        "4": 8,
-        "5": 8
-      },
+      "target_armor": [
+        5,
+        6,
+        7,
+        7,
+        8,
+        8
+      ],
       "offensive_target_armor": 5,
       "defensive_armor": 7,
       "support_armor_per_hit": 2,
       "support_offensive_armor_per_hit": 4,
       "duration": 5,
-      "precache": {
-        "0": "particles/units/heroes/hero_slardar/slardar_broken_shield.vpcf",
-        "1": "particles/items/desolator/desolator_projectile.vpcf"
-      },
+      "precache": [
+        "particles/units/heroes/hero_slardar/slardar_broken_shield.vpcf",
+        "particles/items/desolator/desolator_projectile.vpcf"
+      ],
       "icon": "desolator"
     },
     "arcane_boots_new": {
@@ -312,14 +312,14 @@
       "description": "#dac_item_arcane_boots_desc",
       "manaCost": 0,
       "replenish_radius": 2,
-      "replenish_amount": {
-        "0": 25,
-        "1": 30,
-        "2": 34,
-        "3": 37,
-        "4": 39,
-        "5": 40
-      },
+      "replenish_amount": [
+        25,
+        30,
+        34,
+        37,
+        39,
+        40
+      ],
       "cooldown": 15,
       "mana_trigger_percentage": 50,
       "offensive_spell_amp": 25,
@@ -328,10 +328,10 @@
       "defensive_duration": 5,
       "support_replenish_amount": 35,
       "force_manabar": 1,
-      "precache": {
-        "0": "particles/items_fx/arcane_boots.vpcf",
-        "1": "particles/items_fx/arcane_boots_recipient.vpcf"
-      },
+      "precache": [
+        "particles/items_fx/arcane_boots.vpcf",
+        "particles/items_fx/arcane_boots_recipient.vpcf"
+      ],
       "icon": "arcane_boots"
     },
     "stonehall_pike": {
@@ -341,7 +341,7 @@
       "aiPrefAttackSpeed": "true",
       "displayName": "#dac_item_stonehall_pike",
       "description": "#dac_item_stonehall_pike_desc",
-      "damage_per_kill": 3,
+      "damage_per_kill_kill_mult": 3,
       "max_damage": 120,
       "attack_damage": 10,
       "offensive_damage_per_kill": 1,
@@ -356,7 +356,7 @@
       "type": "equipment_defensive",
       "displayName": "#dac_item_stonehall_cloak",
       "description": "#dac_item_stonehall_cloak_desc",
-      "hp_per_kill": 50,
+      "hp_per_kill_kill_mult": 50,
       "defensive_hp_per_kill": 50,
       "offensive_dmg_each_kill": 25,
       "support_kill_threshold": 70,
@@ -371,20 +371,20 @@
       "displayName": "#dac_item_blink_dagger",
       "description": "#dac_item_blink_dagger_desc",
       "cooldown": 15,
-      "mana_gain": {
-        "0": 50,
-        "1": 55,
-        "2": 60,
-        "3": 63,
-        "4": 66,
-        "5": 68
-      },
+      "mana_gain": [
+        50,
+        55,
+        60,
+        63,
+        66,
+        68
+      ],
       "support_untargetability_duration": 3,
       "defensive_duration": 3,
       "offensive_crit_dmg": 200,
-      "precache": {
-        "0": "particles/items/blink_dagger/blink_dagger_end.vpcf"
-      },
+      "precache": [
+        "particles/items/blink_dagger/blink_dagger_end.vpcf"
+      ],
       "icon": "blink_dagger"
     },
     "orb_of_venom": {
@@ -400,9 +400,10 @@
       "defensive_wound": 50,
       "defensive_aspdslow": 25,
       "offensive_dps": 50,
-      "precache": {
-        "0": "particles/items2_fx/orb_of_venom.vpcf"
-      },
+      "precache": [
+        "particles/items2_fx/orb_of_venom.vpcf",
+        "particles/underlords/enno/enno_poison_stack.vpcf"
+      ],
       "icon": "orb_of_venom"
     },
     "force_staff_new": {
@@ -411,14 +412,14 @@
       "type": "equipment_support",
       "displayName": "#dac_item_force_staff",
       "description": "#dac_item_force_staff_desc",
-      "cooldown": {
-        "0": 15,
-        "1": 14,
-        "2": 14,
-        "3": 13,
-        "4": 13,
-        "5": 12
-      },
+      "cooldown": [
+        15,
+        14,
+        14,
+        13,
+        13,
+        12
+      ],
       "push_length": 6,
       "speed": 1000,
       "offensive_damage": 200,
@@ -426,10 +427,10 @@
       "defensive_cooldown": 1,
       "defensive_charge_cooldown": 15,
       "support_stun": 2,
-      "precache": {
-        "0": "particles/items_fx/force_staff.vpcf",
-        "1": "particles/status_fx/status_effect_forcestaff.vpcf"
-      },
+      "precache": [
+        "particles/items_fx/force_staff.vpcf",
+        "particles/status_fx/status_effect_forcestaff.vpcf"
+      ],
       "icon": "force_staff"
     },
     "maelstrom_new": {
@@ -440,14 +441,14 @@
       "displayName": "#dac_item_maelstrom",
       "description": "#dac_item_maelstrom_desc",
       "bolt_chance_percentage": 25,
-      "bolt_damage": {
-        "0": 150,
-        "1": 160,
-        "2": 170,
-        "3": 175,
-        "4": 180,
-        "5": 185
-      },
+      "bolt_damage": [
+        150,
+        160,
+        170,
+        175,
+        180,
+        185
+      ],
       "offensive_damage": 150,
       "bolt_targets": 4,
       "support_targets": 6,
@@ -457,9 +458,9 @@
       "percentage_decrease": 20,
       "max_bounces_per_unit": 1,
       "support_max_bounces_per_unit": 2,
-      "precache": {
-        "0": "particles/items_fx/chain_lightning.vpcf"
-      },
+      "precache": [
+        "particles/items_fx/chain_lightning.vpcf"
+      ],
       "icon": "maelstrom"
     },
     "mask_of_madness_new": {
@@ -470,22 +471,22 @@
       "aiPrefAttackDPS": "true",
       "displayName": "#dac_item_mask_of_madness",
       "description": "#dac_item_mask_of_madness_desc",
-      "lifesteal_percentage": {
-        "0": 15,
-        "1": 20,
-        "2": 25,
-        "3": 28,
-        "4": 30,
-        "5": 32
-      },
+      "lifesteal_percentage": [
+        15,
+        20,
+        25,
+        28,
+        30,
+        32
+      ],
       "attack_speed": 60,
       "offensive_aspd": 30,
       "defensive_lifesteal": 15,
-      "precache": {
-        "0": "particles/generic_gameplay/generic_lifesteal.vpcf",
-        "1": "particles/generic_gameplay/generic_silenced.vpcf",
-        "2": "particles/items2_fx/mask_of_madness.vpcf"
-      },
+      "precache": [
+        "particles/generic_gameplay/generic_lifesteal.vpcf",
+        "particles/generic_gameplay/generic_silenced.vpcf",
+        "particles/items2_fx/mask_of_madness.vpcf"
+      ],
       "stealable": "false",
       "icon": "mask_of_madness"
     },
@@ -498,25 +499,25 @@
       "description": "#dac_item_mekansm_desc",
       "manaCost": 0,
       "heal_radius": 3,
-      "heal_amount": {
-        "0": 750,
-        "1": 800,
-        "2": 850,
-        "3": 875,
-        "4": 900,
-        "5": 925
-      },
+      "heal_amount": [
+        750,
+        800,
+        850,
+        875,
+        900,
+        925
+      ],
       "defensive_heal_amount": 750,
       "offensive_aspd": 25,
       "offensive_duration": 5,
       "health_trigger_percentage": 50,
       "cooldown": 65,
-      "precache": {
-        "0": "particles/items2_fx/mekanism.vpcf",
-        "1": "particles/items2_fx/mekanism_recipient.vpcf",
-        "2": "particles/units/heroes/hero_abaddon/abaddon_aphotic_shield.vpcf",
-        "3": "particles/generic_gameplay/generic_attackspeed.vpcf"
-      },
+      "precache": [
+        "particles/items2_fx/mekanism.vpcf",
+        "particles/items2_fx/mekanism_recipient.vpcf",
+        "particles/units/heroes/hero_abaddon/abaddon_aphotic_shield.vpcf",
+        "particles/generic_gameplay/generic_attackspeed.vpcf"
+      ],
       "icon": "mekansm"
     },
     "blade_mail_new": {
@@ -526,14 +527,14 @@
       "displayName": "#dac_item_blade_mail",
       "description": "#dac_item_blade_mail_desc",
       "bonus_armor": 5,
-      "damage_taken_reflect_percentage": {
-        "0": 30,
-        "1": 35,
-        "2": 40,
-        "3": 45,
-        "4": 47,
-        "5": 50
-      },
+      "damage_taken_reflect_percentage": [
+        30,
+        35,
+        40,
+        45,
+        47,
+        50
+      ],
       "offensive_damage_taken_reflect_percentage": 20,
       "support_percentage_reflected_aoe": 50,
       "icon": "blade_mail"
@@ -548,14 +549,14 @@
       "cooldown": 2.3,
       "bash_chance": 25,
       "bash_duration": 1.5,
-      "bonus_chance_damage": {
-        "0": 100,
-        "1": 110,
-        "2": 120,
-        "3": 130,
-        "4": 135,
-        "5": 140
-      },
+      "bonus_chance_damage": [
+        100,
+        110,
+        120,
+        130,
+        135,
+        140
+      ],
       "offensive_damage": 200,
       "defensive_damage_reduction": 50,
       "defensive_duration": 4,
@@ -571,22 +572,22 @@
       "description": "#dac_item_eul_desc",
       "cooldown": 10,
       "eul_duration": 2.5,
-      "mana_per_second": {
-        "0": 5,
-        "1": 6,
-        "2": 7,
-        "3": 8,
-        "4": 9,
-        "5": 9
-      },
+      "mana_per_second": [
+        5,
+        6,
+        7,
+        8,
+        9,
+        9
+      ],
       "offensive_damage": 200,
       "defensive_duration": 2.5,
       "support_aspd_slow": 75,
       "support_duration": 5,
       "icon": "eul_scepter",
-      "precache": {
-        "0": "particles/items_fx/cyclone.vpcf"
-      }
+      "precache": [
+        "particles/items_fx/cyclone.vpcf"
+      ]
     },
     "silver_edge": {
       "id": 10127,
@@ -598,19 +599,19 @@
       "break_duration": 5,
       "cooldown": 5,
       "bonus_health": 300,
-      "attack_speed": {
-        "0": 30,
-        "1": 35,
-        "2": 40,
-        "3": 43,
-        "4": 44,
-        "5": 45
-      },
+      "attack_speed": [
+        30,
+        35,
+        40,
+        43,
+        44,
+        45
+      ],
       "offensive_damage": 300,
       "support_fade_time": 1,
-      "precache": {
-        "0": "particles/generic_gameplay/generic_break.vpcf"
-      },
+      "precache": [
+        "particles/generic_gameplay/generic_break.vpcf"
+      ],
       "icon": "silver_edge"
     },
     "satanic": {
@@ -622,14 +623,14 @@
       "aiPrefAttackDPS": "true",
       "bonus_health": 850,
       "life_steal_percent": 200,
-      "life_steal_duration": {
-        "0": 3,
-        "1": 4,
-        "2": 5,
-        "3": 5.5,
-        "4": 5.75,
-        "5": 6
-      },
+      "life_steal_duration": [
+        3,
+        4,
+        5,
+        5.5,
+        5.75,
+        6
+      ],
       "offensive_bonus_damage": 200,
       "defensive_life_steal_duration": 6,
       "cooldown": 15,
@@ -646,23 +647,23 @@
       "displayName": "#dac_item_radiance_new",
       "description": "#dac_item_radiance_new_desc",
       "max_allowed": 1,
-      "attack_damage_over_time": {
-        "0": 60,
-        "1": 70,
-        "2": 75,
-        "3": 80,
-        "4": 83,
-        "5": 85
-      },
+      "attack_damage_over_time": [
+        60,
+        70,
+        75,
+        80,
+        83,
+        85
+      ],
       "attack_damage_aoe": 2,
       "offensive_bonus_damage": 100,
       "defensive_miss_percent": 20,
       "support_heal_over_time": 150,
       "miss_percent": 17,
-      "precache": {
-        "0": "particles/items2_fx/radiance_owner.vpcf",
-        "1": "particles/items2_fx/radiance.vpcf"
-      },
+      "precache": [
+        "particles/items2_fx/radiance_owner.vpcf",
+        "particles/items2_fx/radiance.vpcf"
+      ],
       "icon": "radiance"
     },
     "divine_rapier_new": {
@@ -689,14 +690,14 @@
       "aiAura": "true",
       "displayName": "#dac_item_shivas_guard_new",
       "description": "#dac_item_shivas_guard_new_desc",
-      "bonus_armor": {
-        "0": 10,
-        "1": 11,
-        "2": 12,
-        "3": 13,
-        "4": 13,
-        "5": 14
-      },
+      "bonus_armor": [
+        10,
+        11,
+        12,
+        13,
+        13,
+        14
+      ],
       "blast_speed": 350,
       "blast_radius": 384,
       "blast_damage": 250,
@@ -708,12 +709,12 @@
       "defensive_debuff_duration": 6,
       "support_armor_buff": 10,
       "support_buff_duration": 5,
-      "precache": {
-        "0": "particles/items2_fx/shivas_guard_active.vpcf",
-        "1": "particles/items2_fx/shivas_guard_impact.vpcf",
-        "2": "particles/generic_gameplay/generic_slowed_cold.vpcf",
-        "3": "particles/status_fx/status_effect_frost.vpcf"
-      },
+      "precache": [
+        "particles/items2_fx/shivas_guard_active.vpcf",
+        "particles/items2_fx/shivas_guard_impact.vpcf",
+        "particles/generic_gameplay/generic_slowed_cold.vpcf",
+        "particles/status_fx/status_effect_frost.vpcf"
+      ],
       "icon": "shivas_guard"
     },
     "bloodthorn_new": {
@@ -724,24 +725,24 @@
       "displayName": "#dac_item_bloodthorn",
       "description": "#dac_item_bloodthorn_desc",
       "cooldown": 10,
-      "attack_damage": {
-        "0": 70,
-        "1": 80,
-        "2": 90,
-        "3": 95,
-        "4": 100,
-        "5": 105
-      },
+      "attack_damage": [
+        70,
+        80,
+        90,
+        95,
+        100,
+        105
+      ],
       "mana_trigger_percentage": 75,
       "silence_duration": 5,
       "target_crit_multiplier": 140,
       "offensive_crit_percent": 85,
       "defensive_silence_duration": 7.5,
       "support_cooldown": 6,
-      "precache": {
-        "0": "particles/items/bloodthorn/bloodthorn.vpcf",
-        "1": "particles/generic_gameplay/generic_silenced.vpcf"
-      },
+      "precache": [
+        "particles/items/bloodthorn/bloodthorn.vpcf",
+        "particles/generic_gameplay/generic_silenced.vpcf"
+      ],
       "icon": "bloodthorn"
     },
     "butterfly": {
@@ -751,14 +752,14 @@
       "tier": 4,
       "type": "equipment_offensive",
       "aiPrefAttackSpeed": "true",
-      "attack_damage": {
-        "0": 35,
-        "1": 40,
-        "2": 43,
-        "3": 46,
-        "4": 48,
-        "5": 50
-      },
+      "attack_damage": [
+        35,
+        40,
+        43,
+        46,
+        48,
+        50
+      ],
       "attack_speed": 35,
       "evasion": 35,
       "offensive_attack_damage": 35,
@@ -773,23 +774,23 @@
       "type": "equipment_defensive",
       "displayName": "#dac_item_heart_of_tarrasque_new",
       "description": "#dac_item_heart_of_tarrasque_new_desc",
-      "health_bonus": {
-        "0": 1500,
-        "1": 1600,
-        "2": 1700,
-        "3": 1750,
-        "4": 1800,
-        "5": 1850
-      },
+      "health_bonus": [
+        1500,
+        1600,
+        1700,
+        1750,
+        1800,
+        1850
+      ],
       "bonus_hp_regen": 2,
       "offensive_bonus_damage_multiplier": 1,
       "offensive_bonus_damage_divisor": 10,
       "defensive_bonus_hp_regen": 4,
       "support_health_bonus": 1200,
       "support_health_aoe": 2,
-      "precache": {
-        "0": "particles/items/heart_of_tarrasque/heart_tarrasque.vpcf"
-      },
+      "precache": [
+        "particles/items/heart_of_tarrasque/heart_tarrasque.vpcf"
+      ],
       "icon": "heart"
     },
     "octarine_essence": {
@@ -801,20 +802,20 @@
       "displayName": "#dac_item_octarine_essence",
       "description": "#dac_item_octarine_essence_desc",
       "requires_ability": "true",
-      "cooldown_percentage": {
-        "0": 30,
-        "1": 35,
-        "2": 38,
-        "3": 41,
-        "4": 43,
-        "5": 45
-      },
+      "cooldown_percentage": [
+        30,
+        35,
+        38,
+        41,
+        43,
+        45
+      ],
       "offensive_cooldown_reduction_on_attack": 10,
       "defensive_shield_amount": 100,
       "support_spell_lifesteal_percentage": 25,
-      "precache": {
-        "0": "particles/items2_fx/pipe_of_insight.vpcf"
-      },
+      "precache": [
+        "particles/items2_fx/pipe_of_insight.vpcf"
+      ],
       "stealable": "false",
       "icon": "octarine_fragment"
     },
@@ -830,9 +831,9 @@
       "summon_duration": 1,
       "offensive_bonus_attack_count": 1,
       "defensive_bonus_max_hp": 1600,
-      "precache": {
-        "0": "particles/items/horn_of_the_alpha/horn_of_the_alpha_summon.vpcf"
-      },
+      "precache": [
+        "particles/items/horn_of_the_alpha/horn_of_the_alpha_summon.vpcf"
+      ],
       "icon": "horn_of_the_alpha"
     },
     "vesture_of_the_tyrant": {
@@ -843,18 +844,18 @@
       "displayName": "#dac_item_vesture_of_the_tyrant",
       "description": "#dac_item_vesture_of_the_tyrant_desc",
       "ally_zombie_range": 1,
-      "ally_zombie_duration": {
-        "0": 6,
-        "1": 7,
-        "2": 7.5,
-        "3": 7.75,
-        "4": 8,
-        "5": 8
-      },
-      "precache": {
-        "0": "particles/items/vesture_of_the_tyrant/vesture_of_the_tyrant.vpcf",
-        "1": "particles/items/warriors_never_die/warriors_never_die.vpcf"
-      },
+      "ally_zombie_duration": [
+        6,
+        7,
+        7.5,
+        7.75,
+        8,
+        8
+      ],
+      "precache": [
+        "particles/items/vesture_of_the_tyrant/vesture_of_the_tyrant.vpcf",
+        "particles/items/warriors_never_die/warriors_never_die.vpcf"
+      ],
       "icon": "vesture_of_the_tyrant"
     },
     "aegis_new": {
@@ -864,23 +865,23 @@
       "aiPrefAttackDPS": "true",
       "displayName": "#dac_item_aegis_new",
       "description": "#dac_item_aegis_new_desc",
-      "resurrect_health_percent": {
-        "0": 50,
-        "1": 55,
-        "2": 60,
-        "3": 63,
-        "4": 64,
-        "5": 65
-      },
+      "resurrect_health_percent": [
+        50,
+        55,
+        60,
+        63,
+        64,
+        65
+      ],
       "resurrect_delay": 3,
       "offensive_revenge_damage_percent": 200,
       "defensive_resurrect_health_percent": 100,
       "support_fear_range": 1,
       "support_fear_duration": 2,
-      "precache": {
-        "0": "particles/items_fx/aegis_timer.vpcf",
-        "1": "particles/items_fx/aegis_respawn_timer.vpcf"
-      },
+      "precache": [
+        "particles/items_fx/aegis_timer.vpcf",
+        "particles/items_fx/aegis_respawn_timer.vpcf"
+      ],
       "stealable": "false",
       "icon": "aegis"
     },
@@ -935,22 +936,22 @@
       "aiPrefAttackDPS": "true",
       "displayName": "#dac_item_battle_fury",
       "description": "#dac_item_battle_fury_desc",
-      "attack_damage": {
-        "0": 50,
-        "1": 55,
-        "2": 60,
-        "3": 65,
-        "4": 70,
-        "5": 75
-      },
+      "attack_damage": [
+        50,
+        55,
+        60,
+        65,
+        70,
+        75
+      ],
       "cleave_damage_pct": 35,
       "melee_only": "true",
       "offensive_attack_damage": 70,
       "defensive_health_regen": 50,
       "support_bonus_radius": 1,
-      "precache": {
-        "0": "particles/items_fx/battlefury_cleave.vpcf"
-      },
+      "precache": [
+        "particles/items_fx/battlefury_cleave.vpcf"
+      ],
       "stealable": "false",
       "icon": "battle_fury"
     },
@@ -961,21 +962,21 @@
       "displayName": "#dac_item_dagon",
       "description": "#dac_item_dagon_desc",
       "cooldown": 12,
-      "ability_damage": {
-        "0": 800,
-        "1": 900,
-        "2": 950,
-        "3": 1000,
-        "4": 1050,
-        "5": 1100
-      },
+      "ability_damage": [
+        800,
+        900,
+        950,
+        1000,
+        1050,
+        1100
+      ],
       "health_trigger_percentage": 50,
       "offensive_bonus_damage": 300,
       "support_cooldown": 10,
-      "precache": {
-        "0": "particles/items_fx/dagon.vpcf",
-        "1": "particles/items_fx/dagon_ti7.vpcf"
-      },
+      "precache": [
+        "particles/items_fx/dagon.vpcf",
+        "particles/items_fx/dagon_ti7.vpcf"
+      ],
       "icon": "dagon"
     },
     "black_king_bar_new": {
@@ -987,29 +988,29 @@
       "description": "#dac_item_black_king_bar_desc",
       "cooldown": 65,
       "mana_trigger_percentage": 100,
-      "magic_immune_duration": {
-        "0": 10,
-        "1": 11,
-        "2": 11,
-        "3": 12,
-        "4": 12,
-        "5": 12
-      },
-      "attack_damage": {
-        "0": 45,
-        "1": 50,
-        "2": 53,
-        "3": 55,
-        "4": 56,
-        "5": 57
-      },
+      "magic_immune_duration": [
+        10,
+        11,
+        11,
+        12,
+        12,
+        12
+      ],
+      "attack_damage": [
+        45,
+        50,
+        53,
+        55,
+        56,
+        57
+      ],
       "offensive_attack_damage": 40,
       "defensive_debuff_resist": 50,
       "support_bonus_duration": 5,
-      "precache": {
-        "0": "particles/items_fx/black_king_bar_avatar.vpcf",
-        "1": "particles/status_fx/status_effect_avatar.vpcf"
-      },
+      "precache": [
+        "particles/items_fx/black_king_bar_avatar.vpcf",
+        "particles/status_fx/status_effect_avatar.vpcf"
+      ],
       "icon": "black_king_bar"
     },
     "diffusal_blade": {
@@ -1019,20 +1020,20 @@
       "aiPrefAttackSpeed": "true",
       "displayName": "#dac_item_diffusal_blade",
       "description": "#dac_item_diffusal_blade_desc",
-      "damage_per_burn": {
-        "0": 30,
-        "1": 33,
-        "2": 36,
-        "3": 38,
-        "4": 39,
-        "5": 40
-      },
+      "damage_per_burn": [
+        30,
+        33,
+        36,
+        38,
+        39,
+        40
+      ],
       "mana_per_hit": 20,
       "offensive_bonus_burn": 20,
       "defensive_burn_amp": -1,
-      "precache": {
-        "0": "particles/items_fx/diffusal_blade.vpcf"
-      },
+      "precache": [
+        "particles/items_fx/diffusal_blade.vpcf"
+      ],
       "icon": "diffusal_blade"
     },
     "moon_shard_new": {
@@ -1042,14 +1043,14 @@
       "tier": 4,
       "type": "equipment_offensive",
       "aiPrefAttackDPS": "true",
-      "attack_speed": {
-        "0": 80,
-        "1": 85,
-        "2": 89,
-        "3": 92,
-        "4": 94,
-        "5": 95
-      },
+      "attack_speed": [
+        80,
+        85,
+        89,
+        92,
+        94,
+        95
+      ],
       "offensive_attack_speed": 50,
       "defensive_evade_frequency": 5,
       "support_attack_speed": 100,
@@ -1063,30 +1064,30 @@
       "aiRequiresAbility": "true",
       "displayName": "#dac_item_sheepstick",
       "description": "#dac_item_sheepstick_desc",
-      "cooldown": {
-        "0": 15,
-        "1": 14,
-        "2": 14,
-        "3": 13,
-        "4": 13,
-        "5": 13
-      },
-      "sheep_duration": {
-        "0": 3.5,
-        "1": 3.75,
-        "2": 3.75,
-        "3": 4,
-        "4": 4,
-        "5": 4
-      },
+      "cooldown": [
+        15,
+        14,
+        14,
+        13,
+        13,
+        13
+      ],
+      "sheep_duration": [
+        3.5,
+        3.75,
+        3.75,
+        4,
+        4,
+        4
+      ],
       "sheep_movement_speed": 100,
       "mana_per_second": 10,
       "offensive_bonus_damage": 50,
       "defensive_sheep_duration": 6,
-      "precache": {
-        "0": "models/props_gameplay/pig.vmdl",
-        "1": "particles/items_fx/item_sheepstick.vpcf"
-      },
+      "precache": [
+        "models/props_gameplay/pig.vmdl",
+        "particles/items_fx/item_sheepstick.vpcf"
+      ],
       "icon": "scythe_of_vyse"
     },
     "skadi_new": {
@@ -1096,14 +1097,14 @@
       "aiPrefAttackDPS": "true",
       "displayName": "#dac_item_skadi",
       "description": "#dac_item_skadi_desc",
-      "health_bonus": {
-        "0": 600,
-        "1": 700,
-        "2": 800,
-        "3": 850,
-        "4": 875,
-        "5": 900
-      },
+      "health_bonus": [
+        600,
+        700,
+        800,
+        850,
+        875,
+        900
+      ],
       "cold_duration_melee": 5,
       "cold_duration_ranged": 2.5,
       "cold_movement_speed": -35,
@@ -1112,11 +1113,11 @@
       "defensive_cold_attack_speed_bonus": -25,
       "support_attacks_to_disarm": 5,
       "support_disarm_duration": 2,
-      "precache": {
-        "0": "particles/items2_fx/skadi_projectile.vpcf",
-        "1": "particles/generic_gameplay/generic_slowed_cold.vpcf",
-        "2": "particles/status_fx/status_effect_frost.vpcf"
-      },
+      "precache": [
+        "particles/items2_fx/skadi_projectile.vpcf",
+        "particles/generic_gameplay/generic_slowed_cold.vpcf",
+        "particles/status_fx/status_effect_frost.vpcf"
+      ],
       "icon": "skadi"
     },
     "refresher_orb_new": {
@@ -1129,22 +1130,22 @@
       "description": "#dac_item_refresher_orb_desc",
       "requires_ability": "true",
       "cooldown": 65,
-      "mana_restored": {
-        "0": 50,
-        "1": 55,
-        "2": 59,
-        "3": 62,
-        "4": 64,
-        "5": 65
-      },
+      "mana_restored": [
+        50,
+        55,
+        59,
+        62,
+        64,
+        65
+      ],
       "refresh_radius": 1,
       "ally_cooldown_multiplier": 50,
       "ally_mana_restored": 25,
       "offensive_next_spell_amp": 100,
       "defensive_health_percentage_trigger": 30,
-      "precache": {
-        "0": "particles/items2_fx/refresher.vpcf"
-      },
+      "precache": [
+        "particles/items2_fx/refresher.vpcf"
+      ],
       "icon": "refresher_orb"
     },
     "pipe_new": {
@@ -1157,23 +1158,23 @@
       "bonus_magical_resistance": 50,
       "cooldown": 65,
       "barrier_radius": 1,
-      "barrier_amount": {
-        "0": 225,
-        "1": 250,
-        "2": 270,
-        "3": 285,
-        "4": 295,
-        "5": 300
-      },
+      "barrier_amount": [
+        225,
+        250,
+        270,
+        285,
+        295,
+        300
+      ],
       "barrier_duration": 60,
       "mana_trigger_percentage": 100,
       "offensive_aoe_damage": 200,
       "offensive_aoe_radius": 1,
       "defensive_barrier_amount": 500,
-      "precache": {
-        "0": "particles/items2_fx/pipe_of_insight_launch.vpcf",
-        "1": "particles/items2_fx/pipe_of_insight.vpcf"
-      },
+      "precache": [
+        "particles/items2_fx/pipe_of_insight_launch.vpcf",
+        "particles/items2_fx/pipe_of_insight.vpcf"
+      ],
       "icon": "pipe_of_insight"
     },
     "aeon_disk": {
@@ -1185,23 +1186,23 @@
       "description": "#dac_item_aeon_disk_desc",
       "health_trigger_percentage": 50,
       "cooldown": 65,
-      "health_bonus": {
-        "0": 500,
-        "1": 600,
-        "2": 700,
-        "3": 750,
-        "4": 775,
-        "5": 800
-      },
+      "health_bonus": [
+        500,
+        600,
+        700,
+        750,
+        775,
+        800
+      ],
       "invuln_duration": 2,
       "defensive_invuln_duration": 4,
       "support_explosive_radius": 1,
       "max_damage": 1500,
-      "precache": {
-        "0": "particles/items4_fx/combo_breaker_buff.vpcf",
-        "1": "particles/items4_fx/combo_breaker_spell.vpcf",
-        "2": "particles/status_fx/status_effect_combo_breaker.vpcf"
-      },
+      "precache": [
+        "particles/items4_fx/combo_breaker_buff.vpcf",
+        "particles/items4_fx/combo_breaker_spell.vpcf",
+        "particles/status_fx/status_effect_combo_breaker.vpcf"
+      ],
       "icon": "aeon_disk"
     },
     "vladmirs_offering": {
@@ -1213,14 +1214,14 @@
       "description": "#dac_item_vladmirs_offering_desc",
       "armor": 5,
       "damage": 8,
-      "lifesteal": {
-        "0": 10,
-        "1": 12,
-        "2": 14,
-        "3": 15,
-        "4": 16,
-        "5": 17
-      },
+      "lifesteal": [
+        10,
+        12,
+        14,
+        15,
+        16,
+        17
+      ],
       "defensive_armor": 5,
       "offensive_damage": 10,
       "support_lifesteal": 10,
@@ -1257,9 +1258,9 @@
       "description": "#dac_item_hunting_hat_desc",
       "icon": "hunting_hat",
       "stealable": "false",
-      "precache": {
-        "0": "particles/gameplay/gold/gold_gain.vpcf"
-      }
+      "precache": [
+        "particles/gameplay/gold/gold_gain.vpcf"
+      ]
     },
     "demon_hat": {
       "id": 10171,
@@ -1309,14 +1310,14 @@
       "type": "equipment_offensive",
       "aiPrefAttackDPS": "true",
       "ranged_only": "true",
-      "attack_damage": {
-        "0": 20,
-        "1": 25,
-        "2": 30,
-        "3": 33,
-        "4": 36,
-        "5": 38
-      },
+      "attack_damage": [
+        20,
+        25,
+        30,
+        33,
+        36,
+        38
+      ],
       "attack_range": 8,
       "displayName": "#dac_item_dragon_lance",
       "description": "#dac_item_dragon_lance_desc",
@@ -1327,20 +1328,20 @@
       "tier": 4,
       "type": "equipment_offensive",
       "aiPrefAttackDPS": "true",
-      "max_health_percent_as_damage": {
-        "0": 7,
-        "1": 8,
-        "2": 8,
-        "3": 8,
-        "4": 9,
-        "5": 9
-      },
+      "max_health_percent_as_damage": [
+        7,
+        8,
+        8,
+        8,
+        9,
+        9
+      ],
       "displayName": "#dac_item_tank_buster",
       "description": "#dac_item_tank_buster_desc",
       "icon": "tank_buster",
-      "precache": {
-        "0": "particles/gameplay/synergy/void/void_pure_damage.vpcf"
-      }
+      "precache": [
+        "particles/gameplay/synergy/void/void_pure_damage.vpcf"
+      ]
     },
     "armlet": {
       "id": 10176,
@@ -1348,21 +1349,21 @@
       "type": "equipment_offensive",
       "aiPrefAttackDPS": "true",
       "attack_damage": 120,
-      "armor": {
-        "0": 10,
-        "1": 12,
-        "2": 13,
-        "3": 14,
-        "4": 14,
-        "5": 15
-      },
+      "armor": [
+        10,
+        12,
+        13,
+        14,
+        14,
+        15
+      ],
       "health_loss_per_second": 100,
       "displayName": "#dac_item_armlet",
       "description": "#dac_item_armlet_desc",
       "icon": "armlet",
-      "precache": {
-        "0": "particles/items_fx/armlet.vpcf"
-      },
+      "precache": [
+        "particles/items_fx/armlet.vpcf"
+      ],
       "stealable": "false"
     },
     "mango_tree": {
@@ -1383,16 +1384,184 @@
       "description": "#dac_item_quelling_blade_desc",
       "tier": 2,
       "type": "equipment_offensive",
-      "damage": {
-        "0": 25,
-        "1": 30,
-        "2": 34,
-        "3": 37,
-        "4": 39,
-        "5": 40
-      },
+      "damage": [
+        25,
+        30,
+        34,
+        37,
+        39,
+        40
+      ],
       "crit_bonus_vs_neutrals": 200,
       "icon": "quelling_blade"
+    },
+    "headdress_rot1": {
+      "content_enable_group": "rotation",
+      "id": 10200,
+      "tier": 1,
+      "type": "equipment_defensive",
+      "aiAura": "true",
+      "displayName": "#dac_item_headdress_rot1",
+      "description": "#dac_item_headdress_rot1_desc",
+      "health_regen": 20,
+      "row_radius": 1,
+      "icon": "headdress"
+    },
+    "hood_of_defiance_rot1": {
+      "content_enable_group": "rotation",
+      "id": 10201,
+      "tier": 1,
+      "type": "equipment_defensive",
+      "displayName": "#dac_item_hood_of_defiance_rot1",
+      "description": "#dac_item_hood_of_defiance_rot1_desc",
+      "bonus_magical_resistance": 30,
+      "row_radius": 1,
+      "icon": "hood"
+    },
+    "vitality_booster_rot1": {
+      "content_enable_group": "rotation",
+      "id": 10202,
+      "tier": 1,
+      "type": "equipment_defensive",
+      "displayName": "#dac_item_vitality_booster_rot1",
+      "description": "#dac_item_vitality_booster_rot1_desc",
+      "health_bonus": 250,
+      "row_radius": 1,
+      "icon": "vitality_booster"
+    },
+    "paladin_sword": {
+      "content_enable_group": "rotation",
+      "id": 10203,
+      "tier": 2,
+      "type": "equipment_offensive",
+      "aiPrefAttackSpeed": "true",
+      "displayName": "#dac_item_paladin_sword",
+      "description": "#dac_item_paladin_sword_desc",
+      "attack_damage": 25,
+      "healing_amplify_pct": 20,
+      "icon": "paladin_sword"
+    },
+    "poisoner_hat": {
+      "content_enable_group": "rotation",
+      "id": 10204,
+      "tier": 2,
+      "type": "equipment_hat",
+      "aiSkip": "true",
+      "aiTierOffset": -10,
+      "add_synergy_on_equip": "Poisoner",
+      "synergy_priority": 1,
+      "displayName": "#dac_item_poisoner_hat",
+      "description": "#dac_item_poisoner_hat_desc",
+      "icon": "orb_of_venom",
+      "stealable": "false"
+    },
+    "barricade_rot1": {
+      "id": 10205,
+      "tier": 2,
+      "max_allowed": 1,
+      "type": "placeable",
+      "displayName": "#dac_item_barricade_rot1",
+      "description": "#dac_item_barricade_rot1_desc",
+      "icon": "build_barricade",
+      "unitName": "barricade_rot1",
+      "unitCount": 2
+    },
+    "heavens_halberd": {
+      "content_enable_group": "rotation",
+      "id": 10206,
+      "tier": 2,
+      "type": "equipment_support",
+      "displayName": "#dac_item_heavens_halberd",
+      "description": "#dac_item_heavens_halberd_desc",
+      "cooldown": 10,
+      "evasion_pct": 25,
+      "disarm_duration": 3,
+      "precache": [
+        "particles/items2_fx/heavens_halberd.vpcf"
+      ],
+      "icon": "heavens_halberd"
+    },
+    "necronomicon": {
+      "content_enable_group": "rotation",
+      "id": 10207,
+      "tier": 3,
+      "type": "equipment_support",
+      "displayName": "#dac_item_necronomicon",
+      "description": "#dac_item_necronomicon_desc",
+      "max_units": 2,
+      "summon_unit_id": 142,
+      "precache": [
+        "particles/underlords/anessix/anessix_summon_demon_talent.vpcf"
+      ],
+      "icon": "necronomicon"
+    },
+    "swordsman_hat": {
+      "content_enable_group": "rotation",
+      "id": 10208,
+      "tier": 3,
+      "type": "equipment_hat",
+      "aiSkip": "true",
+      "aiTierOffset": -10,
+      "add_synergy_on_equip": "Swordsman",
+      "synergy_priority": 1,
+      "displayName": "#dac_item_swordsman_hat",
+      "description": "#dac_item_swordsman_hat_desc",
+      "icon": "pirate_hat",
+      "stealable": "false"
+    },
+    "craggy_coat": {
+      "content_enable_group": "rotation",
+      "id": 10209,
+      "tier": 3,
+      "type": "equipment_defensive",
+      "displayName": "#dac_item_craggy_coat",
+      "description": "#dac_item_craggy_coat_desc",
+      "bonus_armor": 15,
+      "attack_speed": -30,
+      "icon": "craggy_coat"
+    },
+    "witless_shako": {
+      "content_enable_group": "rotation",
+      "id": 10210,
+      "tier": 3,
+      "type": "equipment_defensive",
+      "displayName": "#dac_item_witless_shako",
+      "description": "#dac_item_witless_shako_desc",
+      "health_bonus": 1000,
+      "mana_gain_pct_decrease": 50,
+      "icon": "witless_shako"
+    },
+    "maelstrom_rot1": {
+      "content_enable_group": "rotation",
+      "id": 10211,
+      "tier": 4,
+      "type": "equipment_offensive",
+      "aiPrefAttackSpeed": "true",
+      "displayName": "#dac_item_maelstrom_rot1",
+      "description": "#dac_item_maelstrom_rot1_desc",
+      "bolt_chance_percentage": 25,
+      "bolt_damage": 125,
+      "bolt_targets": 4,
+      "bolt_search_radius": 3,
+      "chain_delay_time": 0.25,
+      "chain_cooldown": 0.6,
+      "max_bounces_per_unit": 1,
+      "summon_damage_increase": 50,
+      "precache": [
+        "particles/items_fx/chain_lightning.vpcf"
+      ],
+      "icon": "maelstrom"
+    },
+    "monkey_king_bar": {
+      "content_enable_group": "rotation",
+      "id": 10212,
+      "tier": 4,
+      "type": "equipment_offensive",
+      "aiPrefAttackSpeed": "true",
+      "displayName": "#dac_item_monkey_king_bar",
+      "description": "#dac_item_monkey_king_bar_desc",
+      "attack_damage": 90,
+      "icon": "monkey_king_bar"
     }
   },
   "set_balance": {
@@ -1403,14 +1572,14 @@
       "tier": 1,
       "type": "equipment_offensive",
       "aiPrefAttackSpeed": "true",
-      "attack_damage": {
-        "0": 33,
-        "1": 36,
-        "2": 39,
-        "3": 41,
-        "4": 43,
-        "5": 45
-      },
+      "attack_damage": [
+        33,
+        36,
+        39,
+        41,
+        43,
+        45
+      ],
       "offensive_attack_damage": 40,
       "defensive_parry_percent": 50,
       "icon": "claymore"
@@ -1423,14 +1592,14 @@
       "displayName": "#dac_item_void_stone",
       "description": "#dac_item_void_stone_desc",
       "requires_ability": "true",
-      "mana_per_second": {
-        "0": 10,
-        "1": 11,
-        "2": 12,
-        "3": 13,
-        "4": 14,
-        "5": 15
-      },
+      "mana_per_second": [
+        7,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
       "offensive_bonus_damage_full_mana": 30,
       "defensive_bonus_mres_full_mana": 70,
       "support_hp_regen_full_mana": 50,
@@ -1443,18 +1612,19 @@
       "type": "equipment_defensive",
       "displayName": "#dac_item_vitality_booster",
       "description": "#dac_item_vitality_booster_desc",
-      "health_bonus": {
-        "0": 375,
-        "1": 400,
-        "2": 425,
-        "3": 450,
-        "4": 475,
-        "5": 500
-      },
+      "health_bonus": [
+        375,
+        400,
+        425,
+        450,
+        475,
+        500
+      ],
       "offensive_bonus_damage": 2,
       "defensive_health_bonus": 600,
       "support_extra_lives": 5,
-      "icon": "vitality_booster"
+      "icon": "vitality_booster",
+      "content_enable_group": "rotation"
     },
     "chainmail_new": {
       "id": 10103,
@@ -1462,14 +1632,14 @@
       "description": "#dac_item_chainmail_desc",
       "tier": 1,
       "type": "equipment_defensive",
-      "bonus_armor": {
-        "0": 7,
-        "1": 8,
-        "2": 9,
-        "3": 9,
-        "4": 10,
-        "5": 10
-      },
+      "bonus_armor": [
+        7,
+        8,
+        9,
+        9,
+        10,
+        10
+      ],
       "defensive_bonus_armor": 10,
       "offensive_damage_return": 25,
       "support_aoe_armor": 3,
@@ -1483,14 +1653,14 @@
       "tier": 1,
       "type": "equipment_offensive",
       "aiPrefAttackDPS": "true",
-      "attack_speed": {
-        "0": 25,
-        "1": 27,
-        "2": 29,
-        "3": 31,
-        "4": 33,
-        "5": 35
-      },
+      "attack_speed": [
+        25,
+        27,
+        29,
+        31,
+        33,
+        35
+      ],
       "offensive_aspd": 30,
       "defensive_ministun_attacks": 3,
       "defensive_ministun_duration": 0.5,
@@ -1504,19 +1674,20 @@
       "aiAura": "true",
       "displayName": "#dac_item_headdress",
       "description": "#dac_item_headdress_desc",
-      "health_regen": {
-        "0": 20,
-        "1": 25,
-        "2": 29,
-        "3": 32,
-        "4": 34,
-        "5": 35
-      },
+      "health_regen": [
+        20,
+        25,
+        29,
+        32,
+        34,
+        35
+      ],
       "defensive_health_regen": 25,
       "support_aura_aoe": 1,
       "offensive_explosion_aoe": 1,
       "max_damage": 1000,
-      "icon": "headdress"
+      "icon": "headdress",
+      "content_enable_group": "rotation"
     },
     "mask_of_death": {
       "id": 10106,
@@ -1525,21 +1696,21 @@
       "aiPrefAttackDPS": "true",
       "displayName": "#dac_item_mask_of_death",
       "description": "#dac_item_mask_of_death_desc",
-      "lifesteal_percentage": {
-        "0": 30,
-        "1": 33,
-        "2": 36,
-        "3": 38,
-        "4": 40,
-        "5": 42
-      },
+      "lifesteal_percentage": [
+        30,
+        33,
+        36,
+        38,
+        40,
+        42
+      ],
       "defensive_spell_lifesteal_percentage": 25,
       "support_extra_lifesteal_per_attack": 1,
       "offensive_aspd_per_missing_health": 0.5,
-      "precache": {
-        "0": "particles/generic_gameplay/generic_lifesteal.vpcf",
-        "1": "particles/items/soul_sucking_syphon/soul_syphon.vpcf"
-      },
+      "precache": [
+        "particles/generic_gameplay/generic_lifesteal.vpcf",
+        "particles/items/soul_sucking_syphon/soul_syphon.vpcf"
+      ],
       "icon": "mask_of_death"
     },
     "hood_of_defiance_new": {
@@ -1548,20 +1719,21 @@
       "type": "equipment_defensive",
       "displayName": "#dac_item_hood_of_defiance",
       "description": "#dac_item_hood_of_defiance_desc",
-      "bonus_magical_resistance": {
-        "0": 50,
-        "1": 55,
-        "2": 58,
-        "3": 60,
-        "4": 62,
-        "5": 63
-      },
+      "bonus_magical_resistance": [
+        50,
+        55,
+        58,
+        60,
+        62,
+        63
+      ],
       "health_regen": 10,
       "defensive_bonus_magical_resistance": 30,
       "defensive_health_regen": 25,
       "offensive_magicres_debuff": 25,
       "offensive_aura_aoe": 1,
-      "icon": "hood"
+      "icon": "hood",
+      "content_enable_group": "rotation"
     },
     "kaya": {
       "id": 10108,
@@ -1570,21 +1742,21 @@
       "aiRequiresAbility": "true",
       "displayName": "#dac_item_kaya",
       "description": "#dac_item_kaya_desc",
-      "bonus_spell_damage": {
-        "0": 20,
-        "1": 23,
-        "2": 25,
-        "3": 26,
-        "4": 27,
-        "5": 28
-      },
+      "bonus_spell_damage": [
+        20,
+        23,
+        25,
+        26,
+        27,
+        28
+      ],
       "offensive_bonus_spell_damage": 30,
       "defensive_outgoing_damage_into_shell": 30,
       "support_bonus_debuff_duration": 25,
       "icon": "kaya",
-      "precache": {
-        "0": "particles/units/heroes/hero_abaddon/abaddon_aphotic_shield_hit.vpcf"
-      }
+      "precache": [
+        "particles/units/heroes/hero_abaddon/abaddon_aphotic_shield_hit.vpcf"
+      ]
     },
     "talisman_of_evasion": {
       "id": 10109,
@@ -1592,14 +1764,14 @@
       "type": "equipment_defensive",
       "displayName": "#dac_item_talisman_of_evasion",
       "description": "#dac_item_talisman_of_evasion_desc",
-      "evasion_pct": {
-        "0": 25,
-        "1": 28,
-        "2": 31,
-        "3": 33,
-        "4": 34,
-        "5": 35
-      },
+      "evasion_pct": [
+        25,
+        28,
+        31,
+        33,
+        34,
+        35
+      ],
       "defensive_evasion_pct": 30,
       "offensive_chance_to_counter": 20,
       "support_bonus_mana": 100,
@@ -1612,24 +1784,25 @@
       "tier": 3,
       "type": "equipment_support",
       "aiPrefAttackDPS": "true",
-      "attack_speed": {
-        "0": 30,
-        "1": 33,
-        "2": 35,
-        "3": 36,
-        "4": 37,
-        "5": 38
-      },
+      "attack_speed": [
+        30,
+        33,
+        35,
+        36,
+        37,
+        38
+      ],
       "percent_gold": 25,
       "support_summon_percent_gold": 100,
       "gold": 1,
       "offensive_target_health_percent": 20,
       "offensive_percent_crit": 200,
       "defensive_heal_amount": 25,
-      "precache": {
-        "0": "particles/gameplay/gold/gold_gain.vpcf"
-      },
-      "icon": "hand_of_midas"
+      "precache": [
+        "particles/gameplay/gold/gold_gain.vpcf"
+      ],
+      "icon": "hand_of_midas",
+      "content_enable_group": "rotation"
     },
     "vanguard_new": {
       "id": 10112,
@@ -1637,14 +1810,14 @@
       "type": "equipment_defensive",
       "displayName": "#dac_item_vanguard",
       "description": "#dac_item_vanguard_desc",
-      "health_bonus": {
-        "0": 375,
-        "1": 400,
-        "2": 425,
-        "3": 450,
-        "4": 475,
-        "5": 500
-      },
+      "health_bonus": [
+        375,
+        400,
+        425,
+        450,
+        475,
+        500
+      ],
       "block_damage": 60,
       "block_chance": 50,
       "defensive_health_bonus": 800,
@@ -1661,17 +1834,18 @@
       "description": "#dac_item_crystalis_desc",
       "attack_damage": 25,
       "bonus_damage_chance": 20,
-      "bonus_damage_multiplier": {
-        "0": 200,
-        "1": 225,
-        "2": 250,
-        "3": 275,
-        "4": 300,
-        "5": 325
-      },
+      "bonus_damage_multiplier": [
+        200,
+        225,
+        250,
+        275,
+        300,
+        325
+      ],
       "offensive_bonus_damage_multiplier": 300,
       "support_bonus_damage": 40,
-      "icon": "crystalis"
+      "icon": "crystalis",
+      "content_enable_group": "rotation"
     },
     "desolator": {
       "id": 10114,
@@ -1680,23 +1854,23 @@
       "tier": 2,
       "type": "equipment_offensive",
       "aiPrefAttackDPS": "true",
-      "target_armor": {
-        "0": 5,
-        "1": 6,
-        "2": 7,
-        "3": 7,
-        "4": 8,
-        "5": 8
-      },
+      "target_armor": [
+        5,
+        6,
+        7,
+        7,
+        8,
+        8
+      ],
       "offensive_target_armor": 5,
       "defensive_armor": 7,
       "support_armor_per_hit": 2,
       "support_offensive_armor_per_hit": 4,
       "duration": 5,
-      "precache": {
-        "0": "particles/units/heroes/hero_slardar/slardar_broken_shield.vpcf",
-        "1": "particles/items/desolator/desolator_projectile.vpcf"
-      },
+      "precache": [
+        "particles/units/heroes/hero_slardar/slardar_broken_shield.vpcf",
+        "particles/items/desolator/desolator_projectile.vpcf"
+      ],
       "icon": "desolator"
     },
     "arcane_boots_new": {
@@ -1708,14 +1882,14 @@
       "description": "#dac_item_arcane_boots_desc",
       "manaCost": 0,
       "replenish_radius": 2,
-      "replenish_amount": {
-        "0": 25,
-        "1": 30,
-        "2": 34,
-        "3": 37,
-        "4": 39,
-        "5": 40
-      },
+      "replenish_amount": [
+        25,
+        30,
+        34,
+        37,
+        39,
+        40
+      ],
       "cooldown": 10,
       "mana_trigger_percentage": 50,
       "offensive_spell_amp": 25,
@@ -1724,10 +1898,10 @@
       "defensive_duration": 5,
       "support_replenish_amount": 35,
       "force_manabar": 1,
-      "precache": {
-        "0": "particles/items_fx/arcane_boots.vpcf",
-        "1": "particles/items_fx/arcane_boots_recipient.vpcf"
-      },
+      "precache": [
+        "particles/items_fx/arcane_boots.vpcf",
+        "particles/items_fx/arcane_boots_recipient.vpcf"
+      ],
       "icon": "arcane_boots"
     },
     "stonehall_pike": {
@@ -1737,7 +1911,7 @@
       "aiPrefAttackSpeed": "true",
       "displayName": "#dac_item_stonehall_pike",
       "description": "#dac_item_stonehall_pike_desc",
-      "damage_per_kill": 3,
+      "damage_per_kill_kill_mult": 3,
       "max_damage": 120,
       "attack_damage": 10,
       "offensive_damage_per_kill": 1,
@@ -1752,7 +1926,7 @@
       "type": "equipment_defensive",
       "displayName": "#dac_item_stonehall_cloak",
       "description": "#dac_item_stonehall_cloak_desc",
-      "hp_per_kill": 50,
+      "hp_per_kill_kill_mult": 50,
       "defensive_hp_per_kill": 50,
       "offensive_dmg_each_kill": 25,
       "support_kill_threshold": 70,
@@ -1767,20 +1941,20 @@
       "displayName": "#dac_item_blink_dagger",
       "description": "#dac_item_blink_dagger_desc",
       "cooldown": 15,
-      "mana_gain": {
-        "0": 60,
-        "1": 65,
-        "2": 70,
-        "3": 73,
-        "4": 76,
-        "5": 78
-      },
+      "mana_gain": [
+        60,
+        65,
+        70,
+        73,
+        76,
+        78
+      ],
       "support_untargetability_duration": 3,
       "defensive_duration": 3,
       "offensive_crit_dmg": 200,
-      "precache": {
-        "0": "particles/items/blink_dagger/blink_dagger_end.vpcf"
-      },
+      "precache": [
+        "particles/items/blink_dagger/blink_dagger_end.vpcf"
+      ],
       "icon": "blink_dagger"
     },
     "orb_of_venom": {
@@ -1796,10 +1970,12 @@
       "defensive_wound": 50,
       "defensive_aspdslow": 25,
       "offensive_dps": 50,
-      "precache": {
-        "0": "particles/items2_fx/orb_of_venom.vpcf"
-      },
-      "icon": "orb_of_venom"
+      "precache": [
+        "particles/items2_fx/orb_of_venom.vpcf",
+        "particles/underlords/enno/enno_poison_stack.vpcf"
+      ],
+      "icon": "orb_of_venom",
+      "content_enable_group": "rotation"
     },
     "force_staff_new": {
       "id": 10120,
@@ -1807,14 +1983,14 @@
       "type": "equipment_support",
       "displayName": "#dac_item_force_staff",
       "description": "#dac_item_force_staff_desc",
-      "cooldown": {
-        "0": 15,
-        "1": 14,
-        "2": 14,
-        "3": 13,
-        "4": 13,
-        "5": 12
-      },
+      "cooldown": [
+        15,
+        14,
+        14,
+        13,
+        13,
+        12
+      ],
       "push_length": 6,
       "speed": 666,
       "offensive_damage": 200,
@@ -1822,11 +1998,12 @@
       "defensive_cooldown": 1,
       "defensive_charge_cooldown": 15,
       "support_stun": 2,
-      "precache": {
-        "0": "particles/items_fx/force_staff.vpcf",
-        "1": "particles/status_fx/status_effect_forcestaff.vpcf"
-      },
-      "icon": "force_staff"
+      "precache": [
+        "particles/items_fx/force_staff.vpcf",
+        "particles/status_fx/status_effect_forcestaff.vpcf"
+      ],
+      "icon": "force_staff",
+      "content_enable_group": "rotation"
     },
     "maelstrom_new": {
       "id": 10121,
@@ -1836,14 +2013,14 @@
       "displayName": "#dac_item_maelstrom",
       "description": "#dac_item_maelstrom_desc",
       "bolt_chance_percentage": 25,
-      "bolt_damage": {
-        "0": 150,
-        "1": 160,
-        "2": 170,
-        "3": 175,
-        "4": 180,
-        "5": 185
-      },
+      "bolt_damage": [
+        150,
+        160,
+        170,
+        175,
+        180,
+        185
+      ],
       "offensive_damage": 150,
       "bolt_targets": 4,
       "support_targets": 6,
@@ -1853,10 +2030,11 @@
       "percentage_decrease": 20,
       "max_bounces_per_unit": 1,
       "support_max_bounces_per_unit": 2,
-      "precache": {
-        "0": "particles/items_fx/chain_lightning.vpcf"
-      },
-      "icon": "maelstrom"
+      "precache": [
+        "particles/items_fx/chain_lightning.vpcf"
+      ],
+      "icon": "maelstrom",
+      "content_enable_group": "rotation"
     },
     "mask_of_madness_new": {
       "id": 10122,
@@ -1866,22 +2044,22 @@
       "aiPrefAttackDPS": "true",
       "displayName": "#dac_item_mask_of_madness",
       "description": "#dac_item_mask_of_madness_desc",
-      "lifesteal_percentage": {
-        "0": 15,
-        "1": 20,
-        "2": 25,
-        "3": 28,
-        "4": 30,
-        "5": 32
-      },
+      "lifesteal_percentage": [
+        15,
+        20,
+        25,
+        28,
+        30,
+        32
+      ],
       "attack_speed": 60,
       "offensive_aspd": 30,
       "defensive_lifesteal": 15,
-      "precache": {
-        "0": "particles/generic_gameplay/generic_lifesteal.vpcf",
-        "1": "particles/generic_gameplay/generic_silenced.vpcf",
-        "2": "particles/items2_fx/mask_of_madness.vpcf"
-      },
+      "precache": [
+        "particles/generic_gameplay/generic_lifesteal.vpcf",
+        "particles/generic_gameplay/generic_silenced.vpcf",
+        "particles/items2_fx/mask_of_madness.vpcf"
+      ],
       "stealable": "false",
       "icon": "mask_of_madness"
     },
@@ -1894,42 +2072,42 @@
       "description": "#dac_item_mekansm_desc",
       "manaCost": 0,
       "heal_radius": 3,
-      "heal_amount": {
-        "0": 750,
-        "1": 800,
-        "2": 850,
-        "3": 875,
-        "4": 900,
-        "5": 925
-      },
+      "heal_amount": [
+        750,
+        800,
+        850,
+        875,
+        900,
+        925
+      ],
       "defensive_heal_amount": 750,
       "offensive_aspd": 25,
       "offensive_duration": 5,
       "health_trigger_percentage": 50,
       "cooldown": 65,
-      "precache": {
-        "0": "particles/items2_fx/mekanism.vpcf",
-        "1": "particles/items2_fx/mekanism_recipient.vpcf",
-        "2": "particles/units/heroes/hero_abaddon/abaddon_aphotic_shield.vpcf",
-        "3": "particles/generic_gameplay/generic_attackspeed.vpcf"
-      },
+      "precache": [
+        "particles/items2_fx/mekanism.vpcf",
+        "particles/items2_fx/mekanism_recipient.vpcf",
+        "particles/units/heroes/hero_abaddon/abaddon_aphotic_shield.vpcf",
+        "particles/generic_gameplay/generic_attackspeed.vpcf"
+      ],
       "icon": "mekansm"
     },
     "blade_mail_new": {
       "id": 10124,
-      "tier": 3,
+      "tier": 2,
       "type": "equipment_defensive",
       "displayName": "#dac_item_blade_mail",
       "description": "#dac_item_blade_mail_desc",
       "bonus_armor": 5,
-      "damage_taken_reflect_percentage": {
-        "0": 30,
-        "1": 35,
-        "2": 40,
-        "3": 45,
-        "4": 47,
-        "5": 50
-      },
+      "damage_taken_reflect_percentage": [
+        20,
+        35,
+        40,
+        45,
+        47,
+        50
+      ],
       "offensive_damage_taken_reflect_percentage": 20,
       "support_percentage_reflected_aoe": 50,
       "icon": "blade_mail"
@@ -1944,14 +2122,14 @@
       "cooldown": 2.3,
       "bash_chance": 25,
       "bash_duration": 1.5,
-      "bonus_chance_damage": {
-        "0": 100,
-        "1": 110,
-        "2": 120,
-        "3": 130,
-        "4": 135,
-        "5": 140
-      },
+      "bonus_chance_damage": [
+        100,
+        110,
+        120,
+        130,
+        135,
+        140
+      ],
       "offensive_damage": 200,
       "defensive_damage_reduction": 50,
       "defensive_duration": 4,
@@ -1967,22 +2145,22 @@
       "description": "#dac_item_eul_desc",
       "cooldown": 10,
       "eul_duration": 2.5,
-      "mana_per_second": {
-        "0": 5,
-        "1": 6,
-        "2": 7,
-        "3": 8,
-        "4": 9,
-        "5": 9
-      },
+      "mana_per_second": [
+        10,
+        6,
+        7,
+        8,
+        9,
+        9
+      ],
       "offensive_damage": 200,
       "defensive_duration": 2.5,
       "support_aspd_slow": 75,
       "support_duration": 5,
       "icon": "eul_scepter",
-      "precache": {
-        "0": "particles/items_fx/cyclone.vpcf"
-      }
+      "precache": [
+        "particles/items_fx/cyclone.vpcf"
+      ]
     },
     "silver_edge": {
       "id": 10127,
@@ -1994,19 +2172,19 @@
       "break_duration": 5,
       "cooldown": 5,
       "bonus_health": 300,
-      "attack_speed": {
-        "0": 30,
-        "1": 35,
-        "2": 39,
-        "3": 42,
-        "4": 44,
-        "5": 45
-      },
+      "attack_speed": [
+        30,
+        35,
+        39,
+        42,
+        44,
+        45
+      ],
       "offensive_damage": 300,
       "support_fade_time": 1,
-      "precache": {
-        "0": "particles/generic_gameplay/generic_break.vpcf"
-      },
+      "precache": [
+        "particles/generic_gameplay/generic_break.vpcf"
+      ],
       "icon": "silver_edge"
     },
     "satanic": {
@@ -2018,14 +2196,14 @@
       "aiPrefAttackDPS": "true",
       "bonus_health": 850,
       "life_steal_percent": 250,
-      "life_steal_duration": {
-        "0": 3,
-        "1": 4,
-        "2": 5,
-        "3": 5.5,
-        "4": 5.75,
-        "5": 6
-      },
+      "life_steal_duration": [
+        3,
+        4,
+        5,
+        5.5,
+        5.75,
+        6
+      ],
       "offensive_bonus_damage": 200,
       "defensive_life_steal_duration": 6,
       "cooldown": 10,
@@ -2042,23 +2220,23 @@
       "displayName": "#dac_item_radiance_new",
       "description": "#dac_item_radiance_new_desc",
       "max_allowed": 1,
-      "attack_damage_over_time": {
-        "0": 60,
-        "1": 70,
-        "2": 75,
-        "3": 80,
-        "4": 83,
-        "5": 85
-      },
+      "attack_damage_over_time": [
+        60,
+        70,
+        75,
+        80,
+        83,
+        85
+      ],
       "attack_damage_aoe": 2,
       "offensive_bonus_damage": 100,
       "defensive_miss_percent": 20,
       "support_heal_over_time": 150,
       "miss_percent": 17,
-      "precache": {
-        "0": "particles/items2_fx/radiance_owner.vpcf",
-        "1": "particles/items2_fx/radiance.vpcf"
-      },
+      "precache": [
+        "particles/items2_fx/radiance_owner.vpcf",
+        "particles/items2_fx/radiance.vpcf"
+      ],
       "icon": "radiance"
     },
     "divine_rapier_new": {
@@ -2085,14 +2263,14 @@
       "aiAura": "true",
       "displayName": "#dac_item_shivas_guard_new",
       "description": "#dac_item_shivas_guard_new_desc",
-      "bonus_armor": {
-        "0": 10,
-        "1": 11,
-        "2": 12,
-        "3": 13,
-        "4": 13,
-        "5": 14
-      },
+      "bonus_armor": [
+        10,
+        11,
+        12,
+        13,
+        13,
+        14
+      ],
       "blast_speed": 350,
       "blast_radius": 384,
       "blast_damage": 250,
@@ -2104,12 +2282,12 @@
       "defensive_debuff_duration": 6,
       "support_armor_buff": 10,
       "support_buff_duration": 5,
-      "precache": {
-        "0": "particles/items2_fx/shivas_guard_active.vpcf",
-        "1": "particles/items2_fx/shivas_guard_impact.vpcf",
-        "2": "particles/generic_gameplay/generic_slowed_cold.vpcf",
-        "3": "particles/status_fx/status_effect_frost.vpcf"
-      },
+      "precache": [
+        "particles/items2_fx/shivas_guard_active.vpcf",
+        "particles/items2_fx/shivas_guard_impact.vpcf",
+        "particles/generic_gameplay/generic_slowed_cold.vpcf",
+        "particles/status_fx/status_effect_frost.vpcf"
+      ],
       "icon": "shivas_guard"
     },
     "bloodthorn_new": {
@@ -2120,24 +2298,24 @@
       "displayName": "#dac_item_bloodthorn",
       "description": "#dac_item_bloodthorn_desc",
       "cooldown": 10,
-      "attack_damage": {
-        "0": 70,
-        "1": 80,
-        "2": 90,
-        "3": 95,
-        "4": 100,
-        "5": 105
-      },
+      "attack_damage": [
+        70,
+        80,
+        90,
+        95,
+        100,
+        105
+      ],
       "mana_trigger_percentage": 75,
       "silence_duration": 5,
       "target_crit_multiplier": 140,
       "offensive_crit_percent": 85,
       "defensive_silence_duration": 7.5,
       "support_cooldown": 6,
-      "precache": {
-        "0": "particles/items/bloodthorn/bloodthorn.vpcf",
-        "1": "particles/generic_gameplay/generic_silenced.vpcf"
-      },
+      "precache": [
+        "particles/items/bloodthorn/bloodthorn.vpcf",
+        "particles/generic_gameplay/generic_silenced.vpcf"
+      ],
       "icon": "bloodthorn"
     },
     "butterfly": {
@@ -2147,14 +2325,14 @@
       "tier": 4,
       "type": "equipment_offensive",
       "aiPrefAttackSpeed": "true",
-      "attack_damage": {
-        "0": 35,
-        "1": 40,
-        "2": 43,
-        "3": 46,
-        "4": 48,
-        "5": 50
-      },
+      "attack_damage": [
+        35,
+        40,
+        43,
+        46,
+        48,
+        50
+      ],
       "attack_speed": 35,
       "evasion": 35,
       "offensive_attack_damage": 35,
@@ -2169,23 +2347,23 @@
       "type": "equipment_defensive",
       "displayName": "#dac_item_heart_of_tarrasque_new",
       "description": "#dac_item_heart_of_tarrasque_new_desc",
-      "health_bonus": {
-        "0": 1500,
-        "1": 1600,
-        "2": 1700,
-        "3": 1750,
-        "4": 1800,
-        "5": 1850
-      },
+      "health_bonus": [
+        1500,
+        1600,
+        1700,
+        1750,
+        1800,
+        1850
+      ],
       "bonus_hp_regen": 2,
       "offensive_bonus_damage_multiplier": 1,
       "offensive_bonus_damage_divisor": 10,
       "defensive_bonus_hp_regen": 4,
       "support_health_bonus": 1200,
       "support_health_aoe": 2,
-      "precache": {
-        "0": "particles/items/heart_of_tarrasque/heart_tarrasque.vpcf"
-      },
+      "precache": [
+        "particles/items/heart_of_tarrasque/heart_tarrasque.vpcf"
+      ],
       "icon": "heart"
     },
     "octarine_essence": {
@@ -2197,20 +2375,20 @@
       "displayName": "#dac_item_octarine_essence",
       "description": "#dac_item_octarine_essence_desc",
       "requires_ability": "true",
-      "cooldown_percentage": {
-        "0": 30,
-        "1": 35,
-        "2": 38,
-        "3": 41,
-        "4": 43,
-        "5": 45
-      },
+      "cooldown_percentage": [
+        30,
+        35,
+        38,
+        41,
+        43,
+        45
+      ],
       "offensive_cooldown_reduction_on_attack": 10,
       "defensive_shield_amount": 100,
       "support_spell_lifesteal_percentage": 25,
-      "precache": {
-        "0": "particles/items2_fx/pipe_of_insight.vpcf"
-      },
+      "precache": [
+        "particles/items2_fx/pipe_of_insight.vpcf"
+      ],
       "stealable": "false",
       "icon": "octarine_fragment"
     },
@@ -2226,9 +2404,9 @@
       "summon_duration": 1,
       "offensive_bonus_attack_count": 1,
       "defensive_bonus_max_hp": 1600,
-      "precache": {
-        "0": "particles/items/horn_of_the_alpha/horn_of_the_alpha_summon.vpcf"
-      },
+      "precache": [
+        "particles/items/horn_of_the_alpha/horn_of_the_alpha_summon.vpcf"
+      ],
       "icon": "horn_of_the_alpha"
     },
     "vesture_of_the_tyrant": {
@@ -2239,18 +2417,18 @@
       "displayName": "#dac_item_vesture_of_the_tyrant",
       "description": "#dac_item_vesture_of_the_tyrant_desc",
       "ally_zombie_range": 1,
-      "ally_zombie_duration": {
-        "0": 6,
-        "1": 7,
-        "2": 7.5,
-        "3": 7.75,
-        "4": 8,
-        "5": 8
-      },
-      "precache": {
-        "0": "particles/items/vesture_of_the_tyrant/vesture_of_the_tyrant.vpcf",
-        "1": "particles/items/warriors_never_die/warriors_never_die.vpcf"
-      },
+      "ally_zombie_duration": [
+        6,
+        7,
+        7.5,
+        7.75,
+        8,
+        8
+      ],
+      "precache": [
+        "particles/items/vesture_of_the_tyrant/vesture_of_the_tyrant.vpcf",
+        "particles/items/warriors_never_die/warriors_never_die.vpcf"
+      ],
       "icon": "vesture_of_the_tyrant"
     },
     "aegis_new": {
@@ -2260,25 +2438,26 @@
       "aiPrefAttackDPS": "true",
       "displayName": "#dac_item_aegis_new",
       "description": "#dac_item_aegis_new_desc",
-      "resurrect_health_percent": {
-        "0": 50,
-        "1": 55,
-        "2": 60,
-        "3": 63,
-        "4": 64,
-        "5": 65
-      },
+      "resurrect_health_percent": [
+        50,
+        55,
+        60,
+        63,
+        64,
+        65
+      ],
       "resurrect_delay": 3,
       "offensive_revenge_damage_percent": 200,
       "defensive_resurrect_health_percent": 100,
       "support_fear_range": 1,
       "support_fear_duration": 2,
-      "precache": {
-        "0": "particles/items_fx/aegis_timer.vpcf",
-        "1": "particles/items_fx/aegis_respawn_timer.vpcf"
-      },
+      "precache": [
+        "particles/items_fx/aegis_timer.vpcf",
+        "particles/items_fx/aegis_respawn_timer.vpcf"
+      ],
       "stealable": "false",
-      "icon": "aegis"
+      "icon": "aegis",
+      "content_enable_group": "rotation"
     },
     "healing_ward_new": {
       "content_enable_group": "rotation",
@@ -2301,7 +2480,8 @@
       "icon": "build_barricade",
       "unitName": "barricade_new",
       "unitCount": 3,
-      "supportUnitCount": 1
+      "supportUnitCount": 1,
+      "content_enable_group": "rotation"
     },
     "tombstone_new": {
       "id": 10168,
@@ -2311,7 +2491,8 @@
       "displayName": "#dac_item_tombstone",
       "description": "#dac_item_tombstone_desc",
       "icon": "build_undying_tower",
-      "unitName": "tombstone_new"
+      "unitName": "tombstone_new",
+      "content_enable_group": "rotation"
     },
     "target_dummy_new": {
       "id": 10169,
@@ -2331,22 +2512,22 @@
       "aiPrefAttackDPS": "true",
       "displayName": "#dac_item_battle_fury",
       "description": "#dac_item_battle_fury_desc",
-      "attack_damage": {
-        "0": 50,
-        "1": 55,
-        "2": 60,
-        "3": 65,
-        "4": 70,
-        "5": 75
-      },
-      "cleave_damage_pct": 35,
+      "attack_damage": [
+        50,
+        55,
+        60,
+        65,
+        70,
+        75
+      ],
+      "cleave_damage_pct": 50,
       "melee_only": "true",
       "offensive_attack_damage": 70,
       "defensive_health_regen": 50,
       "support_bonus_radius": 1,
-      "precache": {
-        "0": "particles/items_fx/battlefury_cleave.vpcf"
-      },
+      "precache": [
+        "particles/items_fx/battlefury_cleave.vpcf"
+      ],
       "stealable": "false",
       "icon": "battle_fury"
     },
@@ -2357,21 +2538,21 @@
       "displayName": "#dac_item_dagon",
       "description": "#dac_item_dagon_desc",
       "cooldown": 12,
-      "ability_damage": {
-        "0": 800,
-        "1": 900,
-        "2": 950,
-        "3": 1000,
-        "4": 1050,
-        "5": 1100
-      },
+      "ability_damage": [
+        800,
+        900,
+        950,
+        1000,
+        1050,
+        1100
+      ],
       "health_trigger_percentage": 50,
       "offensive_bonus_damage": 300,
       "support_cooldown": 10,
-      "precache": {
-        "0": "particles/items_fx/dagon.vpcf",
-        "1": "particles/items_fx/dagon_ti7.vpcf"
-      },
+      "precache": [
+        "particles/items_fx/dagon.vpcf",
+        "particles/items_fx/dagon_ti7.vpcf"
+      ],
       "icon": "dagon"
     },
     "black_king_bar_new": {
@@ -2383,29 +2564,29 @@
       "description": "#dac_item_black_king_bar_desc",
       "cooldown": 65,
       "mana_trigger_percentage": 100,
-      "magic_immune_duration": {
-        "0": 10,
-        "1": 11,
-        "2": 11,
-        "3": 12,
-        "4": 12,
-        "5": 12
-      },
-      "attack_damage": {
-        "0": 45,
-        "1": 50,
-        "2": 53,
-        "3": 55,
-        "4": 56,
-        "5": 57
-      },
+      "magic_immune_duration": [
+        10,
+        11,
+        11,
+        12,
+        12,
+        12
+      ],
+      "attack_damage": [
+        45,
+        50,
+        53,
+        55,
+        56,
+        57
+      ],
       "offensive_attack_damage": 40,
       "defensive_debuff_resist": 50,
       "support_bonus_duration": 5,
-      "precache": {
-        "0": "particles/items_fx/black_king_bar_avatar.vpcf",
-        "1": "particles/status_fx/status_effect_avatar.vpcf"
-      },
+      "precache": [
+        "particles/items_fx/black_king_bar_avatar.vpcf",
+        "particles/status_fx/status_effect_avatar.vpcf"
+      ],
       "icon": "black_king_bar"
     },
     "diffusal_blade": {
@@ -2415,20 +2596,20 @@
       "aiPrefAttackSpeed": "true",
       "displayName": "#dac_item_diffusal_blade",
       "description": "#dac_item_diffusal_blade_desc",
-      "damage_per_burn": {
-        "0": 30,
-        "1": 33,
-        "2": 36,
-        "3": 38,
-        "4": 39,
-        "5": 40
-      },
+      "damage_per_burn": [
+        30,
+        33,
+        36,
+        38,
+        39,
+        40
+      ],
       "mana_per_hit": 20,
       "offensive_bonus_burn": 20,
       "defensive_burn_amp": -1,
-      "precache": {
-        "0": "particles/items_fx/diffusal_blade.vpcf"
-      },
+      "precache": [
+        "particles/items_fx/diffusal_blade.vpcf"
+      ],
       "icon": "diffusal_blade"
     },
     "moon_shard_new": {
@@ -2438,14 +2619,14 @@
       "tier": 4,
       "type": "equipment_offensive",
       "aiPrefAttackDPS": "true",
-      "attack_speed": {
-        "0": 80,
-        "1": 85,
-        "2": 89,
-        "3": 92,
-        "4": 94,
-        "5": 95
-      },
+      "attack_speed": [
+        80,
+        85,
+        89,
+        92,
+        94,
+        95
+      ],
       "offensive_attack_speed": 50,
       "defensive_evade_frequency": 5,
       "support_attack_speed": 100,
@@ -2459,30 +2640,30 @@
       "aiRequiresAbility": "true",
       "displayName": "#dac_item_sheepstick",
       "description": "#dac_item_sheepstick_desc",
-      "cooldown": {
-        "0": 15,
-        "1": 14,
-        "2": 14,
-        "3": 13,
-        "4": 13,
-        "5": 13
-      },
-      "sheep_duration": {
-        "0": 3.5,
-        "1": 3.75,
-        "2": 3.75,
-        "3": 4,
-        "4": 4,
-        "5": 4
-      },
+      "cooldown": [
+        15,
+        14,
+        14,
+        13,
+        13,
+        13
+      ],
+      "sheep_duration": [
+        3.5,
+        3.75,
+        3.75,
+        4,
+        4,
+        4
+      ],
       "sheep_movement_speed": 100,
       "mana_per_second": 10,
       "offensive_bonus_damage": 50,
       "defensive_sheep_duration": 6,
-      "precache": {
-        "0": "models/props_gameplay/pig.vmdl",
-        "1": "particles/items_fx/item_sheepstick.vpcf"
-      },
+      "precache": [
+        "models/props_gameplay/pig.vmdl",
+        "particles/items_fx/item_sheepstick.vpcf"
+      ],
       "icon": "scythe_of_vyse"
     },
     "skadi_new": {
@@ -2492,14 +2673,14 @@
       "aiPrefAttackDPS": "true",
       "displayName": "#dac_item_skadi",
       "description": "#dac_item_skadi_desc",
-      "health_bonus": {
-        "0": 600,
-        "1": 700,
-        "2": 800,
-        "3": 850,
-        "4": 875,
-        "5": 900
-      },
+      "health_bonus": [
+        600,
+        700,
+        800,
+        850,
+        875,
+        900
+      ],
       "cold_duration_melee": 5,
       "cold_duration_ranged": 2.5,
       "cold_movement_speed": -35,
@@ -2508,11 +2689,11 @@
       "defensive_cold_attack_speed_bonus": -25,
       "support_attacks_to_disarm": 5,
       "support_disarm_duration": 2,
-      "precache": {
-        "0": "particles/items2_fx/skadi_projectile.vpcf",
-        "1": "particles/generic_gameplay/generic_slowed_cold.vpcf",
-        "2": "particles/status_fx/status_effect_frost.vpcf"
-      },
+      "precache": [
+        "particles/items2_fx/skadi_projectile.vpcf",
+        "particles/generic_gameplay/generic_slowed_cold.vpcf",
+        "particles/status_fx/status_effect_frost.vpcf"
+      ],
       "icon": "skadi"
     },
     "refresher_orb_new": {
@@ -2525,22 +2706,22 @@
       "description": "#dac_item_refresher_orb_desc",
       "requires_ability": "true",
       "cooldown": 65,
-      "mana_restored": {
-        "0": 50,
-        "1": 55,
-        "2": 59,
-        "3": 62,
-        "4": 64,
-        "5": 65
-      },
+      "mana_restored": [
+        50,
+        55,
+        59,
+        62,
+        64,
+        65
+      ],
       "refresh_radius": 1,
       "ally_cooldown_multiplier": 50,
       "ally_mana_restored": 25,
       "offensive_next_spell_amp": 100,
       "defensive_health_percentage_trigger": 30,
-      "precache": {
-        "0": "particles/items2_fx/refresher.vpcf"
-      },
+      "precache": [
+        "particles/items2_fx/refresher.vpcf"
+      ],
       "icon": "refresher_orb"
     },
     "pipe_new": {
@@ -2552,24 +2733,24 @@
       "description": "#dac_item_pipe_of_insight_desc",
       "bonus_magical_resistance": 50,
       "cooldown": 65,
-      "barrier_radius": 1,
-      "barrier_amount": {
-        "0": 225,
-        "1": 250,
-        "2": 270,
-        "3": 285,
-        "4": 295,
-        "5": 300
-      },
+      "barrier_radius": 2,
+      "barrier_amount": [
+        250,
+        250,
+        270,
+        285,
+        295,
+        300
+      ],
       "barrier_duration": 60,
       "mana_trigger_percentage": 100,
       "offensive_aoe_damage": 200,
       "offensive_aoe_radius": 1,
       "defensive_barrier_amount": 500,
-      "precache": {
-        "0": "particles/items2_fx/pipe_of_insight_launch.vpcf",
-        "1": "particles/items2_fx/pipe_of_insight.vpcf"
-      },
+      "precache": [
+        "particles/items2_fx/pipe_of_insight_launch.vpcf",
+        "particles/items2_fx/pipe_of_insight.vpcf"
+      ],
       "icon": "pipe_of_insight"
     },
     "aeon_disk": {
@@ -2581,42 +2762,42 @@
       "description": "#dac_item_aeon_disk_desc",
       "health_trigger_percentage": 50,
       "cooldown": 65,
-      "health_bonus": {
-        "0": 500,
-        "1": 600,
-        "2": 700,
-        "3": 750,
-        "4": 775,
-        "5": 800
-      },
+      "health_bonus": [
+        500,
+        600,
+        700,
+        750,
+        775,
+        800
+      ],
       "invuln_duration": 2,
       "defensive_invuln_duration": 4,
       "support_explosive_radius": 1,
       "max_damage": 1500,
-      "precache": {
-        "0": "particles/items4_fx/combo_breaker_buff.vpcf",
-        "1": "particles/items4_fx/combo_breaker_spell.vpcf",
-        "2": "particles/status_fx/status_effect_combo_breaker.vpcf"
-      },
+      "precache": [
+        "particles/items4_fx/combo_breaker_buff.vpcf",
+        "particles/items4_fx/combo_breaker_spell.vpcf",
+        "particles/status_fx/status_effect_combo_breaker.vpcf"
+      ],
       "icon": "aeon_disk"
     },
     "vladmirs_offering": {
       "id": 10140,
-      "tier": 4,
+      "tier": 5,
       "type": "equipment_support",
       "aiAura": "true",
       "displayName": "#dac_item_vladmirs_offering",
       "description": "#dac_item_vladmirs_offering_desc",
       "armor": 5,
-      "damage": 5,
-      "lifesteal": {
-        "0": 10,
-        "1": 12,
-        "2": 14,
-        "3": 15,
-        "4": 16,
-        "5": 17
-      },
+      "damage": 8,
+      "lifesteal": [
+        10,
+        12,
+        14,
+        15,
+        16,
+        17
+      ],
       "defensive_armor": 5,
       "offensive_damage": 10,
       "support_lifesteal": 10,
@@ -2636,7 +2817,8 @@
       "displayName": "#dac_item_big_time_contract",
       "description": "#dac_item_big_time_contract_desc",
       "icon": "big_time_contract",
-      "stealable": "false"
+      "stealable": "false",
+      "content_enable_group": "rotation"
     },
     "hunting_hat": {
       "id": 10170,
@@ -2653,9 +2835,9 @@
       "description": "#dac_item_hunting_hat_desc",
       "icon": "hunting_hat",
       "stealable": "false",
-      "precache": {
-        "0": "particles/gameplay/gold/gold_gain.vpcf"
-      }
+      "precache": [
+        "particles/gameplay/gold/gold_gain.vpcf"
+      ]
     },
     "demon_hat": {
       "id": 10171,
@@ -2697,7 +2879,8 @@
       "displayName": "#dac_item_dwarf_hat",
       "description": "#dac_item_dwarf_hat_desc",
       "icon": "dwarf_hat",
-      "stealable": "false"
+      "stealable": "false",
+      "content_enable_group": "rotation"
     },
     "dragon_lance": {
       "id": 10174,
@@ -2705,14 +2888,14 @@
       "type": "equipment_offensive",
       "aiPrefAttackDPS": "true",
       "ranged_only": "true",
-      "attack_damage": {
-        "0": 20,
-        "1": 25,
-        "2": 30,
-        "3": 33,
-        "4": 36,
-        "5": 38
-      },
+      "attack_damage": [
+        35,
+        25,
+        30,
+        33,
+        36,
+        38
+      ],
       "attack_range": 8,
       "displayName": "#dac_item_dragon_lance",
       "description": "#dac_item_dragon_lance_desc",
@@ -2723,20 +2906,20 @@
       "tier": 4,
       "type": "equipment_offensive",
       "aiPrefAttackDPS": "true",
-      "max_health_percent_as_damage": {
-        "0": 7,
-        "1": 8,
-        "2": 8,
-        "3": 8,
-        "4": 9,
-        "5": 9
-      },
+      "max_health_percent_as_damage": [
+        9,
+        8,
+        8,
+        8,
+        9,
+        9
+      ],
       "displayName": "#dac_item_tank_buster",
       "description": "#dac_item_tank_buster_desc",
       "icon": "tank_buster",
-      "precache": {
-        "0": "particles/gameplay/synergy/void/void_pure_damage.vpcf"
-      }
+      "precache": [
+        "particles/gameplay/synergy/void/void_pure_damage.vpcf"
+      ]
     },
     "armlet": {
       "id": 10176,
@@ -2744,21 +2927,21 @@
       "type": "equipment_offensive",
       "aiPrefAttackDPS": "true",
       "attack_damage": 120,
-      "armor": {
-        "0": 10,
-        "1": 12,
-        "2": 13,
-        "3": 14,
-        "4": 14,
-        "5": 15
-      },
+      "armor": [
+        10,
+        12,
+        13,
+        14,
+        14,
+        15
+      ],
       "health_loss_per_second": 80,
       "displayName": "#dac_item_armlet",
       "description": "#dac_item_armlet_desc",
       "icon": "armlet",
-      "precache": {
-        "0": "particles/items_fx/armlet.vpcf"
-      },
+      "precache": [
+        "particles/items_fx/armlet.vpcf"
+      ],
       "stealable": "false"
     },
     "mango_tree": {
@@ -2779,16 +2962,185 @@
       "description": "#dac_item_quelling_blade_desc",
       "tier": 2,
       "type": "equipment_offensive",
-      "damage": {
-        "0": 25,
-        "1": 30,
-        "2": 34,
-        "3": 37,
-        "4": 39,
-        "5": 40
-      },
+      "damage": [
+        25,
+        30,
+        34,
+        37,
+        39,
+        40
+      ],
       "crit_bonus_vs_neutrals": 200,
       "icon": "quelling_blade"
+    },
+    "headdress_rot1": {
+      "content_enable_group": "null",
+      "id": 10200,
+      "tier": 1,
+      "type": "equipment_defensive",
+      "aiAura": "true",
+      "displayName": "#dac_item_headdress_rot1",
+      "description": "#dac_item_headdress_rot1_desc",
+      "health_regen": 20,
+      "row_radius": 1,
+      "icon": "headdress"
+    },
+    "hood_of_defiance_rot1": {
+      "content_enable_group": "null",
+      "id": 10201,
+      "tier": 1,
+      "type": "equipment_defensive",
+      "displayName": "#dac_item_hood_of_defiance_rot1",
+      "description": "#dac_item_hood_of_defiance_rot1_desc",
+      "bonus_magical_resistance": 30,
+      "row_radius": 1,
+      "icon": "hood"
+    },
+    "vitality_booster_rot1": {
+      "content_enable_group": "null",
+      "id": 10202,
+      "tier": 1,
+      "type": "equipment_defensive",
+      "displayName": "#dac_item_vitality_booster_rot1",
+      "description": "#dac_item_vitality_booster_rot1_desc",
+      "health_bonus": 250,
+      "row_radius": 1,
+      "icon": "vitality_booster"
+    },
+    "paladin_sword": {
+      "content_enable_group": "null",
+      "id": 10203,
+      "tier": 2,
+      "type": "equipment_offensive",
+      "aiPrefAttackSpeed": "true",
+      "displayName": "#dac_item_paladin_sword",
+      "description": "#dac_item_paladin_sword_desc",
+      "attack_damage": 25,
+      "healing_amplify_pct": 20,
+      "icon": "paladin_sword"
+    },
+    "poisoner_hat": {
+      "content_enable_group": "rotation",
+      "id": 10204,
+      "tier": 2,
+      "type": "equipment_hat",
+      "aiSkip": "true",
+      "aiTierOffset": -10,
+      "add_synergy_on_equip": "Poisoner",
+      "synergy_priority": 1,
+      "displayName": "#dac_item_poisoner_hat",
+      "description": "#dac_item_poisoner_hat_desc",
+      "icon": "orb_of_venom",
+      "stealable": "false"
+    },
+    "barricade_rot1": {
+      "id": 10205,
+      "tier": 2,
+      "max_allowed": 1,
+      "type": "placeable",
+      "displayName": "#dac_item_barricade_rot1",
+      "description": "#dac_item_barricade_rot1_desc",
+      "icon": "build_barricade",
+      "unitName": "barricade_rot1",
+      "unitCount": 2,
+      "content_enable_group": "null"
+    },
+    "heavens_halberd": {
+      "content_enable_group": "null",
+      "id": 10206,
+      "tier": 2,
+      "type": "equipment_support",
+      "displayName": "#dac_item_heavens_halberd",
+      "description": "#dac_item_heavens_halberd_desc",
+      "cooldown": 10,
+      "evasion_pct": 25,
+      "disarm_duration": 3,
+      "precache": [
+        "particles/items2_fx/heavens_halberd.vpcf"
+      ],
+      "icon": "heavens_halberd"
+    },
+    "necronomicon": {
+      "content_enable_group": "null",
+      "id": 10207,
+      "tier": 3,
+      "type": "equipment_support",
+      "displayName": "#dac_item_necronomicon",
+      "description": "#dac_item_necronomicon_desc",
+      "max_units": 2,
+      "summon_unit_id": 142,
+      "precache": [
+        "particles/underlords/anessix/anessix_summon_demon_talent.vpcf"
+      ],
+      "icon": "necronomicon"
+    },
+    "swordsman_hat": {
+      "content_enable_group": "null",
+      "id": 10208,
+      "tier": 3,
+      "type": "equipment_hat",
+      "aiSkip": "true",
+      "aiTierOffset": -10,
+      "add_synergy_on_equip": "Swordsman",
+      "synergy_priority": 1,
+      "displayName": "#dac_item_swordsman_hat",
+      "description": "#dac_item_swordsman_hat_desc",
+      "icon": "pirate_hat",
+      "stealable": "false"
+    },
+    "craggy_coat": {
+      "content_enable_group": "null",
+      "id": 10209,
+      "tier": 3,
+      "type": "equipment_defensive",
+      "displayName": "#dac_item_craggy_coat",
+      "description": "#dac_item_craggy_coat_desc",
+      "bonus_armor": 15,
+      "attack_speed": -30,
+      "icon": "craggy_coat"
+    },
+    "witless_shako": {
+      "content_enable_group": "null",
+      "id": 10210,
+      "tier": 3,
+      "type": "equipment_defensive",
+      "displayName": "#dac_item_witless_shako",
+      "description": "#dac_item_witless_shako_desc",
+      "health_bonus": 1000,
+      "mana_gain_pct_decrease": 50,
+      "icon": "witless_shako"
+    },
+    "maelstrom_rot1": {
+      "content_enable_group": "null",
+      "id": 10211,
+      "tier": 4,
+      "type": "equipment_offensive",
+      "aiPrefAttackSpeed": "true",
+      "displayName": "#dac_item_maelstrom_rot1",
+      "description": "#dac_item_maelstrom_rot1_desc",
+      "bolt_chance_percentage": 25,
+      "bolt_damage": 125,
+      "bolt_targets": 4,
+      "bolt_search_radius": 3,
+      "chain_delay_time": 0.25,
+      "chain_cooldown": 0.6,
+      "max_bounces_per_unit": 1,
+      "summon_damage_increase": 50,
+      "precache": [
+        "particles/items_fx/chain_lightning.vpcf"
+      ],
+      "icon": "maelstrom"
+    },
+    "monkey_king_bar": {
+      "content_enable_group": "null",
+      "id": 10212,
+      "tier": 4,
+      "type": "equipment_offensive",
+      "aiPrefAttackSpeed": "true",
+      "displayName": "#dac_item_monkey_king_bar",
+      "description": "#dac_item_monkey_king_bar_desc",
+      "attack_damage": 90,
+      "icon": "monkey_king_bar"
     }
   }
 }

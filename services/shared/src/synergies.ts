@@ -17,7 +17,7 @@ export interface Synergy {
 	/**
 	 * Indexed by "0", "1", "2", ...
 	 */
-	levels: Record<string, SynergyLevel>;
+	levels: SynergyLevel[];
 }
 
 // We'll keep the record definition on the variable to ensure type safety

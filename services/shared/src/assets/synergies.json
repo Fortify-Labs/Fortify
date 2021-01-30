@@ -2,329 +2,329 @@
   "set_base": {
     "Beast": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20000,
           "unitcount": 2,
           "affects_all_allied_units": "true"
         },
-        "1": {
+        {
           "id": 20001,
           "unitcount": 4,
           "affects_all_allied_units": "true"
         },
-        "2": {
+        {
           "id": 20002,
           "unitcount": 6,
           "affects_all_allied_units": "true"
         }
-      },
-      "damage_pct": {
-        "0": 10,
-        "1": 25,
-        "2": 45
-      },
+      ],
+      "damage_pct": [
+        10,
+        25,
+        45
+      ],
       "color": "178 65 26"
     },
     "Demon": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20003,
           "unitcount": 1,
           "affects_all_allies_with_keyword": "true"
         }
-      },
+      ],
       "bonus_pct_per_demon": 50,
       "silence_duration": 4,
       "color": "158 29 116",
       "unit_id_to_prevent_silence": 0,
-      "precache": {
-        "0": "particles/gameplay/synergy/demon/demon_buff.vpcf"
-      }
+      "precache": [
+        "particles/gameplay/synergy/demon/demon_buff.vpcf"
+      ]
     },
     "Dragon": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20004,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         }
-      },
+      ],
       "color": "255 81 27"
     },
     "Dwarf": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20005,
           "unitcount": 1,
           "affects_all_allies_with_keyword": "true"
         }
-      },
+      ],
       "color": "194 147 21",
-      "precache": {
-        "0": "particles/gameplay/synergy/dwarf/dwarf_target.vpcf"
-      }
+      "precache": [
+        "particles/gameplay/synergy/dwarf/dwarf_target.vpcf"
+      ]
     },
     "Element": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20006,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20007,
           "unitcount": 4,
           "affects_all_allied_units": "true"
         }
-      },
+      ],
       "slow_attack_speed": 50,
       "slow_chance": 25,
       "color": "0 128 128",
-      "precache": {
-        "0": "particles/gameplay/synergy/primordial/primordial_slow.vpcf"
-      }
+      "precache": [
+        "particles/gameplay/synergy/primordial/primordial_slow.vpcf"
+      ]
     },
     "Elf": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20008,
           "unitcount": 3,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20009,
           "unitcount": 6,
           "affects_all_allies_with_keyword": "true"
         }
-      },
+      ],
       "evasion_bonus": 100,
       "attack_speed": 35,
-      "proc_chance": {
-        "0": 10,
-        "1": 20
-      },
+      "proc_chance": [
+        10,
+        20
+      ],
       "buff_duration": 3,
-      "precache": {
-        "0": "particles/units/heroes/hero_windrunner/windrunner_windrun.vpcf"
-      },
+      "precache": [
+        "particles/units/heroes/hero_windrunner/windrunner_windrun.vpcf"
+      ],
       "color": "95 151 208"
     },
     "Goblin": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20011,
           "unitcount": 2,
           "affects_random_ally_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20058,
           "unitcount": 4,
           "affects_all_allies_with_keyword": "true"
         },
-        "2": {
+        {
           "id": 20012,
           "unitcount": 6,
           "affects_all_allied_units": "true"
         }
-      },
+      ],
       "armor_bonus": 7,
       "armor_bonus_disadvantage": 7,
       "hp_regen": 8,
       "hp_regen_disadvantage": 8,
       "color": "184 199 44",
-      "alliance_eligible": {
-        "0": "#DAC_Synergy_Tooltip_Goblin_0",
-        "1": "#DAC_Synergy_Tooltip_Goblin_1",
-        "2": "#DAC_Synergy_Tooltip_Goblin_2"
-      },
-      "precache": {
-        "0": "particles/gameplay/synergy/scrappy/scrappy_buff_lvl1.vpcf",
-        "1": "particles/gameplay/synergy/scrappy/scrappy_buff_lvl2.vpcf"
-      }
+      "alliance_eligible": [
+        "#DAC_Synergy_Tooltip_Goblin_0",
+        "#DAC_Synergy_Tooltip_Goblin_1",
+        "#DAC_Synergy_Tooltip_Goblin_2"
+      ],
+      "precache": [
+        "particles/gameplay/synergy/scrappy/scrappy_buff_lvl1.vpcf",
+        "particles/gameplay/synergy/scrappy/scrappy_buff_lvl2.vpcf"
+      ]
     },
     "Human": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20013,
           "unitcount": 2,
           "affects_all_allied_units": "true"
         },
-        "1": {
+        {
           "id": 20014,
           "unitcount": 4,
           "affects_all_allied_units": "true"
         },
-        "2": {
+        {
           "id": 20015,
           "unitcount": 6,
           "affects_all_allied_units": "true"
         }
-      },
-      "mana_regen": {
-        "0": 4,
-        "1": 7,
-        "2": 10
-      },
+      ],
+      "mana_regen": [
+        4,
+        7,
+        10
+      ],
       "color": "2 200 156"
     },
     "Naga": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20016,
           "unitcount": 2,
           "affects_all_allied_units": "true"
         },
-        "1": {
+        {
           "id": 20017,
           "unitcount": 4,
           "affects_all_allied_units": "true"
         }
-      },
-      "magic_resist": {
-        "0": 20,
-        "1": 45
-      },
+      ],
+      "magic_resist": [
+        20,
+        45
+      ],
       "color": "72 63 162"
     },
     "Ogre": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20018,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "enrage_bonus": {
-        "0": 125
-      },
+      ],
+      "enrage_bonus": [
+        125
+      ],
       "color": "150 31 28",
       "appliesToItems": "true",
-      "precache": {
-        "0": "particles/units/heroes/hero_ogre_magi/ogre_magi_bloodlust_buff.vpcf"
-      }
+      "precache": [
+        "particles/units/heroes/hero_ogre_magi/ogre_magi_bloodlust_buff.vpcf"
+      ]
     },
     "Orc": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20019,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20020,
           "unitcount": 4,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "hp_bonus": {
-        "0": 400,
-        "1": 1000
-      },
+      ],
+      "hp_bonus": [
+        400,
+        1000
+      ],
       "color": "166 27 27"
     },
     "Troll": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20021,
           "unitcount": 2,
           "affects_all_allied_units": "true"
         },
-        "1": {
+        {
           "id": 20022,
           "unitcount": 4,
           "affects_all_allied_units": "true"
         }
-      },
-      "attack_speed_bonus_trolls": {
-        "0": 35,
-        "1": 65
-      },
-      "attack_speed_bonus_others": {
-        "0": 10,
-        "1": 30
-      },
+      ],
+      "attack_speed_bonus_trolls": [
+        35,
+        65
+      ],
+      "attack_speed_bonus_others": [
+        10,
+        30
+      ],
       "applies_to_untargetable_units": "true",
       "color": "158 110 74",
-      "precache": {
-        "0": "particles/generic_gameplay/generic_attackspeed.vpcf"
-      }
+      "precache": [
+        "particles/generic_gameplay/generic_attackspeed.vpcf"
+      ]
     },
     "Undead": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20023,
           "unitcount": 2,
           "affects_all_enemy_units": "true"
         },
-        "1": {
+        {
           "id": 20024,
           "unitcount": 4,
           "affects_all_enemy_units": "true"
         },
-        "2": {
+        {
           "id": 20025,
           "unitcount": 6,
           "affects_all_enemy_units": "true"
         }
-      },
-      "armor_debuff": {
-        "0": 4,
-        "1": 9,
-        "2": 16
-      },
+      ],
+      "armor_debuff": [
+        4,
+        9,
+        16
+      ],
       "color": "127 160 154",
       "appliesToItems": "true",
       "applies_to_untargetable_units": "true"
     },
     "Satyr": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20026,
           "unitcount": 1
         }
-      },
+      ],
       "color": "192 192 192"
     },
     "Assassin": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20027,
           "unitcount": 3,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20028,
           "unitcount": 6,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "crit_chance": {
-        "0": 15,
-        "1": 25
-      },
-      "crit_bonus": {
-        "0": 325,
-        "1": 400
-      },
-      "heal_damp": {
-        "0": 50,
-        "1": 100
-      },
+      ],
+      "crit_chance": [
+        15,
+        25
+      ],
+      "crit_bonus": [
+        325,
+        400
+      ],
+      "heal_damp": [
+        50,
+        100
+      ],
       "duration": 3,
       "blind_duration": 2,
       "blind_cha": "nce",
@@ -333,305 +333,305 @@
     },
     "DemonHunter": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20030,
           "unitcount": 1,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20031,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "crit_bonus": {
-        "0": 200,
-        "1": 400
-      },
-      "target_demon_distance": {
-        "0": 2,
-        "1": 2
-      },
+      ],
+      "crit_bonus": [
+        200,
+        400
+      ],
+      "target_demon_distance": [
+        2,
+        2
+      ],
       "color": "139 0 139",
-      "precache": {
-        "0": "particles/units/heroes/hero_keeper_of_the_light/keeper_of_the_light_illuminate_impact.vpcf"
-      }
+      "precache": [
+        "particles/units/heroes/hero_keeper_of_the_light/keeper_of_the_light_illuminate_impact.vpcf"
+      ]
     },
     "Druid": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20032,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20033,
           "unitcount": 4,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "target_count": {
-        "0": 1,
-        "1": 2
-      },
+      ],
+      "target_count": [
+        1,
+        2
+      ],
       "color": "46 99 64"
     },
     "Hunter": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20034,
           "unitcount": 3,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20035,
           "unitcount": 6,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "chance": {
-        "0": 30,
-        "1": 38
-      },
-      "num_attacks": {
-        "0": 2,
-        "1": 3
-      },
+      ],
+      "chance": [
+        30,
+        38
+      ],
+      "num_attacks": [
+        2,
+        3
+      ],
       "bonus_attack_speed": 300,
       "color": "255 118 82"
     },
     "Knight": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20036,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20037,
           "unitcount": 4,
           "affects_all_allies_with_keyword": "true"
         },
-        "2": {
+        {
           "id": 20038,
           "unitcount": 6,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "physical_reduction": {
-        "0": 15,
-        "1": 20,
-        "2": 25
-      },
-      "magical_reduction": {
-        "0": 15,
-        "1": 20,
-        "2": 25
-      },
-      "physical_reduction_extra": {
-        "0": 15,
-        "1": 20,
-        "2": 25
-      },
-      "magical_reduction_extra": {
-        "0": 15,
-        "1": 20,
-        "2": 25
-      },
+      ],
+      "physical_reduction": [
+        15,
+        20,
+        25
+      ],
+      "magical_reduction": [
+        15,
+        20,
+        25
+      ],
+      "physical_reduction_extra": [
+        15,
+        20,
+        25
+      ],
+      "magical_reduction_extra": [
+        15,
+        20,
+        25
+      ],
       "duration": 1,
       "unit_id_for_always_adjacent": 0,
       "color": "255 227 39"
     },
     "Mage": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20039,
           "unitcount": 3,
           "affects_all_enemy_units": "true"
         },
-        "1": {
+        {
           "id": 20040,
           "unitcount": 6,
           "affects_all_enemy_units": "true"
         }
-      },
-      "base_modifiers": {
-        "0": "modifier_bonus_mana_per_hit"
-      },
-      "magic_resist_debuff": {
-        "0": 35,
-        "1": 75
-      },
+      ],
+      "base_modifiers": [
+        "modifier_bonus_mana_per_hit"
+      ],
+      "magic_resist_debuff": [
+        35,
+        75
+      ],
       "color": "88 221 233",
       "appliesToItems": "true",
       "applies_to_untargetable_units": "true"
     },
     "Mech": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20041,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20042,
           "unitcount": 4,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "health_regen": {
-        "0": 15,
-        "1": 40
-      },
+      ],
+      "health_regen": [
+        15,
+        40
+      ],
       "color": "251 142 20",
-      "precache": {
-        "0": "particles/gameplay/synergy/mech/mech_buff.vpcf"
-      }
+      "precache": [
+        "particles/gameplay/synergy/mech/mech_buff.vpcf"
+      ]
     },
     "Shaman": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20043,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20086,
           "unitcount": 4,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "base_modifiers": {
-        "0": "modifier_bonus_mana_per_hit"
-      },
-      "hops": {
-        "0": 2,
-        "1": 4
-      },
+      ],
+      "base_modifiers": [
+        "modifier_bonus_mana_per_hit"
+      ],
+      "hops": [
+        2,
+        4
+      ],
       "percent_chance": 17,
       "color": "108 152 91"
     },
     "Warlock": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20044,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20045,
           "unitcount": 4,
           "affects_all_allies_with_keyword": "true"
         },
-        "2": {
+        {
           "id": 20046,
           "unitcount": 6,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "precache": {
-        "0": "particles/gameplay/synergy/warlock/warlock_link.vpcf"
-      },
-      "base_modifiers": {
-        "0": "modifier_bonus_mana_per_hit"
-      },
-      "lifesteal_pct": {
-        "0": 50,
-        "1": 60,
-        "2": 70
-      },
-      "duration": {
-        "0": 2,
-        "1": 2.5,
-        "2": 3
-      },
+      ],
+      "precache": [
+        "particles/gameplay/synergy/warlock/warlock_link.vpcf"
+      ],
+      "base_modifiers": [
+        "modifier_bonus_mana_per_hit"
+      ],
+      "lifesteal_pct": [
+        50,
+        60,
+        70
+      ],
+      "duration": [
+        2,
+        2.5,
+        3
+      ],
       "color": "228 110 213"
     },
     "Warrior": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20047,
           "unitcount": 3,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20048,
           "unitcount": 6,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "armor_bonus": {
-        "0": 9,
-        "1": 19
-      },
+      ],
+      "armor_bonus": [
+        9,
+        19
+      ],
       "color": "28 103 180"
     },
     "MegaWarrior": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20050,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "armor_bonus": {
-        "0": 30
-      },
+      ],
+      "armor_bonus": [
+        30
+      ],
       "color": "28 103 180"
     },
     "MegaAssassin": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20051,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "crit_chance": {
-        "0": 25
-      },
-      "crit_bonus": {
-        "0": 400
-      },
+      ],
+      "crit_chance": [
+        25
+      ],
+      "crit_bonus": [
+        400
+      ],
       "color": "153 50 204"
     },
     "MegaBloodbound": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20052,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "enrage_bonus_pct": {
-        "0": 1000
-      },
-      "enrage_bonus": {
-        "0": 2250
-      },
+      ],
+      "enrage_bonus_pct": [
+        1000
+      ],
+      "enrage_bonus": [
+        2250
+      ],
       "color": "85 107 47"
     },
     "MegaElusive": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20053,
           "unitcount": 1,
           "affects_all_allies_with_keyword": "true"
         }
-      },
+      ],
       "evasion_bonus": 100,
       "attack_speed": 35,
       "proc_chance": 15,
@@ -640,875 +640,875 @@
     },
     "MegaWarlock": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20054,
           "unitcount": 1,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "precache": {
-        "0": "particles/gameplay/synergy/warlock/warlock_link.vpcf"
-      },
-      "base_modifiers": {
-        "0": "modifier_bonus_mana_per_hit"
-      },
-      "lifesteal_pct": {
-        "0": 200
-      },
+      ],
+      "precache": [
+        "particles/gameplay/synergy/warlock/warlock_link.vpcf"
+      ],
+      "base_modifiers": [
+        "modifier_bonus_mana_per_hit"
+      ],
+      "lifesteal_pct": [
+        200
+      ],
       "duration": 6,
       "color": "228 110 213"
     },
     "MegaScaled": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20055,
           "unitcount": 1,
           "affects_all_allied_units": "true"
         }
-      },
-      "magic_resist": {
-        "0": 75
-      },
+      ],
+      "magic_resist": [
+        75
+      ],
       "color": "72 63 162"
     },
     "MegaTroll": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20056,
           "unitcount": 3,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "attack_speed_bonus_trolls": {
-        "0": 100
-      },
-      "attack_speed_bonus_others": {
-        "0": 100
-      },
+      ],
+      "attack_speed_bonus_trolls": [
+        100
+      ],
+      "attack_speed_bonus_others": [
+        100
+      ],
       "color": "158 110 74",
-      "precache": {
-        "0": "particles/generic_gameplay/generic_attackspeed.vpcf"
-      }
+      "precache": [
+        "particles/generic_gameplay/generic_attackspeed.vpcf"
+      ]
     },
     "MegaDemon": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20057,
           "unitcount": 1,
           "affects_all_allies_with_keyword": "true"
         }
-      },
+      ],
       "damage_bonus_pct": 100,
       "color": "222 33 33",
-      "precache": {
-        "0": "particles/gameplay/synergy/demon/demon_buff.vpcf"
-      }
+      "precache": [
+        "particles/gameplay/synergy/demon/demon_buff.vpcf"
+      ]
     },
     "Primordial": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20059,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20060,
           "unitcount": 4,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "rank": {
-        "0": 1,
-        "1": 2
-      },
-      "amount": {
-        "0": 1,
-        "1": 1
-      },
+      ],
+      "rank": [
+        1,
+        2
+      ],
+      "amount": [
+        1,
+        1
+      ],
       "unitID": 87,
       "color": "0 128 128",
-      "precache": {
-        "0": "particles/units/heroes/hero_enigma/enigma_malefice.vpcf",
-        "1": "particles/status_fx/status_effect_enigma_malefice.vpcf"
-      }
+      "precache": [
+        "particles/units/heroes/hero_enigma/enigma_malefice.vpcf",
+        "particles/status_fx/status_effect_enigma_malefice.vpcf"
+      ]
     },
     "Brawny": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20061,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20062,
           "unitcount": 4,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "hp_bonus_kill_mult": {
-        "0": 15,
-        "1": 30
-      },
-      "rank_multiplier": {
-        "0": 1,
-        "1": 1,
-        "2": 1
-      },
+      ],
+      "hp_bonus_kill_mult": [
+        15,
+        30
+      ],
+      "rank_multiplier": [
+        1,
+        1,
+        1
+      ],
       "color": "166 27 27",
-      "precache": {
-        "0": "particles/items/orc_brutality/orc_brutality.vpcf"
-      }
+      "precache": [
+        "particles/items/orc_brutality/orc_brutality.vpcf"
+      ]
     },
     "Inventor": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20063,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20064,
           "unitcount": 4,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "damage_hp_pct": {
-        "0": 10,
-        "1": 20
-      },
-      "min_delay": {
-        "0": 0.2,
-        "1": 0.2
-      },
-      "max_delay": {
-        "0": 0.75,
-        "1": 0.75
-      },
+      ],
+      "damage_hp_pct": [
+        10,
+        20
+      ],
+      "min_delay": [
+        0.2,
+        0.2
+      ],
+      "max_delay": [
+        0.75,
+        0.75
+      ],
       "color": "251 142 20",
-      "precache": {
-        "0": "particles/units/heroes/hero_techies/techies_remote_mines_detonate.vpcf"
-      }
+      "precache": [
+        "particles/units/heroes/hero_techies/techies_remote_mines_detonate.vpcf"
+      ]
     },
     "Savage": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20065,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20066,
           "unitcount": 4,
           "affects_all_allies_with_keyword_and_all_summons": "true"
         },
-        "2": {
+        {
           "id": 20096,
           "unitcount": 6,
           "affects_all_allied_units": "true"
         }
-      },
-      "bonus_damage_per_attack": {
-        "0": 5,
-        "1": 8,
-        "2": 10
-      },
-      "alliance_eligible": {
-        "0": "#DAC_Synergy_Tooltip_Savage_0",
-        "1": "#DAC_Synergy_Tooltip_Savage_1",
-        "2": "#DAC_Synergy_Tooltip_Savage_2"
-      },
+      ],
+      "bonus_damage_per_attack": [
+        5,
+        8,
+        10
+      ],
+      "alliance_eligible": [
+        "#DAC_Synergy_Tooltip_Savage_0",
+        "#DAC_Synergy_Tooltip_Savage_1",
+        "#DAC_Synergy_Tooltip_Savage_2"
+      ],
       "color": "178 65 26"
     },
     "Insect": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20068,
           "unitcount": 2,
           "affects_random_ally_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20089,
           "unitcount": 4,
           "affects_random_ally_with_keyword": "true"
         }
-      },
+      ],
       "insect_unit_id": 102,
       "alternate_insect_unit_id": 101,
-      "num_insects": {
-        "0": 6,
-        "1": 12
-      },
-      "miss_chance": {
-        "0": 20,
-        "1": 35
-      },
+      "num_insects": [
+        6,
+        12
+      ],
+      "miss_chance": [
+        20,
+        35
+      ],
       "miss_chance_duration": 0.5,
       "tick_rate": 0.5,
       "color": "77 105 255"
     },
     "Champion": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20082,
           "unitcount": 1,
           "affects_all_allies_with_keyword": "true"
         }
-      },
+      ],
       "dmg_pct_per_alliance": 3,
       "hp_pct_per_alliance": 8,
       "color": "172 137 224"
     },
     "Wisp": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20083,
           "unitcount": 1
         }
-      },
+      ],
       "color": "242 242 242"
     },
     "Brutal": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20084,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20085,
           "unitcount": 4,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "damage_reduction": {
-        "0": 30,
-        "1": 60
-      },
+      ],
+      "damage_reduction": [
+        30,
+        60
+      ],
       "debuff_duration": 4,
-      "initial_damage": {
-        "0": 80,
-        "1": 150
-      },
-      "precache": {
-        "0": "particles/units/heroes/hero_nevermore/nevermore_base_attack_impact.vpcf"
-      },
+      "initial_damage": [
+        80,
+        150
+      ],
+      "precache": [
+        "particles/units/heroes/hero_nevermore/nevermore_base_attack_impact.vpcf"
+      ],
       "color": "139 119 101"
     },
     "Healer": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20087,
           "unitcount": 2,
           "affects_all_allied_units": "true"
         },
-        "1": {
+        {
           "id": 20094,
           "unitcount": 4,
           "affects_all_allied_units": "true"
         }
-      },
-      "heal_bonus": {
-        "0": 25,
-        "1": 50
-      },
+      ],
+      "heal_bonus": [
+        25,
+        50
+      ],
       "color": "79 213 101"
     },
     "SpiritBrother": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20088,
           "unitcount": 3,
           "affects_all_allies_with_keyword": "true"
         }
-      },
+      ],
       "damage": 225,
       "disable_duration": 3,
       "bonus_damage": 100,
       "multiplier_2star": 1,
       "multiplier_3star": 1,
-      "precache": {
-        "0": "particles/gameplay/synergy/spirit/spirit_storm_impact.vpcf",
-        "1": "particles/gameplay/synergy/spirit/spirit_ember_impact.vpcf",
-        "2": "particles/gameplay/synergy/spirit/spirit_earth_impact.vpcf",
-        "3": "particles/gameplay/synergy/spirit/spirit_void_impact.vpcf",
-        "4": "particles/gameplay/synergy/spirit/spirit_legion_impact.vpcf",
-        "5": "particles/gameplay/synergy/spirit/spirit_storm_rope.vpcf",
-        "6": "particles/gameplay/synergy/spirit/spirit_ember_rope.vpcf",
-        "7": "particles/gameplay/synergy/spirit/spirit_earth_rope.vpcf",
-        "8": "particles/gameplay/synergy/spirit/spirit_void_rope.vpcf",
-        "9": "particles/gameplay/synergy/spirit/spirit_legion_rope.vpcf",
-        "10": "particles/gameplay/synergy/spirit/spirit_storm_teleport.vpcf",
-        "11": "particles/gameplay/synergy/spirit/spirit_ember_teleport.vpcf",
-        "12": "particles/gameplay/synergy/spirit/spirit_earth_teleport.vpcf",
-        "13": "particles/gameplay/synergy/spirit/spirit_void_teleport.vpcf",
-        "14": "particles/gameplay/synergy/spirit/spirit_legion_teleport.vpcf",
-        "15": "particles/gameplay/synergy/spirit/spirit_storm_godray.vpcf",
-        "16": "particles/gameplay/synergy/spirit/spirit_ember_godray.vpcf",
-        "17": "particles/gameplay/synergy/spirit/spirit_earth_godray.vpcf",
-        "18": "particles/gameplay/synergy/spirit/spirit_void_godray.vpcf",
-        "19": "particles/gameplay/synergy/spirit/spirit_legion_godray.vpcf",
-        "20": "particles/gameplay/synergy/spirit/spirit_storm_charge.vpcf",
-        "21": "particles/gameplay/synergy/spirit/spirit_ember_charge.vpcf",
-        "22": "particles/gameplay/synergy/spirit/spirit_earth_charge.vpcf",
-        "23": "particles/gameplay/synergy/spirit/spirit_void_charge.vpcf",
-        "24": "particles/gameplay/synergy/spirit/spirit_legion_charge.vpcf",
-        "25": "particles/status_fx/status_effect_medusa_stone_gaze.vpcf"
-      },
+      "precache": [
+        "particles/gameplay/synergy/spirit/spirit_storm_impact.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_ember_impact.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_earth_impact.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_void_impact.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_legion_impact.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_storm_rope.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_ember_rope.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_earth_rope.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_void_rope.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_legion_rope.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_storm_teleport.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_ember_teleport.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_earth_teleport.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_void_teleport.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_legion_teleport.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_storm_godray.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_ember_godray.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_earth_godray.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_void_godray.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_legion_godray.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_storm_charge.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_ember_charge.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_earth_charge.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_void_charge.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_legion_charge.vpcf",
+        "particles/status_fx/status_effect_medusa_stone_gaze.vpcf"
+      ],
       "color": "99 106 169"
     },
     "Summoner": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20090,
           "unitcount": 2,
           "affects_random_ally_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20091,
           "unitcount": 4,
           "affects_random_ally_with_keyword": "true"
         }
-      },
-      "damage_percent": {
-        "0": 20,
-        "1": 40
-      },
+      ],
+      "damage_percent": [
+        20,
+        40
+      ],
       "color": "241 114 20",
-      "precache": {
-        "0": "particles/gameplay/synergy/summoner/summoner_buff.vpcf"
-      }
+      "precache": [
+        "particles/gameplay/synergy/summoner/summoner_buff.vpcf"
+      ]
     },
     "Vigilant": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20092,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20093,
           "unitcount": 4,
           "affects_all_allied_units": "true"
         }
-      },
-      "alliance_eligible": {
-        "0": "#DAC_Synergy_Tooltip_Vigilant_0",
-        "1": "#DAC_Synergy_Tooltip_Vigilant_1"
-      },
+      ],
+      "alliance_eligible": [
+        "#DAC_Synergy_Tooltip_Vigilant_0",
+        "#DAC_Synergy_Tooltip_Vigilant_1"
+      ],
       "color": "95 151 208",
-      "damage_percent": {
-        "0": 40,
-        "1": 50
-      },
-      "precache": {
-        "0": "particles/gameplay/synergy/vigilant/vigilant_crosshair.vpcf",
-        "1": "particles/gameplay/synergy/vigilant/vigilant_arrow.vpcf"
-      }
+      "damage_percent": [
+        40,
+        50
+      ],
+      "precache": [
+        "particles/gameplay/synergy/vigilant/vigilant_crosshair.vpcf",
+        "particles/gameplay/synergy/vigilant/vigilant_arrow.vpcf"
+      ]
     },
     "Void": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20095,
           "unitcount": 3,
           "affects_all_allied_summons_of_keyword_and_allied_heroes": "true"
         }
-      },
+      ],
       "proc_chance": 40,
       "pure_damage_percent": 4,
       "cooldown": 0.5,
       "color": "105 93 106",
-      "precache": {
-        "0": "particles/gameplay/synergy/void/void_pure_damage.vpcf"
-      }
+      "precache": [
+        "particles/gameplay/synergy/void/void_pure_damage.vpcf"
+      ]
     },
     "Fallen": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 30001,
           "unitcount": 3,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 30002,
           "unitcount": 6,
           "affects_all_allies_with_keyword": "true"
         }
-      },
+      ],
       "radius": 2,
       "heal": 250,
       "damage_bonus_pct": 10,
-      "revive_times": {
-        "0": 0,
-        "1": 1
-      },
+      "revive_times": [
+        0,
+        1
+      ],
       "resurrect_hp_pct": 40,
       "copy_items": 1,
       "copy_ability_cooldowns": 0,
       "copy_item_cooldowns": 1,
       "color": "228 110 213",
-      "precache": {
-        "0": "particles/gameplay/synergy/fallen/fallen_heal_buff_cast.vpcf",
-        "1": "particles/gameplay/synergy/fallen/fallen_revive.vpcf"
-      }
+      "precache": [
+        "particles/gameplay/synergy/fallen/fallen_heal_buff_cast.vpcf",
+        "particles/gameplay/synergy/fallen/fallen_revive.vpcf"
+      ]
     },
     "Wild": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 30003,
           "unitcount": 2,
           "affects_random_ally_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 30004,
           "unitcount": 4,
           "affects_random_ally_with_keyword": "true"
         },
-        "2": {
+        {
           "id": 30005,
           "unitcount": 6,
           "affects_random_ally_with_keyword": "true"
         }
-      },
+      ],
       "summon_delay": 0.25,
-      "summon_id": {
-        "0": 138,
-        "1": 139,
-        "2": 141
-      },
-      "summon_display_name": {
-        "0": "#dac_unit_neutral_wolf_small",
-        "1": "#dac_unit_neutral_vulture_b",
-        "2": "#dac_unit_neutral_black_dragon"
-      },
-      "precache": {
-        "0": "particles/items/horn_of_the_alpha/horn_of_the_alpha_summon.vpcf"
-      },
+      "summon_id": [
+        138,
+        139,
+        141
+      ],
+      "summon_display_name": [
+        "#dac_unit_neutral_wolf_small",
+        "#dac_unit_neutral_vulture_b",
+        "#dac_unit_neutral_black_dragon"
+      ],
+      "precache": [
+        "particles/items/horn_of_the_alpha/horn_of_the_alpha_summon.vpcf"
+      ],
       "color": "46 99 64"
     },
     "Swordsman": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 30006,
           "unitcount": 3,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 30007,
           "unitcount": 6,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "damage_bonus_pct": {
-        "0": 10,
-        "1": 25
-      },
+      ],
+      "damage_bonus_pct": [
+        10,
+        25
+      ],
       "color": "194 147 21"
     },
     "Rogue": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 30008,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 30009,
           "unitcount": 4,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "evasion_pct": {
-        "0": 20,
-        "1": 40
-      },
-      "bonus_attack_damage": {
-        "0": 10,
-        "1": 20
-      },
+      ],
+      "evasion_pct": [
+        20,
+        40
+      ],
+      "bonus_attack_damage": [
+        10,
+        20
+      ],
       "color": "150 31 28"
     },
     "Poisoner": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 30010,
           "unitcount": 3,
           "affects_all_allies_with_keyword": "true"
         }
-      },
+      ],
       "attack_speed_loss_per_stack": 7,
       "color": "0 128 128",
-      "precache": {
-        "0": "particles/underlords/enno/enno_poison_stack.vpcf",
-        "1": "particles/items2_fx/orb_of_venom.vpcf"
-      }
+      "precache": [
+        "particles/underlords/enno/enno_poison_stack.vpcf",
+        "particles/items2_fx/orb_of_venom.vpcf"
+      ]
     },
     "Magus": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 30011,
           "unitcount": 1,
           "affects_all_allies_with_keyword": "true"
         }
-      },
+      ],
       "health_pct": 50,
       "duration": 3,
       "color": "77 105 255",
-      "precache": {
-        "0": "particles/items4_fx/combo_breaker_buff.vpcf",
-        "1": "particles/items4_fx/combo_breaker_spell.vpcf",
-        "2": "particles/status_fx/status_effect_combo_breaker.vpcf"
-      }
+      "precache": [
+        "particles/items4_fx/combo_breaker_buff.vpcf",
+        "particles/items4_fx/combo_breaker_spell.vpcf",
+        "particles/status_fx/status_effect_combo_breaker.vpcf"
+      ]
     }
   },
   "set_balance": {
     "Beast": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20000,
           "unitcount": 2,
           "affects_all_allied_units": "true"
         },
-        "1": {
+        {
           "id": 20001,
           "unitcount": 4,
           "affects_all_allied_units": "true"
         },
-        "2": {
+        {
           "id": 20002,
           "unitcount": 6,
           "affects_all_allied_units": "true"
         }
-      },
-      "damage_pct": {
-        "0": 10,
-        "1": 25,
-        "2": 45
-      },
+      ],
+      "damage_pct": [
+        10,
+        25,
+        45
+      ],
       "color": "178 65 26"
     },
     "Demon": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20003,
           "unitcount": 1,
           "affects_all_allies_with_keyword": "true"
         }
-      },
+      ],
       "bonus_pct_per_demon": 50,
       "silence_duration": 4,
       "color": "158 29 116",
       "unit_id_to_prevent_silence": 82,
-      "precache": {
-        "0": "particles/gameplay/synergy/demon/demon_buff.vpcf"
-      }
+      "precache": [
+        "particles/gameplay/synergy/demon/demon_buff.vpcf"
+      ]
     },
     "Dragon": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20004,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         }
-      },
+      ],
       "color": "255 81 27"
     },
     "Dwarf": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20005,
           "unitcount": 1,
           "affects_all_allies_with_keyword": "true"
         }
-      },
+      ],
       "color": "194 147 21",
-      "precache": {
-        "0": "particles/gameplay/synergy/dwarf/dwarf_target.vpcf"
-      }
+      "precache": [
+        "particles/gameplay/synergy/dwarf/dwarf_target.vpcf"
+      ]
     },
     "Element": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20006,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20007,
           "unitcount": 4,
           "affects_all_allied_units": "true"
         }
-      },
+      ],
       "slow_attack_speed": 50,
       "slow_chance": 25,
       "color": "0 128 128",
-      "precache": {
-        "0": "particles/gameplay/synergy/primordial/primordial_slow.vpcf"
-      }
+      "precache": [
+        "particles/gameplay/synergy/primordial/primordial_slow.vpcf"
+      ]
     },
     "Elf": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20008,
           "unitcount": 3,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20009,
           "unitcount": 6,
           "affects_all_allies_with_keyword": "true"
         }
-      },
+      ],
       "evasion_bonus": 100,
       "attack_speed": 35,
-      "proc_chance": {
-        "0": 10,
-        "1": 20
-      },
+      "proc_chance": [
+        10,
+        20
+      ],
       "buff_duration": 3,
-      "precache": {
-        "0": "particles/units/heroes/hero_windrunner/windrunner_windrun.vpcf"
-      },
+      "precache": [
+        "particles/units/heroes/hero_windrunner/windrunner_windrun.vpcf"
+      ],
       "color": "95 151 208"
     },
     "Goblin": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20011,
           "unitcount": 2,
           "affects_random_ally_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20058,
           "unitcount": 4,
           "affects_all_allies_with_keyword": "true"
         },
-        "2": {
+        {
           "id": 20012,
           "unitcount": 6,
           "affects_all_allied_units": "true"
         }
-      },
+      ],
       "armor_bonus": 7,
       "armor_bonus_disadvantage": 7,
       "hp_regen": 8,
       "hp_regen_disadvantage": 8,
       "color": "184 199 44",
-      "alliance_eligible": {
-        "0": "#DAC_Synergy_Tooltip_Goblin_0",
-        "1": "#DAC_Synergy_Tooltip_Goblin_1",
-        "2": "#DAC_Synergy_Tooltip_Goblin_2"
-      },
-      "precache": {
-        "0": "particles/gameplay/synergy/scrappy/scrappy_buff_lvl1.vpcf",
-        "1": "particles/gameplay/synergy/scrappy/scrappy_buff_lvl2.vpcf"
-      }
+      "alliance_eligible": [
+        "#DAC_Synergy_Tooltip_Goblin_0",
+        "#DAC_Synergy_Tooltip_Goblin_1",
+        "#DAC_Synergy_Tooltip_Goblin_2"
+      ],
+      "precache": [
+        "particles/gameplay/synergy/scrappy/scrappy_buff_lvl1.vpcf",
+        "particles/gameplay/synergy/scrappy/scrappy_buff_lvl2.vpcf"
+      ]
     },
     "Human": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20013,
           "unitcount": 2,
           "affects_all_allied_units": "true"
         },
-        "1": {
+        {
           "id": 20014,
           "unitcount": 4,
           "affects_all_allied_units": "true"
         },
-        "2": {
+        {
           "id": 20015,
           "unitcount": 6,
           "affects_all_allied_units": "true"
         }
-      },
-      "mana_regen": {
-        "0": 4,
-        "1": 8,
-        "2": 15
-      },
+      ],
+      "mana_regen": [
+        4,
+        8,
+        15
+      ],
       "color": "2 200 156"
     },
     "Naga": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20016,
           "unitcount": 2,
           "affects_all_allied_units": "true"
         },
-        "1": {
+        {
           "id": 20017,
           "unitcount": 4,
           "affects_all_allied_units": "true"
         }
-      },
-      "magic_resist": {
-        "0": 30,
-        "1": 55
-      },
+      ],
+      "magic_resist": [
+        30,
+        55
+      ],
       "color": "72 63 162"
     },
     "Ogre": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20018,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "enrage_bonus": {
-        "0": 125
-      },
+      ],
+      "enrage_bonus": [
+        125
+      ],
       "color": "150 31 28",
       "appliesToItems": "true",
-      "precache": {
-        "0": "particles/units/heroes/hero_ogre_magi/ogre_magi_bloodlust_buff.vpcf"
-      }
+      "precache": [
+        "particles/units/heroes/hero_ogre_magi/ogre_magi_bloodlust_buff.vpcf"
+      ]
     },
     "Orc": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20019,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20020,
           "unitcount": 4,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "hp_bonus": {
-        "0": 400,
-        "1": 1000
-      },
+      ],
+      "hp_bonus": [
+        400,
+        1000
+      ],
       "color": "166 27 27"
     },
     "Troll": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20021,
           "unitcount": 2,
           "affects_all_allied_units": "true"
         },
-        "1": {
+        {
           "id": 20022,
           "unitcount": 4,
           "affects_all_allied_units": "true"
         }
-      },
-      "attack_speed_bonus_trolls": {
-        "0": 40,
-        "1": 70
-      },
-      "attack_speed_bonus_others": {
-        "0": 20,
-        "1": 40
-      },
+      ],
+      "attack_speed_bonus_trolls": [
+        40,
+        70
+      ],
+      "attack_speed_bonus_others": [
+        20,
+        40
+      ],
       "applies_to_untargetable_units": "true",
       "color": "158 110 74",
-      "precache": {
-        "0": "particles/generic_gameplay/generic_attackspeed.vpcf"
-      }
+      "precache": [
+        "particles/generic_gameplay/generic_attackspeed.vpcf"
+      ]
     },
     "Undead": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20023,
           "unitcount": 2,
           "affects_all_enemy_units": "true"
         },
-        "1": {
+        {
           "id": 20024,
           "unitcount": 4,
           "affects_all_enemy_units": "true"
         },
-        "2": {
+        {
           "id": 20025,
           "unitcount": 6,
           "affects_all_enemy_units": "true"
         }
-      },
-      "armor_debuff": {
-        "0": 4,
-        "1": 9,
-        "2": 15
-      },
+      ],
+      "armor_debuff": [
+        4,
+        9,
+        15
+      ],
       "color": "127 160 154",
       "appliesToItems": "true",
       "applies_to_untargetable_units": "true"
     },
     "Satyr": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20026,
           "unitcount": 1
         }
-      },
+      ],
       "color": "192 192 192"
     },
     "Assassin": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20027,
           "unitcount": 3,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20028,
           "unitcount": 6,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "crit_chance": {
-        "0": 15,
-        "1": 25
-      },
-      "crit_bonus": {
-        "0": 325,
-        "1": 400
-      },
-      "heal_damp": {
-        "0": 75,
-        "1": 100
-      },
+      ],
+      "crit_chance": [
+        15,
+        25
+      ],
+      "crit_bonus": [
+        325,
+        400
+      ],
+      "heal_damp": [
+        75,
+        100
+      ],
       "duration": 3,
       "blind_duration": 2,
       "blind_cha": "nce",
@@ -1517,305 +1517,305 @@
     },
     "DemonHunter": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20030,
           "unitcount": 1,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20031,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "crit_bonus": {
-        "0": 200,
-        "1": 400
-      },
-      "target_demon_distance": {
-        "0": 2,
-        "1": 2
-      },
+      ],
+      "crit_bonus": [
+        200,
+        400
+      ],
+      "target_demon_distance": [
+        2,
+        2
+      ],
       "color": "139 0 139",
-      "precache": {
-        "0": "particles/units/heroes/hero_keeper_of_the_light/keeper_of_the_light_illuminate_impact.vpcf"
-      }
+      "precache": [
+        "particles/units/heroes/hero_keeper_of_the_light/keeper_of_the_light_illuminate_impact.vpcf"
+      ]
     },
     "Druid": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20032,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20033,
           "unitcount": 4,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "target_count": {
-        "0": 1,
-        "1": 2
-      },
+      ],
+      "target_count": [
+        1,
+        2
+      ],
       "color": "46 99 64"
     },
     "Hunter": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20034,
           "unitcount": 3,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20035,
           "unitcount": 6,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "chance": {
-        "0": 30,
-        "1": 38
-      },
-      "num_attacks": {
-        "0": 2,
-        "1": 3
-      },
+      ],
+      "chance": [
+        30,
+        38
+      ],
+      "num_attacks": [
+        2,
+        3
+      ],
       "bonus_attack_speed": 300,
       "color": "255 118 82"
     },
     "Knight": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20036,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20037,
           "unitcount": 4,
           "affects_all_allies_with_keyword": "true"
         },
-        "2": {
+        {
           "id": 20038,
           "unitcount": 6,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "physical_reduction": {
-        "0": 15,
-        "1": 20,
-        "2": 25
-      },
-      "magical_reduction": {
-        "0": 15,
-        "1": 20,
-        "2": 25
-      },
-      "physical_reduction_extra": {
-        "0": 15,
-        "1": 20,
-        "2": 25
-      },
-      "magical_reduction_extra": {
-        "0": 15,
-        "1": 20,
-        "2": 25
-      },
+      ],
+      "physical_reduction": [
+        15,
+        20,
+        25
+      ],
+      "magical_reduction": [
+        15,
+        20,
+        25
+      ],
+      "physical_reduction_extra": [
+        15,
+        20,
+        25
+      ],
+      "magical_reduction_extra": [
+        15,
+        20,
+        25
+      ],
       "duration": 1,
       "unit_id_for_always_adjacent": 21,
       "color": "255 227 39"
     },
     "Mage": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20039,
           "unitcount": 3,
           "affects_all_enemy_units": "true"
         },
-        "1": {
+        {
           "id": 20040,
           "unitcount": 6,
           "affects_all_enemy_units": "true"
         }
-      },
-      "base_modifiers": {
-        "0": "modifier_bonus_mana_per_hit"
-      },
-      "magic_resist_debuff": {
-        "0": 35,
-        "1": 70
-      },
+      ],
+      "base_modifiers": [
+        "modifier_bonus_mana_per_hit"
+      ],
+      "magic_resist_debuff": [
+        35,
+        70
+      ],
       "color": "88 221 233",
       "appliesToItems": "true",
       "applies_to_untargetable_units": "true"
     },
     "Mech": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20041,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20042,
           "unitcount": 4,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "health_regen": {
-        "0": 15,
-        "1": 40
-      },
+      ],
+      "health_regen": [
+        15,
+        40
+      ],
       "color": "251 142 20",
-      "precache": {
-        "0": "particles/gameplay/synergy/mech/mech_buff.vpcf"
-      }
+      "precache": [
+        "particles/gameplay/synergy/mech/mech_buff.vpcf"
+      ]
     },
     "Shaman": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20043,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20086,
           "unitcount": 4,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "base_modifiers": {
-        "0": "modifier_bonus_mana_per_hit"
-      },
-      "hops": {
-        "0": 2,
-        "1": 4
-      },
+      ],
+      "base_modifiers": [
+        "modifier_bonus_mana_per_hit"
+      ],
+      "hops": [
+        2,
+        4
+      ],
       "percent_chance": 17,
       "color": "108 152 91"
     },
     "Warlock": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20044,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20045,
           "unitcount": 4,
           "affects_all_allies_with_keyword": "true"
         },
-        "2": {
+        {
           "id": 20046,
           "unitcount": 6,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "precache": {
-        "0": "particles/gameplay/synergy/warlock/warlock_link.vpcf"
-      },
-      "base_modifiers": {
-        "0": "modifier_bonus_mana_per_hit"
-      },
-      "lifesteal_pct": {
-        "0": 50,
-        "1": 60,
-        "2": 70
-      },
-      "duration": {
-        "0": 2,
-        "1": 2.5,
-        "2": 3
-      },
+      ],
+      "precache": [
+        "particles/gameplay/synergy/warlock/warlock_link.vpcf"
+      ],
+      "base_modifiers": [
+        "modifier_bonus_mana_per_hit"
+      ],
+      "lifesteal_pct": [
+        50,
+        60,
+        70
+      ],
+      "duration": [
+        2,
+        2.5,
+        3
+      ],
       "color": "228 110 213"
     },
     "Warrior": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20047,
           "unitcount": 3,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20048,
           "unitcount": 6,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "armor_bonus": {
-        "0": 10,
-        "1": 25
-      },
+      ],
+      "armor_bonus": [
+        10,
+        25
+      ],
       "color": "28 103 180"
     },
     "MegaWarrior": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20050,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "armor_bonus": {
-        "0": 30
-      },
+      ],
+      "armor_bonus": [
+        30
+      ],
       "color": "28 103 180"
     },
     "MegaAssassin": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20051,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "crit_chance": {
-        "0": 25
-      },
-      "crit_bonus": {
-        "0": 400
-      },
+      ],
+      "crit_chance": [
+        25
+      ],
+      "crit_bonus": [
+        400
+      ],
       "color": "153 50 204"
     },
     "MegaBloodbound": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20052,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "enrage_bonus_pct": {
-        "0": 1000
-      },
-      "enrage_bonus": {
-        "0": 2250
-      },
+      ],
+      "enrage_bonus_pct": [
+        1000
+      ],
+      "enrage_bonus": [
+        2250
+      ],
       "color": "85 107 47"
     },
     "MegaElusive": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20053,
           "unitcount": 1,
           "affects_all_allies_with_keyword": "true"
         }
-      },
+      ],
       "evasion_bonus": 100,
       "attack_speed": 35,
       "proc_chance": 15,
@@ -1824,547 +1824,547 @@
     },
     "MegaWarlock": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20054,
           "unitcount": 1,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "precache": {
-        "0": "particles/gameplay/synergy/warlock/warlock_link.vpcf"
-      },
-      "base_modifiers": {
-        "0": "modifier_bonus_mana_per_hit"
-      },
-      "lifesteal_pct": {
-        "0": 200
-      },
+      ],
+      "precache": [
+        "particles/gameplay/synergy/warlock/warlock_link.vpcf"
+      ],
+      "base_modifiers": [
+        "modifier_bonus_mana_per_hit"
+      ],
+      "lifesteal_pct": [
+        200
+      ],
       "duration": 6,
       "color": "228 110 213"
     },
     "MegaScaled": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20055,
           "unitcount": 1,
           "affects_all_allied_units": "true"
         }
-      },
-      "magic_resist": {
-        "0": 75
-      },
+      ],
+      "magic_resist": [
+        75
+      ],
       "color": "72 63 162"
     },
     "MegaTroll": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20056,
           "unitcount": 3,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "attack_speed_bonus_trolls": {
-        "0": 100
-      },
-      "attack_speed_bonus_others": {
-        "0": 100
-      },
+      ],
+      "attack_speed_bonus_trolls": [
+        100
+      ],
+      "attack_speed_bonus_others": [
+        100
+      ],
       "color": "158 110 74",
-      "precache": {
-        "0": "particles/generic_gameplay/generic_attackspeed.vpcf"
-      }
+      "precache": [
+        "particles/generic_gameplay/generic_attackspeed.vpcf"
+      ]
     },
     "MegaDemon": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20057,
           "unitcount": 1,
           "affects_all_allies_with_keyword": "true"
         }
-      },
+      ],
       "damage_bonus_pct": 100,
       "color": "222 33 33",
-      "precache": {
-        "0": "particles/gameplay/synergy/demon/demon_buff.vpcf"
-      }
+      "precache": [
+        "particles/gameplay/synergy/demon/demon_buff.vpcf"
+      ]
     },
     "Primordial": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20059,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20060,
           "unitcount": 4,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "rank": {
-        "0": 1,
-        "1": 2
-      },
-      "amount": {
-        "0": 1,
-        "1": 1
-      },
+      ],
+      "rank": [
+        1,
+        2
+      ],
+      "amount": [
+        1,
+        1
+      ],
       "unitID": 87,
       "color": "0 128 128",
-      "precache": {
-        "0": "particles/units/heroes/hero_enigma/enigma_malefice.vpcf",
-        "1": "particles/status_fx/status_effect_enigma_malefice.vpcf"
-      }
+      "precache": [
+        "particles/units/heroes/hero_enigma/enigma_malefice.vpcf",
+        "particles/status_fx/status_effect_enigma_malefice.vpcf"
+      ]
     },
     "Brawny": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20061,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20062,
           "unitcount": 4,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "hp_bonus_kill_mult": {
-        "0": 5,
-        "1": 10
-      },
-      "rank_multiplier": {
-        "0": 1,
-        "1": 2,
-        "2": 3
-      },
+      ],
+      "hp_bonus_kill_mult": [
+        5,
+        10
+      ],
+      "rank_multiplier": [
+        1,
+        2,
+        3
+      ],
       "color": "166 27 27",
-      "precache": {
-        "0": "particles/items/orc_brutality/orc_brutality.vpcf"
-      }
+      "precache": [
+        "particles/items/orc_brutality/orc_brutality.vpcf"
+      ]
     },
     "Inventor": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20063,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20064,
           "unitcount": 4,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "damage_hp_pct": {
-        "0": 10,
-        "1": 20
-      },
-      "min_delay": {
-        "0": 0.2,
-        "1": 0.2
-      },
-      "max_delay": {
-        "0": 0.75,
-        "1": 0.75
-      },
+      ],
+      "damage_hp_pct": [
+        10,
+        20
+      ],
+      "min_delay": [
+        0.2,
+        0.2
+      ],
+      "max_delay": [
+        0.75,
+        0.75
+      ],
       "color": "251 142 20",
-      "precache": {
-        "0": "particles/units/heroes/hero_techies/techies_remote_mines_detonate.vpcf"
-      }
+      "precache": [
+        "particles/units/heroes/hero_techies/techies_remote_mines_detonate.vpcf"
+      ]
     },
     "Savage": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20065,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20066,
           "unitcount": 4,
           "affects_all_allies_with_keyword_and_all_summons": "true"
         },
-        "2": {
+        {
           "id": 20096,
           "unitcount": 6,
           "affects_all_allied_units": "true"
         }
-      },
-      "bonus_damage_per_attack": {
-        "0": 5,
-        "1": 8,
-        "2": 13
-      },
-      "alliance_eligible": {
-        "0": "#DAC_Synergy_Tooltip_Savage_0",
-        "1": "#DAC_Synergy_Tooltip_Savage_1",
-        "2": "#DAC_Synergy_Tooltip_Savage_2"
-      },
+      ],
+      "bonus_damage_per_attack": [
+        5,
+        8,
+        13
+      ],
+      "alliance_eligible": [
+        "#DAC_Synergy_Tooltip_Savage_0",
+        "#DAC_Synergy_Tooltip_Savage_1",
+        "#DAC_Synergy_Tooltip_Savage_2"
+      ],
       "color": "178 65 26"
     },
     "Insect": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20068,
           "unitcount": 2,
           "affects_random_ally_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20089,
           "unitcount": 4,
           "affects_random_ally_with_keyword": "true"
         }
-      },
+      ],
       "insect_unit_id": 102,
       "alternate_insect_unit_id": 101,
-      "num_insects": {
-        "0": 6,
-        "1": 12
-      },
-      "miss_chance": {
-        "0": 20,
-        "1": 40
-      },
+      "num_insects": [
+        6,
+        12
+      ],
+      "miss_chance": [
+        20,
+        40
+      ],
       "miss_chance_duration": 0.5,
       "tick_rate": 0.5,
       "color": "77 105 255"
     },
     "Champion": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20082,
           "unitcount": 1,
           "affects_all_allies_with_keyword": "true"
         }
-      },
+      ],
       "dmg_pct_per_alliance": 3,
       "hp_pct_per_alliance": 8,
       "color": "172 137 224"
     },
     "Wisp": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20083,
           "unitcount": 1
         }
-      },
+      ],
       "color": "242 242 242"
     },
     "Brutal": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20084,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20085,
           "unitcount": 4,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "damage_reduction": {
-        "0": 30,
-        "1": 50
-      },
+      ],
+      "damage_reduction": [
+        30,
+        50
+      ],
       "debuff_duration": 4,
-      "initial_damage": {
-        "0": 80,
-        "1": 120
-      },
-      "precache": {
-        "0": "particles/units/heroes/hero_nevermore/nevermore_base_attack_impact.vpcf"
-      },
+      "initial_damage": [
+        80,
+        120
+      ],
+      "precache": [
+        "particles/units/heroes/hero_nevermore/nevermore_base_attack_impact.vpcf"
+      ],
       "color": "139 119 101"
     },
     "Healer": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20087,
           "unitcount": 2,
           "affects_all_allied_units": "true"
         },
-        "1": {
+        {
           "id": 20094,
           "unitcount": 4,
           "affects_all_allied_units": "true"
         }
-      },
-      "heal_bonus": {
-        "0": 25,
-        "1": 45
-      },
+      ],
+      "heal_bonus": [
+        25,
+        45
+      ],
       "color": "79 213 101"
     },
     "SpiritBrother": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20088,
           "unitcount": 3,
           "affects_all_allies_with_keyword": "true"
         }
-      },
+      ],
       "damage": 130,
       "disable_duration": 1.5,
       "bonus_damage": 100,
       "multiplier_2star": 1.5,
       "multiplier_3star": 2,
-      "precache": {
-        "0": "particles/gameplay/synergy/spirit/spirit_storm_impact.vpcf",
-        "1": "particles/gameplay/synergy/spirit/spirit_ember_impact.vpcf",
-        "2": "particles/gameplay/synergy/spirit/spirit_earth_impact.vpcf",
-        "3": "particles/gameplay/synergy/spirit/spirit_void_impact.vpcf",
-        "4": "particles/gameplay/synergy/spirit/spirit_legion_impact.vpcf",
-        "5": "particles/gameplay/synergy/spirit/spirit_storm_rope.vpcf",
-        "6": "particles/gameplay/synergy/spirit/spirit_ember_rope.vpcf",
-        "7": "particles/gameplay/synergy/spirit/spirit_earth_rope.vpcf",
-        "8": "particles/gameplay/synergy/spirit/spirit_void_rope.vpcf",
-        "9": "particles/gameplay/synergy/spirit/spirit_legion_rope.vpcf",
-        "10": "particles/gameplay/synergy/spirit/spirit_storm_teleport.vpcf",
-        "11": "particles/gameplay/synergy/spirit/spirit_ember_teleport.vpcf",
-        "12": "particles/gameplay/synergy/spirit/spirit_earth_teleport.vpcf",
-        "13": "particles/gameplay/synergy/spirit/spirit_void_teleport.vpcf",
-        "14": "particles/gameplay/synergy/spirit/spirit_legion_teleport.vpcf",
-        "15": "particles/gameplay/synergy/spirit/spirit_storm_godray.vpcf",
-        "16": "particles/gameplay/synergy/spirit/spirit_ember_godray.vpcf",
-        "17": "particles/gameplay/synergy/spirit/spirit_earth_godray.vpcf",
-        "18": "particles/gameplay/synergy/spirit/spirit_void_godray.vpcf",
-        "19": "particles/gameplay/synergy/spirit/spirit_legion_godray.vpcf",
-        "20": "particles/gameplay/synergy/spirit/spirit_storm_charge.vpcf",
-        "21": "particles/gameplay/synergy/spirit/spirit_ember_charge.vpcf",
-        "22": "particles/gameplay/synergy/spirit/spirit_earth_charge.vpcf",
-        "23": "particles/gameplay/synergy/spirit/spirit_void_charge.vpcf",
-        "24": "particles/gameplay/synergy/spirit/spirit_legion_charge.vpcf",
-        "25": "particles/status_fx/status_effect_medusa_stone_gaze.vpcf"
-      },
+      "precache": [
+        "particles/gameplay/synergy/spirit/spirit_storm_impact.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_ember_impact.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_earth_impact.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_void_impact.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_legion_impact.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_storm_rope.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_ember_rope.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_earth_rope.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_void_rope.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_legion_rope.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_storm_teleport.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_ember_teleport.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_earth_teleport.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_void_teleport.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_legion_teleport.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_storm_godray.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_ember_godray.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_earth_godray.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_void_godray.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_legion_godray.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_storm_charge.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_ember_charge.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_earth_charge.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_void_charge.vpcf",
+        "particles/gameplay/synergy/spirit/spirit_legion_charge.vpcf",
+        "particles/status_fx/status_effect_medusa_stone_gaze.vpcf"
+      ],
       "color": "99 106 169"
     },
     "Summoner": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20090,
           "unitcount": 2,
           "affects_random_ally_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20091,
           "unitcount": 4,
           "affects_random_ally_with_keyword": "true"
         }
-      },
-      "damage_percent": {
-        "0": 20,
-        "1": 40
-      },
+      ],
+      "damage_percent": [
+        20,
+        40
+      ],
       "color": "241 114 20",
-      "precache": {
-        "0": "particles/gameplay/synergy/summoner/summoner_buff.vpcf"
-      }
+      "precache": [
+        "particles/gameplay/synergy/summoner/summoner_buff.vpcf"
+      ]
     },
     "Vigilant": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20092,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 20093,
           "unitcount": 4,
           "affects_all_allied_units": "true"
         }
-      },
-      "alliance_eligible": {
-        "0": "#DAC_Synergy_Tooltip_Vigilant_0",
-        "1": "#DAC_Synergy_Tooltip_Vigilant_1"
-      },
+      ],
+      "alliance_eligible": [
+        "#DAC_Synergy_Tooltip_Vigilant_0",
+        "#DAC_Synergy_Tooltip_Vigilant_1"
+      ],
       "color": "95 151 208",
-      "damage_percent": {
-        "0": 40,
-        "1": 50
-      },
-      "precache": {
-        "0": "particles/gameplay/synergy/vigilant/vigilant_crosshair.vpcf",
-        "1": "particles/gameplay/synergy/vigilant/vigilant_arrow.vpcf"
-      }
+      "damage_percent": [
+        40,
+        50
+      ],
+      "precache": [
+        "particles/gameplay/synergy/vigilant/vigilant_crosshair.vpcf",
+        "particles/gameplay/synergy/vigilant/vigilant_arrow.vpcf"
+      ]
     },
     "Void": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 20095,
           "unitcount": 3,
           "affects_all_allied_summons_of_keyword_and_allied_heroes": "true"
         }
-      },
+      ],
       "proc_chance": 40,
       "pure_damage_percent": 4,
       "cooldown": 0.5,
       "color": "105 93 106",
-      "precache": {
-        "0": "particles/gameplay/synergy/void/void_pure_damage.vpcf"
-      }
+      "precache": [
+        "particles/gameplay/synergy/void/void_pure_damage.vpcf"
+      ]
     },
     "Fallen": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 30001,
           "unitcount": 3,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 30002,
           "unitcount": 6,
           "affects_all_allies_with_keyword": "true"
         }
-      },
+      ],
       "radius": 2,
       "heal": 250,
       "damage_bonus_pct": 10,
-      "revive_times": {
-        "0": 0,
-        "1": 1
-      },
+      "revive_times": [
+        0,
+        1
+      ],
       "resurrect_hp_pct": 40,
       "copy_items": 1,
       "copy_ability_cooldowns": 0,
       "copy_item_cooldowns": 1,
       "color": "228 110 213",
-      "precache": {
-        "0": "particles/gameplay/synergy/fallen/fallen_heal_buff_cast.vpcf",
-        "1": "particles/gameplay/synergy/fallen/fallen_revive.vpcf"
-      }
+      "precache": [
+        "particles/gameplay/synergy/fallen/fallen_heal_buff_cast.vpcf",
+        "particles/gameplay/synergy/fallen/fallen_revive.vpcf"
+      ]
     },
     "Wild": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 30003,
           "unitcount": 2,
           "affects_random_ally_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 30004,
           "unitcount": 4,
           "affects_random_ally_with_keyword": "true"
         },
-        "2": {
+        {
           "id": 30005,
           "unitcount": 6,
           "affects_random_ally_with_keyword": "true"
         }
-      },
+      ],
       "summon_delay": 0.25,
-      "summon_id": {
-        "0": 138,
-        "1": 139,
-        "2": 141
-      },
-      "summon_display_name": {
-        "0": "#dac_unit_neutral_wolf_small",
-        "1": "#dac_unit_neutral_vulture_b",
-        "2": "#dac_unit_neutral_black_dragon"
-      },
-      "precache": {
-        "0": "particles/items/horn_of_the_alpha/horn_of_the_alpha_summon.vpcf"
-      },
+      "summon_id": [
+        138,
+        139,
+        141
+      ],
+      "summon_display_name": [
+        "#dac_unit_neutral_wolf_small",
+        "#dac_unit_neutral_vulture_b",
+        "#dac_unit_neutral_black_dragon"
+      ],
+      "precache": [
+        "particles/items/horn_of_the_alpha/horn_of_the_alpha_summon.vpcf"
+      ],
       "color": "46 99 64"
     },
     "Swordsman": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 30006,
           "unitcount": 3,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 30007,
           "unitcount": 6,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "damage_bonus_pct": {
-        "0": 10,
-        "1": 25
-      },
+      ],
+      "damage_bonus_pct": [
+        10,
+        25
+      ],
       "color": "194 147 21"
     },
     "Rogue": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 30008,
           "unitcount": 2,
           "affects_all_allies_with_keyword": "true"
         },
-        "1": {
+        {
           "id": 30009,
           "unitcount": 4,
           "affects_all_allies_with_keyword": "true"
         }
-      },
-      "evasion_pct": {
-        "0": 20,
-        "1": 40
-      },
-      "bonus_attack_damage": {
-        "0": 10,
-        "1": 20
-      },
+      ],
+      "evasion_pct": [
+        20,
+        40
+      ],
+      "bonus_attack_damage": [
+        10,
+        20
+      ],
       "color": "150 31 28"
     },
     "Poisoner": {
       "type": "Class",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 30010,
           "unitcount": 3,
           "affects_all_allies_with_keyword": "true"
         }
-      },
+      ],
       "attack_speed_loss_per_stack": 7,
       "color": "0 128 128",
-      "precache": {
-        "0": "particles/underlords/enno/enno_poison_stack.vpcf",
-        "1": "particles/items2_fx/orb_of_venom.vpcf"
-      }
+      "precache": [
+        "particles/underlords/enno/enno_poison_stack.vpcf",
+        "particles/items2_fx/orb_of_venom.vpcf"
+      ]
     },
     "Magus": {
       "type": "Race",
-      "levels": {
-        "0": {
+      "levels": [
+        {
           "id": 30011,
           "unitcount": 1,
           "affects_all_allies_with_keyword": "true"
         }
-      },
+      ],
       "health_pct": 50,
       "duration": 3,
       "color": "77 105 255",
-      "precache": {
-        "0": "particles/items4_fx/combo_breaker_buff.vpcf",
-        "1": "particles/items4_fx/combo_breaker_spell.vpcf",
-        "2": "particles/status_fx/status_effect_combo_breaker.vpcf"
-      }
+      "precache": [
+        "particles/items4_fx/combo_breaker_buff.vpcf",
+        "particles/items4_fx/combo_breaker_spell.vpcf",
+        "particles/status_fx/status_effect_combo_breaker.vpcf"
+      ]
     }
   }
 }
