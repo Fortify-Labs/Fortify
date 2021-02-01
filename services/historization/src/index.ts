@@ -96,7 +96,7 @@ const {
 							topic,
 							partition,
 							offset: message.offset,
-							key: message.key.toString(),
+							key: message.key?.toString() || "undefined",
 							value: message.value?.toString(),
 						},
 					},
