@@ -36,19 +36,34 @@ export class LeaderboardPersistor {
 	async storeLeaderboard(event: ImportCompletedEvent) {
 		// Fetch corresponding leaderboard from redis
 		const leaderboardType = event.leaderboardType;
-		const rawLeaderboard = await this.redis.getAsync(
-			`ul:leaderboard:${leaderboardType}`,
-		);
 
-		if (!rawLeaderboard) {
-			this.logger.error("No leaderboard found in redis", {
+		const leaderboard: ULLeaderboard | undefined =
+			event.args?.leaderboard ||
+			(await (async () => {
+				const rawLeaderboard = await this.redis.getAsync(
+					`ul:leaderboard:${leaderboardType}`,
+				);
+
+				if (!rawLeaderboard) {
+					this.logger.error("No leaderboard found in redis", {
+						leaderboardType,
+						event,
+					});
+					return;
+				}
+
+				const leaderboard: ULLeaderboard = JSON.parse(rawLeaderboard);
+
+				return leaderboard;
+			})());
+
+		if (!leaderboard) {
+			this.logger.error("Leaderboard is not set", {
 				leaderboardType,
 				event,
 			});
 			return;
 		}
-
-		const leaderboard: ULLeaderboard = JSON.parse(rawLeaderboard);
 
 		// Fetch current users from postgres
 		const userRepo = await this.postgres.getUserRepo();

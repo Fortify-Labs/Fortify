@@ -61,7 +61,9 @@ export class LeaderboardImportService implements FortifyScript {
 
 		const mappedType = type as LeaderboardType;
 		if (Object.values(LeaderboardType).includes(mappedType)) {
-			const finishedEvent = new ImportCompletedEvent(mappedType);
+			const finishedEvent = new ImportCompletedEvent(mappedType, {
+				leaderboard,
+			});
 			await this.eventService.sendEvent(finishedEvent);
 
 			this.logger.info(`Sent ImportCompletedEvent for ${type}`);
