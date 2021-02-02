@@ -369,87 +369,36 @@ export class Fortify extends Chart {
 		});
 
 		// CronJobs
-		new FortifyCronJob(this, "import-standard", {
-			name: "import-standard",
-			version: jobsPackage.version,
+		const ImportCronJob = (leaderboardType: string) => {
+			new FortifyCronJob(this, `import-${leaderboardType}`, {
+				name: `import-${leaderboardType}`,
+				version: jobsPackage.version,
 
-			schedule: "14 * * * *",
-			script: "import",
+				schedule: "14 * * * *",
+				script: "import",
 
-			env: [
-				{
-					name: "LEADERBOARD_TYPE",
-					value: "standard",
-				},
-				{
-					name: "KAFKA_CLIENT_ID",
-					valueFrom: { fieldRef: { fieldPath: "metadata.name" } },
-				},
-				{ name: "SENTRY_TRACE_SAMPLE_RATE", value: "0" },
-			],
-			secrets: [vaultSecret],
-			configmaps: [redisConfig, kafkaConfig, postgresConfig, vaultConfig],
-		});
-		new FortifyCronJob(this, "import-turbo", {
-			name: "import-turbo",
-			version: jobsPackage.version,
-
-			schedule: "14 * * * *",
-			script: "import",
-
-			env: [
-				{
-					name: "LEADERBOARD_TYPE",
-					value: "turbo",
-				},
-				{
-					name: "KAFKA_CLIENT_ID",
-					valueFrom: { fieldRef: { fieldPath: "metadata.name" } },
-				},
-				{ name: "SENTRY_TRACE_SAMPLE_RATE", value: "0" },
-			],
-			secrets: [vaultSecret],
-			configmaps: [redisConfig, kafkaConfig, postgresConfig, vaultConfig],
-		});
-		new FortifyCronJob(this, "import-duos", {
-			name: "import-duos",
-			version: jobsPackage.version,
-
-			schedule: "14 * * * *",
-			script: "import",
-
-			env: [
-				{
-					name: "LEADERBOARD_TYPE",
-					value: "duos",
-				},
-				{
-					name: "KAFKA_CLIENT_ID",
-					valueFrom: { fieldRef: { fieldPath: "metadata.name" } },
-				},
-				{ name: "SENTRY_TRACE_SAMPLE_RATE", value: "0" },
-			],
-			secrets: [vaultSecret],
-			configmaps: [redisConfig, kafkaConfig, postgresConfig, vaultConfig],
-		});
-		new FortifyCronJob(this, "db-cleanup", {
-			name: "db-cleanup",
-			version: jobsPackage.version,
-
-			// Every hour
-			suspend: true,
-			schedule: "0 * * * *",
-			script: "clean_db",
-
-			env: [
-				{
-					name: "KAFKA_CLIENT_ID",
-					valueFrom: { fieldRef: { fieldPath: "metadata.name" } },
-				},
-				{ name: "SENTRY_TRACE_SAMPLE_RATE", value: "0" },
-			],
-			secrets: [vaultSecret],
-			configmaps: [redisConfig, kafkaConfig, postgresConfig, vaultConfig],
-		});
+				env: [
+					{
+						name: "LEADERBOARD_TYPE",
+						value: leaderboardType,
+					},
+					{
+						name: "KAFKA_CLIENT_ID",
+						valueFrom: { fieldRef: { fieldPath: "metadata.name" } },
+					},
+					{ name: "SENTRY_TRACE_SAMPLE_RATE", value: "0" },
+				],
+				secrets: [vaultSecret],
+				configmaps: [
+					redisConfig,
+					kafkaConfig,
+					postgresConfig,
+					vaultConfig,
+				],
+			});
+		};
+		ImportCronJob("standard");
+		ImportCronJob("turbo");
+		ImportCronJob("duos");
 	}
 }
