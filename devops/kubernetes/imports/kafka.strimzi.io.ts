@@ -172,7 +172,7 @@ export interface KafkaSpecKafka {
   readonly authorization?: KafkaSpecKafkaAuthorization;
 
   /**
-   * Kafka broker config properties with the following prefixes cannot be set: listeners, advertised., broker., listener., host.name, port, inter.broker.listener.name, sasl., ssl., security., password., principal.builder.class, log.dir, zookeeper.connect, zookeeper.set.acl, zookeeper.ssl, zookeeper.clientCnxnSocket, authorizer., super.user, cruise.control.metrics.topic, cruise.control.metrics.reporter.bootstrap.servers (with the exception of: zookeeper.connection.timeout.ms, ssl.cipher.suites, ssl.protocol, ssl.enabled.protocols,cruise.control.metrics.topic.num.partitions, cruise.control.metrics.topic.replication.factor, cruise.control.metrics.topic.retention.ms,cruise.control.metrics.topic.auto.create.retries, cruise.control.metrics.topic.auto.create.timeout.ms).
+   * Kafka broker config properties with the following prefixes cannot be set: listeners, advertised., broker., listener., host.name, port, inter.broker.listener.name, sasl., ssl., security., password., principal.builder.class, log.dir, zookeeper.connect, zookeeper.set.acl, zookeeper.ssl, zookeeper.clientCnxnSocket, authorizer., super.user, cruise.control.metrics.topic, cruise.control.metrics.reporter.bootstrap.servers (with the exception of: zookeeper.connection.timeout.ms, ssl.cipher.suites, ssl.protocol, ssl.enabled.protocols,cruise.control.metrics.topic.num.partitions, cruise.control.metrics.topic.replication.factor, cruise.control.metrics.topic.retention.ms,cruise.control.metrics.topic.auto.create.retries, cruise.control.metrics.topic.auto.create.timeout.ms,cruise.control.metrics.topic.min.insync.replicas).
    *
    * @schema KafkaSpecKafka#config
    */
@@ -247,6 +247,13 @@ export interface KafkaSpecKafka {
    * @schema KafkaSpecKafka#metrics
    */
   readonly metrics?: any;
+
+  /**
+   * Metrics configuration.
+   *
+   * @schema KafkaSpecKafka#metricsConfig
+   */
+  readonly metricsConfig?: KafkaSpecKafkaMetricsConfig;
 
   /**
    * Logging configuration for Kafka.
@@ -361,6 +368,13 @@ export interface KafkaSpecZookeeper {
    * @schema KafkaSpecZookeeper#metrics
    */
   readonly metrics?: any;
+
+  /**
+   * Metrics configuration.
+   *
+   * @schema KafkaSpecZookeeper#metricsConfig
+   */
+  readonly metricsConfig?: KafkaSpecZookeeperMetricsConfig;
 
   /**
    * Logging configuration for ZooKeeper.
@@ -542,6 +556,14 @@ export interface KafkaSpecClusterCa {
   readonly generateCertificateAuthority?: boolean;
 
   /**
+   * If true then the Certificate Authority certificates secrets owner reference is set to the Kafka object. Otherwise no owner reference is set so deleting the Kafka object won't delete the secrets. Default is true.
+   *
+   * @default true.
+   * @schema KafkaSpecClusterCa#generateSecretOwnerReference
+   */
+  readonly generateSecretOwnerReference?: boolean;
+
+  /**
    * The number of days generated certificates should be valid for. The default is 365.
    *
    * @schema KafkaSpecClusterCa#validityDays
@@ -578,6 +600,14 @@ export interface KafkaSpecClientsCa {
    * @schema KafkaSpecClientsCa#generateCertificateAuthority
    */
   readonly generateCertificateAuthority?: boolean;
+
+  /**
+   * If true then the Certificate Authority certificates secrets owner reference is set to the Kafka object. Otherwise no owner reference is set so deleting the Kafka object won't delete the secrets. Default is true.
+   *
+   * @default true.
+   * @schema KafkaSpecClientsCa#generateSecretOwnerReference
+   */
+  readonly generateSecretOwnerReference?: boolean;
 
   /**
    * The number of days generated certificates should be valid for. The default is 365.
@@ -673,7 +703,7 @@ export interface KafkaSpecCruiseControl {
   readonly brokerCapacity?: KafkaSpecCruiseControlBrokerCapacity;
 
   /**
-   * The Cruise Control configuration. For a full list of configuration options refer to https://github.com/linkedin/cruise-control/wiki/Configurations. Note that properties with the following prefixes cannot be set: bootstrap.servers, client.id, zookeeper., network., security., failed.brokers.zk.path,webserver.http., webserver.api.urlprefix, webserver.session.path, webserver.accesslog., two.step., request.reason.required,metric.reporter.sampler.bootstrap.servers, metric.reporter.topic, partition.metric.sample.store.topic, broker.metric.sample.store.topic,capacity.config.file, self.healing., anomaly.detection., ssl.
+   * The Cruise Control configuration. For a full list of configuration options refer to https://github.com/linkedin/cruise-control/wiki/Configurations. Note that properties with the following prefixes cannot be set: bootstrap.servers, client.id, zookeeper., network., security., failed.brokers.zk.path,webserver.http., webserver.api.urlprefix, webserver.session.path, webserver.accesslog., two.step., request.reason.required,metric.reporter.sampler.bootstrap.servers, metric.reporter.topic, partition.metric.sample.store.topic, broker.metric.sample.store.topic,capacity.config.file, self.healing., anomaly.detection., ssl. (with the exception of: ssl.cipher.suites, ssl.protocol, ssl.enabled.protocols, webserver.http.cors.enabled,webserver.http.cors.origin, webserver.http.cors.exposeheaders).
    *
    * @schema KafkaSpecCruiseControl#config
    */
@@ -685,6 +715,13 @@ export interface KafkaSpecCruiseControl {
    * @schema KafkaSpecCruiseControl#metrics
    */
   readonly metrics?: any;
+
+  /**
+   * Metrics configuration.
+   *
+   * @schema KafkaSpecCruiseControl#metricsConfig
+   */
+  readonly metricsConfig?: KafkaSpecCruiseControlMetricsConfig;
 
 }
 
@@ -997,7 +1034,7 @@ export interface KafkaSpecKafkaAuthorization {
  */
 export interface KafkaSpecKafkaRack {
   /**
-   * A key that matches labels assigned to the Kubernetes cluster nodes. The value of the label is used to set the broker's `broker.rack` config.
+   * A key that matches labels assigned to the Kubernetes cluster nodes. The value of the label is used to set the broker's `broker.rack` config and `client.rack` in Kafka Connect.
    *
    * @schema KafkaSpecKafkaRack#topologyKey
    */
@@ -1074,8 +1111,9 @@ export interface KafkaSpecKafkaLivenessProbe {
   readonly failureThreshold?: number;
 
   /**
-   * The initial delay before first the health is first checked.
+   * The initial delay before first the health is first checked. Default to 15 seconds. Minimum value is 0.
    *
+   * @default 15 seconds. Minimum value is 0.
    * @schema KafkaSpecKafkaLivenessProbe#initialDelaySeconds
    */
   readonly initialDelaySeconds?: number;
@@ -1097,8 +1135,9 @@ export interface KafkaSpecKafkaLivenessProbe {
   readonly successThreshold?: number;
 
   /**
-   * The timeout for each attempted health check.
+   * The timeout for each attempted health check. Default to 5 seconds. Minimum value is 1.
    *
+   * @default 5 seconds. Minimum value is 1.
    * @schema KafkaSpecKafkaLivenessProbe#timeoutSeconds
    */
   readonly timeoutSeconds?: number;
@@ -1120,8 +1159,9 @@ export interface KafkaSpecKafkaReadinessProbe {
   readonly failureThreshold?: number;
 
   /**
-   * The initial delay before first the health is first checked.
+   * The initial delay before first the health is first checked. Default to 15 seconds. Minimum value is 0.
    *
+   * @default 15 seconds. Minimum value is 0.
    * @schema KafkaSpecKafkaReadinessProbe#initialDelaySeconds
    */
   readonly initialDelaySeconds?: number;
@@ -1143,8 +1183,9 @@ export interface KafkaSpecKafkaReadinessProbe {
   readonly successThreshold?: number;
 
   /**
-   * The timeout for each attempted health check.
+   * The timeout for each attempted health check. Default to 5 seconds. Minimum value is 1.
    *
+   * @default 5 seconds. Minimum value is 1.
    * @schema KafkaSpecKafkaReadinessProbe#timeoutSeconds
    */
   readonly timeoutSeconds?: number;
@@ -1224,6 +1265,28 @@ export interface KafkaSpecKafkaResources {
    * @schema KafkaSpecKafkaResources#requests
    */
   readonly requests?: any;
+
+}
+
+/**
+ * Metrics configuration.
+ *
+ * @schema KafkaSpecKafkaMetricsConfig
+ */
+export interface KafkaSpecKafkaMetricsConfig {
+  /**
+   * Metrics type. Only 'jmxPrometheusExporter' supported currently.
+   *
+   * @schema KafkaSpecKafkaMetricsConfig#type
+   */
+  readonly type: KafkaSpecKafkaMetricsConfigType;
+
+  /**
+   * ConfigMap where the Prometheus JMX Exporter configuration is stored. For details of the structure of this configuration, see the {JMXExporter}.
+   *
+   * @schema KafkaSpecKafkaMetricsConfig#valueFrom
+   */
+  readonly valueFrom: KafkaSpecKafkaMetricsConfigValueFrom;
 
 }
 
@@ -1410,6 +1473,13 @@ export interface KafkaSpecKafkaTemplate {
    */
   readonly initContainer?: KafkaSpecKafkaTemplateInitContainer;
 
+  /**
+   * Template for Secret with Kafka Cluster certificate public key.
+   *
+   * @schema KafkaSpecKafkaTemplate#clusterCaCert
+   */
+  readonly clusterCaCert?: KafkaSpecKafkaTemplateClusterCaCert;
+
 }
 
 /**
@@ -1545,8 +1615,9 @@ export interface KafkaSpecZookeeperLivenessProbe {
   readonly failureThreshold?: number;
 
   /**
-   * The initial delay before first the health is first checked.
+   * The initial delay before first the health is first checked. Default to 15 seconds. Minimum value is 0.
    *
+   * @default 15 seconds. Minimum value is 0.
    * @schema KafkaSpecZookeeperLivenessProbe#initialDelaySeconds
    */
   readonly initialDelaySeconds?: number;
@@ -1568,8 +1639,9 @@ export interface KafkaSpecZookeeperLivenessProbe {
   readonly successThreshold?: number;
 
   /**
-   * The timeout for each attempted health check.
+   * The timeout for each attempted health check. Default to 5 seconds. Minimum value is 1.
    *
+   * @default 5 seconds. Minimum value is 1.
    * @schema KafkaSpecZookeeperLivenessProbe#timeoutSeconds
    */
   readonly timeoutSeconds?: number;
@@ -1591,8 +1663,9 @@ export interface KafkaSpecZookeeperReadinessProbe {
   readonly failureThreshold?: number;
 
   /**
-   * The initial delay before first the health is first checked.
+   * The initial delay before first the health is first checked. Default to 15 seconds. Minimum value is 0.
    *
+   * @default 15 seconds. Minimum value is 0.
    * @schema KafkaSpecZookeeperReadinessProbe#initialDelaySeconds
    */
   readonly initialDelaySeconds?: number;
@@ -1614,8 +1687,9 @@ export interface KafkaSpecZookeeperReadinessProbe {
   readonly successThreshold?: number;
 
   /**
-   * The timeout for each attempted health check.
+   * The timeout for each attempted health check. Default to 5 seconds. Minimum value is 1.
    *
+   * @default 5 seconds. Minimum value is 1.
    * @schema KafkaSpecZookeeperReadinessProbe#timeoutSeconds
    */
   readonly timeoutSeconds?: number;
@@ -1680,6 +1754,28 @@ export interface KafkaSpecZookeeperResources {
    * @schema KafkaSpecZookeeperResources#requests
    */
   readonly requests?: any;
+
+}
+
+/**
+ * Metrics configuration.
+ *
+ * @schema KafkaSpecZookeeperMetricsConfig
+ */
+export interface KafkaSpecZookeeperMetricsConfig {
+  /**
+   * Metrics type. Only 'jmxPrometheusExporter' supported currently.
+   *
+   * @schema KafkaSpecZookeeperMetricsConfig#type
+   */
+  readonly type: KafkaSpecZookeeperMetricsConfigType;
+
+  /**
+   * ConfigMap where the Prometheus JMX Exporter configuration is stored. For details of the structure of this configuration, see the {JMXExporter}.
+   *
+   * @schema KafkaSpecZookeeperMetricsConfig#valueFrom
+   */
+  readonly valueFrom: KafkaSpecZookeeperMetricsConfigValueFrom;
 
 }
 
@@ -1990,8 +2086,9 @@ export interface KafkaSpecTopicOperatorLivenessProbe {
   readonly failureThreshold?: number;
 
   /**
-   * The initial delay before first the health is first checked.
+   * The initial delay before first the health is first checked. Default to 15 seconds. Minimum value is 0.
    *
+   * @default 15 seconds. Minimum value is 0.
    * @schema KafkaSpecTopicOperatorLivenessProbe#initialDelaySeconds
    */
   readonly initialDelaySeconds?: number;
@@ -2013,8 +2110,9 @@ export interface KafkaSpecTopicOperatorLivenessProbe {
   readonly successThreshold?: number;
 
   /**
-   * The timeout for each attempted health check.
+   * The timeout for each attempted health check. Default to 5 seconds. Minimum value is 1.
    *
+   * @default 5 seconds. Minimum value is 1.
    * @schema KafkaSpecTopicOperatorLivenessProbe#timeoutSeconds
    */
   readonly timeoutSeconds?: number;
@@ -2036,8 +2134,9 @@ export interface KafkaSpecTopicOperatorReadinessProbe {
   readonly failureThreshold?: number;
 
   /**
-   * The initial delay before first the health is first checked.
+   * The initial delay before first the health is first checked. Default to 15 seconds. Minimum value is 0.
    *
+   * @default 15 seconds. Minimum value is 0.
    * @schema KafkaSpecTopicOperatorReadinessProbe#initialDelaySeconds
    */
   readonly initialDelaySeconds?: number;
@@ -2059,8 +2158,9 @@ export interface KafkaSpecTopicOperatorReadinessProbe {
   readonly successThreshold?: number;
 
   /**
-   * The timeout for each attempted health check.
+   * The timeout for each attempted health check. Default to 5 seconds. Minimum value is 1.
    *
+   * @default 5 seconds. Minimum value is 1.
    * @schema KafkaSpecTopicOperatorReadinessProbe#timeoutSeconds
    */
   readonly timeoutSeconds?: number;
@@ -2178,6 +2278,13 @@ export interface KafkaSpecEntityOperatorUserOperator {
    * @schema KafkaSpecEntityOperatorUserOperator#zookeeperSessionTimeoutSeconds
    */
   readonly zookeeperSessionTimeoutSeconds?: number;
+
+  /**
+   * The prefix that will be added to the KafkaUser name to be used as the Secret name.
+   *
+   * @schema KafkaSpecEntityOperatorUserOperator#secretPrefix
+   */
+  readonly secretPrefix?: string;
 
   /**
    * Pod liveness checking.
@@ -2456,8 +2563,9 @@ export interface KafkaSpecCruiseControlLivenessProbe {
   readonly failureThreshold?: number;
 
   /**
-   * The initial delay before first the health is first checked.
+   * The initial delay before first the health is first checked. Default to 15 seconds. Minimum value is 0.
    *
+   * @default 15 seconds. Minimum value is 0.
    * @schema KafkaSpecCruiseControlLivenessProbe#initialDelaySeconds
    */
   readonly initialDelaySeconds?: number;
@@ -2479,8 +2587,9 @@ export interface KafkaSpecCruiseControlLivenessProbe {
   readonly successThreshold?: number;
 
   /**
-   * The timeout for each attempted health check.
+   * The timeout for each attempted health check. Default to 5 seconds. Minimum value is 1.
    *
+   * @default 5 seconds. Minimum value is 1.
    * @schema KafkaSpecCruiseControlLivenessProbe#timeoutSeconds
    */
   readonly timeoutSeconds?: number;
@@ -2502,8 +2611,9 @@ export interface KafkaSpecCruiseControlReadinessProbe {
   readonly failureThreshold?: number;
 
   /**
-   * The initial delay before first the health is first checked.
+   * The initial delay before first the health is first checked. Default to 15 seconds. Minimum value is 0.
    *
+   * @default 15 seconds. Minimum value is 0.
    * @schema KafkaSpecCruiseControlReadinessProbe#initialDelaySeconds
    */
   readonly initialDelaySeconds?: number;
@@ -2525,8 +2635,9 @@ export interface KafkaSpecCruiseControlReadinessProbe {
   readonly successThreshold?: number;
 
   /**
-   * The timeout for each attempted health check.
+   * The timeout for each attempted health check. Default to 5 seconds. Minimum value is 1.
    *
+   * @default 5 seconds. Minimum value is 1.
    * @schema KafkaSpecCruiseControlReadinessProbe#timeoutSeconds
    */
   readonly timeoutSeconds?: number;
@@ -2688,6 +2799,28 @@ export interface KafkaSpecCruiseControlBrokerCapacity {
    * @schema KafkaSpecCruiseControlBrokerCapacity#outboundNetwork
    */
   readonly outboundNetwork?: string;
+
+}
+
+/**
+ * Metrics configuration.
+ *
+ * @schema KafkaSpecCruiseControlMetricsConfig
+ */
+export interface KafkaSpecCruiseControlMetricsConfig {
+  /**
+   * Metrics type. Only 'jmxPrometheusExporter' supported currently.
+   *
+   * @schema KafkaSpecCruiseControlMetricsConfig#type
+   */
+  readonly type: KafkaSpecCruiseControlMetricsConfigType;
+
+  /**
+   * ConfigMap where the Prometheus JMX Exporter configuration is stored. For details of the structure of this configuration, see the {JMXExporter}.
+   *
+   * @schema KafkaSpecCruiseControlMetricsConfig#valueFrom
+   */
+  readonly valueFrom: KafkaSpecCruiseControlMetricsConfigValueFrom;
 
 }
 
@@ -2882,8 +3015,9 @@ export interface KafkaSpecKafkaExporterLivenessProbe {
   readonly failureThreshold?: number;
 
   /**
-   * The initial delay before first the health is first checked.
+   * The initial delay before first the health is first checked. Default to 15 seconds. Minimum value is 0.
    *
+   * @default 15 seconds. Minimum value is 0.
    * @schema KafkaSpecKafkaExporterLivenessProbe#initialDelaySeconds
    */
   readonly initialDelaySeconds?: number;
@@ -2905,8 +3039,9 @@ export interface KafkaSpecKafkaExporterLivenessProbe {
   readonly successThreshold?: number;
 
   /**
-   * The timeout for each attempted health check.
+   * The timeout for each attempted health check. Default to 5 seconds. Minimum value is 1.
    *
+   * @default 5 seconds. Minimum value is 1.
    * @schema KafkaSpecKafkaExporterLivenessProbe#timeoutSeconds
    */
   readonly timeoutSeconds?: number;
@@ -2928,8 +3063,9 @@ export interface KafkaSpecKafkaExporterReadinessProbe {
   readonly failureThreshold?: number;
 
   /**
-   * The initial delay before first the health is first checked.
+   * The initial delay before first the health is first checked. Default to 15 seconds. Minimum value is 0.
    *
+   * @default 15 seconds. Minimum value is 0.
    * @schema KafkaSpecKafkaExporterReadinessProbe#initialDelaySeconds
    */
   readonly initialDelaySeconds?: number;
@@ -2951,8 +3087,9 @@ export interface KafkaSpecKafkaExporterReadinessProbe {
   readonly successThreshold?: number;
 
   /**
-   * The timeout for each attempted health check.
+   * The timeout for each attempted health check. Default to 5 seconds. Minimum value is 1.
    *
+   * @default 5 seconds. Minimum value is 1.
    * @schema KafkaSpecKafkaExporterReadinessProbe#timeoutSeconds
    */
   readonly timeoutSeconds?: number;
@@ -3173,6 +3310,31 @@ export interface KafkaSpecKafkaJmxOptionsAuthentication {
 }
 
 /**
+ * Metrics type. Only 'jmxPrometheusExporter' supported currently.
+ *
+ * @schema KafkaSpecKafkaMetricsConfigType
+ */
+export enum KafkaSpecKafkaMetricsConfigType {
+  /** jmxPrometheusExporter */
+  JMX_PROMETHEUS_EXPORTER = "jmxPrometheusExporter",
+}
+
+/**
+ * ConfigMap where the Prometheus JMX Exporter configuration is stored. For details of the structure of this configuration, see the {JMXExporter}.
+ *
+ * @schema KafkaSpecKafkaMetricsConfigValueFrom
+ */
+export interface KafkaSpecKafkaMetricsConfigValueFrom {
+  /**
+   * Reference to the key in the ConfigMap containing the metrics configuration.
+   *
+   * @schema KafkaSpecKafkaMetricsConfigValueFrom#configMapKeyRef
+   */
+  readonly configMapKeyRef?: KafkaSpecKafkaMetricsConfigValueFromConfigMapKeyRef;
+
+}
+
+/**
  * Logging type, must be either 'inline' or 'external'.
  *
  * @schema KafkaSpecKafkaLoggingType
@@ -3199,8 +3361,9 @@ export interface KafkaSpecKafkaTlsSidecarLivenessProbe {
   readonly failureThreshold?: number;
 
   /**
-   * The initial delay before first the health is first checked.
+   * The initial delay before first the health is first checked. Default to 15 seconds. Minimum value is 0.
    *
+   * @default 15 seconds. Minimum value is 0.
    * @schema KafkaSpecKafkaTlsSidecarLivenessProbe#initialDelaySeconds
    */
   readonly initialDelaySeconds?: number;
@@ -3222,8 +3385,9 @@ export interface KafkaSpecKafkaTlsSidecarLivenessProbe {
   readonly successThreshold?: number;
 
   /**
-   * The timeout for each attempted health check.
+   * The timeout for each attempted health check. Default to 5 seconds. Minimum value is 1.
    *
+   * @default 5 seconds. Minimum value is 1.
    * @schema KafkaSpecKafkaTlsSidecarLivenessProbe#timeoutSeconds
    */
   readonly timeoutSeconds?: number;
@@ -3269,8 +3433,9 @@ export interface KafkaSpecKafkaTlsSidecarReadinessProbe {
   readonly failureThreshold?: number;
 
   /**
-   * The initial delay before first the health is first checked.
+   * The initial delay before first the health is first checked. Default to 15 seconds. Minimum value is 0.
    *
+   * @default 15 seconds. Minimum value is 0.
    * @schema KafkaSpecKafkaTlsSidecarReadinessProbe#initialDelaySeconds
    */
   readonly initialDelaySeconds?: number;
@@ -3292,8 +3457,9 @@ export interface KafkaSpecKafkaTlsSidecarReadinessProbe {
   readonly successThreshold?: number;
 
   /**
-   * The timeout for each attempted health check.
+   * The timeout for each attempted health check. Default to 5 seconds. Minimum value is 1.
    *
+   * @default 5 seconds. Minimum value is 1.
    * @schema KafkaSpecKafkaTlsSidecarReadinessProbe#timeoutSeconds
    */
   readonly timeoutSeconds?: number;
@@ -3410,6 +3576,13 @@ export interface KafkaSpecKafkaTemplatePod {
    * @schema KafkaSpecKafkaTemplatePod#hostAliases
    */
   readonly hostAliases?: KafkaSpecKafkaTemplatePodHostAliases[];
+
+  /**
+   * The pod's topology spread constraints.
+   *
+   * @schema KafkaSpecKafkaTemplatePod#topologySpreadConstraints
+   */
+  readonly topologySpreadConstraints?: KafkaSpecKafkaTemplatePodTopologySpreadConstraints[];
 
 }
 
@@ -3666,6 +3839,21 @@ export interface KafkaSpecKafkaTemplateInitContainer {
 }
 
 /**
+ * Template for Secret with Kafka Cluster certificate public key.
+ *
+ * @schema KafkaSpecKafkaTemplateClusterCaCert
+ */
+export interface KafkaSpecKafkaTemplateClusterCaCert {
+  /**
+   * Metadata applied to the resource.
+   *
+   * @schema KafkaSpecKafkaTemplateClusterCaCert#metadata
+   */
+  readonly metadata?: KafkaSpecKafkaTemplateClusterCaCertMetadata;
+
+}
+
+/**
  * @schema KafkaSpecZookeeperStorageOverrides
  */
 export interface KafkaSpecZookeeperStorageOverrides {
@@ -3762,6 +3950,31 @@ export interface KafkaSpecZookeeperJvmOptionsJavaSystemProperties {
    * @schema KafkaSpecZookeeperJvmOptionsJavaSystemProperties#value
    */
   readonly value?: string;
+
+}
+
+/**
+ * Metrics type. Only 'jmxPrometheusExporter' supported currently.
+ *
+ * @schema KafkaSpecZookeeperMetricsConfigType
+ */
+export enum KafkaSpecZookeeperMetricsConfigType {
+  /** jmxPrometheusExporter */
+  JMX_PROMETHEUS_EXPORTER = "jmxPrometheusExporter",
+}
+
+/**
+ * ConfigMap where the Prometheus JMX Exporter configuration is stored. For details of the structure of this configuration, see the {JMXExporter}.
+ *
+ * @schema KafkaSpecZookeeperMetricsConfigValueFrom
+ */
+export interface KafkaSpecZookeeperMetricsConfigValueFrom {
+  /**
+   * Reference to the key in the ConfigMap containing the metrics configuration.
+   *
+   * @schema KafkaSpecZookeeperMetricsConfigValueFrom#configMapKeyRef
+   */
+  readonly configMapKeyRef?: KafkaSpecZookeeperMetricsConfigValueFromConfigMapKeyRef;
 
 }
 
@@ -3869,6 +4082,13 @@ export interface KafkaSpecZookeeperTemplatePod {
    * @schema KafkaSpecZookeeperTemplatePod#hostAliases
    */
   readonly hostAliases?: KafkaSpecZookeeperTemplatePodHostAliases[];
+
+  /**
+   * The pod's topology spread constraints.
+   *
+   * @schema KafkaSpecZookeeperTemplatePod#topologySpreadConstraints
+   */
+  readonly topologySpreadConstraints?: KafkaSpecZookeeperTemplatePodTopologySpreadConstraints[];
 
 }
 
@@ -3999,8 +4219,9 @@ export interface KafkaSpecZookeeperTlsSidecarLivenessProbe {
   readonly failureThreshold?: number;
 
   /**
-   * The initial delay before first the health is first checked.
+   * The initial delay before first the health is first checked. Default to 15 seconds. Minimum value is 0.
    *
+   * @default 15 seconds. Minimum value is 0.
    * @schema KafkaSpecZookeeperTlsSidecarLivenessProbe#initialDelaySeconds
    */
   readonly initialDelaySeconds?: number;
@@ -4022,8 +4243,9 @@ export interface KafkaSpecZookeeperTlsSidecarLivenessProbe {
   readonly successThreshold?: number;
 
   /**
-   * The timeout for each attempted health check.
+   * The timeout for each attempted health check. Default to 5 seconds. Minimum value is 1.
    *
+   * @default 5 seconds. Minimum value is 1.
    * @schema KafkaSpecZookeeperTlsSidecarLivenessProbe#timeoutSeconds
    */
   readonly timeoutSeconds?: number;
@@ -4069,8 +4291,9 @@ export interface KafkaSpecZookeeperTlsSidecarReadinessProbe {
   readonly failureThreshold?: number;
 
   /**
-   * The initial delay before first the health is first checked.
+   * The initial delay before first the health is first checked. Default to 15 seconds. Minimum value is 0.
    *
+   * @default 15 seconds. Minimum value is 0.
    * @schema KafkaSpecZookeeperTlsSidecarReadinessProbe#initialDelaySeconds
    */
   readonly initialDelaySeconds?: number;
@@ -4092,8 +4315,9 @@ export interface KafkaSpecZookeeperTlsSidecarReadinessProbe {
   readonly successThreshold?: number;
 
   /**
-   * The timeout for each attempted health check.
+   * The timeout for each attempted health check. Default to 5 seconds. Minimum value is 1.
    *
+   * @default 5 seconds. Minimum value is 1.
    * @schema KafkaSpecZookeeperTlsSidecarReadinessProbe#timeoutSeconds
    */
   readonly timeoutSeconds?: number;
@@ -4181,8 +4405,9 @@ export interface KafkaSpecTopicOperatorTlsSidecarLivenessProbe {
   readonly failureThreshold?: number;
 
   /**
-   * The initial delay before first the health is first checked.
+   * The initial delay before first the health is first checked. Default to 15 seconds. Minimum value is 0.
    *
+   * @default 15 seconds. Minimum value is 0.
    * @schema KafkaSpecTopicOperatorTlsSidecarLivenessProbe#initialDelaySeconds
    */
   readonly initialDelaySeconds?: number;
@@ -4204,8 +4429,9 @@ export interface KafkaSpecTopicOperatorTlsSidecarLivenessProbe {
   readonly successThreshold?: number;
 
   /**
-   * The timeout for each attempted health check.
+   * The timeout for each attempted health check. Default to 5 seconds. Minimum value is 1.
    *
+   * @default 5 seconds. Minimum value is 1.
    * @schema KafkaSpecTopicOperatorTlsSidecarLivenessProbe#timeoutSeconds
    */
   readonly timeoutSeconds?: number;
@@ -4251,8 +4477,9 @@ export interface KafkaSpecTopicOperatorTlsSidecarReadinessProbe {
   readonly failureThreshold?: number;
 
   /**
-   * The initial delay before first the health is first checked.
+   * The initial delay before first the health is first checked. Default to 15 seconds. Minimum value is 0.
    *
+   * @default 15 seconds. Minimum value is 0.
    * @schema KafkaSpecTopicOperatorTlsSidecarReadinessProbe#initialDelaySeconds
    */
   readonly initialDelaySeconds?: number;
@@ -4274,8 +4501,9 @@ export interface KafkaSpecTopicOperatorTlsSidecarReadinessProbe {
   readonly successThreshold?: number;
 
   /**
-   * The timeout for each attempted health check.
+   * The timeout for each attempted health check. Default to 5 seconds. Minimum value is 1.
    *
+   * @default 5 seconds. Minimum value is 1.
    * @schema KafkaSpecTopicOperatorTlsSidecarReadinessProbe#timeoutSeconds
    */
   readonly timeoutSeconds?: number;
@@ -4347,8 +4575,9 @@ export interface KafkaSpecEntityOperatorTopicOperatorLivenessProbe {
   readonly failureThreshold?: number;
 
   /**
-   * The initial delay before first the health is first checked.
+   * The initial delay before first the health is first checked. Default to 15 seconds. Minimum value is 0.
    *
+   * @default 15 seconds. Minimum value is 0.
    * @schema KafkaSpecEntityOperatorTopicOperatorLivenessProbe#initialDelaySeconds
    */
   readonly initialDelaySeconds?: number;
@@ -4370,8 +4599,9 @@ export interface KafkaSpecEntityOperatorTopicOperatorLivenessProbe {
   readonly successThreshold?: number;
 
   /**
-   * The timeout for each attempted health check.
+   * The timeout for each attempted health check. Default to 5 seconds. Minimum value is 1.
    *
+   * @default 5 seconds. Minimum value is 1.
    * @schema KafkaSpecEntityOperatorTopicOperatorLivenessProbe#timeoutSeconds
    */
   readonly timeoutSeconds?: number;
@@ -4393,8 +4623,9 @@ export interface KafkaSpecEntityOperatorTopicOperatorReadinessProbe {
   readonly failureThreshold?: number;
 
   /**
-   * The initial delay before first the health is first checked.
+   * The initial delay before first the health is first checked. Default to 15 seconds. Minimum value is 0.
    *
+   * @default 15 seconds. Minimum value is 0.
    * @schema KafkaSpecEntityOperatorTopicOperatorReadinessProbe#initialDelaySeconds
    */
   readonly initialDelaySeconds?: number;
@@ -4416,8 +4647,9 @@ export interface KafkaSpecEntityOperatorTopicOperatorReadinessProbe {
   readonly successThreshold?: number;
 
   /**
-   * The timeout for each attempted health check.
+   * The timeout for each attempted health check. Default to 5 seconds. Minimum value is 1.
    *
+   * @default 5 seconds. Minimum value is 1.
    * @schema KafkaSpecEntityOperatorTopicOperatorReadinessProbe#timeoutSeconds
    */
   readonly timeoutSeconds?: number;
@@ -4529,8 +4761,9 @@ export interface KafkaSpecEntityOperatorUserOperatorLivenessProbe {
   readonly failureThreshold?: number;
 
   /**
-   * The initial delay before first the health is first checked.
+   * The initial delay before first the health is first checked. Default to 15 seconds. Minimum value is 0.
    *
+   * @default 15 seconds. Minimum value is 0.
    * @schema KafkaSpecEntityOperatorUserOperatorLivenessProbe#initialDelaySeconds
    */
   readonly initialDelaySeconds?: number;
@@ -4552,8 +4785,9 @@ export interface KafkaSpecEntityOperatorUserOperatorLivenessProbe {
   readonly successThreshold?: number;
 
   /**
-   * The timeout for each attempted health check.
+   * The timeout for each attempted health check. Default to 5 seconds. Minimum value is 1.
    *
+   * @default 5 seconds. Minimum value is 1.
    * @schema KafkaSpecEntityOperatorUserOperatorLivenessProbe#timeoutSeconds
    */
   readonly timeoutSeconds?: number;
@@ -4575,8 +4809,9 @@ export interface KafkaSpecEntityOperatorUserOperatorReadinessProbe {
   readonly failureThreshold?: number;
 
   /**
-   * The initial delay before first the health is first checked.
+   * The initial delay before first the health is first checked. Default to 15 seconds. Minimum value is 0.
    *
+   * @default 15 seconds. Minimum value is 0.
    * @schema KafkaSpecEntityOperatorUserOperatorReadinessProbe#initialDelaySeconds
    */
   readonly initialDelaySeconds?: number;
@@ -4598,8 +4833,9 @@ export interface KafkaSpecEntityOperatorUserOperatorReadinessProbe {
   readonly successThreshold?: number;
 
   /**
-   * The timeout for each attempted health check.
+   * The timeout for each attempted health check. Default to 5 seconds. Minimum value is 1.
    *
+   * @default 5 seconds. Minimum value is 1.
    * @schema KafkaSpecEntityOperatorUserOperatorReadinessProbe#timeoutSeconds
    */
   readonly timeoutSeconds?: number;
@@ -4759,8 +4995,9 @@ export interface KafkaSpecEntityOperatorTlsSidecarLivenessProbe {
   readonly failureThreshold?: number;
 
   /**
-   * The initial delay before first the health is first checked.
+   * The initial delay before first the health is first checked. Default to 15 seconds. Minimum value is 0.
    *
+   * @default 15 seconds. Minimum value is 0.
    * @schema KafkaSpecEntityOperatorTlsSidecarLivenessProbe#initialDelaySeconds
    */
   readonly initialDelaySeconds?: number;
@@ -4782,8 +5019,9 @@ export interface KafkaSpecEntityOperatorTlsSidecarLivenessProbe {
   readonly successThreshold?: number;
 
   /**
-   * The timeout for each attempted health check.
+   * The timeout for each attempted health check. Default to 5 seconds. Minimum value is 1.
    *
+   * @default 5 seconds. Minimum value is 1.
    * @schema KafkaSpecEntityOperatorTlsSidecarLivenessProbe#timeoutSeconds
    */
   readonly timeoutSeconds?: number;
@@ -4829,8 +5067,9 @@ export interface KafkaSpecEntityOperatorTlsSidecarReadinessProbe {
   readonly failureThreshold?: number;
 
   /**
-   * The initial delay before first the health is first checked.
+   * The initial delay before first the health is first checked. Default to 15 seconds. Minimum value is 0.
    *
+   * @default 15 seconds. Minimum value is 0.
    * @schema KafkaSpecEntityOperatorTlsSidecarReadinessProbe#initialDelaySeconds
    */
   readonly initialDelaySeconds?: number;
@@ -4852,8 +5091,9 @@ export interface KafkaSpecEntityOperatorTlsSidecarReadinessProbe {
   readonly successThreshold?: number;
 
   /**
-   * The timeout for each attempted health check.
+   * The timeout for each attempted health check. Default to 5 seconds. Minimum value is 1.
    *
+   * @default 5 seconds. Minimum value is 1.
    * @schema KafkaSpecEntityOperatorTlsSidecarReadinessProbe#timeoutSeconds
    */
   readonly timeoutSeconds?: number;
@@ -4963,6 +5203,13 @@ export interface KafkaSpecEntityOperatorTemplatePod {
    */
   readonly hostAliases?: KafkaSpecEntityOperatorTemplatePodHostAliases[];
 
+  /**
+   * The pod's topology spread constraints.
+   *
+   * @schema KafkaSpecEntityOperatorTemplatePod#topologySpreadConstraints
+   */
+  readonly topologySpreadConstraints?: KafkaSpecEntityOperatorTemplatePodTopologySpreadConstraints[];
+
 }
 
 /**
@@ -5046,8 +5293,9 @@ export interface KafkaSpecCruiseControlTlsSidecarLivenessProbe {
   readonly failureThreshold?: number;
 
   /**
-   * The initial delay before first the health is first checked.
+   * The initial delay before first the health is first checked. Default to 15 seconds. Minimum value is 0.
    *
+   * @default 15 seconds. Minimum value is 0.
    * @schema KafkaSpecCruiseControlTlsSidecarLivenessProbe#initialDelaySeconds
    */
   readonly initialDelaySeconds?: number;
@@ -5069,8 +5317,9 @@ export interface KafkaSpecCruiseControlTlsSidecarLivenessProbe {
   readonly successThreshold?: number;
 
   /**
-   * The timeout for each attempted health check.
+   * The timeout for each attempted health check. Default to 5 seconds. Minimum value is 1.
    *
+   * @default 5 seconds. Minimum value is 1.
    * @schema KafkaSpecCruiseControlTlsSidecarLivenessProbe#timeoutSeconds
    */
   readonly timeoutSeconds?: number;
@@ -5116,8 +5365,9 @@ export interface KafkaSpecCruiseControlTlsSidecarReadinessProbe {
   readonly failureThreshold?: number;
 
   /**
-   * The initial delay before first the health is first checked.
+   * The initial delay before first the health is first checked. Default to 15 seconds. Minimum value is 0.
    *
+   * @default 15 seconds. Minimum value is 0.
    * @schema KafkaSpecCruiseControlTlsSidecarReadinessProbe#initialDelaySeconds
    */
   readonly initialDelaySeconds?: number;
@@ -5139,8 +5389,9 @@ export interface KafkaSpecCruiseControlTlsSidecarReadinessProbe {
   readonly successThreshold?: number;
 
   /**
-   * The timeout for each attempted health check.
+   * The timeout for each attempted health check. Default to 5 seconds. Minimum value is 1.
    *
+   * @default 5 seconds. Minimum value is 1.
    * @schema KafkaSpecCruiseControlTlsSidecarReadinessProbe#timeoutSeconds
    */
   readonly timeoutSeconds?: number;
@@ -5282,6 +5533,13 @@ export interface KafkaSpecCruiseControlTemplatePod {
    */
   readonly hostAliases?: KafkaSpecCruiseControlTemplatePodHostAliases[];
 
+  /**
+   * The pod's topology spread constraints.
+   *
+   * @schema KafkaSpecCruiseControlTemplatePod#topologySpreadConstraints
+   */
+  readonly topologySpreadConstraints?: KafkaSpecCruiseControlTemplatePodTopologySpreadConstraints[];
+
 }
 
 /**
@@ -5363,6 +5621,31 @@ export interface KafkaSpecCruiseControlTemplateTlsSidecarContainer {
    * @schema KafkaSpecCruiseControlTemplateTlsSidecarContainer#securityContext
    */
   readonly securityContext?: KafkaSpecCruiseControlTemplateTlsSidecarContainerSecurityContext;
+
+}
+
+/**
+ * Metrics type. Only 'jmxPrometheusExporter' supported currently.
+ *
+ * @schema KafkaSpecCruiseControlMetricsConfigType
+ */
+export enum KafkaSpecCruiseControlMetricsConfigType {
+  /** jmxPrometheusExporter */
+  JMX_PROMETHEUS_EXPORTER = "jmxPrometheusExporter",
+}
+
+/**
+ * ConfigMap where the Prometheus JMX Exporter configuration is stored. For details of the structure of this configuration, see the {JMXExporter}.
+ *
+ * @schema KafkaSpecCruiseControlMetricsConfigValueFrom
+ */
+export interface KafkaSpecCruiseControlMetricsConfigValueFrom {
+  /**
+   * Reference to the key in the ConfigMap containing the metrics configuration.
+   *
+   * @schema KafkaSpecCruiseControlMetricsConfigValueFrom#configMapKeyRef
+   */
+  readonly configMapKeyRef?: KafkaSpecCruiseControlMetricsConfigValueFromConfigMapKeyRef;
 
 }
 
@@ -5450,6 +5733,13 @@ export interface KafkaSpecJmxTransTemplatePod {
    * @schema KafkaSpecJmxTransTemplatePod#hostAliases
    */
   readonly hostAliases?: KafkaSpecJmxTransTemplatePodHostAliases[];
+
+  /**
+   * The pod's topology spread constraints.
+   *
+   * @schema KafkaSpecJmxTransTemplatePod#topologySpreadConstraints
+   */
+  readonly topologySpreadConstraints?: KafkaSpecJmxTransTemplatePodTopologySpreadConstraints[];
 
 }
 
@@ -5559,6 +5849,13 @@ export interface KafkaSpecKafkaExporterTemplatePod {
    * @schema KafkaSpecKafkaExporterTemplatePod#hostAliases
    */
   readonly hostAliases?: KafkaSpecKafkaExporterTemplatePodHostAliases[];
+
+  /**
+   * The pod's topology spread constraints.
+   *
+   * @schema KafkaSpecKafkaExporterTemplatePod#topologySpreadConstraints
+   */
+  readonly topologySpreadConstraints?: KafkaSpecKafkaExporterTemplatePodTopologySpreadConstraints[];
 
 }
 
@@ -5743,6 +6040,29 @@ export enum KafkaSpecKafkaJmxOptionsAuthenticationType {
 }
 
 /**
+ * Reference to the key in the ConfigMap containing the metrics configuration.
+ *
+ * @schema KafkaSpecKafkaMetricsConfigValueFromConfigMapKeyRef
+ */
+export interface KafkaSpecKafkaMetricsConfigValueFromConfigMapKeyRef {
+  /**
+   * @schema KafkaSpecKafkaMetricsConfigValueFromConfigMapKeyRef#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaSpecKafkaMetricsConfigValueFromConfigMapKeyRef#name
+   */
+  readonly name?: string;
+
+  /**
+   * @schema KafkaSpecKafkaMetricsConfigValueFromConfigMapKeyRef#optional
+   */
+  readonly optional?: boolean;
+
+}
+
+/**
  * Metadata applied to the resource.
  *
  * @schema KafkaSpecKafkaTemplateStatefulsetMetadata
@@ -5847,6 +6167,11 @@ export interface KafkaSpecKafkaTemplatePodSecurityContext {
   readonly seLinuxOptions?: KafkaSpecKafkaTemplatePodSecurityContextSeLinuxOptions;
 
   /**
+   * @schema KafkaSpecKafkaTemplatePodSecurityContext#seccompProfile
+   */
+  readonly seccompProfile?: KafkaSpecKafkaTemplatePodSecurityContextSeccompProfile;
+
+  /**
    * @schema KafkaSpecKafkaTemplatePodSecurityContext#supplementalGroups
    */
   readonly supplementalGroups?: number[];
@@ -5930,6 +6255,32 @@ export interface KafkaSpecKafkaTemplatePodHostAliases {
    * @schema KafkaSpecKafkaTemplatePodHostAliases#ip
    */
   readonly ip?: string;
+
+}
+
+/**
+ * @schema KafkaSpecKafkaTemplatePodTopologySpreadConstraints
+ */
+export interface KafkaSpecKafkaTemplatePodTopologySpreadConstraints {
+  /**
+   * @schema KafkaSpecKafkaTemplatePodTopologySpreadConstraints#labelSelector
+   */
+  readonly labelSelector?: KafkaSpecKafkaTemplatePodTopologySpreadConstraintsLabelSelector;
+
+  /**
+   * @schema KafkaSpecKafkaTemplatePodTopologySpreadConstraints#maxSkew
+   */
+  readonly maxSkew?: number;
+
+  /**
+   * @schema KafkaSpecKafkaTemplatePodTopologySpreadConstraints#topologyKey
+   */
+  readonly topologyKey?: string;
+
+  /**
+   * @schema KafkaSpecKafkaTemplatePodTopologySpreadConstraints#whenUnsatisfiable
+   */
+  readonly whenUnsatisfiable?: string;
 
 }
 
@@ -6249,6 +6600,11 @@ export interface KafkaSpecKafkaTemplateKafkaContainerSecurityContext {
   readonly seLinuxOptions?: KafkaSpecKafkaTemplateKafkaContainerSecurityContextSeLinuxOptions;
 
   /**
+   * @schema KafkaSpecKafkaTemplateKafkaContainerSecurityContext#seccompProfile
+   */
+  readonly seccompProfile?: KafkaSpecKafkaTemplateKafkaContainerSecurityContextSeccompProfile;
+
+  /**
    * @schema KafkaSpecKafkaTemplateKafkaContainerSecurityContext#windowsOptions
    */
   readonly windowsOptions?: KafkaSpecKafkaTemplateKafkaContainerSecurityContextWindowsOptions;
@@ -6325,6 +6681,11 @@ export interface KafkaSpecKafkaTemplateTlsSidecarContainerSecurityContext {
    * @schema KafkaSpecKafkaTemplateTlsSidecarContainerSecurityContext#seLinuxOptions
    */
   readonly seLinuxOptions?: KafkaSpecKafkaTemplateTlsSidecarContainerSecurityContextSeLinuxOptions;
+
+  /**
+   * @schema KafkaSpecKafkaTemplateTlsSidecarContainerSecurityContext#seccompProfile
+   */
+  readonly seccompProfile?: KafkaSpecKafkaTemplateTlsSidecarContainerSecurityContextSeccompProfile;
 
   /**
    * @schema KafkaSpecKafkaTemplateTlsSidecarContainerSecurityContext#windowsOptions
@@ -6405,9 +6766,36 @@ export interface KafkaSpecKafkaTemplateInitContainerSecurityContext {
   readonly seLinuxOptions?: KafkaSpecKafkaTemplateInitContainerSecurityContextSeLinuxOptions;
 
   /**
+   * @schema KafkaSpecKafkaTemplateInitContainerSecurityContext#seccompProfile
+   */
+  readonly seccompProfile?: KafkaSpecKafkaTemplateInitContainerSecurityContextSeccompProfile;
+
+  /**
    * @schema KafkaSpecKafkaTemplateInitContainerSecurityContext#windowsOptions
    */
   readonly windowsOptions?: KafkaSpecKafkaTemplateInitContainerSecurityContextWindowsOptions;
+
+}
+
+/**
+ * Metadata applied to the resource.
+ *
+ * @schema KafkaSpecKafkaTemplateClusterCaCertMetadata
+ */
+export interface KafkaSpecKafkaTemplateClusterCaCertMetadata {
+  /**
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   *
+   * @schema KafkaSpecKafkaTemplateClusterCaCertMetadata#labels
+   */
+  readonly labels?: any;
+
+  /**
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   *
+   * @schema KafkaSpecKafkaTemplateClusterCaCertMetadata#annotations
+   */
+  readonly annotations?: any;
 
 }
 
@@ -6509,6 +6897,29 @@ export interface KafkaSpecZookeeperAffinityPodAntiAffinityRequiredDuringScheduli
    * @schema KafkaSpecZookeeperAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecution#topologyKey
    */
   readonly topologyKey?: string;
+
+}
+
+/**
+ * Reference to the key in the ConfigMap containing the metrics configuration.
+ *
+ * @schema KafkaSpecZookeeperMetricsConfigValueFromConfigMapKeyRef
+ */
+export interface KafkaSpecZookeeperMetricsConfigValueFromConfigMapKeyRef {
+  /**
+   * @schema KafkaSpecZookeeperMetricsConfigValueFromConfigMapKeyRef#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaSpecZookeeperMetricsConfigValueFromConfigMapKeyRef#name
+   */
+  readonly name?: string;
+
+  /**
+   * @schema KafkaSpecZookeeperMetricsConfigValueFromConfigMapKeyRef#optional
+   */
+  readonly optional?: boolean;
 
 }
 
@@ -6617,6 +7028,11 @@ export interface KafkaSpecZookeeperTemplatePodSecurityContext {
   readonly seLinuxOptions?: KafkaSpecZookeeperTemplatePodSecurityContextSeLinuxOptions;
 
   /**
+   * @schema KafkaSpecZookeeperTemplatePodSecurityContext#seccompProfile
+   */
+  readonly seccompProfile?: KafkaSpecZookeeperTemplatePodSecurityContextSeccompProfile;
+
+  /**
    * @schema KafkaSpecZookeeperTemplatePodSecurityContext#supplementalGroups
    */
   readonly supplementalGroups?: number[];
@@ -6700,6 +7116,32 @@ export interface KafkaSpecZookeeperTemplatePodHostAliases {
    * @schema KafkaSpecZookeeperTemplatePodHostAliases#ip
    */
   readonly ip?: string;
+
+}
+
+/**
+ * @schema KafkaSpecZookeeperTemplatePodTopologySpreadConstraints
+ */
+export interface KafkaSpecZookeeperTemplatePodTopologySpreadConstraints {
+  /**
+   * @schema KafkaSpecZookeeperTemplatePodTopologySpreadConstraints#labelSelector
+   */
+  readonly labelSelector?: KafkaSpecZookeeperTemplatePodTopologySpreadConstraintsLabelSelector;
+
+  /**
+   * @schema KafkaSpecZookeeperTemplatePodTopologySpreadConstraints#maxSkew
+   */
+  readonly maxSkew?: number;
+
+  /**
+   * @schema KafkaSpecZookeeperTemplatePodTopologySpreadConstraints#topologyKey
+   */
+  readonly topologyKey?: string;
+
+  /**
+   * @schema KafkaSpecZookeeperTemplatePodTopologySpreadConstraints#whenUnsatisfiable
+   */
+  readonly whenUnsatisfiable?: string;
 
 }
 
@@ -6863,6 +7305,11 @@ export interface KafkaSpecZookeeperTemplateZookeeperContainerSecurityContext {
   readonly seLinuxOptions?: KafkaSpecZookeeperTemplateZookeeperContainerSecurityContextSeLinuxOptions;
 
   /**
+   * @schema KafkaSpecZookeeperTemplateZookeeperContainerSecurityContext#seccompProfile
+   */
+  readonly seccompProfile?: KafkaSpecZookeeperTemplateZookeeperContainerSecurityContextSeccompProfile;
+
+  /**
    * @schema KafkaSpecZookeeperTemplateZookeeperContainerSecurityContext#windowsOptions
    */
   readonly windowsOptions?: KafkaSpecZookeeperTemplateZookeeperContainerSecurityContextWindowsOptions;
@@ -6939,6 +7386,11 @@ export interface KafkaSpecZookeeperTemplateTlsSidecarContainerSecurityContext {
    * @schema KafkaSpecZookeeperTemplateTlsSidecarContainerSecurityContext#seLinuxOptions
    */
   readonly seLinuxOptions?: KafkaSpecZookeeperTemplateTlsSidecarContainerSecurityContextSeLinuxOptions;
+
+  /**
+   * @schema KafkaSpecZookeeperTemplateTlsSidecarContainerSecurityContext#seccompProfile
+   */
+  readonly seccompProfile?: KafkaSpecZookeeperTemplateTlsSidecarContainerSecurityContextSeccompProfile;
 
   /**
    * @schema KafkaSpecZookeeperTemplateTlsSidecarContainerSecurityContext#windowsOptions
@@ -7305,6 +7757,11 @@ export interface KafkaSpecEntityOperatorTemplatePodSecurityContext {
   readonly seLinuxOptions?: KafkaSpecEntityOperatorTemplatePodSecurityContextSeLinuxOptions;
 
   /**
+   * @schema KafkaSpecEntityOperatorTemplatePodSecurityContext#seccompProfile
+   */
+  readonly seccompProfile?: KafkaSpecEntityOperatorTemplatePodSecurityContextSeccompProfile;
+
+  /**
    * @schema KafkaSpecEntityOperatorTemplatePodSecurityContext#supplementalGroups
    */
   readonly supplementalGroups?: number[];
@@ -7392,6 +7849,32 @@ export interface KafkaSpecEntityOperatorTemplatePodHostAliases {
 }
 
 /**
+ * @schema KafkaSpecEntityOperatorTemplatePodTopologySpreadConstraints
+ */
+export interface KafkaSpecEntityOperatorTemplatePodTopologySpreadConstraints {
+  /**
+   * @schema KafkaSpecEntityOperatorTemplatePodTopologySpreadConstraints#labelSelector
+   */
+  readonly labelSelector?: KafkaSpecEntityOperatorTemplatePodTopologySpreadConstraintsLabelSelector;
+
+  /**
+   * @schema KafkaSpecEntityOperatorTemplatePodTopologySpreadConstraints#maxSkew
+   */
+  readonly maxSkew?: number;
+
+  /**
+   * @schema KafkaSpecEntityOperatorTemplatePodTopologySpreadConstraints#topologyKey
+   */
+  readonly topologyKey?: string;
+
+  /**
+   * @schema KafkaSpecEntityOperatorTemplatePodTopologySpreadConstraints#whenUnsatisfiable
+   */
+  readonly whenUnsatisfiable?: string;
+
+}
+
+/**
  * @schema KafkaSpecEntityOperatorTemplateTlsSidecarContainerEnv
  */
 export interface KafkaSpecEntityOperatorTemplateTlsSidecarContainerEnv {
@@ -7461,6 +7944,11 @@ export interface KafkaSpecEntityOperatorTemplateTlsSidecarContainerSecurityConte
    * @schema KafkaSpecEntityOperatorTemplateTlsSidecarContainerSecurityContext#seLinuxOptions
    */
   readonly seLinuxOptions?: KafkaSpecEntityOperatorTemplateTlsSidecarContainerSecurityContextSeLinuxOptions;
+
+  /**
+   * @schema KafkaSpecEntityOperatorTemplateTlsSidecarContainerSecurityContext#seccompProfile
+   */
+  readonly seccompProfile?: KafkaSpecEntityOperatorTemplateTlsSidecarContainerSecurityContextSeccompProfile;
 
   /**
    * @schema KafkaSpecEntityOperatorTemplateTlsSidecarContainerSecurityContext#windowsOptions
@@ -7541,6 +8029,11 @@ export interface KafkaSpecEntityOperatorTemplateTopicOperatorContainerSecurityCo
   readonly seLinuxOptions?: KafkaSpecEntityOperatorTemplateTopicOperatorContainerSecurityContextSeLinuxOptions;
 
   /**
+   * @schema KafkaSpecEntityOperatorTemplateTopicOperatorContainerSecurityContext#seccompProfile
+   */
+  readonly seccompProfile?: KafkaSpecEntityOperatorTemplateTopicOperatorContainerSecurityContextSeccompProfile;
+
+  /**
    * @schema KafkaSpecEntityOperatorTemplateTopicOperatorContainerSecurityContext#windowsOptions
    */
   readonly windowsOptions?: KafkaSpecEntityOperatorTemplateTopicOperatorContainerSecurityContextWindowsOptions;
@@ -7617,6 +8110,11 @@ export interface KafkaSpecEntityOperatorTemplateUserOperatorContainerSecurityCon
    * @schema KafkaSpecEntityOperatorTemplateUserOperatorContainerSecurityContext#seLinuxOptions
    */
   readonly seLinuxOptions?: KafkaSpecEntityOperatorTemplateUserOperatorContainerSecurityContextSeLinuxOptions;
+
+  /**
+   * @schema KafkaSpecEntityOperatorTemplateUserOperatorContainerSecurityContext#seccompProfile
+   */
+  readonly seccompProfile?: KafkaSpecEntityOperatorTemplateUserOperatorContainerSecurityContextSeccompProfile;
 
   /**
    * @schema KafkaSpecEntityOperatorTemplateUserOperatorContainerSecurityContext#windowsOptions
@@ -7717,6 +8215,11 @@ export interface KafkaSpecCruiseControlTemplatePodSecurityContext {
   readonly seLinuxOptions?: KafkaSpecCruiseControlTemplatePodSecurityContextSeLinuxOptions;
 
   /**
+   * @schema KafkaSpecCruiseControlTemplatePodSecurityContext#seccompProfile
+   */
+  readonly seccompProfile?: KafkaSpecCruiseControlTemplatePodSecurityContextSeccompProfile;
+
+  /**
    * @schema KafkaSpecCruiseControlTemplatePodSecurityContext#supplementalGroups
    */
   readonly supplementalGroups?: number[];
@@ -7800,6 +8303,32 @@ export interface KafkaSpecCruiseControlTemplatePodHostAliases {
    * @schema KafkaSpecCruiseControlTemplatePodHostAliases#ip
    */
   readonly ip?: string;
+
+}
+
+/**
+ * @schema KafkaSpecCruiseControlTemplatePodTopologySpreadConstraints
+ */
+export interface KafkaSpecCruiseControlTemplatePodTopologySpreadConstraints {
+  /**
+   * @schema KafkaSpecCruiseControlTemplatePodTopologySpreadConstraints#labelSelector
+   */
+  readonly labelSelector?: KafkaSpecCruiseControlTemplatePodTopologySpreadConstraintsLabelSelector;
+
+  /**
+   * @schema KafkaSpecCruiseControlTemplatePodTopologySpreadConstraints#maxSkew
+   */
+  readonly maxSkew?: number;
+
+  /**
+   * @schema KafkaSpecCruiseControlTemplatePodTopologySpreadConstraints#topologyKey
+   */
+  readonly topologyKey?: string;
+
+  /**
+   * @schema KafkaSpecCruiseControlTemplatePodTopologySpreadConstraints#whenUnsatisfiable
+   */
+  readonly whenUnsatisfiable?: string;
 
 }
 
@@ -7919,6 +8448,11 @@ export interface KafkaSpecCruiseControlTemplateCruiseControlContainerSecurityCon
   readonly seLinuxOptions?: KafkaSpecCruiseControlTemplateCruiseControlContainerSecurityContextSeLinuxOptions;
 
   /**
+   * @schema KafkaSpecCruiseControlTemplateCruiseControlContainerSecurityContext#seccompProfile
+   */
+  readonly seccompProfile?: KafkaSpecCruiseControlTemplateCruiseControlContainerSecurityContextSeccompProfile;
+
+  /**
    * @schema KafkaSpecCruiseControlTemplateCruiseControlContainerSecurityContext#windowsOptions
    */
   readonly windowsOptions?: KafkaSpecCruiseControlTemplateCruiseControlContainerSecurityContextWindowsOptions;
@@ -7997,9 +8531,37 @@ export interface KafkaSpecCruiseControlTemplateTlsSidecarContainerSecurityContex
   readonly seLinuxOptions?: KafkaSpecCruiseControlTemplateTlsSidecarContainerSecurityContextSeLinuxOptions;
 
   /**
+   * @schema KafkaSpecCruiseControlTemplateTlsSidecarContainerSecurityContext#seccompProfile
+   */
+  readonly seccompProfile?: KafkaSpecCruiseControlTemplateTlsSidecarContainerSecurityContextSeccompProfile;
+
+  /**
    * @schema KafkaSpecCruiseControlTemplateTlsSidecarContainerSecurityContext#windowsOptions
    */
   readonly windowsOptions?: KafkaSpecCruiseControlTemplateTlsSidecarContainerSecurityContextWindowsOptions;
+
+}
+
+/**
+ * Reference to the key in the ConfigMap containing the metrics configuration.
+ *
+ * @schema KafkaSpecCruiseControlMetricsConfigValueFromConfigMapKeyRef
+ */
+export interface KafkaSpecCruiseControlMetricsConfigValueFromConfigMapKeyRef {
+  /**
+   * @schema KafkaSpecCruiseControlMetricsConfigValueFromConfigMapKeyRef#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaSpecCruiseControlMetricsConfigValueFromConfigMapKeyRef#name
+   */
+  readonly name?: string;
+
+  /**
+   * @schema KafkaSpecCruiseControlMetricsConfigValueFromConfigMapKeyRef#optional
+   */
+  readonly optional?: boolean;
 
 }
 
@@ -8095,6 +8657,11 @@ export interface KafkaSpecJmxTransTemplatePodSecurityContext {
   readonly seLinuxOptions?: KafkaSpecJmxTransTemplatePodSecurityContextSeLinuxOptions;
 
   /**
+   * @schema KafkaSpecJmxTransTemplatePodSecurityContext#seccompProfile
+   */
+  readonly seccompProfile?: KafkaSpecJmxTransTemplatePodSecurityContextSeccompProfile;
+
+  /**
    * @schema KafkaSpecJmxTransTemplatePodSecurityContext#supplementalGroups
    */
   readonly supplementalGroups?: number[];
@@ -8182,6 +8749,32 @@ export interface KafkaSpecJmxTransTemplatePodHostAliases {
 }
 
 /**
+ * @schema KafkaSpecJmxTransTemplatePodTopologySpreadConstraints
+ */
+export interface KafkaSpecJmxTransTemplatePodTopologySpreadConstraints {
+  /**
+   * @schema KafkaSpecJmxTransTemplatePodTopologySpreadConstraints#labelSelector
+   */
+  readonly labelSelector?: KafkaSpecJmxTransTemplatePodTopologySpreadConstraintsLabelSelector;
+
+  /**
+   * @schema KafkaSpecJmxTransTemplatePodTopologySpreadConstraints#maxSkew
+   */
+  readonly maxSkew?: number;
+
+  /**
+   * @schema KafkaSpecJmxTransTemplatePodTopologySpreadConstraints#topologyKey
+   */
+  readonly topologyKey?: string;
+
+  /**
+   * @schema KafkaSpecJmxTransTemplatePodTopologySpreadConstraints#whenUnsatisfiable
+   */
+  readonly whenUnsatisfiable?: string;
+
+}
+
+/**
  * @schema KafkaSpecJmxTransTemplateContainerEnv
  */
 export interface KafkaSpecJmxTransTemplateContainerEnv {
@@ -8251,6 +8844,11 @@ export interface KafkaSpecJmxTransTemplateContainerSecurityContext {
    * @schema KafkaSpecJmxTransTemplateContainerSecurityContext#seLinuxOptions
    */
   readonly seLinuxOptions?: KafkaSpecJmxTransTemplateContainerSecurityContextSeLinuxOptions;
+
+  /**
+   * @schema KafkaSpecJmxTransTemplateContainerSecurityContext#seccompProfile
+   */
+  readonly seccompProfile?: KafkaSpecJmxTransTemplateContainerSecurityContextSeccompProfile;
 
   /**
    * @schema KafkaSpecJmxTransTemplateContainerSecurityContext#windowsOptions
@@ -8351,6 +8949,11 @@ export interface KafkaSpecKafkaExporterTemplatePodSecurityContext {
   readonly seLinuxOptions?: KafkaSpecKafkaExporterTemplatePodSecurityContextSeLinuxOptions;
 
   /**
+   * @schema KafkaSpecKafkaExporterTemplatePodSecurityContext#seccompProfile
+   */
+  readonly seccompProfile?: KafkaSpecKafkaExporterTemplatePodSecurityContextSeccompProfile;
+
+  /**
    * @schema KafkaSpecKafkaExporterTemplatePodSecurityContext#supplementalGroups
    */
   readonly supplementalGroups?: number[];
@@ -8434,6 +9037,32 @@ export interface KafkaSpecKafkaExporterTemplatePodHostAliases {
    * @schema KafkaSpecKafkaExporterTemplatePodHostAliases#ip
    */
   readonly ip?: string;
+
+}
+
+/**
+ * @schema KafkaSpecKafkaExporterTemplatePodTopologySpreadConstraints
+ */
+export interface KafkaSpecKafkaExporterTemplatePodTopologySpreadConstraints {
+  /**
+   * @schema KafkaSpecKafkaExporterTemplatePodTopologySpreadConstraints#labelSelector
+   */
+  readonly labelSelector?: KafkaSpecKafkaExporterTemplatePodTopologySpreadConstraintsLabelSelector;
+
+  /**
+   * @schema KafkaSpecKafkaExporterTemplatePodTopologySpreadConstraints#maxSkew
+   */
+  readonly maxSkew?: number;
+
+  /**
+   * @schema KafkaSpecKafkaExporterTemplatePodTopologySpreadConstraints#topologyKey
+   */
+  readonly topologyKey?: string;
+
+  /**
+   * @schema KafkaSpecKafkaExporterTemplatePodTopologySpreadConstraints#whenUnsatisfiable
+   */
+  readonly whenUnsatisfiable?: string;
 
 }
 
@@ -8529,6 +9158,11 @@ export interface KafkaSpecKafkaExporterTemplateContainerSecurityContext {
    * @schema KafkaSpecKafkaExporterTemplateContainerSecurityContext#seLinuxOptions
    */
   readonly seLinuxOptions?: KafkaSpecKafkaExporterTemplateContainerSecurityContextSeLinuxOptions;
+
+  /**
+   * @schema KafkaSpecKafkaExporterTemplateContainerSecurityContext#seccompProfile
+   */
+  readonly seccompProfile?: KafkaSpecKafkaExporterTemplateContainerSecurityContextSeccompProfile;
 
   /**
    * @schema KafkaSpecKafkaExporterTemplateContainerSecurityContext#windowsOptions
@@ -8670,6 +9304,22 @@ export interface KafkaSpecKafkaTemplatePodSecurityContextSeLinuxOptions {
 }
 
 /**
+ * @schema KafkaSpecKafkaTemplatePodSecurityContextSeccompProfile
+ */
+export interface KafkaSpecKafkaTemplatePodSecurityContextSeccompProfile {
+  /**
+   * @schema KafkaSpecKafkaTemplatePodSecurityContextSeccompProfile#localhostProfile
+   */
+  readonly localhostProfile?: string;
+
+  /**
+   * @schema KafkaSpecKafkaTemplatePodSecurityContextSeccompProfile#type
+   */
+  readonly type?: string;
+
+}
+
+/**
  * @schema KafkaSpecKafkaTemplatePodSecurityContextSysctls
  */
 export interface KafkaSpecKafkaTemplatePodSecurityContextSysctls {
@@ -8755,6 +9405,22 @@ export interface KafkaSpecKafkaTemplatePodAffinityPodAntiAffinity {
 }
 
 /**
+ * @schema KafkaSpecKafkaTemplatePodTopologySpreadConstraintsLabelSelector
+ */
+export interface KafkaSpecKafkaTemplatePodTopologySpreadConstraintsLabelSelector {
+  /**
+   * @schema KafkaSpecKafkaTemplatePodTopologySpreadConstraintsLabelSelector#matchExpressions
+   */
+  readonly matchExpressions?: KafkaSpecKafkaTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions[];
+
+  /**
+   * @schema KafkaSpecKafkaTemplatePodTopologySpreadConstraintsLabelSelector#matchLabels
+   */
+  readonly matchLabels?: any;
+
+}
+
+/**
  * @schema KafkaSpecKafkaTemplateKafkaContainerSecurityContextCapabilities
  */
 export interface KafkaSpecKafkaTemplateKafkaContainerSecurityContextCapabilities {
@@ -8793,6 +9459,22 @@ export interface KafkaSpecKafkaTemplateKafkaContainerSecurityContextSeLinuxOptio
    * @schema KafkaSpecKafkaTemplateKafkaContainerSecurityContextSeLinuxOptions#user
    */
   readonly user?: string;
+
+}
+
+/**
+ * @schema KafkaSpecKafkaTemplateKafkaContainerSecurityContextSeccompProfile
+ */
+export interface KafkaSpecKafkaTemplateKafkaContainerSecurityContextSeccompProfile {
+  /**
+   * @schema KafkaSpecKafkaTemplateKafkaContainerSecurityContextSeccompProfile#localhostProfile
+   */
+  readonly localhostProfile?: string;
+
+  /**
+   * @schema KafkaSpecKafkaTemplateKafkaContainerSecurityContextSeccompProfile#type
+   */
+  readonly type?: string;
 
 }
 
@@ -8860,6 +9542,22 @@ export interface KafkaSpecKafkaTemplateTlsSidecarContainerSecurityContextSeLinux
 }
 
 /**
+ * @schema KafkaSpecKafkaTemplateTlsSidecarContainerSecurityContextSeccompProfile
+ */
+export interface KafkaSpecKafkaTemplateTlsSidecarContainerSecurityContextSeccompProfile {
+  /**
+   * @schema KafkaSpecKafkaTemplateTlsSidecarContainerSecurityContextSeccompProfile#localhostProfile
+   */
+  readonly localhostProfile?: string;
+
+  /**
+   * @schema KafkaSpecKafkaTemplateTlsSidecarContainerSecurityContextSeccompProfile#type
+   */
+  readonly type?: string;
+
+}
+
+/**
  * @schema KafkaSpecKafkaTemplateTlsSidecarContainerSecurityContextWindowsOptions
  */
 export interface KafkaSpecKafkaTemplateTlsSidecarContainerSecurityContextWindowsOptions {
@@ -8919,6 +9617,22 @@ export interface KafkaSpecKafkaTemplateInitContainerSecurityContextSeLinuxOption
    * @schema KafkaSpecKafkaTemplateInitContainerSecurityContextSeLinuxOptions#user
    */
   readonly user?: string;
+
+}
+
+/**
+ * @schema KafkaSpecKafkaTemplateInitContainerSecurityContextSeccompProfile
+ */
+export interface KafkaSpecKafkaTemplateInitContainerSecurityContextSeccompProfile {
+  /**
+   * @schema KafkaSpecKafkaTemplateInitContainerSecurityContextSeccompProfile#localhostProfile
+   */
+  readonly localhostProfile?: string;
+
+  /**
+   * @schema KafkaSpecKafkaTemplateInitContainerSecurityContextSeccompProfile#type
+   */
+  readonly type?: string;
 
 }
 
@@ -9076,6 +9790,22 @@ export interface KafkaSpecZookeeperTemplatePodSecurityContextSeLinuxOptions {
 }
 
 /**
+ * @schema KafkaSpecZookeeperTemplatePodSecurityContextSeccompProfile
+ */
+export interface KafkaSpecZookeeperTemplatePodSecurityContextSeccompProfile {
+  /**
+   * @schema KafkaSpecZookeeperTemplatePodSecurityContextSeccompProfile#localhostProfile
+   */
+  readonly localhostProfile?: string;
+
+  /**
+   * @schema KafkaSpecZookeeperTemplatePodSecurityContextSeccompProfile#type
+   */
+  readonly type?: string;
+
+}
+
+/**
  * @schema KafkaSpecZookeeperTemplatePodSecurityContextSysctls
  */
 export interface KafkaSpecZookeeperTemplatePodSecurityContextSysctls {
@@ -9161,6 +9891,22 @@ export interface KafkaSpecZookeeperTemplatePodAffinityPodAntiAffinity {
 }
 
 /**
+ * @schema KafkaSpecZookeeperTemplatePodTopologySpreadConstraintsLabelSelector
+ */
+export interface KafkaSpecZookeeperTemplatePodTopologySpreadConstraintsLabelSelector {
+  /**
+   * @schema KafkaSpecZookeeperTemplatePodTopologySpreadConstraintsLabelSelector#matchExpressions
+   */
+  readonly matchExpressions?: KafkaSpecZookeeperTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions[];
+
+  /**
+   * @schema KafkaSpecZookeeperTemplatePodTopologySpreadConstraintsLabelSelector#matchLabels
+   */
+  readonly matchLabels?: any;
+
+}
+
+/**
  * @schema KafkaSpecZookeeperTemplateZookeeperContainerSecurityContextCapabilities
  */
 export interface KafkaSpecZookeeperTemplateZookeeperContainerSecurityContextCapabilities {
@@ -9199,6 +9945,22 @@ export interface KafkaSpecZookeeperTemplateZookeeperContainerSecurityContextSeLi
    * @schema KafkaSpecZookeeperTemplateZookeeperContainerSecurityContextSeLinuxOptions#user
    */
   readonly user?: string;
+
+}
+
+/**
+ * @schema KafkaSpecZookeeperTemplateZookeeperContainerSecurityContextSeccompProfile
+ */
+export interface KafkaSpecZookeeperTemplateZookeeperContainerSecurityContextSeccompProfile {
+  /**
+   * @schema KafkaSpecZookeeperTemplateZookeeperContainerSecurityContextSeccompProfile#localhostProfile
+   */
+  readonly localhostProfile?: string;
+
+  /**
+   * @schema KafkaSpecZookeeperTemplateZookeeperContainerSecurityContextSeccompProfile#type
+   */
+  readonly type?: string;
 
 }
 
@@ -9262,6 +10024,22 @@ export interface KafkaSpecZookeeperTemplateTlsSidecarContainerSecurityContextSeL
    * @schema KafkaSpecZookeeperTemplateTlsSidecarContainerSecurityContextSeLinuxOptions#user
    */
   readonly user?: string;
+
+}
+
+/**
+ * @schema KafkaSpecZookeeperTemplateTlsSidecarContainerSecurityContextSeccompProfile
+ */
+export interface KafkaSpecZookeeperTemplateTlsSidecarContainerSecurityContextSeccompProfile {
+  /**
+   * @schema KafkaSpecZookeeperTemplateTlsSidecarContainerSecurityContextSeccompProfile#localhostProfile
+   */
+  readonly localhostProfile?: string;
+
+  /**
+   * @schema KafkaSpecZookeeperTemplateTlsSidecarContainerSecurityContextSeccompProfile#type
+   */
+  readonly type?: string;
 
 }
 
@@ -9525,6 +10303,22 @@ export interface KafkaSpecEntityOperatorTemplatePodSecurityContextSeLinuxOptions
 }
 
 /**
+ * @schema KafkaSpecEntityOperatorTemplatePodSecurityContextSeccompProfile
+ */
+export interface KafkaSpecEntityOperatorTemplatePodSecurityContextSeccompProfile {
+  /**
+   * @schema KafkaSpecEntityOperatorTemplatePodSecurityContextSeccompProfile#localhostProfile
+   */
+  readonly localhostProfile?: string;
+
+  /**
+   * @schema KafkaSpecEntityOperatorTemplatePodSecurityContextSeccompProfile#type
+   */
+  readonly type?: string;
+
+}
+
+/**
  * @schema KafkaSpecEntityOperatorTemplatePodSecurityContextSysctls
  */
 export interface KafkaSpecEntityOperatorTemplatePodSecurityContextSysctls {
@@ -9610,6 +10404,22 @@ export interface KafkaSpecEntityOperatorTemplatePodAffinityPodAntiAffinity {
 }
 
 /**
+ * @schema KafkaSpecEntityOperatorTemplatePodTopologySpreadConstraintsLabelSelector
+ */
+export interface KafkaSpecEntityOperatorTemplatePodTopologySpreadConstraintsLabelSelector {
+  /**
+   * @schema KafkaSpecEntityOperatorTemplatePodTopologySpreadConstraintsLabelSelector#matchExpressions
+   */
+  readonly matchExpressions?: KafkaSpecEntityOperatorTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions[];
+
+  /**
+   * @schema KafkaSpecEntityOperatorTemplatePodTopologySpreadConstraintsLabelSelector#matchLabels
+   */
+  readonly matchLabels?: any;
+
+}
+
+/**
  * @schema KafkaSpecEntityOperatorTemplateTlsSidecarContainerSecurityContextCapabilities
  */
 export interface KafkaSpecEntityOperatorTemplateTlsSidecarContainerSecurityContextCapabilities {
@@ -9648,6 +10458,22 @@ export interface KafkaSpecEntityOperatorTemplateTlsSidecarContainerSecurityConte
    * @schema KafkaSpecEntityOperatorTemplateTlsSidecarContainerSecurityContextSeLinuxOptions#user
    */
   readonly user?: string;
+
+}
+
+/**
+ * @schema KafkaSpecEntityOperatorTemplateTlsSidecarContainerSecurityContextSeccompProfile
+ */
+export interface KafkaSpecEntityOperatorTemplateTlsSidecarContainerSecurityContextSeccompProfile {
+  /**
+   * @schema KafkaSpecEntityOperatorTemplateTlsSidecarContainerSecurityContextSeccompProfile#localhostProfile
+   */
+  readonly localhostProfile?: string;
+
+  /**
+   * @schema KafkaSpecEntityOperatorTemplateTlsSidecarContainerSecurityContextSeccompProfile#type
+   */
+  readonly type?: string;
 
 }
 
@@ -9715,6 +10541,22 @@ export interface KafkaSpecEntityOperatorTemplateTopicOperatorContainerSecurityCo
 }
 
 /**
+ * @schema KafkaSpecEntityOperatorTemplateTopicOperatorContainerSecurityContextSeccompProfile
+ */
+export interface KafkaSpecEntityOperatorTemplateTopicOperatorContainerSecurityContextSeccompProfile {
+  /**
+   * @schema KafkaSpecEntityOperatorTemplateTopicOperatorContainerSecurityContextSeccompProfile#localhostProfile
+   */
+  readonly localhostProfile?: string;
+
+  /**
+   * @schema KafkaSpecEntityOperatorTemplateTopicOperatorContainerSecurityContextSeccompProfile#type
+   */
+  readonly type?: string;
+
+}
+
+/**
  * @schema KafkaSpecEntityOperatorTemplateTopicOperatorContainerSecurityContextWindowsOptions
  */
 export interface KafkaSpecEntityOperatorTemplateTopicOperatorContainerSecurityContextWindowsOptions {
@@ -9778,6 +10620,22 @@ export interface KafkaSpecEntityOperatorTemplateUserOperatorContainerSecurityCon
 }
 
 /**
+ * @schema KafkaSpecEntityOperatorTemplateUserOperatorContainerSecurityContextSeccompProfile
+ */
+export interface KafkaSpecEntityOperatorTemplateUserOperatorContainerSecurityContextSeccompProfile {
+  /**
+   * @schema KafkaSpecEntityOperatorTemplateUserOperatorContainerSecurityContextSeccompProfile#localhostProfile
+   */
+  readonly localhostProfile?: string;
+
+  /**
+   * @schema KafkaSpecEntityOperatorTemplateUserOperatorContainerSecurityContextSeccompProfile#type
+   */
+  readonly type?: string;
+
+}
+
+/**
  * @schema KafkaSpecEntityOperatorTemplateUserOperatorContainerSecurityContextWindowsOptions
  */
 export interface KafkaSpecEntityOperatorTemplateUserOperatorContainerSecurityContextWindowsOptions {
@@ -9821,6 +10679,22 @@ export interface KafkaSpecCruiseControlTemplatePodSecurityContextSeLinuxOptions 
    * @schema KafkaSpecCruiseControlTemplatePodSecurityContextSeLinuxOptions#user
    */
   readonly user?: string;
+
+}
+
+/**
+ * @schema KafkaSpecCruiseControlTemplatePodSecurityContextSeccompProfile
+ */
+export interface KafkaSpecCruiseControlTemplatePodSecurityContextSeccompProfile {
+  /**
+   * @schema KafkaSpecCruiseControlTemplatePodSecurityContextSeccompProfile#localhostProfile
+   */
+  readonly localhostProfile?: string;
+
+  /**
+   * @schema KafkaSpecCruiseControlTemplatePodSecurityContextSeccompProfile#type
+   */
+  readonly type?: string;
 
 }
 
@@ -9910,6 +10784,22 @@ export interface KafkaSpecCruiseControlTemplatePodAffinityPodAntiAffinity {
 }
 
 /**
+ * @schema KafkaSpecCruiseControlTemplatePodTopologySpreadConstraintsLabelSelector
+ */
+export interface KafkaSpecCruiseControlTemplatePodTopologySpreadConstraintsLabelSelector {
+  /**
+   * @schema KafkaSpecCruiseControlTemplatePodTopologySpreadConstraintsLabelSelector#matchExpressions
+   */
+  readonly matchExpressions?: KafkaSpecCruiseControlTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions[];
+
+  /**
+   * @schema KafkaSpecCruiseControlTemplatePodTopologySpreadConstraintsLabelSelector#matchLabels
+   */
+  readonly matchLabels?: any;
+
+}
+
+/**
  * @schema KafkaSpecCruiseControlTemplateCruiseControlContainerSecurityContextCapabilities
  */
 export interface KafkaSpecCruiseControlTemplateCruiseControlContainerSecurityContextCapabilities {
@@ -9948,6 +10838,22 @@ export interface KafkaSpecCruiseControlTemplateCruiseControlContainerSecurityCon
    * @schema KafkaSpecCruiseControlTemplateCruiseControlContainerSecurityContextSeLinuxOptions#user
    */
   readonly user?: string;
+
+}
+
+/**
+ * @schema KafkaSpecCruiseControlTemplateCruiseControlContainerSecurityContextSeccompProfile
+ */
+export interface KafkaSpecCruiseControlTemplateCruiseControlContainerSecurityContextSeccompProfile {
+  /**
+   * @schema KafkaSpecCruiseControlTemplateCruiseControlContainerSecurityContextSeccompProfile#localhostProfile
+   */
+  readonly localhostProfile?: string;
+
+  /**
+   * @schema KafkaSpecCruiseControlTemplateCruiseControlContainerSecurityContextSeccompProfile#type
+   */
+  readonly type?: string;
 
 }
 
@@ -10015,6 +10921,22 @@ export interface KafkaSpecCruiseControlTemplateTlsSidecarContainerSecurityContex
 }
 
 /**
+ * @schema KafkaSpecCruiseControlTemplateTlsSidecarContainerSecurityContextSeccompProfile
+ */
+export interface KafkaSpecCruiseControlTemplateTlsSidecarContainerSecurityContextSeccompProfile {
+  /**
+   * @schema KafkaSpecCruiseControlTemplateTlsSidecarContainerSecurityContextSeccompProfile#localhostProfile
+   */
+  readonly localhostProfile?: string;
+
+  /**
+   * @schema KafkaSpecCruiseControlTemplateTlsSidecarContainerSecurityContextSeccompProfile#type
+   */
+  readonly type?: string;
+
+}
+
+/**
  * @schema KafkaSpecCruiseControlTemplateTlsSidecarContainerSecurityContextWindowsOptions
  */
 export interface KafkaSpecCruiseControlTemplateTlsSidecarContainerSecurityContextWindowsOptions {
@@ -10058,6 +10980,22 @@ export interface KafkaSpecJmxTransTemplatePodSecurityContextSeLinuxOptions {
    * @schema KafkaSpecJmxTransTemplatePodSecurityContextSeLinuxOptions#user
    */
   readonly user?: string;
+
+}
+
+/**
+ * @schema KafkaSpecJmxTransTemplatePodSecurityContextSeccompProfile
+ */
+export interface KafkaSpecJmxTransTemplatePodSecurityContextSeccompProfile {
+  /**
+   * @schema KafkaSpecJmxTransTemplatePodSecurityContextSeccompProfile#localhostProfile
+   */
+  readonly localhostProfile?: string;
+
+  /**
+   * @schema KafkaSpecJmxTransTemplatePodSecurityContextSeccompProfile#type
+   */
+  readonly type?: string;
 
 }
 
@@ -10147,6 +11085,22 @@ export interface KafkaSpecJmxTransTemplatePodAffinityPodAntiAffinity {
 }
 
 /**
+ * @schema KafkaSpecJmxTransTemplatePodTopologySpreadConstraintsLabelSelector
+ */
+export interface KafkaSpecJmxTransTemplatePodTopologySpreadConstraintsLabelSelector {
+  /**
+   * @schema KafkaSpecJmxTransTemplatePodTopologySpreadConstraintsLabelSelector#matchExpressions
+   */
+  readonly matchExpressions?: KafkaSpecJmxTransTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions[];
+
+  /**
+   * @schema KafkaSpecJmxTransTemplatePodTopologySpreadConstraintsLabelSelector#matchLabels
+   */
+  readonly matchLabels?: any;
+
+}
+
+/**
  * @schema KafkaSpecJmxTransTemplateContainerSecurityContextCapabilities
  */
 export interface KafkaSpecJmxTransTemplateContainerSecurityContextCapabilities {
@@ -10185,6 +11139,22 @@ export interface KafkaSpecJmxTransTemplateContainerSecurityContextSeLinuxOptions
    * @schema KafkaSpecJmxTransTemplateContainerSecurityContextSeLinuxOptions#user
    */
   readonly user?: string;
+
+}
+
+/**
+ * @schema KafkaSpecJmxTransTemplateContainerSecurityContextSeccompProfile
+ */
+export interface KafkaSpecJmxTransTemplateContainerSecurityContextSeccompProfile {
+  /**
+   * @schema KafkaSpecJmxTransTemplateContainerSecurityContextSeccompProfile#localhostProfile
+   */
+  readonly localhostProfile?: string;
+
+  /**
+   * @schema KafkaSpecJmxTransTemplateContainerSecurityContextSeccompProfile#type
+   */
+  readonly type?: string;
 
 }
 
@@ -10232,6 +11202,22 @@ export interface KafkaSpecKafkaExporterTemplatePodSecurityContextSeLinuxOptions 
    * @schema KafkaSpecKafkaExporterTemplatePodSecurityContextSeLinuxOptions#user
    */
   readonly user?: string;
+
+}
+
+/**
+ * @schema KafkaSpecKafkaExporterTemplatePodSecurityContextSeccompProfile
+ */
+export interface KafkaSpecKafkaExporterTemplatePodSecurityContextSeccompProfile {
+  /**
+   * @schema KafkaSpecKafkaExporterTemplatePodSecurityContextSeccompProfile#localhostProfile
+   */
+  readonly localhostProfile?: string;
+
+  /**
+   * @schema KafkaSpecKafkaExporterTemplatePodSecurityContextSeccompProfile#type
+   */
+  readonly type?: string;
 
 }
 
@@ -10321,6 +11307,22 @@ export interface KafkaSpecKafkaExporterTemplatePodAffinityPodAntiAffinity {
 }
 
 /**
+ * @schema KafkaSpecKafkaExporterTemplatePodTopologySpreadConstraintsLabelSelector
+ */
+export interface KafkaSpecKafkaExporterTemplatePodTopologySpreadConstraintsLabelSelector {
+  /**
+   * @schema KafkaSpecKafkaExporterTemplatePodTopologySpreadConstraintsLabelSelector#matchExpressions
+   */
+  readonly matchExpressions?: KafkaSpecKafkaExporterTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions[];
+
+  /**
+   * @schema KafkaSpecKafkaExporterTemplatePodTopologySpreadConstraintsLabelSelector#matchLabels
+   */
+  readonly matchLabels?: any;
+
+}
+
+/**
  * @schema KafkaSpecKafkaExporterTemplateContainerSecurityContextCapabilities
  */
 export interface KafkaSpecKafkaExporterTemplateContainerSecurityContextCapabilities {
@@ -10359,6 +11361,22 @@ export interface KafkaSpecKafkaExporterTemplateContainerSecurityContextSeLinuxOp
    * @schema KafkaSpecKafkaExporterTemplateContainerSecurityContextSeLinuxOptions#user
    */
   readonly user?: string;
+
+}
+
+/**
+ * @schema KafkaSpecKafkaExporterTemplateContainerSecurityContextSeccompProfile
+ */
+export interface KafkaSpecKafkaExporterTemplateContainerSecurityContextSeccompProfile {
+  /**
+   * @schema KafkaSpecKafkaExporterTemplateContainerSecurityContextSeccompProfile#localhostProfile
+   */
+  readonly localhostProfile?: string;
+
+  /**
+   * @schema KafkaSpecKafkaExporterTemplateContainerSecurityContextSeccompProfile#type
+   */
+  readonly type?: string;
 
 }
 
@@ -10643,6 +11661,27 @@ export interface KafkaSpecKafkaTemplatePodAffinityPodAntiAffinityRequiredDuringS
 }
 
 /**
+ * @schema KafkaSpecKafkaTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions
+ */
+export interface KafkaSpecKafkaTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions {
+  /**
+   * @schema KafkaSpecKafkaTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaSpecKafkaTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaSpecKafkaTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions#values
+   */
+  readonly values?: string[];
+
+}
+
+/**
  * @schema KafkaSpecZookeeperAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreferenceMatchExpressions
  */
 export interface KafkaSpecZookeeperAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreferenceMatchExpressions {
@@ -10898,6 +11937,27 @@ export interface KafkaSpecZookeeperTemplatePodAffinityPodAntiAffinityRequiredDur
    * @schema KafkaSpecZookeeperTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecution#topologyKey
    */
   readonly topologyKey?: string;
+
+}
+
+/**
+ * @schema KafkaSpecZookeeperTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions
+ */
+export interface KafkaSpecZookeeperTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions {
+  /**
+   * @schema KafkaSpecZookeeperTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaSpecZookeeperTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaSpecZookeeperTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions#values
+   */
+  readonly values?: string[];
 
 }
 
@@ -11319,6 +12379,27 @@ export interface KafkaSpecEntityOperatorTemplatePodAffinityPodAntiAffinityRequir
 }
 
 /**
+ * @schema KafkaSpecEntityOperatorTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions
+ */
+export interface KafkaSpecEntityOperatorTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions {
+  /**
+   * @schema KafkaSpecEntityOperatorTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaSpecEntityOperatorTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaSpecEntityOperatorTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions#values
+   */
+  readonly values?: string[];
+
+}
+
+/**
  * @schema KafkaSpecCruiseControlTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecution
  */
 export interface KafkaSpecCruiseControlTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecution {
@@ -11416,6 +12497,27 @@ export interface KafkaSpecCruiseControlTemplatePodAffinityPodAntiAffinityRequire
    * @schema KafkaSpecCruiseControlTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecution#topologyKey
    */
   readonly topologyKey?: string;
+
+}
+
+/**
+ * @schema KafkaSpecCruiseControlTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions
+ */
+export interface KafkaSpecCruiseControlTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions {
+  /**
+   * @schema KafkaSpecCruiseControlTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaSpecCruiseControlTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaSpecCruiseControlTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions#values
+   */
+  readonly values?: string[];
 
 }
 
@@ -11521,6 +12623,27 @@ export interface KafkaSpecJmxTransTemplatePodAffinityPodAntiAffinityRequiredDuri
 }
 
 /**
+ * @schema KafkaSpecJmxTransTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions
+ */
+export interface KafkaSpecJmxTransTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions {
+  /**
+   * @schema KafkaSpecJmxTransTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaSpecJmxTransTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaSpecJmxTransTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions#values
+   */
+  readonly values?: string[];
+
+}
+
+/**
  * @schema KafkaSpecKafkaExporterTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecution
  */
 export interface KafkaSpecKafkaExporterTemplatePodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecution {
@@ -11618,6 +12741,27 @@ export interface KafkaSpecKafkaExporterTemplatePodAffinityPodAntiAffinityRequire
    * @schema KafkaSpecKafkaExporterTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecution#topologyKey
    */
   readonly topologyKey?: string;
+
+}
+
+/**
+ * @schema KafkaSpecKafkaExporterTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions
+ */
+export interface KafkaSpecKafkaExporterTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions {
+  /**
+   * @schema KafkaSpecKafkaExporterTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaSpecKafkaExporterTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaSpecKafkaExporterTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions#values
+   */
+  readonly values?: string[];
 
 }
 
@@ -14077,8 +15221,9 @@ export interface KafkaBridgeSpecLivenessProbe {
   readonly failureThreshold?: number;
 
   /**
-   * The initial delay before first the health is first checked.
+   * The initial delay before first the health is first checked. Default to 15 seconds. Minimum value is 0.
    *
+   * @default 15 seconds. Minimum value is 0.
    * @schema KafkaBridgeSpecLivenessProbe#initialDelaySeconds
    */
   readonly initialDelaySeconds?: number;
@@ -14100,8 +15245,9 @@ export interface KafkaBridgeSpecLivenessProbe {
   readonly successThreshold?: number;
 
   /**
-   * The timeout for each attempted health check.
+   * The timeout for each attempted health check. Default to 5 seconds. Minimum value is 1.
    *
+   * @default 5 seconds. Minimum value is 1.
    * @schema KafkaBridgeSpecLivenessProbe#timeoutSeconds
    */
   readonly timeoutSeconds?: number;
@@ -14123,8 +15269,9 @@ export interface KafkaBridgeSpecReadinessProbe {
   readonly failureThreshold?: number;
 
   /**
-   * The initial delay before first the health is first checked.
+   * The initial delay before first the health is first checked. Default to 15 seconds. Minimum value is 0.
    *
+   * @default 15 seconds. Minimum value is 0.
    * @schema KafkaBridgeSpecReadinessProbe#initialDelaySeconds
    */
   readonly initialDelaySeconds?: number;
@@ -14146,8 +15293,9 @@ export interface KafkaBridgeSpecReadinessProbe {
   readonly successThreshold?: number;
 
   /**
-   * The timeout for each attempted health check.
+   * The timeout for each attempted health check. Default to 5 seconds. Minimum value is 1.
    *
+   * @default 5 seconds. Minimum value is 1.
    * @schema KafkaBridgeSpecReadinessProbe#timeoutSeconds
    */
   readonly timeoutSeconds?: number;
@@ -14452,6 +15600,14 @@ export interface KafkaBridgeSpecTemplateDeployment {
    */
   readonly metadata?: KafkaBridgeSpecTemplateDeploymentMetadata;
 
+  /**
+   * DeploymentStrategy which will be used for this Deployment. Valid values are `RollingUpdate` and `Recreate`. Defaults to `RollingUpdate`.
+   *
+   * @default RollingUpdate`.
+   * @schema KafkaBridgeSpecTemplateDeployment#deploymentStrategy
+   */
+  readonly deploymentStrategy?: KafkaBridgeSpecTemplateDeploymentDeploymentStrategy;
+
 }
 
 /**
@@ -14523,6 +15679,13 @@ export interface KafkaBridgeSpecTemplatePod {
    * @schema KafkaBridgeSpecTemplatePod#hostAliases
    */
   readonly hostAliases?: KafkaBridgeSpecTemplatePodHostAliases[];
+
+  /**
+   * The pod's topology spread constraints.
+   *
+   * @schema KafkaBridgeSpecTemplatePod#topologySpreadConstraints
+   */
+  readonly topologySpreadConstraints?: KafkaBridgeSpecTemplatePodTopologySpreadConstraints[];
 
 }
 
@@ -14619,6 +15782,19 @@ export interface KafkaBridgeSpecTemplateDeploymentMetadata {
 }
 
 /**
+ * DeploymentStrategy which will be used for this Deployment. Valid values are `RollingUpdate` and `Recreate`. Defaults to `RollingUpdate`.
+ *
+ * @default RollingUpdate`.
+ * @schema KafkaBridgeSpecTemplateDeploymentDeploymentStrategy
+ */
+export enum KafkaBridgeSpecTemplateDeploymentDeploymentStrategy {
+  /** RollingUpdate */
+  ROLLING_UPDATE = "RollingUpdate",
+  /** Recreate */
+  RECREATE = "Recreate",
+}
+
+/**
  * Metadata applied to the resource.
  *
  * @schema KafkaBridgeSpecTemplatePodMetadata
@@ -14686,6 +15862,11 @@ export interface KafkaBridgeSpecTemplatePodSecurityContext {
    * @schema KafkaBridgeSpecTemplatePodSecurityContext#seLinuxOptions
    */
   readonly seLinuxOptions?: KafkaBridgeSpecTemplatePodSecurityContextSeLinuxOptions;
+
+  /**
+   * @schema KafkaBridgeSpecTemplatePodSecurityContext#seccompProfile
+   */
+  readonly seccompProfile?: KafkaBridgeSpecTemplatePodSecurityContextSeccompProfile;
 
   /**
    * @schema KafkaBridgeSpecTemplatePodSecurityContext#supplementalGroups
@@ -14771,6 +15952,32 @@ export interface KafkaBridgeSpecTemplatePodHostAliases {
    * @schema KafkaBridgeSpecTemplatePodHostAliases#ip
    */
   readonly ip?: string;
+
+}
+
+/**
+ * @schema KafkaBridgeSpecTemplatePodTopologySpreadConstraints
+ */
+export interface KafkaBridgeSpecTemplatePodTopologySpreadConstraints {
+  /**
+   * @schema KafkaBridgeSpecTemplatePodTopologySpreadConstraints#labelSelector
+   */
+  readonly labelSelector?: KafkaBridgeSpecTemplatePodTopologySpreadConstraintsLabelSelector;
+
+  /**
+   * @schema KafkaBridgeSpecTemplatePodTopologySpreadConstraints#maxSkew
+   */
+  readonly maxSkew?: number;
+
+  /**
+   * @schema KafkaBridgeSpecTemplatePodTopologySpreadConstraints#topologyKey
+   */
+  readonly topologyKey?: string;
+
+  /**
+   * @schema KafkaBridgeSpecTemplatePodTopologySpreadConstraints#whenUnsatisfiable
+   */
+  readonly whenUnsatisfiable?: string;
 
 }
 
@@ -14868,6 +16075,11 @@ export interface KafkaBridgeSpecTemplateBridgeContainerSecurityContext {
   readonly seLinuxOptions?: KafkaBridgeSpecTemplateBridgeContainerSecurityContextSeLinuxOptions;
 
   /**
+   * @schema KafkaBridgeSpecTemplateBridgeContainerSecurityContext#seccompProfile
+   */
+  readonly seccompProfile?: KafkaBridgeSpecTemplateBridgeContainerSecurityContextSeccompProfile;
+
+  /**
    * @schema KafkaBridgeSpecTemplateBridgeContainerSecurityContext#windowsOptions
    */
   readonly windowsOptions?: KafkaBridgeSpecTemplateBridgeContainerSecurityContextWindowsOptions;
@@ -14919,6 +16131,22 @@ export interface KafkaBridgeSpecTemplatePodSecurityContextSeLinuxOptions {
    * @schema KafkaBridgeSpecTemplatePodSecurityContextSeLinuxOptions#user
    */
   readonly user?: string;
+
+}
+
+/**
+ * @schema KafkaBridgeSpecTemplatePodSecurityContextSeccompProfile
+ */
+export interface KafkaBridgeSpecTemplatePodSecurityContextSeccompProfile {
+  /**
+   * @schema KafkaBridgeSpecTemplatePodSecurityContextSeccompProfile#localhostProfile
+   */
+  readonly localhostProfile?: string;
+
+  /**
+   * @schema KafkaBridgeSpecTemplatePodSecurityContextSeccompProfile#type
+   */
+  readonly type?: string;
 
 }
 
@@ -15008,6 +16236,22 @@ export interface KafkaBridgeSpecTemplatePodAffinityPodAntiAffinity {
 }
 
 /**
+ * @schema KafkaBridgeSpecTemplatePodTopologySpreadConstraintsLabelSelector
+ */
+export interface KafkaBridgeSpecTemplatePodTopologySpreadConstraintsLabelSelector {
+  /**
+   * @schema KafkaBridgeSpecTemplatePodTopologySpreadConstraintsLabelSelector#matchExpressions
+   */
+  readonly matchExpressions?: KafkaBridgeSpecTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions[];
+
+  /**
+   * @schema KafkaBridgeSpecTemplatePodTopologySpreadConstraintsLabelSelector#matchLabels
+   */
+  readonly matchLabels?: any;
+
+}
+
+/**
  * @schema KafkaBridgeSpecTemplateBridgeContainerSecurityContextCapabilities
  */
 export interface KafkaBridgeSpecTemplateBridgeContainerSecurityContextCapabilities {
@@ -15046,6 +16290,22 @@ export interface KafkaBridgeSpecTemplateBridgeContainerSecurityContextSeLinuxOpt
    * @schema KafkaBridgeSpecTemplateBridgeContainerSecurityContextSeLinuxOptions#user
    */
   readonly user?: string;
+
+}
+
+/**
+ * @schema KafkaBridgeSpecTemplateBridgeContainerSecurityContextSeccompProfile
+ */
+export interface KafkaBridgeSpecTemplateBridgeContainerSecurityContextSeccompProfile {
+  /**
+   * @schema KafkaBridgeSpecTemplateBridgeContainerSecurityContextSeccompProfile#localhostProfile
+   */
+  readonly localhostProfile?: string;
+
+  /**
+   * @schema KafkaBridgeSpecTemplateBridgeContainerSecurityContextSeccompProfile#type
+   */
+  readonly type?: string;
 
 }
 
@@ -15168,6 +16428,27 @@ export interface KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuring
    * @schema KafkaBridgeSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecution#topologyKey
    */
   readonly topologyKey?: string;
+
+}
+
+/**
+ * @schema KafkaBridgeSpecTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions
+ */
+export interface KafkaBridgeSpecTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions {
+  /**
+   * @schema KafkaBridgeSpecTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaBridgeSpecTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaBridgeSpecTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions#values
+   */
+  readonly values?: string[];
 
 }
 
@@ -15663,11 +16944,25 @@ export interface KafkaConnectSpec {
   readonly externalConfiguration?: KafkaConnectSpecExternalConfiguration;
 
   /**
+   * Configures how the Connect container image should be built. Optional.
+   *
+   * @schema KafkaConnectSpec#build
+   */
+  readonly build?: KafkaConnectSpecBuild;
+
+  /**
    * The image of the init container used for initializing the `client.rack`.
    *
    * @schema KafkaConnectSpec#clientRackInitImage
    */
   readonly clientRackInitImage?: string;
+
+  /**
+   * Metrics configuration.
+   *
+   * @schema KafkaConnectSpec#metricsConfig
+   */
+  readonly metricsConfig?: KafkaConnectSpecMetricsConfig;
 
   /**
    * Configuration of the node label which will be used as the client.rack consumer configuration.
@@ -15833,8 +17128,9 @@ export interface KafkaConnectSpecLivenessProbe {
   readonly failureThreshold?: number;
 
   /**
-   * The initial delay before first the health is first checked.
+   * The initial delay before first the health is first checked. Default to 15 seconds. Minimum value is 0.
    *
+   * @default 15 seconds. Minimum value is 0.
    * @schema KafkaConnectSpecLivenessProbe#initialDelaySeconds
    */
   readonly initialDelaySeconds?: number;
@@ -15856,8 +17152,9 @@ export interface KafkaConnectSpecLivenessProbe {
   readonly successThreshold?: number;
 
   /**
-   * The timeout for each attempted health check.
+   * The timeout for each attempted health check. Default to 5 seconds. Minimum value is 1.
    *
+   * @default 5 seconds. Minimum value is 1.
    * @schema KafkaConnectSpecLivenessProbe#timeoutSeconds
    */
   readonly timeoutSeconds?: number;
@@ -15879,8 +17176,9 @@ export interface KafkaConnectSpecReadinessProbe {
   readonly failureThreshold?: number;
 
   /**
-   * The initial delay before first the health is first checked.
+   * The initial delay before first the health is first checked. Default to 15 seconds. Minimum value is 0.
    *
+   * @default 15 seconds. Minimum value is 0.
    * @schema KafkaConnectSpecReadinessProbe#initialDelaySeconds
    */
   readonly initialDelaySeconds?: number;
@@ -15902,8 +17200,9 @@ export interface KafkaConnectSpecReadinessProbe {
   readonly successThreshold?: number;
 
   /**
-   * The timeout for each attempted health check.
+   * The timeout for each attempted health check. Default to 5 seconds. Minimum value is 1.
    *
+   * @default 5 seconds. Minimum value is 1.
    * @schema KafkaConnectSpecReadinessProbe#timeoutSeconds
    */
   readonly timeoutSeconds?: number;
@@ -16079,6 +17378,27 @@ export interface KafkaConnectSpecTemplate {
   readonly apiService?: KafkaConnectSpecTemplateApiService;
 
   /**
+   * Template for the Kafka Connect BuildConfig used to build new container images. The BuildConfig is used only on OpenShift.
+   *
+   * @schema KafkaConnectSpecTemplate#buildConfig
+   */
+  readonly buildConfig?: KafkaConnectSpecTemplateBuildConfig;
+
+  /**
+   * Template for the Kafka Connect Build container. The build container is used only on Kubernetes.
+   *
+   * @schema KafkaConnectSpecTemplate#buildContainer
+   */
+  readonly buildContainer?: KafkaConnectSpecTemplateBuildContainer;
+
+  /**
+   * Template for Kafka Connect Build `Pods`. The build pod is used only on Kubernetes.
+   *
+   * @schema KafkaConnectSpecTemplate#buildPod
+   */
+  readonly buildPod?: KafkaConnectSpecTemplateBuildPod;
+
+  /**
    * Template for the Kafka Connect container.
    *
    * @schema KafkaConnectSpecTemplate#connectContainer
@@ -16124,13 +17444,64 @@ export interface KafkaConnectSpecExternalConfiguration {
 }
 
 /**
+ * Configures how the Connect container image should be built. Optional.
+ *
+ * @schema KafkaConnectSpecBuild
+ */
+export interface KafkaConnectSpecBuild {
+  /**
+   * Configures where should the newly built image be stored. Required.
+   *
+   * @schema KafkaConnectSpecBuild#output
+   */
+  readonly output: KafkaConnectSpecBuildOutput;
+
+  /**
+   * CPU and memory resources to reserve for the build.
+   *
+   * @schema KafkaConnectSpecBuild#resources
+   */
+  readonly resources?: KafkaConnectSpecBuildResources;
+
+  /**
+   * List of connector plugins which should be added to the Kafka Connect. Required.
+   *
+   * @schema KafkaConnectSpecBuild#plugins
+   */
+  readonly plugins: KafkaConnectSpecBuildPlugins[];
+
+}
+
+/**
+ * Metrics configuration.
+ *
+ * @schema KafkaConnectSpecMetricsConfig
+ */
+export interface KafkaConnectSpecMetricsConfig {
+  /**
+   * Metrics type. Only 'jmxPrometheusExporter' supported currently.
+   *
+   * @schema KafkaConnectSpecMetricsConfig#type
+   */
+  readonly type: KafkaConnectSpecMetricsConfigType;
+
+  /**
+   * ConfigMap where the Prometheus JMX Exporter configuration is stored. For details of the structure of this configuration, see the {JMXExporter}.
+   *
+   * @schema KafkaConnectSpecMetricsConfig#valueFrom
+   */
+  readonly valueFrom: KafkaConnectSpecMetricsConfigValueFrom;
+
+}
+
+/**
  * Configuration of the node label which will be used as the client.rack consumer configuration.
  *
  * @schema KafkaConnectSpecRack
  */
 export interface KafkaConnectSpecRack {
   /**
-   * A key that matches labels assigned to the Kubernetes cluster nodes. The value of the label is used to set the broker's `broker.rack` config.
+   * A key that matches labels assigned to the Kubernetes cluster nodes. The value of the label is used to set the broker's `broker.rack` config and `client.rack` in Kafka Connect.
    *
    * @schema KafkaConnectSpecRack#topologyKey
    */
@@ -16414,6 +17785,14 @@ export interface KafkaConnectSpecTemplateDeployment {
    */
   readonly metadata?: KafkaConnectSpecTemplateDeploymentMetadata;
 
+  /**
+   * DeploymentStrategy which will be used for this Deployment. Valid values are `RollingUpdate` and `Recreate`. Defaults to `RollingUpdate`.
+   *
+   * @default RollingUpdate`.
+   * @schema KafkaConnectSpecTemplateDeployment#deploymentStrategy
+   */
+  readonly deploymentStrategy?: KafkaConnectSpecTemplateDeploymentDeploymentStrategy;
+
 }
 
 /**
@@ -16486,6 +17865,13 @@ export interface KafkaConnectSpecTemplatePod {
    */
   readonly hostAliases?: KafkaConnectSpecTemplatePodHostAliases[];
 
+  /**
+   * The pod's topology spread constraints.
+   *
+   * @schema KafkaConnectSpecTemplatePod#topologySpreadConstraints
+   */
+  readonly topologySpreadConstraints?: KafkaConnectSpecTemplatePodTopologySpreadConstraints[];
+
 }
 
 /**
@@ -16500,6 +17886,122 @@ export interface KafkaConnectSpecTemplateApiService {
    * @schema KafkaConnectSpecTemplateApiService#metadata
    */
   readonly metadata?: KafkaConnectSpecTemplateApiServiceMetadata;
+
+}
+
+/**
+ * Template for the Kafka Connect BuildConfig used to build new container images. The BuildConfig is used only on OpenShift.
+ *
+ * @schema KafkaConnectSpecTemplateBuildConfig
+ */
+export interface KafkaConnectSpecTemplateBuildConfig {
+  /**
+   * Metadata applied to the resource.
+   *
+   * @schema KafkaConnectSpecTemplateBuildConfig#metadata
+   */
+  readonly metadata?: KafkaConnectSpecTemplateBuildConfigMetadata;
+
+}
+
+/**
+ * Template for the Kafka Connect Build container. The build container is used only on Kubernetes.
+ *
+ * @schema KafkaConnectSpecTemplateBuildContainer
+ */
+export interface KafkaConnectSpecTemplateBuildContainer {
+  /**
+   * Environment variables which should be applied to the container.
+   *
+   * @schema KafkaConnectSpecTemplateBuildContainer#env
+   */
+  readonly env?: KafkaConnectSpecTemplateBuildContainerEnv[];
+
+  /**
+   * Security context for the container.
+   *
+   * @schema KafkaConnectSpecTemplateBuildContainer#securityContext
+   */
+  readonly securityContext?: KafkaConnectSpecTemplateBuildContainerSecurityContext;
+
+}
+
+/**
+ * Template for Kafka Connect Build `Pods`. The build pod is used only on Kubernetes.
+ *
+ * @schema KafkaConnectSpecTemplateBuildPod
+ */
+export interface KafkaConnectSpecTemplateBuildPod {
+  /**
+   * Metadata applied to the resource.
+   *
+   * @schema KafkaConnectSpecTemplateBuildPod#metadata
+   */
+  readonly metadata?: KafkaConnectSpecTemplateBuildPodMetadata;
+
+  /**
+   * List of references to secrets in the same namespace to use for pulling any of the images used by this Pod. When the `STRIMZI_IMAGE_PULL_SECRETS` environment variable in Cluster Operator and the `imagePullSecrets` option are specified, only the `imagePullSecrets` variable is used and the `STRIMZI_IMAGE_PULL_SECRETS` variable is ignored.
+   *
+   * @schema KafkaConnectSpecTemplateBuildPod#imagePullSecrets
+   */
+  readonly imagePullSecrets?: KafkaConnectSpecTemplateBuildPodImagePullSecrets[];
+
+  /**
+   * Configures pod-level security attributes and common container settings.
+   *
+   * @schema KafkaConnectSpecTemplateBuildPod#securityContext
+   */
+  readonly securityContext?: KafkaConnectSpecTemplateBuildPodSecurityContext;
+
+  /**
+   * The grace period is the duration in seconds after the processes running in the pod are sent a termination signal, and the time when the processes are forcibly halted with a kill signal. Set this value to longer than the expected cleanup time for your process. Value must be a non-negative integer. A zero value indicates delete immediately. You might need to increase the grace period for very large Kafka clusters, so that the Kafka brokers have enough time to transfer their work to another broker before they are terminated. Defaults to 30 seconds.
+   *
+   * @default 30 seconds.
+   * @schema KafkaConnectSpecTemplateBuildPod#terminationGracePeriodSeconds
+   */
+  readonly terminationGracePeriodSeconds?: number;
+
+  /**
+   * The pod's affinity rules.
+   *
+   * @schema KafkaConnectSpecTemplateBuildPod#affinity
+   */
+  readonly affinity?: KafkaConnectSpecTemplateBuildPodAffinity;
+
+  /**
+   * The pod's tolerations.
+   *
+   * @schema KafkaConnectSpecTemplateBuildPod#tolerations
+   */
+  readonly tolerations?: KafkaConnectSpecTemplateBuildPodTolerations[];
+
+  /**
+   * The name of the priority class used to assign priority to the pods. For more information about priority classes, see {K8sPriorityClass}.
+   *
+   * @schema KafkaConnectSpecTemplateBuildPod#priorityClassName
+   */
+  readonly priorityClassName?: string;
+
+  /**
+   * The name of the scheduler used to dispatch this `Pod`. If not specified, the default scheduler will be used.
+   *
+   * @schema KafkaConnectSpecTemplateBuildPod#schedulerName
+   */
+  readonly schedulerName?: string;
+
+  /**
+   * The pod's HostAliases. HostAliases is an optional list of hosts and IPs that will be injected into the pod's hosts file if specified.
+   *
+   * @schema KafkaConnectSpecTemplateBuildPod#hostAliases
+   */
+  readonly hostAliases?: KafkaConnectSpecTemplateBuildPodHostAliases[];
+
+  /**
+   * The pod's topology spread constraints.
+   *
+   * @schema KafkaConnectSpecTemplateBuildPod#topologySpreadConstraints
+   */
+  readonly topologySpreadConstraints?: KafkaConnectSpecTemplateBuildPodTopologySpreadConstraints[];
 
 }
 
@@ -16614,6 +18116,98 @@ export interface KafkaConnectSpecExternalConfigurationVolumes {
    * @schema KafkaConnectSpecExternalConfigurationVolumes#secret
    */
   readonly secret?: KafkaConnectSpecExternalConfigurationVolumesSecret;
+
+}
+
+/**
+ * Configures where should the newly built image be stored. Required.
+ *
+ * @schema KafkaConnectSpecBuildOutput
+ */
+export interface KafkaConnectSpecBuildOutput {
+  /**
+   * The name of the image which will be built. Required.
+   *
+   * @schema KafkaConnectSpecBuildOutput#image
+   */
+  readonly image: string;
+
+  /**
+   * Container Registry Secret with the credentials for pushing the newly built image.
+   *
+   * @schema KafkaConnectSpecBuildOutput#pushSecret
+   */
+  readonly pushSecret?: string;
+
+  /**
+   * Output type. Must be either `docker` for pushing the newly build image to Docker compatible registry or `imagestream` for pushing the image to OpenShift ImageStream. Required.
+   *
+   * @schema KafkaConnectSpecBuildOutput#type
+   */
+  readonly type: KafkaConnectSpecBuildOutputType;
+
+}
+
+/**
+ * CPU and memory resources to reserve for the build.
+ *
+ * @schema KafkaConnectSpecBuildResources
+ */
+export interface KafkaConnectSpecBuildResources {
+  /**
+   * @schema KafkaConnectSpecBuildResources#limits
+   */
+  readonly limits?: any;
+
+  /**
+   * @schema KafkaConnectSpecBuildResources#requests
+   */
+  readonly requests?: any;
+
+}
+
+/**
+ * @schema KafkaConnectSpecBuildPlugins
+ */
+export interface KafkaConnectSpecBuildPlugins {
+  /**
+   * The unique name of the connector plugin. Will be used to generate the path where the connector artifacts will be stored. The name has to be unique within the KafkaConnect resource. The name has to follow the following pattern: `^[a-z][-_a-z0-9]*[a-z]$`. Required.
+   *
+   * @schema KafkaConnectSpecBuildPlugins#name
+   */
+  readonly name: string;
+
+  /**
+   * List of artifacts which belong to this connector plugin. Required.
+   *
+   * @schema KafkaConnectSpecBuildPlugins#artifacts
+   */
+  readonly artifacts: KafkaConnectSpecBuildPluginsArtifacts[];
+
+}
+
+/**
+ * Metrics type. Only 'jmxPrometheusExporter' supported currently.
+ *
+ * @schema KafkaConnectSpecMetricsConfigType
+ */
+export enum KafkaConnectSpecMetricsConfigType {
+  /** jmxPrometheusExporter */
+  JMX_PROMETHEUS_EXPORTER = "jmxPrometheusExporter",
+}
+
+/**
+ * ConfigMap where the Prometheus JMX Exporter configuration is stored. For details of the structure of this configuration, see the {JMXExporter}.
+ *
+ * @schema KafkaConnectSpecMetricsConfigValueFrom
+ */
+export interface KafkaConnectSpecMetricsConfigValueFrom {
+  /**
+   * Reference to the key in the ConfigMap containing the metrics configuration.
+   *
+   * @schema KafkaConnectSpecMetricsConfigValueFrom#configMapKeyRef
+   */
+  readonly configMapKeyRef?: KafkaConnectSpecMetricsConfigValueFromConfigMapKeyRef;
 
 }
 
@@ -16741,6 +18335,19 @@ export interface KafkaConnectSpecTemplateDeploymentMetadata {
 }
 
 /**
+ * DeploymentStrategy which will be used for this Deployment. Valid values are `RollingUpdate` and `Recreate`. Defaults to `RollingUpdate`.
+ *
+ * @default RollingUpdate`.
+ * @schema KafkaConnectSpecTemplateDeploymentDeploymentStrategy
+ */
+export enum KafkaConnectSpecTemplateDeploymentDeploymentStrategy {
+  /** RollingUpdate */
+  ROLLING_UPDATE = "RollingUpdate",
+  /** Recreate */
+  RECREATE = "Recreate",
+}
+
+/**
  * Metadata applied to the resource.
  *
  * @schema KafkaConnectSpecTemplatePodMetadata
@@ -16808,6 +18415,11 @@ export interface KafkaConnectSpecTemplatePodSecurityContext {
    * @schema KafkaConnectSpecTemplatePodSecurityContext#seLinuxOptions
    */
   readonly seLinuxOptions?: KafkaConnectSpecTemplatePodSecurityContextSeLinuxOptions;
+
+  /**
+   * @schema KafkaConnectSpecTemplatePodSecurityContext#seccompProfile
+   */
+  readonly seccompProfile?: KafkaConnectSpecTemplatePodSecurityContextSeccompProfile;
 
   /**
    * @schema KafkaConnectSpecTemplatePodSecurityContext#supplementalGroups
@@ -16897,6 +18509,32 @@ export interface KafkaConnectSpecTemplatePodHostAliases {
 }
 
 /**
+ * @schema KafkaConnectSpecTemplatePodTopologySpreadConstraints
+ */
+export interface KafkaConnectSpecTemplatePodTopologySpreadConstraints {
+  /**
+   * @schema KafkaConnectSpecTemplatePodTopologySpreadConstraints#labelSelector
+   */
+  readonly labelSelector?: KafkaConnectSpecTemplatePodTopologySpreadConstraintsLabelSelector;
+
+  /**
+   * @schema KafkaConnectSpecTemplatePodTopologySpreadConstraints#maxSkew
+   */
+  readonly maxSkew?: number;
+
+  /**
+   * @schema KafkaConnectSpecTemplatePodTopologySpreadConstraints#topologyKey
+   */
+  readonly topologyKey?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplatePodTopologySpreadConstraints#whenUnsatisfiable
+   */
+  readonly whenUnsatisfiable?: string;
+
+}
+
+/**
  * Metadata applied to the resource.
  *
  * @schema KafkaConnectSpecTemplateApiServiceMetadata
@@ -16915,6 +18553,298 @@ export interface KafkaConnectSpecTemplateApiServiceMetadata {
    * @schema KafkaConnectSpecTemplateApiServiceMetadata#annotations
    */
   readonly annotations?: any;
+
+}
+
+/**
+ * Metadata applied to the resource.
+ *
+ * @schema KafkaConnectSpecTemplateBuildConfigMetadata
+ */
+export interface KafkaConnectSpecTemplateBuildConfigMetadata {
+  /**
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   *
+   * @schema KafkaConnectSpecTemplateBuildConfigMetadata#labels
+   */
+  readonly labels?: any;
+
+  /**
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   *
+   * @schema KafkaConnectSpecTemplateBuildConfigMetadata#annotations
+   */
+  readonly annotations?: any;
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildContainerEnv
+ */
+export interface KafkaConnectSpecTemplateBuildContainerEnv {
+  /**
+   * The environment variable key.
+   *
+   * @schema KafkaConnectSpecTemplateBuildContainerEnv#name
+   */
+  readonly name?: string;
+
+  /**
+   * The environment variable value.
+   *
+   * @schema KafkaConnectSpecTemplateBuildContainerEnv#value
+   */
+  readonly value?: string;
+
+}
+
+/**
+ * Security context for the container.
+ *
+ * @schema KafkaConnectSpecTemplateBuildContainerSecurityContext
+ */
+export interface KafkaConnectSpecTemplateBuildContainerSecurityContext {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildContainerSecurityContext#allowPrivilegeEscalation
+   */
+  readonly allowPrivilegeEscalation?: boolean;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildContainerSecurityContext#capabilities
+   */
+  readonly capabilities?: KafkaConnectSpecTemplateBuildContainerSecurityContextCapabilities;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildContainerSecurityContext#privileged
+   */
+  readonly privileged?: boolean;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildContainerSecurityContext#procMount
+   */
+  readonly procMount?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildContainerSecurityContext#readOnlyRootFilesystem
+   */
+  readonly readOnlyRootFilesystem?: boolean;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildContainerSecurityContext#runAsGroup
+   */
+  readonly runAsGroup?: number;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildContainerSecurityContext#runAsNonRoot
+   */
+  readonly runAsNonRoot?: boolean;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildContainerSecurityContext#runAsUser
+   */
+  readonly runAsUser?: number;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildContainerSecurityContext#seLinuxOptions
+   */
+  readonly seLinuxOptions?: KafkaConnectSpecTemplateBuildContainerSecurityContextSeLinuxOptions;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildContainerSecurityContext#seccompProfile
+   */
+  readonly seccompProfile?: KafkaConnectSpecTemplateBuildContainerSecurityContextSeccompProfile;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildContainerSecurityContext#windowsOptions
+   */
+  readonly windowsOptions?: KafkaConnectSpecTemplateBuildContainerSecurityContextWindowsOptions;
+
+}
+
+/**
+ * Metadata applied to the resource.
+ *
+ * @schema KafkaConnectSpecTemplateBuildPodMetadata
+ */
+export interface KafkaConnectSpecTemplateBuildPodMetadata {
+  /**
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   *
+   * @schema KafkaConnectSpecTemplateBuildPodMetadata#labels
+   */
+  readonly labels?: any;
+
+  /**
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   *
+   * @schema KafkaConnectSpecTemplateBuildPodMetadata#annotations
+   */
+  readonly annotations?: any;
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildPodImagePullSecrets
+ */
+export interface KafkaConnectSpecTemplateBuildPodImagePullSecrets {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodImagePullSecrets#name
+   */
+  readonly name?: string;
+
+}
+
+/**
+ * Configures pod-level security attributes and common container settings.
+ *
+ * @schema KafkaConnectSpecTemplateBuildPodSecurityContext
+ */
+export interface KafkaConnectSpecTemplateBuildPodSecurityContext {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodSecurityContext#fsGroup
+   */
+  readonly fsGroup?: number;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodSecurityContext#fsGroupChangePolicy
+   */
+  readonly fsGroupChangePolicy?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodSecurityContext#runAsGroup
+   */
+  readonly runAsGroup?: number;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodSecurityContext#runAsNonRoot
+   */
+  readonly runAsNonRoot?: boolean;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodSecurityContext#runAsUser
+   */
+  readonly runAsUser?: number;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodSecurityContext#seLinuxOptions
+   */
+  readonly seLinuxOptions?: KafkaConnectSpecTemplateBuildPodSecurityContextSeLinuxOptions;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodSecurityContext#seccompProfile
+   */
+  readonly seccompProfile?: KafkaConnectSpecTemplateBuildPodSecurityContextSeccompProfile;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodSecurityContext#supplementalGroups
+   */
+  readonly supplementalGroups?: number[];
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodSecurityContext#sysctls
+   */
+  readonly sysctls?: KafkaConnectSpecTemplateBuildPodSecurityContextSysctls[];
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodSecurityContext#windowsOptions
+   */
+  readonly windowsOptions?: KafkaConnectSpecTemplateBuildPodSecurityContextWindowsOptions;
+
+}
+
+/**
+ * The pod's affinity rules.
+ *
+ * @schema KafkaConnectSpecTemplateBuildPodAffinity
+ */
+export interface KafkaConnectSpecTemplateBuildPodAffinity {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinity#nodeAffinity
+   */
+  readonly nodeAffinity?: KafkaConnectSpecTemplateBuildPodAffinityNodeAffinity;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinity#podAffinity
+   */
+  readonly podAffinity?: KafkaConnectSpecTemplateBuildPodAffinityPodAffinity;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinity#podAntiAffinity
+   */
+  readonly podAntiAffinity?: KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinity;
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildPodTolerations
+ */
+export interface KafkaConnectSpecTemplateBuildPodTolerations {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodTolerations#effect
+   */
+  readonly effect?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodTolerations#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodTolerations#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodTolerations#tolerationSeconds
+   */
+  readonly tolerationSeconds?: number;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodTolerations#value
+   */
+  readonly value?: string;
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildPodHostAliases
+ */
+export interface KafkaConnectSpecTemplateBuildPodHostAliases {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodHostAliases#hostnames
+   */
+  readonly hostnames?: string[];
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodHostAliases#ip
+   */
+  readonly ip?: string;
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildPodTopologySpreadConstraints
+ */
+export interface KafkaConnectSpecTemplateBuildPodTopologySpreadConstraints {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodTopologySpreadConstraints#labelSelector
+   */
+  readonly labelSelector?: KafkaConnectSpecTemplateBuildPodTopologySpreadConstraintsLabelSelector;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodTopologySpreadConstraints#maxSkew
+   */
+  readonly maxSkew?: number;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodTopologySpreadConstraints#topologyKey
+   */
+  readonly topologyKey?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodTopologySpreadConstraints#whenUnsatisfiable
+   */
+  readonly whenUnsatisfiable?: string;
 
 }
 
@@ -16988,6 +18918,11 @@ export interface KafkaConnectSpecTemplateConnectContainerSecurityContext {
    * @schema KafkaConnectSpecTemplateConnectContainerSecurityContext#seLinuxOptions
    */
   readonly seLinuxOptions?: KafkaConnectSpecTemplateConnectContainerSecurityContextSeLinuxOptions;
+
+  /**
+   * @schema KafkaConnectSpecTemplateConnectContainerSecurityContext#seccompProfile
+   */
+  readonly seccompProfile?: KafkaConnectSpecTemplateConnectContainerSecurityContextSeccompProfile;
 
   /**
    * @schema KafkaConnectSpecTemplateConnectContainerSecurityContext#windowsOptions
@@ -17068,6 +19003,11 @@ export interface KafkaConnectSpecTemplateInitContainerSecurityContext {
   readonly seLinuxOptions?: KafkaConnectSpecTemplateInitContainerSecurityContextSeLinuxOptions;
 
   /**
+   * @schema KafkaConnectSpecTemplateInitContainerSecurityContext#seccompProfile
+   */
+  readonly seccompProfile?: KafkaConnectSpecTemplateInitContainerSecurityContextSeccompProfile;
+
+  /**
    * @schema KafkaConnectSpecTemplateInitContainerSecurityContext#windowsOptions
    */
   readonly windowsOptions?: KafkaConnectSpecTemplateInitContainerSecurityContextWindowsOptions;
@@ -17103,7 +19043,7 @@ export interface KafkaConnectSpecTemplatePodDisruptionBudgetMetadata {
  */
 export interface KafkaConnectSpecExternalConfigurationEnvValueFrom {
   /**
-   * Refernce to a key in a ConfigMap.
+   * Reference to a key in a ConfigMap.
    *
    * @schema KafkaConnectSpecExternalConfigurationEnvValueFrom#configMapKeyRef
    */
@@ -17171,6 +19111,68 @@ export interface KafkaConnectSpecExternalConfigurationVolumesSecret {
    * @schema KafkaConnectSpecExternalConfigurationVolumesSecret#secretName
    */
   readonly secretName?: string;
+
+}
+
+/**
+ * Output type. Must be either `docker` for pushing the newly build image to Docker compatible registry or `imagestream` for pushing the image to OpenShift ImageStream. Required.
+ *
+ * @schema KafkaConnectSpecBuildOutputType
+ */
+export enum KafkaConnectSpecBuildOutputType {
+  /** docker */
+  DOCKER = "docker",
+  /** imagestream */
+  IMAGESTREAM = "imagestream",
+}
+
+/**
+ * @schema KafkaConnectSpecBuildPluginsArtifacts
+ */
+export interface KafkaConnectSpecBuildPluginsArtifacts {
+  /**
+   * SHA512 checksum of the artifact. Optional. If specified, the checksum will be verified while building the new container. If not specified, the downloaded artifact will not be verified.
+   *
+   * @schema KafkaConnectSpecBuildPluginsArtifacts#sha512sum
+   */
+  readonly sha512sum?: string;
+
+  /**
+   * Artifact type. Currently, the supported artifact types are `tgz` and `jar`.
+   *
+   * @schema KafkaConnectSpecBuildPluginsArtifacts#type
+   */
+  readonly type: KafkaConnectSpecBuildPluginsArtifactsType;
+
+  /**
+   * URL of the artifact which will be downloaded. Strimzi does not do any security scanning of the downloaded artifacts. For security reasons, you should first verify the artifacts manually and configure the checksum verification to make sure the same artifact is used in the automated build. Required.
+   *
+   * @schema KafkaConnectSpecBuildPluginsArtifacts#url
+   */
+  readonly url: string;
+
+}
+
+/**
+ * Reference to the key in the ConfigMap containing the metrics configuration.
+ *
+ * @schema KafkaConnectSpecMetricsConfigValueFromConfigMapKeyRef
+ */
+export interface KafkaConnectSpecMetricsConfigValueFromConfigMapKeyRef {
+  /**
+   * @schema KafkaConnectSpecMetricsConfigValueFromConfigMapKeyRef#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaConnectSpecMetricsConfigValueFromConfigMapKeyRef#name
+   */
+  readonly name?: string;
+
+  /**
+   * @schema KafkaConnectSpecMetricsConfigValueFromConfigMapKeyRef#optional
+   */
+  readonly optional?: boolean;
 
 }
 
@@ -17307,6 +19309,22 @@ export interface KafkaConnectSpecTemplatePodSecurityContextSeLinuxOptions {
 }
 
 /**
+ * @schema KafkaConnectSpecTemplatePodSecurityContextSeccompProfile
+ */
+export interface KafkaConnectSpecTemplatePodSecurityContextSeccompProfile {
+  /**
+   * @schema KafkaConnectSpecTemplatePodSecurityContextSeccompProfile#localhostProfile
+   */
+  readonly localhostProfile?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplatePodSecurityContextSeccompProfile#type
+   */
+  readonly type?: string;
+
+}
+
+/**
  * @schema KafkaConnectSpecTemplatePodSecurityContextSysctls
  */
 export interface KafkaConnectSpecTemplatePodSecurityContextSysctls {
@@ -17392,6 +19410,244 @@ export interface KafkaConnectSpecTemplatePodAffinityPodAntiAffinity {
 }
 
 /**
+ * @schema KafkaConnectSpecTemplatePodTopologySpreadConstraintsLabelSelector
+ */
+export interface KafkaConnectSpecTemplatePodTopologySpreadConstraintsLabelSelector {
+  /**
+   * @schema KafkaConnectSpecTemplatePodTopologySpreadConstraintsLabelSelector#matchExpressions
+   */
+  readonly matchExpressions?: KafkaConnectSpecTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions[];
+
+  /**
+   * @schema KafkaConnectSpecTemplatePodTopologySpreadConstraintsLabelSelector#matchLabels
+   */
+  readonly matchLabels?: any;
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildContainerSecurityContextCapabilities
+ */
+export interface KafkaConnectSpecTemplateBuildContainerSecurityContextCapabilities {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildContainerSecurityContextCapabilities#add
+   */
+  readonly add?: string[];
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildContainerSecurityContextCapabilities#drop
+   */
+  readonly drop?: string[];
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildContainerSecurityContextSeLinuxOptions
+ */
+export interface KafkaConnectSpecTemplateBuildContainerSecurityContextSeLinuxOptions {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildContainerSecurityContextSeLinuxOptions#level
+   */
+  readonly level?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildContainerSecurityContextSeLinuxOptions#role
+   */
+  readonly role?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildContainerSecurityContextSeLinuxOptions#type
+   */
+  readonly type?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildContainerSecurityContextSeLinuxOptions#user
+   */
+  readonly user?: string;
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildContainerSecurityContextSeccompProfile
+ */
+export interface KafkaConnectSpecTemplateBuildContainerSecurityContextSeccompProfile {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildContainerSecurityContextSeccompProfile#localhostProfile
+   */
+  readonly localhostProfile?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildContainerSecurityContextSeccompProfile#type
+   */
+  readonly type?: string;
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildContainerSecurityContextWindowsOptions
+ */
+export interface KafkaConnectSpecTemplateBuildContainerSecurityContextWindowsOptions {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildContainerSecurityContextWindowsOptions#gmsaCredentialSpec
+   */
+  readonly gmsaCredentialSpec?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildContainerSecurityContextWindowsOptions#gmsaCredentialSpecName
+   */
+  readonly gmsaCredentialSpecName?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildContainerSecurityContextWindowsOptions#runAsUserName
+   */
+  readonly runAsUserName?: string;
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildPodSecurityContextSeLinuxOptions
+ */
+export interface KafkaConnectSpecTemplateBuildPodSecurityContextSeLinuxOptions {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodSecurityContextSeLinuxOptions#level
+   */
+  readonly level?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodSecurityContextSeLinuxOptions#role
+   */
+  readonly role?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodSecurityContextSeLinuxOptions#type
+   */
+  readonly type?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodSecurityContextSeLinuxOptions#user
+   */
+  readonly user?: string;
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildPodSecurityContextSeccompProfile
+ */
+export interface KafkaConnectSpecTemplateBuildPodSecurityContextSeccompProfile {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodSecurityContextSeccompProfile#localhostProfile
+   */
+  readonly localhostProfile?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodSecurityContextSeccompProfile#type
+   */
+  readonly type?: string;
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildPodSecurityContextSysctls
+ */
+export interface KafkaConnectSpecTemplateBuildPodSecurityContextSysctls {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodSecurityContextSysctls#name
+   */
+  readonly name?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodSecurityContextSysctls#value
+   */
+  readonly value?: string;
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildPodSecurityContextWindowsOptions
+ */
+export interface KafkaConnectSpecTemplateBuildPodSecurityContextWindowsOptions {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodSecurityContextWindowsOptions#gmsaCredentialSpec
+   */
+  readonly gmsaCredentialSpec?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodSecurityContextWindowsOptions#gmsaCredentialSpecName
+   */
+  readonly gmsaCredentialSpecName?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodSecurityContextWindowsOptions#runAsUserName
+   */
+  readonly runAsUserName?: string;
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildPodAffinityNodeAffinity
+ */
+export interface KafkaConnectSpecTemplateBuildPodAffinityNodeAffinity {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityNodeAffinity#preferredDuringSchedulingIgnoredDuringExecution
+   */
+  readonly preferredDuringSchedulingIgnoredDuringExecution?: KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecution[];
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityNodeAffinity#requiredDuringSchedulingIgnoredDuringExecution
+   */
+  readonly requiredDuringSchedulingIgnoredDuringExecution?: KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecution;
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAffinity
+ */
+export interface KafkaConnectSpecTemplateBuildPodAffinityPodAffinity {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAffinity#preferredDuringSchedulingIgnoredDuringExecution
+   */
+  readonly preferredDuringSchedulingIgnoredDuringExecution?: KafkaConnectSpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecution[];
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAffinity#requiredDuringSchedulingIgnoredDuringExecution
+   */
+  readonly requiredDuringSchedulingIgnoredDuringExecution?: KafkaConnectSpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecution[];
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinity
+ */
+export interface KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinity {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinity#preferredDuringSchedulingIgnoredDuringExecution
+   */
+  readonly preferredDuringSchedulingIgnoredDuringExecution?: KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecution[];
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinity#requiredDuringSchedulingIgnoredDuringExecution
+   */
+  readonly requiredDuringSchedulingIgnoredDuringExecution?: KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecution[];
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildPodTopologySpreadConstraintsLabelSelector
+ */
+export interface KafkaConnectSpecTemplateBuildPodTopologySpreadConstraintsLabelSelector {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodTopologySpreadConstraintsLabelSelector#matchExpressions
+   */
+  readonly matchExpressions?: KafkaConnectSpecTemplateBuildPodTopologySpreadConstraintsLabelSelectorMatchExpressions[];
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodTopologySpreadConstraintsLabelSelector#matchLabels
+   */
+  readonly matchLabels?: any;
+
+}
+
+/**
  * @schema KafkaConnectSpecTemplateConnectContainerSecurityContextCapabilities
  */
 export interface KafkaConnectSpecTemplateConnectContainerSecurityContextCapabilities {
@@ -17430,6 +19686,22 @@ export interface KafkaConnectSpecTemplateConnectContainerSecurityContextSeLinuxO
    * @schema KafkaConnectSpecTemplateConnectContainerSecurityContextSeLinuxOptions#user
    */
   readonly user?: string;
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateConnectContainerSecurityContextSeccompProfile
+ */
+export interface KafkaConnectSpecTemplateConnectContainerSecurityContextSeccompProfile {
+  /**
+   * @schema KafkaConnectSpecTemplateConnectContainerSecurityContextSeccompProfile#localhostProfile
+   */
+  readonly localhostProfile?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateConnectContainerSecurityContextSeccompProfile#type
+   */
+  readonly type?: string;
 
 }
 
@@ -17497,6 +19769,22 @@ export interface KafkaConnectSpecTemplateInitContainerSecurityContextSeLinuxOpti
 }
 
 /**
+ * @schema KafkaConnectSpecTemplateInitContainerSecurityContextSeccompProfile
+ */
+export interface KafkaConnectSpecTemplateInitContainerSecurityContextSeccompProfile {
+  /**
+   * @schema KafkaConnectSpecTemplateInitContainerSecurityContextSeccompProfile#localhostProfile
+   */
+  readonly localhostProfile?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateInitContainerSecurityContextSeccompProfile#type
+   */
+  readonly type?: string;
+
+}
+
+/**
  * @schema KafkaConnectSpecTemplateInitContainerSecurityContextWindowsOptions
  */
 export interface KafkaConnectSpecTemplateInitContainerSecurityContextWindowsOptions {
@@ -17518,7 +19806,7 @@ export interface KafkaConnectSpecTemplateInitContainerSecurityContextWindowsOpti
 }
 
 /**
- * Refernce to a key in a ConfigMap.
+ * Reference to a key in a ConfigMap.
  *
  * @schema KafkaConnectSpecExternalConfigurationEnvValueFromConfigMapKeyRef
  */
@@ -17603,6 +19891,18 @@ export interface KafkaConnectSpecExternalConfigurationVolumesSecretItems {
    */
   readonly path?: string;
 
+}
+
+/**
+ * Artifact type. Currently, the supported artifact types are `tgz` and `jar`.
+ *
+ * @schema KafkaConnectSpecBuildPluginsArtifactsType
+ */
+export enum KafkaConnectSpecBuildPluginsArtifactsType {
+  /** jar */
+  JAR = "jar",
+  /** tgz */
+  TGZ = "tgz",
 }
 
 /**
@@ -17865,6 +20165,149 @@ export interface KafkaConnectSpecTemplatePodAffinityPodAntiAffinityRequiredDurin
 }
 
 /**
+ * @schema KafkaConnectSpecTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions
+ */
+export interface KafkaConnectSpecTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions {
+  /**
+   * @schema KafkaConnectSpecTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions#values
+   */
+  readonly values?: string[];
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecution
+ */
+export interface KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecution {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecution#preference
+   */
+  readonly preference?: KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreference;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecution#weight
+   */
+  readonly weight?: number;
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecution
+ */
+export interface KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecution {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecution#nodeSelectorTerms
+   */
+  readonly nodeSelectorTerms?: KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTerms[];
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecution
+ */
+export interface KafkaConnectSpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecution {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecution#podAffinityTerm
+   */
+  readonly podAffinityTerm?: KafkaConnectSpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTerm;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecution#weight
+   */
+  readonly weight?: number;
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecution
+ */
+export interface KafkaConnectSpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecution {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecution#labelSelector
+   */
+  readonly labelSelector?: KafkaConnectSpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelector;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecution#namespaces
+   */
+  readonly namespaces?: string[];
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecution#topologyKey
+   */
+  readonly topologyKey?: string;
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecution
+ */
+export interface KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecution {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecution#podAffinityTerm
+   */
+  readonly podAffinityTerm?: KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTerm;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecution#weight
+   */
+  readonly weight?: number;
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecution
+ */
+export interface KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecution {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecution#labelSelector
+   */
+  readonly labelSelector?: KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelector;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecution#namespaces
+   */
+  readonly namespaces?: string[];
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecution#topologyKey
+   */
+  readonly topologyKey?: string;
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildPodTopologySpreadConstraintsLabelSelectorMatchExpressions
+ */
+export interface KafkaConnectSpecTemplateBuildPodTopologySpreadConstraintsLabelSelectorMatchExpressions {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodTopologySpreadConstraintsLabelSelectorMatchExpressions#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodTopologySpreadConstraintsLabelSelectorMatchExpressions#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodTopologySpreadConstraintsLabelSelectorMatchExpressions#values
+   */
+  readonly values?: string[];
+
+}
+
+/**
  * @schema KafkaConnectSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions
  */
 export interface KafkaConnectSpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions {
@@ -18007,6 +20450,112 @@ export interface KafkaConnectSpecTemplatePodAffinityPodAntiAffinityRequiredDurin
 
   /**
    * @schema KafkaConnectSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelector#matchLabels
+   */
+  readonly matchLabels?: any;
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreference
+ */
+export interface KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreference {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreference#matchExpressions
+   */
+  readonly matchExpressions?: KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreferenceMatchExpressions[];
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreference#matchFields
+   */
+  readonly matchFields?: KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreferenceMatchFields[];
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTerms
+ */
+export interface KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTerms {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTerms#matchExpressions
+   */
+  readonly matchExpressions?: KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsMatchExpressions[];
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTerms#matchFields
+   */
+  readonly matchFields?: KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsMatchFields[];
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTerm
+ */
+export interface KafkaConnectSpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTerm {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTerm#labelSelector
+   */
+  readonly labelSelector?: KafkaConnectSpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelector;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTerm#namespaces
+   */
+  readonly namespaces?: string[];
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTerm#topologyKey
+   */
+  readonly topologyKey?: string;
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelector
+ */
+export interface KafkaConnectSpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelector {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelector#matchExpressions
+   */
+  readonly matchExpressions?: KafkaConnectSpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelectorMatchExpressions[];
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelector#matchLabels
+   */
+  readonly matchLabels?: any;
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTerm
+ */
+export interface KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTerm {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTerm#labelSelector
+   */
+  readonly labelSelector?: KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelector;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTerm#namespaces
+   */
+  readonly namespaces?: string[];
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTerm#topologyKey
+   */
+  readonly topologyKey?: string;
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelector
+ */
+export interface KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelector {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelector#matchExpressions
+   */
+  readonly matchExpressions?: KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelectorMatchExpressions[];
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelector#matchLabels
    */
   readonly matchLabels?: any;
 
@@ -18171,6 +20720,164 @@ export interface KafkaConnectSpecTemplatePodAffinityPodAntiAffinityRequiredDurin
 }
 
 /**
+ * @schema KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreferenceMatchExpressions
+ */
+export interface KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreferenceMatchExpressions {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreferenceMatchExpressions#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreferenceMatchExpressions#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreferenceMatchExpressions#values
+   */
+  readonly values?: string[];
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreferenceMatchFields
+ */
+export interface KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreferenceMatchFields {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreferenceMatchFields#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreferenceMatchFields#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreferenceMatchFields#values
+   */
+  readonly values?: string[];
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsMatchExpressions
+ */
+export interface KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsMatchExpressions {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsMatchExpressions#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsMatchExpressions#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsMatchExpressions#values
+   */
+  readonly values?: string[];
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsMatchFields
+ */
+export interface KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsMatchFields {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsMatchFields#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsMatchFields#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsMatchFields#values
+   */
+  readonly values?: string[];
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelector
+ */
+export interface KafkaConnectSpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelector {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelector#matchExpressions
+   */
+  readonly matchExpressions?: KafkaConnectSpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions[];
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelector#matchLabels
+   */
+  readonly matchLabels?: any;
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelectorMatchExpressions
+ */
+export interface KafkaConnectSpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelectorMatchExpressions {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelectorMatchExpressions#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelectorMatchExpressions#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelectorMatchExpressions#values
+   */
+  readonly values?: string[];
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelector
+ */
+export interface KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelector {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelector#matchExpressions
+   */
+  readonly matchExpressions?: KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions[];
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelector#matchLabels
+   */
+  readonly matchLabels?: any;
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelectorMatchExpressions
+ */
+export interface KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelectorMatchExpressions {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelectorMatchExpressions#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelectorMatchExpressions#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelectorMatchExpressions#values
+   */
+  readonly values?: string[];
+
+}
+
+/**
  * @schema KafkaConnectSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions
  */
 export interface KafkaConnectSpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions {
@@ -18207,6 +20914,48 @@ export interface KafkaConnectSpecTemplatePodAffinityPodAntiAffinityPreferredDuri
 
   /**
    * @schema KafkaConnectSpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions#values
+   */
+  readonly values?: string[];
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions
+ */
+export interface KafkaConnectSpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions#values
+   */
+  readonly values?: string[];
+
+}
+
+/**
+ * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions
+ */
+export interface KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions {
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaConnectSpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions#values
    */
   readonly values?: string[];
 
@@ -18444,6 +21193,13 @@ export interface KafkaConnectS2ISpec {
   readonly bootstrapServers: string;
 
   /**
+   * Configures how the Connect container image should be built. Optional.
+   *
+   * @schema KafkaConnectS2ISpec#build
+   */
+  readonly build?: KafkaConnectS2ISpecBuild;
+
+  /**
    * The image of the init container used for initializing the `client.rack`.
    *
    * @schema KafkaConnectS2ISpec#clientRackInitImage
@@ -18470,6 +21226,13 @@ export interface KafkaConnectS2ISpec {
    * @schema KafkaConnectS2ISpec#insecureSourceRepository
    */
   readonly insecureSourceRepository?: boolean;
+
+  /**
+   * Metrics configuration.
+   *
+   * @schema KafkaConnectS2ISpec#metricsConfig
+   */
+  readonly metricsConfig?: KafkaConnectS2ISpecMetricsConfig;
 
   /**
    * Configuration of the node label which will be used as the client.rack consumer configuration.
@@ -18549,8 +21312,9 @@ export interface KafkaConnectS2ISpecLivenessProbe {
   readonly failureThreshold?: number;
 
   /**
-   * The initial delay before first the health is first checked.
+   * The initial delay before first the health is first checked. Default to 15 seconds. Minimum value is 0.
    *
+   * @default 15 seconds. Minimum value is 0.
    * @schema KafkaConnectS2ISpecLivenessProbe#initialDelaySeconds
    */
   readonly initialDelaySeconds?: number;
@@ -18572,8 +21336,9 @@ export interface KafkaConnectS2ISpecLivenessProbe {
   readonly successThreshold?: number;
 
   /**
-   * The timeout for each attempted health check.
+   * The timeout for each attempted health check. Default to 5 seconds. Minimum value is 1.
    *
+   * @default 5 seconds. Minimum value is 1.
    * @schema KafkaConnectS2ISpecLivenessProbe#timeoutSeconds
    */
   readonly timeoutSeconds?: number;
@@ -18595,8 +21360,9 @@ export interface KafkaConnectS2ISpecReadinessProbe {
   readonly failureThreshold?: number;
 
   /**
-   * The initial delay before first the health is first checked.
+   * The initial delay before first the health is first checked. Default to 15 seconds. Minimum value is 0.
    *
+   * @default 15 seconds. Minimum value is 0.
    * @schema KafkaConnectS2ISpecReadinessProbe#initialDelaySeconds
    */
   readonly initialDelaySeconds?: number;
@@ -18618,8 +21384,9 @@ export interface KafkaConnectS2ISpecReadinessProbe {
   readonly successThreshold?: number;
 
   /**
-   * The timeout for each attempted health check.
+   * The timeout for each attempted health check. Default to 5 seconds. Minimum value is 1.
    *
+   * @default 5 seconds. Minimum value is 1.
    * @schema KafkaConnectS2ISpecReadinessProbe#timeoutSeconds
    */
   readonly timeoutSeconds?: number;
@@ -18747,6 +21514,27 @@ export interface KafkaConnectS2ISpecTemplate {
    * @schema KafkaConnectS2ISpecTemplate#apiService
    */
   readonly apiService?: KafkaConnectS2ISpecTemplateApiService;
+
+  /**
+   * Template for the Kafka Connect BuildConfig used to build new container images. The BuildConfig is used only on OpenShift.
+   *
+   * @schema KafkaConnectS2ISpecTemplate#buildConfig
+   */
+  readonly buildConfig?: KafkaConnectS2ISpecTemplateBuildConfig;
+
+  /**
+   * Template for the Kafka Connect Build container. The build container is used only on Kubernetes.
+   *
+   * @schema KafkaConnectS2ISpecTemplate#buildContainer
+   */
+  readonly buildContainer?: KafkaConnectS2ISpecTemplateBuildContainer;
+
+  /**
+   * Template for Kafka Connect Build `Pods`. The build pod is used only on Kubernetes.
+   *
+   * @schema KafkaConnectS2ISpecTemplate#buildPod
+   */
+  readonly buildPod?: KafkaConnectS2ISpecTemplateBuildPod;
 
   /**
    * Template for the Kafka Connect container.
@@ -18879,6 +21667,35 @@ export interface KafkaConnectS2ISpecAuthentication {
 }
 
 /**
+ * Configures how the Connect container image should be built. Optional.
+ *
+ * @schema KafkaConnectS2ISpecBuild
+ */
+export interface KafkaConnectS2ISpecBuild {
+  /**
+   * Configures where should the newly built image be stored. Required.
+   *
+   * @schema KafkaConnectS2ISpecBuild#output
+   */
+  readonly output: KafkaConnectS2ISpecBuildOutput;
+
+  /**
+   * CPU and memory resources to reserve for the build.
+   *
+   * @schema KafkaConnectS2ISpecBuild#resources
+   */
+  readonly resources?: KafkaConnectS2ISpecBuildResources;
+
+  /**
+   * List of connector plugins which should be added to the Kafka Connect. Required.
+   *
+   * @schema KafkaConnectS2ISpecBuild#plugins
+   */
+  readonly plugins: KafkaConnectS2ISpecBuildPlugins[];
+
+}
+
+/**
  * Pass data from Secrets or ConfigMaps to the Kafka Connect pods and use them to configure connectors.
  *
  * @schema KafkaConnectS2ISpecExternalConfiguration
@@ -18901,13 +21718,35 @@ export interface KafkaConnectS2ISpecExternalConfiguration {
 }
 
 /**
+ * Metrics configuration.
+ *
+ * @schema KafkaConnectS2ISpecMetricsConfig
+ */
+export interface KafkaConnectS2ISpecMetricsConfig {
+  /**
+   * Metrics type. Only 'jmxPrometheusExporter' supported currently.
+   *
+   * @schema KafkaConnectS2ISpecMetricsConfig#type
+   */
+  readonly type: KafkaConnectS2ISpecMetricsConfigType;
+
+  /**
+   * ConfigMap where the Prometheus JMX Exporter configuration is stored. For details of the structure of this configuration, see the {JMXExporter}.
+   *
+   * @schema KafkaConnectS2ISpecMetricsConfig#valueFrom
+   */
+  readonly valueFrom: KafkaConnectS2ISpecMetricsConfigValueFrom;
+
+}
+
+/**
  * Configuration of the node label which will be used as the client.rack consumer configuration.
  *
  * @schema KafkaConnectS2ISpecRack
  */
 export interface KafkaConnectS2ISpecRack {
   /**
-   * A key that matches labels assigned to the Kubernetes cluster nodes. The value of the label is used to set the broker's `broker.rack` config.
+   * A key that matches labels assigned to the Kubernetes cluster nodes. The value of the label is used to set the broker's `broker.rack` config and `client.rack` in Kafka Connect.
    *
    * @schema KafkaConnectS2ISpecRack#topologyKey
    */
@@ -19087,6 +21926,14 @@ export interface KafkaConnectS2ISpecTemplateDeployment {
    */
   readonly metadata?: KafkaConnectS2ISpecTemplateDeploymentMetadata;
 
+  /**
+   * DeploymentStrategy which will be used for this Deployment. Valid values are `RollingUpdate` and `Recreate`. Defaults to `RollingUpdate`.
+   *
+   * @default RollingUpdate`.
+   * @schema KafkaConnectS2ISpecTemplateDeployment#deploymentStrategy
+   */
+  readonly deploymentStrategy?: KafkaConnectS2ISpecTemplateDeploymentDeploymentStrategy;
+
 }
 
 /**
@@ -19159,6 +22006,13 @@ export interface KafkaConnectS2ISpecTemplatePod {
    */
   readonly hostAliases?: KafkaConnectS2ISpecTemplatePodHostAliases[];
 
+  /**
+   * The pod's topology spread constraints.
+   *
+   * @schema KafkaConnectS2ISpecTemplatePod#topologySpreadConstraints
+   */
+  readonly topologySpreadConstraints?: KafkaConnectS2ISpecTemplatePodTopologySpreadConstraints[];
+
 }
 
 /**
@@ -19173,6 +22027,122 @@ export interface KafkaConnectS2ISpecTemplateApiService {
    * @schema KafkaConnectS2ISpecTemplateApiService#metadata
    */
   readonly metadata?: KafkaConnectS2ISpecTemplateApiServiceMetadata;
+
+}
+
+/**
+ * Template for the Kafka Connect BuildConfig used to build new container images. The BuildConfig is used only on OpenShift.
+ *
+ * @schema KafkaConnectS2ISpecTemplateBuildConfig
+ */
+export interface KafkaConnectS2ISpecTemplateBuildConfig {
+  /**
+   * Metadata applied to the resource.
+   *
+   * @schema KafkaConnectS2ISpecTemplateBuildConfig#metadata
+   */
+  readonly metadata?: KafkaConnectS2ISpecTemplateBuildConfigMetadata;
+
+}
+
+/**
+ * Template for the Kafka Connect Build container. The build container is used only on Kubernetes.
+ *
+ * @schema KafkaConnectS2ISpecTemplateBuildContainer
+ */
+export interface KafkaConnectS2ISpecTemplateBuildContainer {
+  /**
+   * Environment variables which should be applied to the container.
+   *
+   * @schema KafkaConnectS2ISpecTemplateBuildContainer#env
+   */
+  readonly env?: KafkaConnectS2ISpecTemplateBuildContainerEnv[];
+
+  /**
+   * Security context for the container.
+   *
+   * @schema KafkaConnectS2ISpecTemplateBuildContainer#securityContext
+   */
+  readonly securityContext?: KafkaConnectS2ISpecTemplateBuildContainerSecurityContext;
+
+}
+
+/**
+ * Template for Kafka Connect Build `Pods`. The build pod is used only on Kubernetes.
+ *
+ * @schema KafkaConnectS2ISpecTemplateBuildPod
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPod {
+  /**
+   * Metadata applied to the resource.
+   *
+   * @schema KafkaConnectS2ISpecTemplateBuildPod#metadata
+   */
+  readonly metadata?: KafkaConnectS2ISpecTemplateBuildPodMetadata;
+
+  /**
+   * List of references to secrets in the same namespace to use for pulling any of the images used by this Pod. When the `STRIMZI_IMAGE_PULL_SECRETS` environment variable in Cluster Operator and the `imagePullSecrets` option are specified, only the `imagePullSecrets` variable is used and the `STRIMZI_IMAGE_PULL_SECRETS` variable is ignored.
+   *
+   * @schema KafkaConnectS2ISpecTemplateBuildPod#imagePullSecrets
+   */
+  readonly imagePullSecrets?: KafkaConnectS2ISpecTemplateBuildPodImagePullSecrets[];
+
+  /**
+   * Configures pod-level security attributes and common container settings.
+   *
+   * @schema KafkaConnectS2ISpecTemplateBuildPod#securityContext
+   */
+  readonly securityContext?: KafkaConnectS2ISpecTemplateBuildPodSecurityContext;
+
+  /**
+   * The grace period is the duration in seconds after the processes running in the pod are sent a termination signal, and the time when the processes are forcibly halted with a kill signal. Set this value to longer than the expected cleanup time for your process. Value must be a non-negative integer. A zero value indicates delete immediately. You might need to increase the grace period for very large Kafka clusters, so that the Kafka brokers have enough time to transfer their work to another broker before they are terminated. Defaults to 30 seconds.
+   *
+   * @default 30 seconds.
+   * @schema KafkaConnectS2ISpecTemplateBuildPod#terminationGracePeriodSeconds
+   */
+  readonly terminationGracePeriodSeconds?: number;
+
+  /**
+   * The pod's affinity rules.
+   *
+   * @schema KafkaConnectS2ISpecTemplateBuildPod#affinity
+   */
+  readonly affinity?: KafkaConnectS2ISpecTemplateBuildPodAffinity;
+
+  /**
+   * The pod's tolerations.
+   *
+   * @schema KafkaConnectS2ISpecTemplateBuildPod#tolerations
+   */
+  readonly tolerations?: KafkaConnectS2ISpecTemplateBuildPodTolerations[];
+
+  /**
+   * The name of the priority class used to assign priority to the pods. For more information about priority classes, see {K8sPriorityClass}.
+   *
+   * @schema KafkaConnectS2ISpecTemplateBuildPod#priorityClassName
+   */
+  readonly priorityClassName?: string;
+
+  /**
+   * The name of the scheduler used to dispatch this `Pod`. If not specified, the default scheduler will be used.
+   *
+   * @schema KafkaConnectS2ISpecTemplateBuildPod#schedulerName
+   */
+  readonly schedulerName?: string;
+
+  /**
+   * The pod's HostAliases. HostAliases is an optional list of hosts and IPs that will be injected into the pod's hosts file if specified.
+   *
+   * @schema KafkaConnectS2ISpecTemplateBuildPod#hostAliases
+   */
+  readonly hostAliases?: KafkaConnectS2ISpecTemplateBuildPodHostAliases[];
+
+  /**
+   * The pod's topology spread constraints.
+   *
+   * @schema KafkaConnectS2ISpecTemplateBuildPod#topologySpreadConstraints
+   */
+  readonly topologySpreadConstraints?: KafkaConnectS2ISpecTemplateBuildPodTopologySpreadConstraints[];
 
 }
 
@@ -19397,6 +22367,55 @@ export enum KafkaConnectS2ISpecAuthenticationType {
 }
 
 /**
+ * Configures where should the newly built image be stored. Required.
+ *
+ * @schema KafkaConnectS2ISpecBuildOutput
+ */
+export interface KafkaConnectS2ISpecBuildOutput {
+  /**
+   * The name of the image which will be built. Required.
+   *
+   * @schema KafkaConnectS2ISpecBuildOutput#image
+   */
+  readonly image: string;
+
+  /**
+   * Container Registry Secret with the credentials for pushing the newly built image.
+   *
+   * @schema KafkaConnectS2ISpecBuildOutput#pushSecret
+   */
+  readonly pushSecret?: string;
+
+  /**
+   * Output type. Must be either `docker` for pushing the newly build image to Docker compatible registry or `imagestream` for pushing the image to OpenShift ImageStream. Required.
+   *
+   * @schema KafkaConnectS2ISpecBuildOutput#type
+   */
+  readonly type: KafkaConnectS2ISpecBuildOutputType;
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecBuildPlugins
+ */
+export interface KafkaConnectS2ISpecBuildPlugins {
+  /**
+   * The unique name of the connector plugin. Will be used to generate the path where the connector artifacts will be stored. The name has to be unique within the KafkaConnect resource. The name has to follow the following pattern: `^[a-z][-_a-z0-9]*[a-z]$`. Required.
+   *
+   * @schema KafkaConnectS2ISpecBuildPlugins#name
+   */
+  readonly name: string;
+
+  /**
+   * List of artifacts which belong to this connector plugin. Required.
+   *
+   * @schema KafkaConnectS2ISpecBuildPlugins#artifacts
+   */
+  readonly artifacts: KafkaConnectS2ISpecBuildPluginsArtifacts[];
+
+}
+
+/**
  * @schema KafkaConnectS2ISpecExternalConfigurationEnv
  */
 export interface KafkaConnectS2ISpecExternalConfigurationEnv {
@@ -19440,6 +22459,31 @@ export interface KafkaConnectS2ISpecExternalConfigurationVolumes {
    * @schema KafkaConnectS2ISpecExternalConfigurationVolumes#secret
    */
   readonly secret?: KafkaConnectS2ISpecExternalConfigurationVolumesSecret;
+
+}
+
+/**
+ * Metrics type. Only 'jmxPrometheusExporter' supported currently.
+ *
+ * @schema KafkaConnectS2ISpecMetricsConfigType
+ */
+export enum KafkaConnectS2ISpecMetricsConfigType {
+  /** jmxPrometheusExporter */
+  JMX_PROMETHEUS_EXPORTER = "jmxPrometheusExporter",
+}
+
+/**
+ * ConfigMap where the Prometheus JMX Exporter configuration is stored. For details of the structure of this configuration, see the {JMXExporter}.
+ *
+ * @schema KafkaConnectS2ISpecMetricsConfigValueFrom
+ */
+export interface KafkaConnectS2ISpecMetricsConfigValueFrom {
+  /**
+   * Reference to the key in the ConfigMap containing the metrics configuration.
+   *
+   * @schema KafkaConnectS2ISpecMetricsConfigValueFrom#configMapKeyRef
+   */
+  readonly configMapKeyRef?: KafkaConnectS2ISpecMetricsConfigValueFromConfigMapKeyRef;
 
 }
 
@@ -19597,6 +22641,19 @@ export interface KafkaConnectS2ISpecTemplateDeploymentMetadata {
 }
 
 /**
+ * DeploymentStrategy which will be used for this Deployment. Valid values are `RollingUpdate` and `Recreate`. Defaults to `RollingUpdate`.
+ *
+ * @default RollingUpdate`.
+ * @schema KafkaConnectS2ISpecTemplateDeploymentDeploymentStrategy
+ */
+export enum KafkaConnectS2ISpecTemplateDeploymentDeploymentStrategy {
+  /** RollingUpdate */
+  ROLLING_UPDATE = "RollingUpdate",
+  /** Recreate */
+  RECREATE = "Recreate",
+}
+
+/**
  * Metadata applied to the resource.
  *
  * @schema KafkaConnectS2ISpecTemplatePodMetadata
@@ -19664,6 +22721,11 @@ export interface KafkaConnectS2ISpecTemplatePodSecurityContext {
    * @schema KafkaConnectS2ISpecTemplatePodSecurityContext#seLinuxOptions
    */
   readonly seLinuxOptions?: KafkaConnectS2ISpecTemplatePodSecurityContextSeLinuxOptions;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplatePodSecurityContext#seccompProfile
+   */
+  readonly seccompProfile?: KafkaConnectS2ISpecTemplatePodSecurityContextSeccompProfile;
 
   /**
    * @schema KafkaConnectS2ISpecTemplatePodSecurityContext#supplementalGroups
@@ -19753,6 +22815,32 @@ export interface KafkaConnectS2ISpecTemplatePodHostAliases {
 }
 
 /**
+ * @schema KafkaConnectS2ISpecTemplatePodTopologySpreadConstraints
+ */
+export interface KafkaConnectS2ISpecTemplatePodTopologySpreadConstraints {
+  /**
+   * @schema KafkaConnectS2ISpecTemplatePodTopologySpreadConstraints#labelSelector
+   */
+  readonly labelSelector?: KafkaConnectS2ISpecTemplatePodTopologySpreadConstraintsLabelSelector;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplatePodTopologySpreadConstraints#maxSkew
+   */
+  readonly maxSkew?: number;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplatePodTopologySpreadConstraints#topologyKey
+   */
+  readonly topologyKey?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplatePodTopologySpreadConstraints#whenUnsatisfiable
+   */
+  readonly whenUnsatisfiable?: string;
+
+}
+
+/**
  * Metadata applied to the resource.
  *
  * @schema KafkaConnectS2ISpecTemplateApiServiceMetadata
@@ -19771,6 +22859,298 @@ export interface KafkaConnectS2ISpecTemplateApiServiceMetadata {
    * @schema KafkaConnectS2ISpecTemplateApiServiceMetadata#annotations
    */
   readonly annotations?: any;
+
+}
+
+/**
+ * Metadata applied to the resource.
+ *
+ * @schema KafkaConnectS2ISpecTemplateBuildConfigMetadata
+ */
+export interface KafkaConnectS2ISpecTemplateBuildConfigMetadata {
+  /**
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   *
+   * @schema KafkaConnectS2ISpecTemplateBuildConfigMetadata#labels
+   */
+  readonly labels?: any;
+
+  /**
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   *
+   * @schema KafkaConnectS2ISpecTemplateBuildConfigMetadata#annotations
+   */
+  readonly annotations?: any;
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildContainerEnv
+ */
+export interface KafkaConnectS2ISpecTemplateBuildContainerEnv {
+  /**
+   * The environment variable key.
+   *
+   * @schema KafkaConnectS2ISpecTemplateBuildContainerEnv#name
+   */
+  readonly name?: string;
+
+  /**
+   * The environment variable value.
+   *
+   * @schema KafkaConnectS2ISpecTemplateBuildContainerEnv#value
+   */
+  readonly value?: string;
+
+}
+
+/**
+ * Security context for the container.
+ *
+ * @schema KafkaConnectS2ISpecTemplateBuildContainerSecurityContext
+ */
+export interface KafkaConnectS2ISpecTemplateBuildContainerSecurityContext {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildContainerSecurityContext#allowPrivilegeEscalation
+   */
+  readonly allowPrivilegeEscalation?: boolean;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildContainerSecurityContext#capabilities
+   */
+  readonly capabilities?: KafkaConnectS2ISpecTemplateBuildContainerSecurityContextCapabilities;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildContainerSecurityContext#privileged
+   */
+  readonly privileged?: boolean;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildContainerSecurityContext#procMount
+   */
+  readonly procMount?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildContainerSecurityContext#readOnlyRootFilesystem
+   */
+  readonly readOnlyRootFilesystem?: boolean;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildContainerSecurityContext#runAsGroup
+   */
+  readonly runAsGroup?: number;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildContainerSecurityContext#runAsNonRoot
+   */
+  readonly runAsNonRoot?: boolean;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildContainerSecurityContext#runAsUser
+   */
+  readonly runAsUser?: number;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildContainerSecurityContext#seLinuxOptions
+   */
+  readonly seLinuxOptions?: KafkaConnectS2ISpecTemplateBuildContainerSecurityContextSeLinuxOptions;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildContainerSecurityContext#seccompProfile
+   */
+  readonly seccompProfile?: KafkaConnectS2ISpecTemplateBuildContainerSecurityContextSeccompProfile;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildContainerSecurityContext#windowsOptions
+   */
+  readonly windowsOptions?: KafkaConnectS2ISpecTemplateBuildContainerSecurityContextWindowsOptions;
+
+}
+
+/**
+ * Metadata applied to the resource.
+ *
+ * @schema KafkaConnectS2ISpecTemplateBuildPodMetadata
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPodMetadata {
+  /**
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   *
+   * @schema KafkaConnectS2ISpecTemplateBuildPodMetadata#labels
+   */
+  readonly labels?: any;
+
+  /**
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   *
+   * @schema KafkaConnectS2ISpecTemplateBuildPodMetadata#annotations
+   */
+  readonly annotations?: any;
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildPodImagePullSecrets
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPodImagePullSecrets {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodImagePullSecrets#name
+   */
+  readonly name?: string;
+
+}
+
+/**
+ * Configures pod-level security attributes and common container settings.
+ *
+ * @schema KafkaConnectS2ISpecTemplateBuildPodSecurityContext
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPodSecurityContext {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodSecurityContext#fsGroup
+   */
+  readonly fsGroup?: number;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodSecurityContext#fsGroupChangePolicy
+   */
+  readonly fsGroupChangePolicy?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodSecurityContext#runAsGroup
+   */
+  readonly runAsGroup?: number;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodSecurityContext#runAsNonRoot
+   */
+  readonly runAsNonRoot?: boolean;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodSecurityContext#runAsUser
+   */
+  readonly runAsUser?: number;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodSecurityContext#seLinuxOptions
+   */
+  readonly seLinuxOptions?: KafkaConnectS2ISpecTemplateBuildPodSecurityContextSeLinuxOptions;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodSecurityContext#seccompProfile
+   */
+  readonly seccompProfile?: KafkaConnectS2ISpecTemplateBuildPodSecurityContextSeccompProfile;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodSecurityContext#supplementalGroups
+   */
+  readonly supplementalGroups?: number[];
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodSecurityContext#sysctls
+   */
+  readonly sysctls?: KafkaConnectS2ISpecTemplateBuildPodSecurityContextSysctls[];
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodSecurityContext#windowsOptions
+   */
+  readonly windowsOptions?: KafkaConnectS2ISpecTemplateBuildPodSecurityContextWindowsOptions;
+
+}
+
+/**
+ * The pod's affinity rules.
+ *
+ * @schema KafkaConnectS2ISpecTemplateBuildPodAffinity
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPodAffinity {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinity#nodeAffinity
+   */
+  readonly nodeAffinity?: KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinity;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinity#podAffinity
+   */
+  readonly podAffinity?: KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinity;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinity#podAntiAffinity
+   */
+  readonly podAntiAffinity?: KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinity;
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildPodTolerations
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPodTolerations {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodTolerations#effect
+   */
+  readonly effect?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodTolerations#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodTolerations#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodTolerations#tolerationSeconds
+   */
+  readonly tolerationSeconds?: number;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodTolerations#value
+   */
+  readonly value?: string;
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildPodHostAliases
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPodHostAliases {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodHostAliases#hostnames
+   */
+  readonly hostnames?: string[];
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodHostAliases#ip
+   */
+  readonly ip?: string;
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildPodTopologySpreadConstraints
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPodTopologySpreadConstraints {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodTopologySpreadConstraints#labelSelector
+   */
+  readonly labelSelector?: KafkaConnectS2ISpecTemplateBuildPodTopologySpreadConstraintsLabelSelector;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodTopologySpreadConstraints#maxSkew
+   */
+  readonly maxSkew?: number;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodTopologySpreadConstraints#topologyKey
+   */
+  readonly topologyKey?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodTopologySpreadConstraints#whenUnsatisfiable
+   */
+  readonly whenUnsatisfiable?: string;
 
 }
 
@@ -19844,6 +23224,11 @@ export interface KafkaConnectS2ISpecTemplateConnectContainerSecurityContext {
    * @schema KafkaConnectS2ISpecTemplateConnectContainerSecurityContext#seLinuxOptions
    */
   readonly seLinuxOptions?: KafkaConnectS2ISpecTemplateConnectContainerSecurityContextSeLinuxOptions;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateConnectContainerSecurityContext#seccompProfile
+   */
+  readonly seccompProfile?: KafkaConnectS2ISpecTemplateConnectContainerSecurityContextSeccompProfile;
 
   /**
    * @schema KafkaConnectS2ISpecTemplateConnectContainerSecurityContext#windowsOptions
@@ -19924,6 +23309,11 @@ export interface KafkaConnectS2ISpecTemplateInitContainerSecurityContext {
   readonly seLinuxOptions?: KafkaConnectS2ISpecTemplateInitContainerSecurityContextSeLinuxOptions;
 
   /**
+   * @schema KafkaConnectS2ISpecTemplateInitContainerSecurityContext#seccompProfile
+   */
+  readonly seccompProfile?: KafkaConnectS2ISpecTemplateInitContainerSecurityContextSeccompProfile;
+
+  /**
    * @schema KafkaConnectS2ISpecTemplateInitContainerSecurityContext#windowsOptions
    */
   readonly windowsOptions?: KafkaConnectS2ISpecTemplateInitContainerSecurityContextWindowsOptions;
@@ -19953,13 +23343,52 @@ export interface KafkaConnectS2ISpecTemplatePodDisruptionBudgetMetadata {
 }
 
 /**
+ * Output type. Must be either `docker` for pushing the newly build image to Docker compatible registry or `imagestream` for pushing the image to OpenShift ImageStream. Required.
+ *
+ * @schema KafkaConnectS2ISpecBuildOutputType
+ */
+export enum KafkaConnectS2ISpecBuildOutputType {
+  /** docker */
+  DOCKER = "docker",
+  /** imagestream */
+  IMAGESTREAM = "imagestream",
+}
+
+/**
+ * @schema KafkaConnectS2ISpecBuildPluginsArtifacts
+ */
+export interface KafkaConnectS2ISpecBuildPluginsArtifacts {
+  /**
+   * SHA512 checksum of the artifact. Optional. If specified, the checksum will be verified while building the new container. If not specified, the downloaded artifact will not be verified.
+   *
+   * @schema KafkaConnectS2ISpecBuildPluginsArtifacts#sha512sum
+   */
+  readonly sha512sum?: string;
+
+  /**
+   * Artifact type. Currently, the supported artifact types are `tgz` and `jar`.
+   *
+   * @schema KafkaConnectS2ISpecBuildPluginsArtifacts#type
+   */
+  readonly type: KafkaConnectS2ISpecBuildPluginsArtifactsType;
+
+  /**
+   * URL of the artifact which will be downloaded. Strimzi does not do any security scanning of the downloaded artifacts. For security reasons, you should first verify the artifacts manually and configure the checksum verification to make sure the same artifact is used in the automated build. Required.
+   *
+   * @schema KafkaConnectS2ISpecBuildPluginsArtifacts#url
+   */
+  readonly url: string;
+
+}
+
+/**
  * Value of the environment variable which will be passed to the Kafka Connect pods. It can be passed either as a reference to Secret or ConfigMap field. The field has to specify exactly one Secret or ConfigMap.
  *
  * @schema KafkaConnectS2ISpecExternalConfigurationEnvValueFrom
  */
 export interface KafkaConnectS2ISpecExternalConfigurationEnvValueFrom {
   /**
-   * Refernce to a key in a ConfigMap.
+   * Reference to a key in a ConfigMap.
    *
    * @schema KafkaConnectS2ISpecExternalConfigurationEnvValueFrom#configMapKeyRef
    */
@@ -20027,6 +23456,29 @@ export interface KafkaConnectS2ISpecExternalConfigurationVolumesSecret {
    * @schema KafkaConnectS2ISpecExternalConfigurationVolumesSecret#secretName
    */
   readonly secretName?: string;
+
+}
+
+/**
+ * Reference to the key in the ConfigMap containing the metrics configuration.
+ *
+ * @schema KafkaConnectS2ISpecMetricsConfigValueFromConfigMapKeyRef
+ */
+export interface KafkaConnectS2ISpecMetricsConfigValueFromConfigMapKeyRef {
+  /**
+   * @schema KafkaConnectS2ISpecMetricsConfigValueFromConfigMapKeyRef#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecMetricsConfigValueFromConfigMapKeyRef#name
+   */
+  readonly name?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecMetricsConfigValueFromConfigMapKeyRef#optional
+   */
+  readonly optional?: boolean;
 
 }
 
@@ -20163,6 +23615,22 @@ export interface KafkaConnectS2ISpecTemplatePodSecurityContextSeLinuxOptions {
 }
 
 /**
+ * @schema KafkaConnectS2ISpecTemplatePodSecurityContextSeccompProfile
+ */
+export interface KafkaConnectS2ISpecTemplatePodSecurityContextSeccompProfile {
+  /**
+   * @schema KafkaConnectS2ISpecTemplatePodSecurityContextSeccompProfile#localhostProfile
+   */
+  readonly localhostProfile?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplatePodSecurityContextSeccompProfile#type
+   */
+  readonly type?: string;
+
+}
+
+/**
  * @schema KafkaConnectS2ISpecTemplatePodSecurityContextSysctls
  */
 export interface KafkaConnectS2ISpecTemplatePodSecurityContextSysctls {
@@ -20248,6 +23716,244 @@ export interface KafkaConnectS2ISpecTemplatePodAffinityPodAntiAffinity {
 }
 
 /**
+ * @schema KafkaConnectS2ISpecTemplatePodTopologySpreadConstraintsLabelSelector
+ */
+export interface KafkaConnectS2ISpecTemplatePodTopologySpreadConstraintsLabelSelector {
+  /**
+   * @schema KafkaConnectS2ISpecTemplatePodTopologySpreadConstraintsLabelSelector#matchExpressions
+   */
+  readonly matchExpressions?: KafkaConnectS2ISpecTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions[];
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplatePodTopologySpreadConstraintsLabelSelector#matchLabels
+   */
+  readonly matchLabels?: any;
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildContainerSecurityContextCapabilities
+ */
+export interface KafkaConnectS2ISpecTemplateBuildContainerSecurityContextCapabilities {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildContainerSecurityContextCapabilities#add
+   */
+  readonly add?: string[];
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildContainerSecurityContextCapabilities#drop
+   */
+  readonly drop?: string[];
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildContainerSecurityContextSeLinuxOptions
+ */
+export interface KafkaConnectS2ISpecTemplateBuildContainerSecurityContextSeLinuxOptions {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildContainerSecurityContextSeLinuxOptions#level
+   */
+  readonly level?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildContainerSecurityContextSeLinuxOptions#role
+   */
+  readonly role?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildContainerSecurityContextSeLinuxOptions#type
+   */
+  readonly type?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildContainerSecurityContextSeLinuxOptions#user
+   */
+  readonly user?: string;
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildContainerSecurityContextSeccompProfile
+ */
+export interface KafkaConnectS2ISpecTemplateBuildContainerSecurityContextSeccompProfile {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildContainerSecurityContextSeccompProfile#localhostProfile
+   */
+  readonly localhostProfile?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildContainerSecurityContextSeccompProfile#type
+   */
+  readonly type?: string;
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildContainerSecurityContextWindowsOptions
+ */
+export interface KafkaConnectS2ISpecTemplateBuildContainerSecurityContextWindowsOptions {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildContainerSecurityContextWindowsOptions#gmsaCredentialSpec
+   */
+  readonly gmsaCredentialSpec?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildContainerSecurityContextWindowsOptions#gmsaCredentialSpecName
+   */
+  readonly gmsaCredentialSpecName?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildContainerSecurityContextWindowsOptions#runAsUserName
+   */
+  readonly runAsUserName?: string;
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildPodSecurityContextSeLinuxOptions
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPodSecurityContextSeLinuxOptions {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodSecurityContextSeLinuxOptions#level
+   */
+  readonly level?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodSecurityContextSeLinuxOptions#role
+   */
+  readonly role?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodSecurityContextSeLinuxOptions#type
+   */
+  readonly type?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodSecurityContextSeLinuxOptions#user
+   */
+  readonly user?: string;
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildPodSecurityContextSeccompProfile
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPodSecurityContextSeccompProfile {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodSecurityContextSeccompProfile#localhostProfile
+   */
+  readonly localhostProfile?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodSecurityContextSeccompProfile#type
+   */
+  readonly type?: string;
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildPodSecurityContextSysctls
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPodSecurityContextSysctls {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodSecurityContextSysctls#name
+   */
+  readonly name?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodSecurityContextSysctls#value
+   */
+  readonly value?: string;
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildPodSecurityContextWindowsOptions
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPodSecurityContextWindowsOptions {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodSecurityContextWindowsOptions#gmsaCredentialSpec
+   */
+  readonly gmsaCredentialSpec?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodSecurityContextWindowsOptions#gmsaCredentialSpecName
+   */
+  readonly gmsaCredentialSpecName?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodSecurityContextWindowsOptions#runAsUserName
+   */
+  readonly runAsUserName?: string;
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinity
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinity {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinity#preferredDuringSchedulingIgnoredDuringExecution
+   */
+  readonly preferredDuringSchedulingIgnoredDuringExecution?: KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecution[];
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinity#requiredDuringSchedulingIgnoredDuringExecution
+   */
+  readonly requiredDuringSchedulingIgnoredDuringExecution?: KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecution;
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinity
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinity {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinity#preferredDuringSchedulingIgnoredDuringExecution
+   */
+  readonly preferredDuringSchedulingIgnoredDuringExecution?: KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecution[];
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinity#requiredDuringSchedulingIgnoredDuringExecution
+   */
+  readonly requiredDuringSchedulingIgnoredDuringExecution?: KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecution[];
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinity
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinity {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinity#preferredDuringSchedulingIgnoredDuringExecution
+   */
+  readonly preferredDuringSchedulingIgnoredDuringExecution?: KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecution[];
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinity#requiredDuringSchedulingIgnoredDuringExecution
+   */
+  readonly requiredDuringSchedulingIgnoredDuringExecution?: KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecution[];
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildPodTopologySpreadConstraintsLabelSelector
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPodTopologySpreadConstraintsLabelSelector {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodTopologySpreadConstraintsLabelSelector#matchExpressions
+   */
+  readonly matchExpressions?: KafkaConnectS2ISpecTemplateBuildPodTopologySpreadConstraintsLabelSelectorMatchExpressions[];
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodTopologySpreadConstraintsLabelSelector#matchLabels
+   */
+  readonly matchLabels?: any;
+
+}
+
+/**
  * @schema KafkaConnectS2ISpecTemplateConnectContainerSecurityContextCapabilities
  */
 export interface KafkaConnectS2ISpecTemplateConnectContainerSecurityContextCapabilities {
@@ -20286,6 +23992,22 @@ export interface KafkaConnectS2ISpecTemplateConnectContainerSecurityContextSeLin
    * @schema KafkaConnectS2ISpecTemplateConnectContainerSecurityContextSeLinuxOptions#user
    */
   readonly user?: string;
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateConnectContainerSecurityContextSeccompProfile
+ */
+export interface KafkaConnectS2ISpecTemplateConnectContainerSecurityContextSeccompProfile {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateConnectContainerSecurityContextSeccompProfile#localhostProfile
+   */
+  readonly localhostProfile?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateConnectContainerSecurityContextSeccompProfile#type
+   */
+  readonly type?: string;
 
 }
 
@@ -20353,6 +24075,22 @@ export interface KafkaConnectS2ISpecTemplateInitContainerSecurityContextSeLinuxO
 }
 
 /**
+ * @schema KafkaConnectS2ISpecTemplateInitContainerSecurityContextSeccompProfile
+ */
+export interface KafkaConnectS2ISpecTemplateInitContainerSecurityContextSeccompProfile {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateInitContainerSecurityContextSeccompProfile#localhostProfile
+   */
+  readonly localhostProfile?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateInitContainerSecurityContextSeccompProfile#type
+   */
+  readonly type?: string;
+
+}
+
+/**
  * @schema KafkaConnectS2ISpecTemplateInitContainerSecurityContextWindowsOptions
  */
 export interface KafkaConnectS2ISpecTemplateInitContainerSecurityContextWindowsOptions {
@@ -20374,7 +24112,19 @@ export interface KafkaConnectS2ISpecTemplateInitContainerSecurityContextWindowsO
 }
 
 /**
- * Refernce to a key in a ConfigMap.
+ * Artifact type. Currently, the supported artifact types are `tgz` and `jar`.
+ *
+ * @schema KafkaConnectS2ISpecBuildPluginsArtifactsType
+ */
+export enum KafkaConnectS2ISpecBuildPluginsArtifactsType {
+  /** jar */
+  JAR = "jar",
+  /** tgz */
+  TGZ = "tgz",
+}
+
+/**
+ * Reference to a key in a ConfigMap.
  *
  * @schema KafkaConnectS2ISpecExternalConfigurationEnvValueFromConfigMapKeyRef
  */
@@ -20721,6 +24471,149 @@ export interface KafkaConnectS2ISpecTemplatePodAffinityPodAntiAffinityRequiredDu
 }
 
 /**
+ * @schema KafkaConnectS2ISpecTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions
+ */
+export interface KafkaConnectS2ISpecTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions {
+  /**
+   * @schema KafkaConnectS2ISpecTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions#values
+   */
+  readonly values?: string[];
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecution
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecution {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecution#preference
+   */
+  readonly preference?: KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreference;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecution#weight
+   */
+  readonly weight?: number;
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecution
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecution {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecution#nodeSelectorTerms
+   */
+  readonly nodeSelectorTerms?: KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTerms[];
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecution
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecution {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecution#podAffinityTerm
+   */
+  readonly podAffinityTerm?: KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTerm;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecution#weight
+   */
+  readonly weight?: number;
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecution
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecution {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecution#labelSelector
+   */
+  readonly labelSelector?: KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelector;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecution#namespaces
+   */
+  readonly namespaces?: string[];
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecution#topologyKey
+   */
+  readonly topologyKey?: string;
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecution
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecution {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecution#podAffinityTerm
+   */
+  readonly podAffinityTerm?: KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTerm;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecution#weight
+   */
+  readonly weight?: number;
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecution
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecution {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecution#labelSelector
+   */
+  readonly labelSelector?: KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelector;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecution#namespaces
+   */
+  readonly namespaces?: string[];
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecution#topologyKey
+   */
+  readonly topologyKey?: string;
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildPodTopologySpreadConstraintsLabelSelectorMatchExpressions
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPodTopologySpreadConstraintsLabelSelectorMatchExpressions {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodTopologySpreadConstraintsLabelSelectorMatchExpressions#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodTopologySpreadConstraintsLabelSelectorMatchExpressions#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodTopologySpreadConstraintsLabelSelectorMatchExpressions#values
+   */
+  readonly values?: string[];
+
+}
+
+/**
  * @schema KafkaConnectS2ISpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions
  */
 export interface KafkaConnectS2ISpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions {
@@ -20863,6 +24756,112 @@ export interface KafkaConnectS2ISpecTemplatePodAffinityPodAntiAffinityRequiredDu
 
   /**
    * @schema KafkaConnectS2ISpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelector#matchLabels
+   */
+  readonly matchLabels?: any;
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreference
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreference {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreference#matchExpressions
+   */
+  readonly matchExpressions?: KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreferenceMatchExpressions[];
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreference#matchFields
+   */
+  readonly matchFields?: KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreferenceMatchFields[];
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTerms
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTerms {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTerms#matchExpressions
+   */
+  readonly matchExpressions?: KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsMatchExpressions[];
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTerms#matchFields
+   */
+  readonly matchFields?: KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsMatchFields[];
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTerm
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTerm {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTerm#labelSelector
+   */
+  readonly labelSelector?: KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelector;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTerm#namespaces
+   */
+  readonly namespaces?: string[];
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTerm#topologyKey
+   */
+  readonly topologyKey?: string;
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelector
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelector {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelector#matchExpressions
+   */
+  readonly matchExpressions?: KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelectorMatchExpressions[];
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelector#matchLabels
+   */
+  readonly matchLabels?: any;
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTerm
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTerm {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTerm#labelSelector
+   */
+  readonly labelSelector?: KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelector;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTerm#namespaces
+   */
+  readonly namespaces?: string[];
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTerm#topologyKey
+   */
+  readonly topologyKey?: string;
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelector
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelector {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelector#matchExpressions
+   */
+  readonly matchExpressions?: KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelectorMatchExpressions[];
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelector#matchLabels
    */
   readonly matchLabels?: any;
 
@@ -21027,6 +25026,164 @@ export interface KafkaConnectS2ISpecTemplatePodAffinityPodAntiAffinityRequiredDu
 }
 
 /**
+ * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreferenceMatchExpressions
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreferenceMatchExpressions {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreferenceMatchExpressions#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreferenceMatchExpressions#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreferenceMatchExpressions#values
+   */
+  readonly values?: string[];
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreferenceMatchFields
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreferenceMatchFields {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreferenceMatchFields#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreferenceMatchFields#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreferenceMatchFields#values
+   */
+  readonly values?: string[];
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsMatchExpressions
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsMatchExpressions {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsMatchExpressions#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsMatchExpressions#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsMatchExpressions#values
+   */
+  readonly values?: string[];
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsMatchFields
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsMatchFields {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsMatchFields#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsMatchFields#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsMatchFields#values
+   */
+  readonly values?: string[];
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelector
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelector {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelector#matchExpressions
+   */
+  readonly matchExpressions?: KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions[];
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelector#matchLabels
+   */
+  readonly matchLabels?: any;
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelectorMatchExpressions
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelectorMatchExpressions {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelectorMatchExpressions#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelectorMatchExpressions#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelectorMatchExpressions#values
+   */
+  readonly values?: string[];
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelector
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelector {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelector#matchExpressions
+   */
+  readonly matchExpressions?: KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions[];
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelector#matchLabels
+   */
+  readonly matchLabels?: any;
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelectorMatchExpressions
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelectorMatchExpressions {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelectorMatchExpressions#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelectorMatchExpressions#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelectorMatchExpressions#values
+   */
+  readonly values?: string[];
+
+}
+
+/**
  * @schema KafkaConnectS2ISpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions
  */
 export interface KafkaConnectS2ISpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions {
@@ -21063,6 +25220,48 @@ export interface KafkaConnectS2ISpecTemplatePodAffinityPodAntiAffinityPreferredD
 
   /**
    * @schema KafkaConnectS2ISpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions#values
+   */
+  readonly values?: string[];
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions#values
+   */
+  readonly values?: string[];
+
+}
+
+/**
+ * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions
+ */
+export interface KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions {
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaConnectS2ISpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions#values
    */
   readonly values?: string[];
 
@@ -21202,6 +25401,13 @@ export interface KafkaMirrorMakerSpec {
    * @schema KafkaMirrorMakerSpec#metrics
    */
   readonly metrics?: any;
+
+  /**
+   * Metrics configuration.
+   *
+   * @schema KafkaMirrorMakerSpec#metricsConfig
+   */
+  readonly metricsConfig?: KafkaMirrorMakerSpecMetricsConfig;
 
   /**
    * The configuration of tracing in Kafka MirrorMaker.
@@ -21486,6 +25692,28 @@ export interface KafkaMirrorMakerSpecLogging {
 }
 
 /**
+ * Metrics configuration.
+ *
+ * @schema KafkaMirrorMakerSpecMetricsConfig
+ */
+export interface KafkaMirrorMakerSpecMetricsConfig {
+  /**
+   * Metrics type. Only 'jmxPrometheusExporter' supported currently.
+   *
+   * @schema KafkaMirrorMakerSpecMetricsConfig#type
+   */
+  readonly type: KafkaMirrorMakerSpecMetricsConfigType;
+
+  /**
+   * ConfigMap where the Prometheus JMX Exporter configuration is stored. For details of the structure of this configuration, see the {JMXExporter}.
+   *
+   * @schema KafkaMirrorMakerSpecMetricsConfig#valueFrom
+   */
+  readonly valueFrom: KafkaMirrorMakerSpecMetricsConfigValueFrom;
+
+}
+
+/**
  * The configuration of tracing in Kafka MirrorMaker.
  *
  * @schema KafkaMirrorMakerSpecTracing
@@ -21551,8 +25779,9 @@ export interface KafkaMirrorMakerSpecLivenessProbe {
   readonly failureThreshold?: number;
 
   /**
-   * The initial delay before first the health is first checked.
+   * The initial delay before first the health is first checked. Default to 15 seconds. Minimum value is 0.
    *
+   * @default 15 seconds. Minimum value is 0.
    * @schema KafkaMirrorMakerSpecLivenessProbe#initialDelaySeconds
    */
   readonly initialDelaySeconds?: number;
@@ -21574,8 +25803,9 @@ export interface KafkaMirrorMakerSpecLivenessProbe {
   readonly successThreshold?: number;
 
   /**
-   * The timeout for each attempted health check.
+   * The timeout for each attempted health check. Default to 5 seconds. Minimum value is 1.
    *
+   * @default 5 seconds. Minimum value is 1.
    * @schema KafkaMirrorMakerSpecLivenessProbe#timeoutSeconds
    */
   readonly timeoutSeconds?: number;
@@ -21597,8 +25827,9 @@ export interface KafkaMirrorMakerSpecReadinessProbe {
   readonly failureThreshold?: number;
 
   /**
-   * The initial delay before first the health is first checked.
+   * The initial delay before first the health is first checked. Default to 15 seconds. Minimum value is 0.
    *
+   * @default 15 seconds. Minimum value is 0.
    * @schema KafkaMirrorMakerSpecReadinessProbe#initialDelaySeconds
    */
   readonly initialDelaySeconds?: number;
@@ -21620,8 +25851,9 @@ export interface KafkaMirrorMakerSpecReadinessProbe {
   readonly successThreshold?: number;
 
   /**
-   * The timeout for each attempted health check.
+   * The timeout for each attempted health check. Default to 5 seconds. Minimum value is 1.
    *
+   * @default 5 seconds. Minimum value is 1.
    * @schema KafkaMirrorMakerSpecReadinessProbe#timeoutSeconds
    */
   readonly timeoutSeconds?: number;
@@ -21953,6 +26185,31 @@ export enum KafkaMirrorMakerSpecLoggingType {
 }
 
 /**
+ * Metrics type. Only 'jmxPrometheusExporter' supported currently.
+ *
+ * @schema KafkaMirrorMakerSpecMetricsConfigType
+ */
+export enum KafkaMirrorMakerSpecMetricsConfigType {
+  /** jmxPrometheusExporter */
+  JMX_PROMETHEUS_EXPORTER = "jmxPrometheusExporter",
+}
+
+/**
+ * ConfigMap where the Prometheus JMX Exporter configuration is stored. For details of the structure of this configuration, see the {JMXExporter}.
+ *
+ * @schema KafkaMirrorMakerSpecMetricsConfigValueFrom
+ */
+export interface KafkaMirrorMakerSpecMetricsConfigValueFrom {
+  /**
+   * Reference to the key in the ConfigMap containing the metrics configuration.
+   *
+   * @schema KafkaMirrorMakerSpecMetricsConfigValueFrom#configMapKeyRef
+   */
+  readonly configMapKeyRef?: KafkaMirrorMakerSpecMetricsConfigValueFromConfigMapKeyRef;
+
+}
+
+/**
  * Type of the tracing used. Currently the only supported type is `jaeger` for Jaeger tracing.
  *
  * @schema KafkaMirrorMakerSpecTracingType
@@ -21974,6 +26231,14 @@ export interface KafkaMirrorMakerSpecTemplateDeployment {
    * @schema KafkaMirrorMakerSpecTemplateDeployment#metadata
    */
   readonly metadata?: KafkaMirrorMakerSpecTemplateDeploymentMetadata;
+
+  /**
+   * DeploymentStrategy which will be used for this Deployment. Valid values are `RollingUpdate` and `Recreate`. Defaults to `RollingUpdate`.
+   *
+   * @default RollingUpdate`.
+   * @schema KafkaMirrorMakerSpecTemplateDeployment#deploymentStrategy
+   */
+  readonly deploymentStrategy?: KafkaMirrorMakerSpecTemplateDeploymentDeploymentStrategy;
 
 }
 
@@ -22046,6 +26311,13 @@ export interface KafkaMirrorMakerSpecTemplatePod {
    * @schema KafkaMirrorMakerSpecTemplatePod#hostAliases
    */
   readonly hostAliases?: KafkaMirrorMakerSpecTemplatePodHostAliases[];
+
+  /**
+   * The pod's topology spread constraints.
+   *
+   * @schema KafkaMirrorMakerSpecTemplatePod#topologySpreadConstraints
+   */
+  readonly topologySpreadConstraints?: KafkaMirrorMakerSpecTemplatePodTopologySpreadConstraints[];
 
 }
 
@@ -22542,6 +26814,29 @@ export interface KafkaMirrorMakerSpecAffinityPodAntiAffinityRequiredDuringSchedu
 }
 
 /**
+ * Reference to the key in the ConfigMap containing the metrics configuration.
+ *
+ * @schema KafkaMirrorMakerSpecMetricsConfigValueFromConfigMapKeyRef
+ */
+export interface KafkaMirrorMakerSpecMetricsConfigValueFromConfigMapKeyRef {
+  /**
+   * @schema KafkaMirrorMakerSpecMetricsConfigValueFromConfigMapKeyRef#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaMirrorMakerSpecMetricsConfigValueFromConfigMapKeyRef#name
+   */
+  readonly name?: string;
+
+  /**
+   * @schema KafkaMirrorMakerSpecMetricsConfigValueFromConfigMapKeyRef#optional
+   */
+  readonly optional?: boolean;
+
+}
+
+/**
  * Metadata applied to the resource.
  *
  * @schema KafkaMirrorMakerSpecTemplateDeploymentMetadata
@@ -22561,6 +26856,19 @@ export interface KafkaMirrorMakerSpecTemplateDeploymentMetadata {
    */
   readonly annotations?: any;
 
+}
+
+/**
+ * DeploymentStrategy which will be used for this Deployment. Valid values are `RollingUpdate` and `Recreate`. Defaults to `RollingUpdate`.
+ *
+ * @default RollingUpdate`.
+ * @schema KafkaMirrorMakerSpecTemplateDeploymentDeploymentStrategy
+ */
+export enum KafkaMirrorMakerSpecTemplateDeploymentDeploymentStrategy {
+  /** RollingUpdate */
+  ROLLING_UPDATE = "RollingUpdate",
+  /** Recreate */
+  RECREATE = "Recreate",
 }
 
 /**
@@ -22631,6 +26939,11 @@ export interface KafkaMirrorMakerSpecTemplatePodSecurityContext {
    * @schema KafkaMirrorMakerSpecTemplatePodSecurityContext#seLinuxOptions
    */
   readonly seLinuxOptions?: KafkaMirrorMakerSpecTemplatePodSecurityContextSeLinuxOptions;
+
+  /**
+   * @schema KafkaMirrorMakerSpecTemplatePodSecurityContext#seccompProfile
+   */
+  readonly seccompProfile?: KafkaMirrorMakerSpecTemplatePodSecurityContextSeccompProfile;
 
   /**
    * @schema KafkaMirrorMakerSpecTemplatePodSecurityContext#supplementalGroups
@@ -22720,6 +27033,32 @@ export interface KafkaMirrorMakerSpecTemplatePodHostAliases {
 }
 
 /**
+ * @schema KafkaMirrorMakerSpecTemplatePodTopologySpreadConstraints
+ */
+export interface KafkaMirrorMakerSpecTemplatePodTopologySpreadConstraints {
+  /**
+   * @schema KafkaMirrorMakerSpecTemplatePodTopologySpreadConstraints#labelSelector
+   */
+  readonly labelSelector?: KafkaMirrorMakerSpecTemplatePodTopologySpreadConstraintsLabelSelector;
+
+  /**
+   * @schema KafkaMirrorMakerSpecTemplatePodTopologySpreadConstraints#maxSkew
+   */
+  readonly maxSkew?: number;
+
+  /**
+   * @schema KafkaMirrorMakerSpecTemplatePodTopologySpreadConstraints#topologyKey
+   */
+  readonly topologyKey?: string;
+
+  /**
+   * @schema KafkaMirrorMakerSpecTemplatePodTopologySpreadConstraints#whenUnsatisfiable
+   */
+  readonly whenUnsatisfiable?: string;
+
+}
+
+/**
  * @schema KafkaMirrorMakerSpecTemplateMirrorMakerContainerEnv
  */
 export interface KafkaMirrorMakerSpecTemplateMirrorMakerContainerEnv {
@@ -22789,6 +27128,11 @@ export interface KafkaMirrorMakerSpecTemplateMirrorMakerContainerSecurityContext
    * @schema KafkaMirrorMakerSpecTemplateMirrorMakerContainerSecurityContext#seLinuxOptions
    */
   readonly seLinuxOptions?: KafkaMirrorMakerSpecTemplateMirrorMakerContainerSecurityContextSeLinuxOptions;
+
+  /**
+   * @schema KafkaMirrorMakerSpecTemplateMirrorMakerContainerSecurityContext#seccompProfile
+   */
+  readonly seccompProfile?: KafkaMirrorMakerSpecTemplateMirrorMakerContainerSecurityContextSeccompProfile;
 
   /**
    * @schema KafkaMirrorMakerSpecTemplateMirrorMakerContainerSecurityContext#windowsOptions
@@ -22952,6 +27296,22 @@ export interface KafkaMirrorMakerSpecTemplatePodSecurityContextSeLinuxOptions {
 }
 
 /**
+ * @schema KafkaMirrorMakerSpecTemplatePodSecurityContextSeccompProfile
+ */
+export interface KafkaMirrorMakerSpecTemplatePodSecurityContextSeccompProfile {
+  /**
+   * @schema KafkaMirrorMakerSpecTemplatePodSecurityContextSeccompProfile#localhostProfile
+   */
+  readonly localhostProfile?: string;
+
+  /**
+   * @schema KafkaMirrorMakerSpecTemplatePodSecurityContextSeccompProfile#type
+   */
+  readonly type?: string;
+
+}
+
+/**
  * @schema KafkaMirrorMakerSpecTemplatePodSecurityContextSysctls
  */
 export interface KafkaMirrorMakerSpecTemplatePodSecurityContextSysctls {
@@ -23037,6 +27397,22 @@ export interface KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinity {
 }
 
 /**
+ * @schema KafkaMirrorMakerSpecTemplatePodTopologySpreadConstraintsLabelSelector
+ */
+export interface KafkaMirrorMakerSpecTemplatePodTopologySpreadConstraintsLabelSelector {
+  /**
+   * @schema KafkaMirrorMakerSpecTemplatePodTopologySpreadConstraintsLabelSelector#matchExpressions
+   */
+  readonly matchExpressions?: KafkaMirrorMakerSpecTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions[];
+
+  /**
+   * @schema KafkaMirrorMakerSpecTemplatePodTopologySpreadConstraintsLabelSelector#matchLabels
+   */
+  readonly matchLabels?: any;
+
+}
+
+/**
  * @schema KafkaMirrorMakerSpecTemplateMirrorMakerContainerSecurityContextCapabilities
  */
 export interface KafkaMirrorMakerSpecTemplateMirrorMakerContainerSecurityContextCapabilities {
@@ -23075,6 +27451,22 @@ export interface KafkaMirrorMakerSpecTemplateMirrorMakerContainerSecurityContext
    * @schema KafkaMirrorMakerSpecTemplateMirrorMakerContainerSecurityContextSeLinuxOptions#user
    */
   readonly user?: string;
+
+}
+
+/**
+ * @schema KafkaMirrorMakerSpecTemplateMirrorMakerContainerSecurityContextSeccompProfile
+ */
+export interface KafkaMirrorMakerSpecTemplateMirrorMakerContainerSecurityContextSeccompProfile {
+  /**
+   * @schema KafkaMirrorMakerSpecTemplateMirrorMakerContainerSecurityContextSeccompProfile#localhostProfile
+   */
+  readonly localhostProfile?: string;
+
+  /**
+   * @schema KafkaMirrorMakerSpecTemplateMirrorMakerContainerSecurityContextSeccompProfile#type
+   */
+  readonly type?: string;
 
 }
 
@@ -23355,6 +27747,27 @@ export interface KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityRequiredD
    * @schema KafkaMirrorMakerSpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecution#topologyKey
    */
   readonly topologyKey?: string;
+
+}
+
+/**
+ * @schema KafkaMirrorMakerSpecTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions
+ */
+export interface KafkaMirrorMakerSpecTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions {
+  /**
+   * @schema KafkaMirrorMakerSpecTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaMirrorMakerSpecTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaMirrorMakerSpecTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions#values
+   */
+  readonly values?: string[];
 
 }
 
@@ -23884,6 +28297,13 @@ export interface KafkaMirrorMaker2Spec {
    */
   readonly externalConfiguration?: KafkaMirrorMaker2SpecExternalConfiguration;
 
+  /**
+   * Metrics configuration.
+   *
+   * @schema KafkaMirrorMaker2Spec#metricsConfig
+   */
+  readonly metricsConfig?: KafkaMirrorMaker2SpecMetricsConfig;
+
 }
 
 /**
@@ -24029,8 +28449,9 @@ export interface KafkaMirrorMaker2SpecLivenessProbe {
   readonly failureThreshold?: number;
 
   /**
-   * The initial delay before first the health is first checked.
+   * The initial delay before first the health is first checked. Default to 15 seconds. Minimum value is 0.
    *
+   * @default 15 seconds. Minimum value is 0.
    * @schema KafkaMirrorMaker2SpecLivenessProbe#initialDelaySeconds
    */
   readonly initialDelaySeconds?: number;
@@ -24052,8 +28473,9 @@ export interface KafkaMirrorMaker2SpecLivenessProbe {
   readonly successThreshold?: number;
 
   /**
-   * The timeout for each attempted health check.
+   * The timeout for each attempted health check. Default to 5 seconds. Minimum value is 1.
    *
+   * @default 5 seconds. Minimum value is 1.
    * @schema KafkaMirrorMaker2SpecLivenessProbe#timeoutSeconds
    */
   readonly timeoutSeconds?: number;
@@ -24075,8 +28497,9 @@ export interface KafkaMirrorMaker2SpecReadinessProbe {
   readonly failureThreshold?: number;
 
   /**
-   * The initial delay before first the health is first checked.
+   * The initial delay before first the health is first checked. Default to 15 seconds. Minimum value is 0.
    *
+   * @default 15 seconds. Minimum value is 0.
    * @schema KafkaMirrorMaker2SpecReadinessProbe#initialDelaySeconds
    */
   readonly initialDelaySeconds?: number;
@@ -24098,8 +28521,9 @@ export interface KafkaMirrorMaker2SpecReadinessProbe {
   readonly successThreshold?: number;
 
   /**
-   * The timeout for each attempted health check.
+   * The timeout for each attempted health check. Default to 5 seconds. Minimum value is 1.
    *
+   * @default 5 seconds. Minimum value is 1.
    * @schema KafkaMirrorMaker2SpecReadinessProbe#timeoutSeconds
    */
   readonly timeoutSeconds?: number;
@@ -24275,6 +28699,27 @@ export interface KafkaMirrorMaker2SpecTemplate {
   readonly apiService?: KafkaMirrorMaker2SpecTemplateApiService;
 
   /**
+   * Template for the Kafka Connect BuildConfig used to build new container images. The BuildConfig is used only on OpenShift.
+   *
+   * @schema KafkaMirrorMaker2SpecTemplate#buildConfig
+   */
+  readonly buildConfig?: KafkaMirrorMaker2SpecTemplateBuildConfig;
+
+  /**
+   * Template for the Kafka Connect Build container. The build container is used only on Kubernetes.
+   *
+   * @schema KafkaMirrorMaker2SpecTemplate#buildContainer
+   */
+  readonly buildContainer?: KafkaMirrorMaker2SpecTemplateBuildContainer;
+
+  /**
+   * Template for Kafka Connect Build `Pods`. The build pod is used only on Kubernetes.
+   *
+   * @schema KafkaMirrorMaker2SpecTemplate#buildPod
+   */
+  readonly buildPod?: KafkaMirrorMaker2SpecTemplateBuildPod;
+
+  /**
    * Template for the Kafka Connect container.
    *
    * @schema KafkaMirrorMaker2SpecTemplate#connectContainer
@@ -24316,6 +28761,28 @@ export interface KafkaMirrorMaker2SpecExternalConfiguration {
    * @schema KafkaMirrorMaker2SpecExternalConfiguration#volumes
    */
   readonly volumes?: KafkaMirrorMaker2SpecExternalConfigurationVolumes[];
+
+}
+
+/**
+ * Metrics configuration.
+ *
+ * @schema KafkaMirrorMaker2SpecMetricsConfig
+ */
+export interface KafkaMirrorMaker2SpecMetricsConfig {
+  /**
+   * Metrics type. Only 'jmxPrometheusExporter' supported currently.
+   *
+   * @schema KafkaMirrorMaker2SpecMetricsConfig#type
+   */
+  readonly type: KafkaMirrorMaker2SpecMetricsConfigType;
+
+  /**
+   * ConfigMap where the Prometheus JMX Exporter configuration is stored. For details of the structure of this configuration, see the {JMXExporter}.
+   *
+   * @schema KafkaMirrorMaker2SpecMetricsConfig#valueFrom
+   */
+  readonly valueFrom: KafkaMirrorMaker2SpecMetricsConfigValueFrom;
 
 }
 
@@ -24634,6 +29101,14 @@ export interface KafkaMirrorMaker2SpecTemplateDeployment {
    */
   readonly metadata?: KafkaMirrorMaker2SpecTemplateDeploymentMetadata;
 
+  /**
+   * DeploymentStrategy which will be used for this Deployment. Valid values are `RollingUpdate` and `Recreate`. Defaults to `RollingUpdate`.
+   *
+   * @default RollingUpdate`.
+   * @schema KafkaMirrorMaker2SpecTemplateDeployment#deploymentStrategy
+   */
+  readonly deploymentStrategy?: KafkaMirrorMaker2SpecTemplateDeploymentDeploymentStrategy;
+
 }
 
 /**
@@ -24706,6 +29181,13 @@ export interface KafkaMirrorMaker2SpecTemplatePod {
    */
   readonly hostAliases?: KafkaMirrorMaker2SpecTemplatePodHostAliases[];
 
+  /**
+   * The pod's topology spread constraints.
+   *
+   * @schema KafkaMirrorMaker2SpecTemplatePod#topologySpreadConstraints
+   */
+  readonly topologySpreadConstraints?: KafkaMirrorMaker2SpecTemplatePodTopologySpreadConstraints[];
+
 }
 
 /**
@@ -24720,6 +29202,122 @@ export interface KafkaMirrorMaker2SpecTemplateApiService {
    * @schema KafkaMirrorMaker2SpecTemplateApiService#metadata
    */
   readonly metadata?: KafkaMirrorMaker2SpecTemplateApiServiceMetadata;
+
+}
+
+/**
+ * Template for the Kafka Connect BuildConfig used to build new container images. The BuildConfig is used only on OpenShift.
+ *
+ * @schema KafkaMirrorMaker2SpecTemplateBuildConfig
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildConfig {
+  /**
+   * Metadata applied to the resource.
+   *
+   * @schema KafkaMirrorMaker2SpecTemplateBuildConfig#metadata
+   */
+  readonly metadata?: KafkaMirrorMaker2SpecTemplateBuildConfigMetadata;
+
+}
+
+/**
+ * Template for the Kafka Connect Build container. The build container is used only on Kubernetes.
+ *
+ * @schema KafkaMirrorMaker2SpecTemplateBuildContainer
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildContainer {
+  /**
+   * Environment variables which should be applied to the container.
+   *
+   * @schema KafkaMirrorMaker2SpecTemplateBuildContainer#env
+   */
+  readonly env?: KafkaMirrorMaker2SpecTemplateBuildContainerEnv[];
+
+  /**
+   * Security context for the container.
+   *
+   * @schema KafkaMirrorMaker2SpecTemplateBuildContainer#securityContext
+   */
+  readonly securityContext?: KafkaMirrorMaker2SpecTemplateBuildContainerSecurityContext;
+
+}
+
+/**
+ * Template for Kafka Connect Build `Pods`. The build pod is used only on Kubernetes.
+ *
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPod
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPod {
+  /**
+   * Metadata applied to the resource.
+   *
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPod#metadata
+   */
+  readonly metadata?: KafkaMirrorMaker2SpecTemplateBuildPodMetadata;
+
+  /**
+   * List of references to secrets in the same namespace to use for pulling any of the images used by this Pod. When the `STRIMZI_IMAGE_PULL_SECRETS` environment variable in Cluster Operator and the `imagePullSecrets` option are specified, only the `imagePullSecrets` variable is used and the `STRIMZI_IMAGE_PULL_SECRETS` variable is ignored.
+   *
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPod#imagePullSecrets
+   */
+  readonly imagePullSecrets?: KafkaMirrorMaker2SpecTemplateBuildPodImagePullSecrets[];
+
+  /**
+   * Configures pod-level security attributes and common container settings.
+   *
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPod#securityContext
+   */
+  readonly securityContext?: KafkaMirrorMaker2SpecTemplateBuildPodSecurityContext;
+
+  /**
+   * The grace period is the duration in seconds after the processes running in the pod are sent a termination signal, and the time when the processes are forcibly halted with a kill signal. Set this value to longer than the expected cleanup time for your process. Value must be a non-negative integer. A zero value indicates delete immediately. You might need to increase the grace period for very large Kafka clusters, so that the Kafka brokers have enough time to transfer their work to another broker before they are terminated. Defaults to 30 seconds.
+   *
+   * @default 30 seconds.
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPod#terminationGracePeriodSeconds
+   */
+  readonly terminationGracePeriodSeconds?: number;
+
+  /**
+   * The pod's affinity rules.
+   *
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPod#affinity
+   */
+  readonly affinity?: KafkaMirrorMaker2SpecTemplateBuildPodAffinity;
+
+  /**
+   * The pod's tolerations.
+   *
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPod#tolerations
+   */
+  readonly tolerations?: KafkaMirrorMaker2SpecTemplateBuildPodTolerations[];
+
+  /**
+   * The name of the priority class used to assign priority to the pods. For more information about priority classes, see {K8sPriorityClass}.
+   *
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPod#priorityClassName
+   */
+  readonly priorityClassName?: string;
+
+  /**
+   * The name of the scheduler used to dispatch this `Pod`. If not specified, the default scheduler will be used.
+   *
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPod#schedulerName
+   */
+  readonly schedulerName?: string;
+
+  /**
+   * The pod's HostAliases. HostAliases is an optional list of hosts and IPs that will be injected into the pod's hosts file if specified.
+   *
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPod#hostAliases
+   */
+  readonly hostAliases?: KafkaMirrorMaker2SpecTemplateBuildPodHostAliases[];
+
+  /**
+   * The pod's topology spread constraints.
+   *
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPod#topologySpreadConstraints
+   */
+  readonly topologySpreadConstraints?: KafkaMirrorMaker2SpecTemplateBuildPodTopologySpreadConstraints[];
 
 }
 
@@ -24834,6 +29432,31 @@ export interface KafkaMirrorMaker2SpecExternalConfigurationVolumes {
    * @schema KafkaMirrorMaker2SpecExternalConfigurationVolumes#secret
    */
   readonly secret?: KafkaMirrorMaker2SpecExternalConfigurationVolumesSecret;
+
+}
+
+/**
+ * Metrics type. Only 'jmxPrometheusExporter' supported currently.
+ *
+ * @schema KafkaMirrorMaker2SpecMetricsConfigType
+ */
+export enum KafkaMirrorMaker2SpecMetricsConfigType {
+  /** jmxPrometheusExporter */
+  JMX_PROMETHEUS_EXPORTER = "jmxPrometheusExporter",
+}
+
+/**
+ * ConfigMap where the Prometheus JMX Exporter configuration is stored. For details of the structure of this configuration, see the {JMXExporter}.
+ *
+ * @schema KafkaMirrorMaker2SpecMetricsConfigValueFrom
+ */
+export interface KafkaMirrorMaker2SpecMetricsConfigValueFrom {
+  /**
+   * Reference to the key in the ConfigMap containing the metrics configuration.
+   *
+   * @schema KafkaMirrorMaker2SpecMetricsConfigValueFrom#configMapKeyRef
+   */
+  readonly configMapKeyRef?: KafkaMirrorMaker2SpecMetricsConfigValueFromConfigMapKeyRef;
 
 }
 
@@ -25134,6 +29757,19 @@ export interface KafkaMirrorMaker2SpecTemplateDeploymentMetadata {
 }
 
 /**
+ * DeploymentStrategy which will be used for this Deployment. Valid values are `RollingUpdate` and `Recreate`. Defaults to `RollingUpdate`.
+ *
+ * @default RollingUpdate`.
+ * @schema KafkaMirrorMaker2SpecTemplateDeploymentDeploymentStrategy
+ */
+export enum KafkaMirrorMaker2SpecTemplateDeploymentDeploymentStrategy {
+  /** RollingUpdate */
+  ROLLING_UPDATE = "RollingUpdate",
+  /** Recreate */
+  RECREATE = "Recreate",
+}
+
+/**
  * Metadata applied to the resource.
  *
  * @schema KafkaMirrorMaker2SpecTemplatePodMetadata
@@ -25201,6 +29837,11 @@ export interface KafkaMirrorMaker2SpecTemplatePodSecurityContext {
    * @schema KafkaMirrorMaker2SpecTemplatePodSecurityContext#seLinuxOptions
    */
   readonly seLinuxOptions?: KafkaMirrorMaker2SpecTemplatePodSecurityContextSeLinuxOptions;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplatePodSecurityContext#seccompProfile
+   */
+  readonly seccompProfile?: KafkaMirrorMaker2SpecTemplatePodSecurityContextSeccompProfile;
 
   /**
    * @schema KafkaMirrorMaker2SpecTemplatePodSecurityContext#supplementalGroups
@@ -25290,6 +29931,32 @@ export interface KafkaMirrorMaker2SpecTemplatePodHostAliases {
 }
 
 /**
+ * @schema KafkaMirrorMaker2SpecTemplatePodTopologySpreadConstraints
+ */
+export interface KafkaMirrorMaker2SpecTemplatePodTopologySpreadConstraints {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplatePodTopologySpreadConstraints#labelSelector
+   */
+  readonly labelSelector?: KafkaMirrorMaker2SpecTemplatePodTopologySpreadConstraintsLabelSelector;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplatePodTopologySpreadConstraints#maxSkew
+   */
+  readonly maxSkew?: number;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplatePodTopologySpreadConstraints#topologyKey
+   */
+  readonly topologyKey?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplatePodTopologySpreadConstraints#whenUnsatisfiable
+   */
+  readonly whenUnsatisfiable?: string;
+
+}
+
+/**
  * Metadata applied to the resource.
  *
  * @schema KafkaMirrorMaker2SpecTemplateApiServiceMetadata
@@ -25308,6 +29975,298 @@ export interface KafkaMirrorMaker2SpecTemplateApiServiceMetadata {
    * @schema KafkaMirrorMaker2SpecTemplateApiServiceMetadata#annotations
    */
   readonly annotations?: any;
+
+}
+
+/**
+ * Metadata applied to the resource.
+ *
+ * @schema KafkaMirrorMaker2SpecTemplateBuildConfigMetadata
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildConfigMetadata {
+  /**
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   *
+   * @schema KafkaMirrorMaker2SpecTemplateBuildConfigMetadata#labels
+   */
+  readonly labels?: any;
+
+  /**
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   *
+   * @schema KafkaMirrorMaker2SpecTemplateBuildConfigMetadata#annotations
+   */
+  readonly annotations?: any;
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildContainerEnv
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildContainerEnv {
+  /**
+   * The environment variable key.
+   *
+   * @schema KafkaMirrorMaker2SpecTemplateBuildContainerEnv#name
+   */
+  readonly name?: string;
+
+  /**
+   * The environment variable value.
+   *
+   * @schema KafkaMirrorMaker2SpecTemplateBuildContainerEnv#value
+   */
+  readonly value?: string;
+
+}
+
+/**
+ * Security context for the container.
+ *
+ * @schema KafkaMirrorMaker2SpecTemplateBuildContainerSecurityContext
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildContainerSecurityContext {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildContainerSecurityContext#allowPrivilegeEscalation
+   */
+  readonly allowPrivilegeEscalation?: boolean;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildContainerSecurityContext#capabilities
+   */
+  readonly capabilities?: KafkaMirrorMaker2SpecTemplateBuildContainerSecurityContextCapabilities;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildContainerSecurityContext#privileged
+   */
+  readonly privileged?: boolean;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildContainerSecurityContext#procMount
+   */
+  readonly procMount?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildContainerSecurityContext#readOnlyRootFilesystem
+   */
+  readonly readOnlyRootFilesystem?: boolean;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildContainerSecurityContext#runAsGroup
+   */
+  readonly runAsGroup?: number;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildContainerSecurityContext#runAsNonRoot
+   */
+  readonly runAsNonRoot?: boolean;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildContainerSecurityContext#runAsUser
+   */
+  readonly runAsUser?: number;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildContainerSecurityContext#seLinuxOptions
+   */
+  readonly seLinuxOptions?: KafkaMirrorMaker2SpecTemplateBuildContainerSecurityContextSeLinuxOptions;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildContainerSecurityContext#seccompProfile
+   */
+  readonly seccompProfile?: KafkaMirrorMaker2SpecTemplateBuildContainerSecurityContextSeccompProfile;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildContainerSecurityContext#windowsOptions
+   */
+  readonly windowsOptions?: KafkaMirrorMaker2SpecTemplateBuildContainerSecurityContextWindowsOptions;
+
+}
+
+/**
+ * Metadata applied to the resource.
+ *
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPodMetadata
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPodMetadata {
+  /**
+   * Labels added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   *
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodMetadata#labels
+   */
+  readonly labels?: any;
+
+  /**
+   * Annotations added to the resource template. Can be applied to different resources such as `StatefulSets`, `Deployments`, `Pods`, and `Services`.
+   *
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodMetadata#annotations
+   */
+  readonly annotations?: any;
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPodImagePullSecrets
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPodImagePullSecrets {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodImagePullSecrets#name
+   */
+  readonly name?: string;
+
+}
+
+/**
+ * Configures pod-level security attributes and common container settings.
+ *
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPodSecurityContext
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPodSecurityContext {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodSecurityContext#fsGroup
+   */
+  readonly fsGroup?: number;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodSecurityContext#fsGroupChangePolicy
+   */
+  readonly fsGroupChangePolicy?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodSecurityContext#runAsGroup
+   */
+  readonly runAsGroup?: number;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodSecurityContext#runAsNonRoot
+   */
+  readonly runAsNonRoot?: boolean;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodSecurityContext#runAsUser
+   */
+  readonly runAsUser?: number;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodSecurityContext#seLinuxOptions
+   */
+  readonly seLinuxOptions?: KafkaMirrorMaker2SpecTemplateBuildPodSecurityContextSeLinuxOptions;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodSecurityContext#seccompProfile
+   */
+  readonly seccompProfile?: KafkaMirrorMaker2SpecTemplateBuildPodSecurityContextSeccompProfile;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodSecurityContext#supplementalGroups
+   */
+  readonly supplementalGroups?: number[];
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodSecurityContext#sysctls
+   */
+  readonly sysctls?: KafkaMirrorMaker2SpecTemplateBuildPodSecurityContextSysctls[];
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodSecurityContext#windowsOptions
+   */
+  readonly windowsOptions?: KafkaMirrorMaker2SpecTemplateBuildPodSecurityContextWindowsOptions;
+
+}
+
+/**
+ * The pod's affinity rules.
+ *
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinity
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPodAffinity {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinity#nodeAffinity
+   */
+  readonly nodeAffinity?: KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinity;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinity#podAffinity
+   */
+  readonly podAffinity?: KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinity;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinity#podAntiAffinity
+   */
+  readonly podAntiAffinity?: KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinity;
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPodTolerations
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPodTolerations {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodTolerations#effect
+   */
+  readonly effect?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodTolerations#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodTolerations#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodTolerations#tolerationSeconds
+   */
+  readonly tolerationSeconds?: number;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodTolerations#value
+   */
+  readonly value?: string;
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPodHostAliases
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPodHostAliases {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodHostAliases#hostnames
+   */
+  readonly hostnames?: string[];
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodHostAliases#ip
+   */
+  readonly ip?: string;
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPodTopologySpreadConstraints
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPodTopologySpreadConstraints {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodTopologySpreadConstraints#labelSelector
+   */
+  readonly labelSelector?: KafkaMirrorMaker2SpecTemplateBuildPodTopologySpreadConstraintsLabelSelector;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodTopologySpreadConstraints#maxSkew
+   */
+  readonly maxSkew?: number;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodTopologySpreadConstraints#topologyKey
+   */
+  readonly topologyKey?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodTopologySpreadConstraints#whenUnsatisfiable
+   */
+  readonly whenUnsatisfiable?: string;
 
 }
 
@@ -25381,6 +30340,11 @@ export interface KafkaMirrorMaker2SpecTemplateConnectContainerSecurityContext {
    * @schema KafkaMirrorMaker2SpecTemplateConnectContainerSecurityContext#seLinuxOptions
    */
   readonly seLinuxOptions?: KafkaMirrorMaker2SpecTemplateConnectContainerSecurityContextSeLinuxOptions;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateConnectContainerSecurityContext#seccompProfile
+   */
+  readonly seccompProfile?: KafkaMirrorMaker2SpecTemplateConnectContainerSecurityContextSeccompProfile;
 
   /**
    * @schema KafkaMirrorMaker2SpecTemplateConnectContainerSecurityContext#windowsOptions
@@ -25461,6 +30425,11 @@ export interface KafkaMirrorMaker2SpecTemplateInitContainerSecurityContext {
   readonly seLinuxOptions?: KafkaMirrorMaker2SpecTemplateInitContainerSecurityContextSeLinuxOptions;
 
   /**
+   * @schema KafkaMirrorMaker2SpecTemplateInitContainerSecurityContext#seccompProfile
+   */
+  readonly seccompProfile?: KafkaMirrorMaker2SpecTemplateInitContainerSecurityContextSeccompProfile;
+
+  /**
    * @schema KafkaMirrorMaker2SpecTemplateInitContainerSecurityContext#windowsOptions
    */
   readonly windowsOptions?: KafkaMirrorMaker2SpecTemplateInitContainerSecurityContextWindowsOptions;
@@ -25496,7 +30465,7 @@ export interface KafkaMirrorMaker2SpecTemplatePodDisruptionBudgetMetadata {
  */
 export interface KafkaMirrorMaker2SpecExternalConfigurationEnvValueFrom {
   /**
-   * Refernce to a key in a ConfigMap.
+   * Reference to a key in a ConfigMap.
    *
    * @schema KafkaMirrorMaker2SpecExternalConfigurationEnvValueFrom#configMapKeyRef
    */
@@ -25564,6 +30533,29 @@ export interface KafkaMirrorMaker2SpecExternalConfigurationVolumesSecret {
    * @schema KafkaMirrorMaker2SpecExternalConfigurationVolumesSecret#secretName
    */
   readonly secretName?: string;
+
+}
+
+/**
+ * Reference to the key in the ConfigMap containing the metrics configuration.
+ *
+ * @schema KafkaMirrorMaker2SpecMetricsConfigValueFromConfigMapKeyRef
+ */
+export interface KafkaMirrorMaker2SpecMetricsConfigValueFromConfigMapKeyRef {
+  /**
+   * @schema KafkaMirrorMaker2SpecMetricsConfigValueFromConfigMapKeyRef#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecMetricsConfigValueFromConfigMapKeyRef#name
+   */
+  readonly name?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecMetricsConfigValueFromConfigMapKeyRef#optional
+   */
+  readonly optional?: boolean;
 
 }
 
@@ -25700,6 +30692,22 @@ export interface KafkaMirrorMaker2SpecTemplatePodSecurityContextSeLinuxOptions {
 }
 
 /**
+ * @schema KafkaMirrorMaker2SpecTemplatePodSecurityContextSeccompProfile
+ */
+export interface KafkaMirrorMaker2SpecTemplatePodSecurityContextSeccompProfile {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplatePodSecurityContextSeccompProfile#localhostProfile
+   */
+  readonly localhostProfile?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplatePodSecurityContextSeccompProfile#type
+   */
+  readonly type?: string;
+
+}
+
+/**
  * @schema KafkaMirrorMaker2SpecTemplatePodSecurityContextSysctls
  */
 export interface KafkaMirrorMaker2SpecTemplatePodSecurityContextSysctls {
@@ -25785,6 +30793,244 @@ export interface KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinity {
 }
 
 /**
+ * @schema KafkaMirrorMaker2SpecTemplatePodTopologySpreadConstraintsLabelSelector
+ */
+export interface KafkaMirrorMaker2SpecTemplatePodTopologySpreadConstraintsLabelSelector {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplatePodTopologySpreadConstraintsLabelSelector#matchExpressions
+   */
+  readonly matchExpressions?: KafkaMirrorMaker2SpecTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions[];
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplatePodTopologySpreadConstraintsLabelSelector#matchLabels
+   */
+  readonly matchLabels?: any;
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildContainerSecurityContextCapabilities
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildContainerSecurityContextCapabilities {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildContainerSecurityContextCapabilities#add
+   */
+  readonly add?: string[];
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildContainerSecurityContextCapabilities#drop
+   */
+  readonly drop?: string[];
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildContainerSecurityContextSeLinuxOptions
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildContainerSecurityContextSeLinuxOptions {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildContainerSecurityContextSeLinuxOptions#level
+   */
+  readonly level?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildContainerSecurityContextSeLinuxOptions#role
+   */
+  readonly role?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildContainerSecurityContextSeLinuxOptions#type
+   */
+  readonly type?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildContainerSecurityContextSeLinuxOptions#user
+   */
+  readonly user?: string;
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildContainerSecurityContextSeccompProfile
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildContainerSecurityContextSeccompProfile {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildContainerSecurityContextSeccompProfile#localhostProfile
+   */
+  readonly localhostProfile?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildContainerSecurityContextSeccompProfile#type
+   */
+  readonly type?: string;
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildContainerSecurityContextWindowsOptions
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildContainerSecurityContextWindowsOptions {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildContainerSecurityContextWindowsOptions#gmsaCredentialSpec
+   */
+  readonly gmsaCredentialSpec?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildContainerSecurityContextWindowsOptions#gmsaCredentialSpecName
+   */
+  readonly gmsaCredentialSpecName?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildContainerSecurityContextWindowsOptions#runAsUserName
+   */
+  readonly runAsUserName?: string;
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPodSecurityContextSeLinuxOptions
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPodSecurityContextSeLinuxOptions {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodSecurityContextSeLinuxOptions#level
+   */
+  readonly level?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodSecurityContextSeLinuxOptions#role
+   */
+  readonly role?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodSecurityContextSeLinuxOptions#type
+   */
+  readonly type?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodSecurityContextSeLinuxOptions#user
+   */
+  readonly user?: string;
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPodSecurityContextSeccompProfile
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPodSecurityContextSeccompProfile {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodSecurityContextSeccompProfile#localhostProfile
+   */
+  readonly localhostProfile?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodSecurityContextSeccompProfile#type
+   */
+  readonly type?: string;
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPodSecurityContextSysctls
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPodSecurityContextSysctls {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodSecurityContextSysctls#name
+   */
+  readonly name?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodSecurityContextSysctls#value
+   */
+  readonly value?: string;
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPodSecurityContextWindowsOptions
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPodSecurityContextWindowsOptions {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodSecurityContextWindowsOptions#gmsaCredentialSpec
+   */
+  readonly gmsaCredentialSpec?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodSecurityContextWindowsOptions#gmsaCredentialSpecName
+   */
+  readonly gmsaCredentialSpecName?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodSecurityContextWindowsOptions#runAsUserName
+   */
+  readonly runAsUserName?: string;
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinity
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinity {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinity#preferredDuringSchedulingIgnoredDuringExecution
+   */
+  readonly preferredDuringSchedulingIgnoredDuringExecution?: KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecution[];
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinity#requiredDuringSchedulingIgnoredDuringExecution
+   */
+  readonly requiredDuringSchedulingIgnoredDuringExecution?: KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecution;
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinity
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinity {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinity#preferredDuringSchedulingIgnoredDuringExecution
+   */
+  readonly preferredDuringSchedulingIgnoredDuringExecution?: KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecution[];
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinity#requiredDuringSchedulingIgnoredDuringExecution
+   */
+  readonly requiredDuringSchedulingIgnoredDuringExecution?: KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecution[];
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinity
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinity {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinity#preferredDuringSchedulingIgnoredDuringExecution
+   */
+  readonly preferredDuringSchedulingIgnoredDuringExecution?: KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecution[];
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinity#requiredDuringSchedulingIgnoredDuringExecution
+   */
+  readonly requiredDuringSchedulingIgnoredDuringExecution?: KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecution[];
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPodTopologySpreadConstraintsLabelSelector
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPodTopologySpreadConstraintsLabelSelector {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodTopologySpreadConstraintsLabelSelector#matchExpressions
+   */
+  readonly matchExpressions?: KafkaMirrorMaker2SpecTemplateBuildPodTopologySpreadConstraintsLabelSelectorMatchExpressions[];
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodTopologySpreadConstraintsLabelSelector#matchLabels
+   */
+  readonly matchLabels?: any;
+
+}
+
+/**
  * @schema KafkaMirrorMaker2SpecTemplateConnectContainerSecurityContextCapabilities
  */
 export interface KafkaMirrorMaker2SpecTemplateConnectContainerSecurityContextCapabilities {
@@ -25823,6 +31069,22 @@ export interface KafkaMirrorMaker2SpecTemplateConnectContainerSecurityContextSeL
    * @schema KafkaMirrorMaker2SpecTemplateConnectContainerSecurityContextSeLinuxOptions#user
    */
   readonly user?: string;
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateConnectContainerSecurityContextSeccompProfile
+ */
+export interface KafkaMirrorMaker2SpecTemplateConnectContainerSecurityContextSeccompProfile {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateConnectContainerSecurityContextSeccompProfile#localhostProfile
+   */
+  readonly localhostProfile?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateConnectContainerSecurityContextSeccompProfile#type
+   */
+  readonly type?: string;
 
 }
 
@@ -25890,6 +31152,22 @@ export interface KafkaMirrorMaker2SpecTemplateInitContainerSecurityContextSeLinu
 }
 
 /**
+ * @schema KafkaMirrorMaker2SpecTemplateInitContainerSecurityContextSeccompProfile
+ */
+export interface KafkaMirrorMaker2SpecTemplateInitContainerSecurityContextSeccompProfile {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateInitContainerSecurityContextSeccompProfile#localhostProfile
+   */
+  readonly localhostProfile?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateInitContainerSecurityContextSeccompProfile#type
+   */
+  readonly type?: string;
+
+}
+
+/**
  * @schema KafkaMirrorMaker2SpecTemplateInitContainerSecurityContextWindowsOptions
  */
 export interface KafkaMirrorMaker2SpecTemplateInitContainerSecurityContextWindowsOptions {
@@ -25911,7 +31189,7 @@ export interface KafkaMirrorMaker2SpecTemplateInitContainerSecurityContextWindow
 }
 
 /**
- * Refernce to a key in a ConfigMap.
+ * Reference to a key in a ConfigMap.
  *
  * @schema KafkaMirrorMaker2SpecExternalConfigurationEnvValueFromConfigMapKeyRef
  */
@@ -26258,6 +31536,149 @@ export interface KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityRequired
 }
 
 /**
+ * @schema KafkaMirrorMaker2SpecTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions
+ */
+export interface KafkaMirrorMaker2SpecTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplatePodTopologySpreadConstraintsLabelSelectorMatchExpressions#values
+   */
+  readonly values?: string[];
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecution
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecution {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecution#preference
+   */
+  readonly preference?: KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreference;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecution#weight
+   */
+  readonly weight?: number;
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecution
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecution {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecution#nodeSelectorTerms
+   */
+  readonly nodeSelectorTerms?: KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTerms[];
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecution
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecution {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecution#podAffinityTerm
+   */
+  readonly podAffinityTerm?: KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTerm;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecution#weight
+   */
+  readonly weight?: number;
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecution
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecution {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecution#labelSelector
+   */
+  readonly labelSelector?: KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelector;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecution#namespaces
+   */
+  readonly namespaces?: string[];
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecution#topologyKey
+   */
+  readonly topologyKey?: string;
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecution
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecution {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecution#podAffinityTerm
+   */
+  readonly podAffinityTerm?: KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTerm;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecution#weight
+   */
+  readonly weight?: number;
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecution
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecution {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecution#labelSelector
+   */
+  readonly labelSelector?: KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelector;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecution#namespaces
+   */
+  readonly namespaces?: string[];
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecution#topologyKey
+   */
+  readonly topologyKey?: string;
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPodTopologySpreadConstraintsLabelSelectorMatchExpressions
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPodTopologySpreadConstraintsLabelSelectorMatchExpressions {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodTopologySpreadConstraintsLabelSelectorMatchExpressions#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodTopologySpreadConstraintsLabelSelectorMatchExpressions#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodTopologySpreadConstraintsLabelSelectorMatchExpressions#values
+   */
+  readonly values?: string[];
+
+}
+
+/**
  * @schema KafkaMirrorMaker2SpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions
  */
 export interface KafkaMirrorMaker2SpecAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions {
@@ -26400,6 +31821,112 @@ export interface KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityRequired
 
   /**
    * @schema KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelector#matchLabels
+   */
+  readonly matchLabels?: any;
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreference
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreference {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreference#matchExpressions
+   */
+  readonly matchExpressions?: KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreferenceMatchExpressions[];
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreference#matchFields
+   */
+  readonly matchFields?: KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreferenceMatchFields[];
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTerms
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTerms {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTerms#matchExpressions
+   */
+  readonly matchExpressions?: KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsMatchExpressions[];
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTerms#matchFields
+   */
+  readonly matchFields?: KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsMatchFields[];
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTerm
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTerm {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTerm#labelSelector
+   */
+  readonly labelSelector?: KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelector;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTerm#namespaces
+   */
+  readonly namespaces?: string[];
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTerm#topologyKey
+   */
+  readonly topologyKey?: string;
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelector
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelector {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelector#matchExpressions
+   */
+  readonly matchExpressions?: KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelectorMatchExpressions[];
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelector#matchLabels
+   */
+  readonly matchLabels?: any;
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTerm
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTerm {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTerm#labelSelector
+   */
+  readonly labelSelector?: KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelector;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTerm#namespaces
+   */
+  readonly namespaces?: string[];
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTerm#topologyKey
+   */
+  readonly topologyKey?: string;
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelector
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelector {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelector#matchExpressions
+   */
+  readonly matchExpressions?: KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelectorMatchExpressions[];
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelector#matchLabels
    */
   readonly matchLabels?: any;
 
@@ -26564,6 +32091,164 @@ export interface KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityRequired
 }
 
 /**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreferenceMatchExpressions
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreferenceMatchExpressions {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreferenceMatchExpressions#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreferenceMatchExpressions#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreferenceMatchExpressions#values
+   */
+  readonly values?: string[];
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreferenceMatchFields
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreferenceMatchFields {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreferenceMatchFields#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreferenceMatchFields#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityPreferredDuringSchedulingIgnoredDuringExecutionPreferenceMatchFields#values
+   */
+  readonly values?: string[];
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsMatchExpressions
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsMatchExpressions {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsMatchExpressions#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsMatchExpressions#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsMatchExpressions#values
+   */
+  readonly values?: string[];
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsMatchFields
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsMatchFields {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsMatchFields#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsMatchFields#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityNodeAffinityRequiredDuringSchedulingIgnoredDuringExecutionNodeSelectorTermsMatchFields#values
+   */
+  readonly values?: string[];
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelector
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelector {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelector#matchExpressions
+   */
+  readonly matchExpressions?: KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions[];
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelector#matchLabels
+   */
+  readonly matchLabels?: any;
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelectorMatchExpressions
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelectorMatchExpressions {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelectorMatchExpressions#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelectorMatchExpressions#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelectorMatchExpressions#values
+   */
+  readonly values?: string[];
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelector
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelector {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelector#matchExpressions
+   */
+  readonly matchExpressions?: KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions[];
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelector#matchLabels
+   */
+  readonly matchLabels?: any;
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelectorMatchExpressions
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelectorMatchExpressions {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelectorMatchExpressions#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelectorMatchExpressions#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityRequiredDuringSchedulingIgnoredDuringExecutionLabelSelectorMatchExpressions#values
+   */
+  readonly values?: string[];
+
+}
+
+/**
  * @schema KafkaMirrorMaker2SpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions
  */
 export interface KafkaMirrorMaker2SpecTemplatePodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions {
@@ -26600,6 +32285,48 @@ export interface KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityPreferre
 
   /**
    * @schema KafkaMirrorMaker2SpecTemplatePodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions#values
+   */
+  readonly values?: string[];
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions#values
+   */
+  readonly values?: string[];
+
+}
+
+/**
+ * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions
+ */
+export interface KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions {
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions#key
+   */
+  readonly key?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions#operator
+   */
+  readonly operator?: string;
+
+  /**
+   * @schema KafkaMirrorMaker2SpecTemplateBuildPodAffinityPodAntiAffinityPreferredDuringSchedulingIgnoredDuringExecutionPodAffinityTermLabelSelectorMatchExpressions#values
    */
   readonly values?: string[];
 

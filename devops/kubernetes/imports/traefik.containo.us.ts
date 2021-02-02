@@ -5,6 +5,321 @@ import { Construct } from 'constructs';
 /**
  * 
  *
+ * @schema IngressRoute
+ */
+export class IngressRoute extends ApiObject {
+  /**
+   * Returns the apiVersion and kind for "IngressRoute"
+   */
+  public static readonly GVK: GroupVersionKind = {
+    apiVersion: 'traefik.containo.us/v1alpha1',
+    kind: 'IngressRoute',
+  }
+
+  /**
+   * Renders a Kubernetes manifest for "IngressRoute".
+   *
+   * This can be used to inline resource manifests inside other objects (e.g. as templates).
+   *
+   * @param props initialization props
+   */
+  public static manifest(props: IngressRouteProps = {}): any {
+    return {
+      ...IngressRoute.GVK,
+      ...props,
+    };
+  }
+
+  /**
+   * Defines a "IngressRoute" API object
+   * @param scope the scope in which to define this object
+   * @param id a scope-local name for the object
+   * @param props initialization props
+   */
+  public constructor(scope: Construct, id: string, props: IngressRouteProps = {}) {
+    super(scope, id, IngressRoute.manifest(props));
+  }
+}
+
+/**
+ * @schema IngressRoute
+ */
+export interface IngressRouteProps {
+}
+
+/**
+ * 
+ *
+ * @schema IngressRouteTCP
+ */
+export class IngressRouteTcp extends ApiObject {
+  /**
+   * Returns the apiVersion and kind for "IngressRouteTCP"
+   */
+  public static readonly GVK: GroupVersionKind = {
+    apiVersion: 'traefik.containo.us/v1alpha1',
+    kind: 'IngressRouteTCP',
+  }
+
+  /**
+   * Renders a Kubernetes manifest for "IngressRouteTCP".
+   *
+   * This can be used to inline resource manifests inside other objects (e.g. as templates).
+   *
+   * @param props initialization props
+   */
+  public static manifest(props: IngressRouteTcpProps = {}): any {
+    return {
+      ...IngressRouteTcp.GVK,
+      ...props,
+    };
+  }
+
+  /**
+   * Defines a "IngressRouteTCP" API object
+   * @param scope the scope in which to define this object
+   * @param id a scope-local name for the object
+   * @param props initialization props
+   */
+  public constructor(scope: Construct, id: string, props: IngressRouteTcpProps = {}) {
+    super(scope, id, IngressRouteTcp.manifest(props));
+  }
+}
+
+/**
+ * @schema IngressRouteTCP
+ */
+export interface IngressRouteTcpProps {
+}
+
+/**
+ * 
+ *
+ * @schema IngressRouteUDP
+ */
+export class IngressRouteUdp extends ApiObject {
+  /**
+   * Returns the apiVersion and kind for "IngressRouteUDP"
+   */
+  public static readonly GVK: GroupVersionKind = {
+    apiVersion: 'traefik.containo.us/v1alpha1',
+    kind: 'IngressRouteUDP',
+  }
+
+  /**
+   * Renders a Kubernetes manifest for "IngressRouteUDP".
+   *
+   * This can be used to inline resource manifests inside other objects (e.g. as templates).
+   *
+   * @param props initialization props
+   */
+  public static manifest(props: IngressRouteUdpProps = {}): any {
+    return {
+      ...IngressRouteUdp.GVK,
+      ...props,
+    };
+  }
+
+  /**
+   * Defines a "IngressRouteUDP" API object
+   * @param scope the scope in which to define this object
+   * @param id a scope-local name for the object
+   * @param props initialization props
+   */
+  public constructor(scope: Construct, id: string, props: IngressRouteUdpProps = {}) {
+    super(scope, id, IngressRouteUdp.manifest(props));
+  }
+}
+
+/**
+ * @schema IngressRouteUDP
+ */
+export interface IngressRouteUdpProps {
+}
+
+/**
+ * 
+ *
+ * @schema Middleware
+ */
+export class Middleware extends ApiObject {
+  /**
+   * Returns the apiVersion and kind for "Middleware"
+   */
+  public static readonly GVK: GroupVersionKind = {
+    apiVersion: 'traefik.containo.us/v1alpha1',
+    kind: 'Middleware',
+  }
+
+  /**
+   * Renders a Kubernetes manifest for "Middleware".
+   *
+   * This can be used to inline resource manifests inside other objects (e.g. as templates).
+   *
+   * @param props initialization props
+   */
+  public static manifest(props: MiddlewareProps = {}): any {
+    return {
+      ...Middleware.GVK,
+      ...props,
+    };
+  }
+
+  /**
+   * Defines a "Middleware" API object
+   * @param scope the scope in which to define this object
+   * @param id a scope-local name for the object
+   * @param props initialization props
+   */
+  public constructor(scope: Construct, id: string, props: MiddlewareProps = {}) {
+    super(scope, id, Middleware.manifest(props));
+  }
+}
+
+/**
+ * @schema Middleware
+ */
+export interface MiddlewareProps {
+}
+
+/**
+ * 
+ *
+ * @schema ServersTransport
+ */
+export class ServersTransport extends ApiObject {
+  /**
+   * Returns the apiVersion and kind for "ServersTransport"
+   */
+  public static readonly GVK: GroupVersionKind = {
+    apiVersion: 'traefik.containo.us/v1alpha1',
+    kind: 'ServersTransport',
+  }
+
+  /**
+   * Renders a Kubernetes manifest for "ServersTransport".
+   *
+   * This can be used to inline resource manifests inside other objects (e.g. as templates).
+   *
+   * @param props initialization props
+   */
+  public static manifest(props: ServersTransportProps = {}): any {
+    return {
+      ...ServersTransport.GVK,
+      ...props,
+    };
+  }
+
+  /**
+   * Defines a "ServersTransport" API object
+   * @param scope the scope in which to define this object
+   * @param id a scope-local name for the object
+   * @param props initialization props
+   */
+  public constructor(scope: Construct, id: string, props: ServersTransportProps = {}) {
+    super(scope, id, ServersTransport.manifest(props));
+  }
+}
+
+/**
+ * @schema ServersTransport
+ */
+export interface ServersTransportProps {
+}
+
+/**
+ * 
+ *
+ * @schema TLSOption
+ */
+export class TlsOption extends ApiObject {
+  /**
+   * Returns the apiVersion and kind for "TLSOption"
+   */
+  public static readonly GVK: GroupVersionKind = {
+    apiVersion: 'traefik.containo.us/v1alpha1',
+    kind: 'TLSOption',
+  }
+
+  /**
+   * Renders a Kubernetes manifest for "TLSOption".
+   *
+   * This can be used to inline resource manifests inside other objects (e.g. as templates).
+   *
+   * @param props initialization props
+   */
+  public static manifest(props: TlsOptionProps = {}): any {
+    return {
+      ...TlsOption.GVK,
+      ...props,
+    };
+  }
+
+  /**
+   * Defines a "TLSOption" API object
+   * @param scope the scope in which to define this object
+   * @param id a scope-local name for the object
+   * @param props initialization props
+   */
+  public constructor(scope: Construct, id: string, props: TlsOptionProps = {}) {
+    super(scope, id, TlsOption.manifest(props));
+  }
+}
+
+/**
+ * @schema TLSOption
+ */
+export interface TlsOptionProps {
+}
+
+/**
+ * 
+ *
+ * @schema TLSStore
+ */
+export class TlsStore extends ApiObject {
+  /**
+   * Returns the apiVersion and kind for "TLSStore"
+   */
+  public static readonly GVK: GroupVersionKind = {
+    apiVersion: 'traefik.containo.us/v1alpha1',
+    kind: 'TLSStore',
+  }
+
+  /**
+   * Renders a Kubernetes manifest for "TLSStore".
+   *
+   * This can be used to inline resource manifests inside other objects (e.g. as templates).
+   *
+   * @param props initialization props
+   */
+  public static manifest(props: TlsStoreProps = {}): any {
+    return {
+      ...TlsStore.GVK,
+      ...props,
+    };
+  }
+
+  /**
+   * Defines a "TLSStore" API object
+   * @param scope the scope in which to define this object
+   * @param id a scope-local name for the object
+   * @param props initialization props
+   */
+  public constructor(scope: Construct, id: string, props: TlsStoreProps = {}) {
+    super(scope, id, TlsStore.manifest(props));
+  }
+}
+
+/**
+ * @schema TLSStore
+ */
+export interface TlsStoreProps {
+}
+
+/**
+ * 
+ *
  * @schema TraefikService
  */
 export class TraefikService extends ApiObject {
