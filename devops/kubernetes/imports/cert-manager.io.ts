@@ -3,7 +3,8 @@ import { ApiObject, GroupVersionKind } from 'cdk8s';
 import { Construct } from 'constructs';
 
 /**
- * Certificate is a type to represent a Certificate from ACME
+ * A Certificate resource should be created to ensure an up to date and signed x509 certificate is stored in the Kubernetes Secret resource named in `spec.secretName`. 
+ The stored certificate will be renewed before it expires (as configured by `spec.renewBefore`).
  *
  * @schema Certificate
  */
@@ -42,7 +43,8 @@ export class Certificate extends ApiObject {
 }
 
 /**
- * Certificate is a type to represent a Certificate from ACME
+ * A Certificate resource should be created to ensure an up to date and signed x509 certificate is stored in the Kubernetes Secret resource named in `spec.secretName`. 
+ The stored certificate will be renewed before it expires (as configured by `spec.renewBefore`).
  *
  * @schema Certificate
  */
@@ -53,7 +55,7 @@ export interface CertificateProps {
   readonly metadata?: any;
 
   /**
-   * CertificateSpec defines the desired state of Certificate. A valid Certificate requires at least one of a CommonName, DNSName, or URISAN to be valid.
+   * Desired state of the Certificate resource.
    *
    * @schema Certificate#spec
    */
@@ -62,7 +64,7 @@ export interface CertificateProps {
 }
 
 /**
- * CertificateSpec defines the desired state of Certificate. A valid Certificate requires at least one of a CommonName, DNSName, or URISAN to be valid.
+ * Desired state of the Certificate resource.
  *
  * @schema CertificateSpec
  */
@@ -75,35 +77,42 @@ export interface CertificateSpec {
   readonly commonName?: string;
 
   /**
-   * DNSNames is a list of subject alt names to be used on the Certificate.
+   * DNSNames is a list of DNS subjectAltNames to be set on the Certificate.
    *
    * @schema CertificateSpec#dnsNames
    */
   readonly dnsNames?: string[];
 
   /**
-   * Certificate default Duration
+   * The requested 'duration' (i.e. lifetime) of the Certificate. This option may be ignored/overridden by some issuer types. If overridden and `renewBefore` is greater than the actual certificate duration, the certificate will be automatically renewed 2/3rds of the way through the certificate's duration.
    *
    * @schema CertificateSpec#duration
    */
   readonly duration?: string;
 
   /**
-   * EmailSANs is a list of Email Subject Alternative Names to be set on this Certificate.
+   * EmailSANs is a list of email subjectAltNames to be set on the Certificate.
    *
    * @schema CertificateSpec#emailSANs
    */
   readonly emailSANs?: string[];
 
   /**
-   * IPAddresses is a list of IP addresses to be used on the Certificate
+   * EncodeUsagesInRequest controls whether key usages should be present in the CertificateRequest
+   *
+   * @schema CertificateSpec#encodeUsagesInRequest
+   */
+  readonly encodeUsagesInRequest?: boolean;
+
+  /**
+   * IPAddresses is a list of IP address subjectAltNames to be set on the Certificate.
    *
    * @schema CertificateSpec#ipAddresses
    */
   readonly ipAddresses?: string[];
 
   /**
-   * IsCA will mark this Certificate as valid for signing. This implies that the 'cert sign' usage is set
+   * IsCA will mark this Certificate as valid for certificate signing. This will automatically add the `cert sign` usage to the list of `usages`.
    *
    * @schema CertificateSpec#isCA
    */
@@ -117,7 +126,7 @@ export interface CertificateSpec {
   readonly issuerRef: CertificateSpecIssuerRef;
 
   /**
-   * KeyAlgorithm is the private key algorithm of the corresponding private key for this certificate. If provided, allowed values are either "rsa" or "ecdsa" If KeyAlgorithm is specified and KeySize is not provided, key size of 256 will be used for "ecdsa" key algorithm and key size of 2048 will be used for "rsa" key algorithm.
+   * KeyAlgorithm is the private key algorithm of the corresponding private key for this certificate. If provided, allowed values are either "rsa" or "ecdsa" If `keyAlgorithm` is specified and `keySize` is not provided, key size of 256 will be used for "ecdsa" key algorithm and key size of 2048 will be used for "rsa" key algorithm.
    *
    * @schema CertificateSpec#keyAlgorithm
    */
@@ -131,7 +140,7 @@ export interface CertificateSpec {
   readonly keyEncoding?: CertificateSpecKeyEncoding;
 
   /**
-   * KeySize is the key bit size of the corresponding private key for this certificate. If provided, value must be between 2048 and 8192 inclusive when KeyAlgorithm is empty or is set to "rsa", and value must be one of (256, 384, 521) when KeyAlgorithm is set to "ecdsa".
+   * KeySize is the key bit size of the corresponding private key for this certificate. If `keyAlgorithm` is set to `RSA`, valid values are `2048`, `4096` or `8192`, and will default to `2048` if not specified. If `keyAlgorithm` is set to `ECDSA`, valid values are `256`, `384` or `521`, and will default to `256` if not specified. No other values are allowed.
    *
    * @schema CertificateSpec#keySize
    */
@@ -145,7 +154,7 @@ export interface CertificateSpec {
   readonly keystores?: CertificateSpecKeystores;
 
   /**
-   * Organization is the organization to be used on the Certificate
+   * Organization is a list of organizations to be used on the Certificate.
    *
    * @schema CertificateSpec#organization
    */
@@ -159,14 +168,14 @@ export interface CertificateSpec {
   readonly privateKey?: CertificateSpecPrivateKey;
 
   /**
-   * Certificate renew before expiration duration
+   * The amount of time before the currently issued certificate's `notAfter` time that cert-manager will begin to attempt to renew the certificate. If this value is greater than the total duration of the certificate (i.e. notAfter - notBefore), it will be automatically renewed 2/3rds of the way through the certificate's duration.
    *
    * @schema CertificateSpec#renewBefore
    */
   readonly renewBefore?: string;
 
   /**
-   * SecretName is the name of the secret resource to store this secret in
+   * SecretName is the name of the secret resource that will be automatically created and managed by this Certificate resource. It will be populated with a private key and certificate, signed by the denoted issuer.
    *
    * @schema CertificateSpec#secretName
    */
@@ -180,15 +189,16 @@ export interface CertificateSpec {
   readonly subject?: CertificateSpecSubject;
 
   /**
-   * URISANs is a list of URI Subject Alternative Names to be set on this Certificate.
+   * URISANs is a list of URI subjectAltNames to be set on the Certificate.
    *
    * @schema CertificateSpec#uriSANs
    */
   readonly uriSANs?: string[];
 
   /**
-   * Usages is the set of x509 actions that are enabled for a given key. Defaults are ('digital signature', 'key encipherment') if empty
+   * Usages is the set of x509 usages that are requested for the certificate. Defaults to `digital signature` and `key encipherment` if not specified.
    *
+   * @default digital signature` and `key encipherment` if not specified.
    * @schema CertificateSpec#usages
    */
   readonly usages?: CertificateSpecUsages[];
@@ -202,16 +212,22 @@ export interface CertificateSpec {
  */
 export interface CertificateSpecIssuerRef {
   /**
+   * Group of the resource being referred to.
+   *
    * @schema CertificateSpecIssuerRef#group
    */
   readonly group?: string;
 
   /**
+   * Kind of the resource being referred to.
+   *
    * @schema CertificateSpecIssuerRef#kind
    */
   readonly kind?: string;
 
   /**
+   * Name of the resource being referred to.
+   *
    * @schema CertificateSpecIssuerRef#name
    */
   readonly name: string;
@@ -219,7 +235,7 @@ export interface CertificateSpecIssuerRef {
 }
 
 /**
- * KeyAlgorithm is the private key algorithm of the corresponding private key for this certificate. If provided, allowed values are either "rsa" or "ecdsa" If KeyAlgorithm is specified and KeySize is not provided, key size of 256 will be used for "ecdsa" key algorithm and key size of 2048 will be used for "rsa" key algorithm.
+ * KeyAlgorithm is the private key algorithm of the corresponding private key for this certificate. If provided, allowed values are either "rsa" or "ecdsa" If `keyAlgorithm` is specified and `keySize` is not provided, key size of 256 will be used for "ecdsa" key algorithm and key size of 2048 will be used for "rsa" key algorithm.
  *
  * @schema CertificateSpecKeyAlgorithm
  */
@@ -442,14 +458,14 @@ export interface CertificateSpecKeystoresPkcs12 {
  */
 export interface CertificateSpecKeystoresJksPasswordSecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema CertificateSpecKeystoresJksPasswordSecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema CertificateSpecKeystoresJksPasswordSecretRef#name
    */
@@ -464,14 +480,14 @@ export interface CertificateSpecKeystoresJksPasswordSecretRef {
  */
 export interface CertificateSpecKeystoresPkcs12PasswordSecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema CertificateSpecKeystoresPkcs12PasswordSecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema CertificateSpecKeystoresPkcs12PasswordSecretRef#name
    */
@@ -480,7 +496,9 @@ export interface CertificateSpecKeystoresPkcs12PasswordSecretRef {
 }
 
 /**
- * CertificateRequest is a type to represent a Certificate Signing Request
+ * A CertificateRequest is used to request a signed certificate from one of the configured issuers. 
+ All fields within the CertificateRequest's `spec` are immutable after creation. A CertificateRequest will either succeed or fail, as denoted by its `status.state` field. 
+ A CertificateRequest is a 'one-shot' resource, meaning it represents a single point in time request for a certificate and cannot be re-used.
  *
  * @schema CertificateRequest
  */
@@ -519,7 +537,9 @@ export class CertificateRequest extends ApiObject {
 }
 
 /**
- * CertificateRequest is a type to represent a Certificate Signing Request
+ * A CertificateRequest is used to request a signed certificate from one of the configured issuers. 
+ All fields within the CertificateRequest's `spec` are immutable after creation. A CertificateRequest will either succeed or fail, as denoted by its `status.state` field. 
+ A CertificateRequest is a 'one-shot' resource, meaning it represents a single point in time request for a certificate and cannot be re-used.
  *
  * @schema CertificateRequest
  */
@@ -530,7 +550,7 @@ export interface CertificateRequestProps {
   readonly metadata?: any;
 
   /**
-   * CertificateRequestSpec defines the desired state of CertificateRequest
+   * Desired state of the CertificateRequest resource.
    *
    * @schema CertificateRequest#spec
    */
@@ -539,27 +559,27 @@ export interface CertificateRequestProps {
 }
 
 /**
- * CertificateRequestSpec defines the desired state of CertificateRequest
+ * Desired state of the CertificateRequest resource.
  *
  * @schema CertificateRequestSpec
  */
 export interface CertificateRequestSpec {
   /**
-   * Byte slice containing the PEM encoded CertificateSigningRequest
+   * The PEM-encoded x509 certificate signing request to be submitted to the CA for signing.
    *
    * @schema CertificateRequestSpec#csr
    */
   readonly csr: string;
 
   /**
-   * Requested certificate default Duration
+   * The requested 'duration' (i.e. lifetime) of the Certificate. This option may be ignored/overridden by some issuer types.
    *
    * @schema CertificateRequestSpec#duration
    */
   readonly duration?: string;
 
   /**
-   * IsCA will mark the resulting certificate as valid for signing. This implies that the 'cert sign' usage is set
+   * IsCA will request to mark the certificate as valid for certificate signing when submitting to the issuer. This will automatically add the `cert sign` usage to the list of `usages`.
    *
    * @schema CertificateRequestSpec#isCA
    */
@@ -573,8 +593,9 @@ export interface CertificateRequestSpec {
   readonly issuerRef: CertificateRequestSpecIssuerRef;
 
   /**
-   * Usages is the set of x509 actions that are enabled for a given key. Defaults are ('digital signature', 'key encipherment') if empty
+   * Usages is the set of x509 usages that are requested for the certificate. Defaults to `digital signature` and `key encipherment` if not specified.
    *
+   * @default digital signature` and `key encipherment` if not specified.
    * @schema CertificateRequestSpec#usages
    */
   readonly usages?: CertificateRequestSpecUsages[];
@@ -588,16 +609,22 @@ export interface CertificateRequestSpec {
  */
 export interface CertificateRequestSpecIssuerRef {
   /**
+   * Group of the resource being referred to.
+   *
    * @schema CertificateRequestSpecIssuerRef#group
    */
   readonly group?: string;
 
   /**
+   * Kind of the resource being referred to.
+   *
    * @schema CertificateRequestSpecIssuerRef#kind
    */
   readonly kind?: string;
 
   /**
+   * Name of the resource being referred to.
+   *
    * @schema CertificateRequestSpecIssuerRef#name
    */
   readonly name: string;
@@ -659,7 +686,7 @@ export enum CertificateRequestSpecUsages {
 }
 
 /**
- * 
+ * A ClusterIssuer represents a certificate issuing authority which can be referenced as part of `issuerRef` fields. It is similar to an Issuer, however it is cluster-scoped and therefore can be referenced by resources that exist in *any* namespace, not just the same namespace as the referent.
  *
  * @schema ClusterIssuer
  */
@@ -698,6 +725,8 @@ export class ClusterIssuer extends ApiObject {
 }
 
 /**
+ * A ClusterIssuer represents a certificate issuing authority which can be referenced as part of `issuerRef` fields. It is similar to an Issuer, however it is cluster-scoped and therefore can be referenced by resources that exist in *any* namespace, not just the same namespace as the referent.
+ *
  * @schema ClusterIssuer
  */
 export interface ClusterIssuerProps {
@@ -707,7 +736,7 @@ export interface ClusterIssuerProps {
   readonly metadata?: any;
 
   /**
-   * IssuerSpec is the specification of an Issuer. This includes any configuration required for the issuer.
+   * Desired state of the ClusterIssuer resource.
    *
    * @schema ClusterIssuer#spec
    */
@@ -716,35 +745,41 @@ export interface ClusterIssuerProps {
 }
 
 /**
- * IssuerSpec is the specification of an Issuer. This includes any configuration required for the issuer.
+ * Desired state of the ClusterIssuer resource.
  *
  * @schema ClusterIssuerSpec
  */
 export interface ClusterIssuerSpec {
   /**
-   * ACMEIssuer contains the specification for an ACME issuer
+   * ACME configures this issuer to communicate with a RFC8555 (ACME) server to obtain signed x509 certificates.
    *
    * @schema ClusterIssuerSpec#acme
    */
   readonly acme?: ClusterIssuerSpecAcme;
 
   /**
+   * CA configures this issuer to sign certificates using a signing CA keypair stored in a Secret resource. This is used to build internal PKIs that are managed by cert-manager.
+   *
    * @schema ClusterIssuerSpec#ca
    */
   readonly ca?: ClusterIssuerSpecCa;
 
   /**
+   * SelfSigned configures this issuer to 'self sign' certificates using the private key used to create the CertificateRequest object.
+   *
    * @schema ClusterIssuerSpec#selfSigned
    */
   readonly selfSigned?: ClusterIssuerSpecSelfSigned;
 
   /**
+   * Vault configures this issuer to sign certificates using a HashiCorp Vault PKI backend.
+   *
    * @schema ClusterIssuerSpec#vault
    */
   readonly vault?: ClusterIssuerSpecVault;
 
   /**
-   * VenafiIssuer describes issuer configuration details for Venafi Cloud.
+   * Venafi configures this issuer to sign certificates using a Venafi TPP or Venafi Cloud policy zone.
    *
    * @schema ClusterIssuerSpec#venafi
    */
@@ -753,48 +788,72 @@ export interface ClusterIssuerSpec {
 }
 
 /**
- * ACMEIssuer contains the specification for an ACME issuer
+ * ACME configures this issuer to communicate with a RFC8555 (ACME) server to obtain signed x509 certificates.
  *
  * @schema ClusterIssuerSpecAcme
  */
 export interface ClusterIssuerSpecAcme {
   /**
-   * Email is the email for this account
+   * Enables or disables generating a new ACME account key. If true, the Issuer resource will *not* request a new account but will expect the account key to be supplied via an existing secret. If false, the cert-manager system will generate a new ACME account key for the Issuer. Defaults to false.
+   *
+   * @default false.
+   * @schema ClusterIssuerSpecAcme#disableAccountKeyGeneration
+   */
+  readonly disableAccountKeyGeneration?: boolean;
+
+  /**
+   * Email is the email address to be associated with the ACME account. This field is optional, but it is strongly recommended to be set. It will be used to contact you in case of issues with your account or certificates, including expiry notification emails. This field may be updated after the account is initially registered.
    *
    * @schema ClusterIssuerSpecAcme#email
    */
   readonly email?: string;
 
   /**
-   * ExternalAccountBinding is a reference to a CA external account of the ACME server.
+   * Enables requesting a Not After date on certificates that matches the duration of the certificate. This is not supported by all ACME servers like Let's Encrypt. If set to true when the ACME server does not support it it will create an error on the Order. Defaults to false.
+   *
+   * @default false.
+   * @schema ClusterIssuerSpecAcme#enableDurationFeature
+   */
+  readonly enableDurationFeature?: boolean;
+
+  /**
+   * ExternalAccountBinding is a reference to a CA external account of the ACME server. If set, upon registration cert-manager will attempt to associate the given external account credentials with the registered ACME account.
    *
    * @schema ClusterIssuerSpecAcme#externalAccountBinding
    */
   readonly externalAccountBinding?: ClusterIssuerSpecAcmeExternalAccountBinding;
 
   /**
-   * PrivateKey is the name of a secret containing the private key for this user account.
+   * PreferredChain is the chain to use if the ACME server outputs multiple. PreferredChain is no guarantee that this one gets delivered by the ACME endpoint. For example, for Let's Encrypt's DST crosssign you would use: "DST Root CA X3" or "ISRG Root X1" for the newer Let's Encrypt root CA. This value picks the first certificate bundle in the ACME alternative chains that has a certificate with this value as its issuer's CN
+   *
+   * @schema ClusterIssuerSpecAcme#preferredChain
+   */
+  readonly preferredChain?: string;
+
+  /**
+   * PrivateKey is the name of a Kubernetes Secret resource that will be used to store the automatically generated ACME account private key. Optionally, a `key` may be specified to select a specific entry within the named Secret resource. If `key` is not specified, a default of `tls.key` will be used.
    *
    * @schema ClusterIssuerSpecAcme#privateKeySecretRef
    */
   readonly privateKeySecretRef: ClusterIssuerSpecAcmePrivateKeySecretRef;
 
   /**
-   * Server is the ACME server URL
+   * Server is the URL used to access the ACME server's 'directory' endpoint. For example, for Let's Encrypt's staging endpoint, you would use: "https://acme-staging-v02.api.letsencrypt.org/directory". Only ACME v2 endpoints (i.e. RFC 8555) are supported.
    *
    * @schema ClusterIssuerSpecAcme#server
    */
   readonly server: string;
 
   /**
-   * If true, skip verifying the ACME server TLS certificate
+   * Enables or disables validation of the ACME server TLS certificate. If true, requests to the ACME server will not have their TLS certificate validated (i.e. insecure connections will be allowed). Only enable this option in development environments. The cert-manager system installed roots will be used to verify connections to the ACME server if this is false. Defaults to false.
    *
+   * @default false.
    * @schema ClusterIssuerSpecAcme#skipTLSVerify
    */
   readonly skipTLSVerify?: boolean;
 
   /**
-   * Solvers is a list of challenge solvers that will be used to solve ACME challenges for the matching domains.
+   * Solvers is a list of challenge solvers that will be used to solve ACME challenges for the matching domains. Solver configurations must be provided in order to obtain certificates from an ACME server. For more information, see: https://cert-manager.io/docs/configuration/acme/
    *
    * @schema ClusterIssuerSpecAcme#solvers
    */
@@ -803,11 +862,13 @@ export interface ClusterIssuerSpecAcme {
 }
 
 /**
+ * CA configures this issuer to sign certificates using a signing CA keypair stored in a Secret resource. This is used to build internal PKIs that are managed by cert-manager.
+ *
  * @schema ClusterIssuerSpecCa
  */
 export interface ClusterIssuerSpecCa {
   /**
-   * The CRL distribution points is an X.509 v3 certificate extension which identifies the location of the CRL from which the revocation of this certificate can be checked. If not set certificate will be issued without CDP. Values are strings.
+   * The CRL distribution points is an X.509 v3 certificate extension which identifies the location of the CRL from which the revocation of this certificate can be checked. If not set, certificates will be issued without distribution points set.
    *
    * @schema ClusterIssuerSpecCa#crlDistributionPoints
    */
@@ -823,6 +884,8 @@ export interface ClusterIssuerSpecCa {
 }
 
 /**
+ * SelfSigned configures this issuer to 'self sign' certificates using the private key used to create the CertificateRequest object.
+ *
  * @schema ClusterIssuerSpecSelfSigned
  */
 export interface ClusterIssuerSpecSelfSigned {
@@ -836,32 +899,41 @@ export interface ClusterIssuerSpecSelfSigned {
 }
 
 /**
+ * Vault configures this issuer to sign certificates using a HashiCorp Vault PKI backend.
+ *
  * @schema ClusterIssuerSpecVault
  */
 export interface ClusterIssuerSpecVault {
   /**
-   * Vault authentication
+   * Auth configures how cert-manager authenticates with the Vault server.
    *
    * @schema ClusterIssuerSpecVault#auth
    */
   readonly auth: ClusterIssuerSpecVaultAuth;
 
   /**
-   * Base64 encoded CA bundle to validate Vault server certificate. Only used if the Server URL is using HTTPS protocol. This parameter is ignored for plain HTTP protocol connection. If not set the system root certificates are used to validate the TLS connection.
+   * PEM encoded CA bundle used to validate Vault server certificate. Only used if the Server URL is using HTTPS protocol. This parameter is ignored for plain HTTP protocol connection. If not set the system root certificates are used to validate the TLS connection.
    *
    * @schema ClusterIssuerSpecVault#caBundle
    */
   readonly caBundle?: string;
 
   /**
-   * Vault URL path to the certificate role
+   * Name of the vault namespace. Namespaces is a set of features within Vault Enterprise that allows Vault environments to support Secure Multi-tenancy. e.g: "ns1" More about namespaces can be found here https://www.vaultproject.io/docs/enterprise/namespaces
+   *
+   * @schema ClusterIssuerSpecVault#namespace
+   */
+  readonly namespace?: string;
+
+  /**
+   * Path is the mount path of the Vault PKI backend's `sign` endpoint, e.g: "my_pki_mount/sign/my-role-name".
    *
    * @schema ClusterIssuerSpecVault#path
    */
   readonly path: string;
 
   /**
-   * Server is the vault connection address
+   * Server is the connection address for the Vault server, e.g: "https://vault.example.com:8200".
    *
    * @schema ClusterIssuerSpecVault#server
    */
@@ -870,7 +942,7 @@ export interface ClusterIssuerSpecVault {
 }
 
 /**
- * VenafiIssuer describes issuer configuration details for Venafi Cloud.
+ * Venafi configures this issuer to sign certificates using a Venafi TPP or Venafi Cloud policy zone.
  *
  * @schema ClusterIssuerSpecVenafi
  */
@@ -899,7 +971,7 @@ export interface ClusterIssuerSpecVenafi {
 }
 
 /**
- * ExternalAccountBinding is a reference to a CA external account of the ACME server.
+ * ExternalAccountBinding is a reference to a CA external account of the ACME server. If set, upon registration cert-manager will attempt to associate the given external account credentials with the registered ACME account.
  *
  * @schema ClusterIssuerSpecAcmeExternalAccountBinding
  */
@@ -928,20 +1000,20 @@ export interface ClusterIssuerSpecAcmeExternalAccountBinding {
 }
 
 /**
- * PrivateKey is the name of a secret containing the private key for this user account.
+ * PrivateKey is the name of a Kubernetes Secret resource that will be used to store the automatically generated ACME account private key. Optionally, a `key` may be specified to select a specific entry within the named Secret resource. If `key` is not specified, a default of `tls.key` will be used.
  *
  * @schema ClusterIssuerSpecAcmePrivateKeySecretRef
  */
 export interface ClusterIssuerSpecAcmePrivateKeySecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema ClusterIssuerSpecAcmePrivateKeySecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema ClusterIssuerSpecAcmePrivateKeySecretRef#name
    */
@@ -950,23 +1022,27 @@ export interface ClusterIssuerSpecAcmePrivateKeySecretRef {
 }
 
 /**
+ * Configures an issuer to solve challenges using the specified options. Only one of HTTP01 or DNS01 may be provided.
+ *
  * @schema ClusterIssuerSpecAcmeSolvers
  */
 export interface ClusterIssuerSpecAcmeSolvers {
   /**
+   * Configures cert-manager to attempt to complete authorizations by performing the DNS01 challenge flow.
+   *
    * @schema ClusterIssuerSpecAcmeSolvers#dns01
    */
   readonly dns01?: ClusterIssuerSpecAcmeSolversDns01;
 
   /**
-   * ACMEChallengeSolverHTTP01 contains configuration detailing how to solve HTTP01 challenges within a Kubernetes cluster. Typically this is accomplished through creating 'routes' of some description that configure ingress controllers to direct traffic to 'solver pods', which are responsible for responding to the ACME server's HTTP requests.
+   * Configures cert-manager to attempt to complete authorizations by performing the HTTP01 challenge flow. It is not possible to obtain certificates for wildcard domain names (e.g. `*.example.com`) using the HTTP01 challenge mechanism.
    *
    * @schema ClusterIssuerSpecAcmeSolvers#http01
    */
   readonly http01?: ClusterIssuerSpecAcmeSolversHttp01;
 
   /**
-   * Selector selects a set of DNSNames on the Certificate resource that should be solved using this challenge solver.
+   * Selector selects a set of DNSNames on the Certificate resource that should be solved using this challenge solver. If not specified, the solver will be treated as the 'default' solver with the lowest priority, i.e. if any other solver has a more specific match, it will be used instead.
    *
    * @schema ClusterIssuerSpecAcmeSolvers#selector
    */
@@ -975,27 +1051,27 @@ export interface ClusterIssuerSpecAcmeSolvers {
 }
 
 /**
- * Vault authentication
+ * Auth configures how cert-manager authenticates with the Vault server.
  *
  * @schema ClusterIssuerSpecVaultAuth
  */
 export interface ClusterIssuerSpecVaultAuth {
   /**
-   * This Secret contains a AppRole and Secret
+   * AppRole authenticates with Vault using the App Role auth mechanism, with the role and secret stored in a Kubernetes Secret resource.
    *
    * @schema ClusterIssuerSpecVaultAuth#appRole
    */
   readonly appRole?: ClusterIssuerSpecVaultAuthAppRole;
 
   /**
-   * This contains a Role and Secret with a ServiceAccount token to authenticate with vault.
+   * Kubernetes authenticates with Vault by passing the ServiceAccount token stored in the named Secret resource to the Vault server.
    *
    * @schema ClusterIssuerSpecVaultAuth#kubernetes
    */
   readonly kubernetes?: ClusterIssuerSpecVaultAuthKubernetes;
 
   /**
-   * This Secret contains the Vault token key
+   * TokenSecretRef authenticates with Vault by presenting a token.
    *
    * @schema ClusterIssuerSpecVaultAuth#tokenSecretRef
    */
@@ -1017,8 +1093,9 @@ export interface ClusterIssuerSpecVenafiCloud {
   readonly apiTokenSecretRef: ClusterIssuerSpecVenafiCloudApiTokenSecretRef;
 
   /**
-   * URL is the base URL for Venafi Cloud
+   * URL is the base URL for Venafi Cloud. Defaults to "https://api.venafi.cloud/v1".
    *
+   * @default https://api.venafi.cloud/v1".
    * @schema ClusterIssuerSpecVenafiCloud#url
    */
   readonly url?: string;
@@ -1046,7 +1123,7 @@ export interface ClusterIssuerSpecVenafiTpp {
   readonly credentialsRef: ClusterIssuerSpecVenafiTppCredentialsRef;
 
   /**
-   * URL is the base URL for the Venafi TPP instance
+   * URL is the base URL for the vedsdk endpoint of the Venafi TPP instance, for example: "https://tpp.example.com/vedsdk".
    *
    * @schema ClusterIssuerSpecVenafiTpp#url
    */
@@ -1075,14 +1152,14 @@ export enum ClusterIssuerSpecAcmeExternalAccountBindingKeyAlgorithm {
  */
 export interface ClusterIssuerSpecAcmeExternalAccountBindingKeySecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema ClusterIssuerSpecAcmeExternalAccountBindingKeySecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema ClusterIssuerSpecAcmeExternalAccountBindingKeySecretRef#name
    */
@@ -1091,39 +1168,41 @@ export interface ClusterIssuerSpecAcmeExternalAccountBindingKeySecretRef {
 }
 
 /**
+ * Configures cert-manager to attempt to complete authorizations by performing the DNS01 challenge flow.
+ *
  * @schema ClusterIssuerSpecAcmeSolversDns01
  */
 export interface ClusterIssuerSpecAcmeSolversDns01 {
   /**
-   * ACMEIssuerDNS01ProviderAcmeDNS is a structure containing the configuration for ACME-DNS servers
+   * Use the 'ACME DNS' (https://github.com/joohoi/acme-dns) API to manage DNS01 challenge records.
    *
    * @schema ClusterIssuerSpecAcmeSolversDns01#acmedns
    */
   readonly acmedns?: ClusterIssuerSpecAcmeSolversDns01Acmedns;
 
   /**
-   * ACMEIssuerDNS01ProviderAkamai is a structure containing the DNS configuration for Akamai DNS—Zone Record Management API
+   * Use the Akamai DNS zone management API to manage DNS01 challenge records.
    *
    * @schema ClusterIssuerSpecAcmeSolversDns01#akamai
    */
   readonly akamai?: ClusterIssuerSpecAcmeSolversDns01Akamai;
 
   /**
-   * ACMEIssuerDNS01ProviderAzureDNS is a structure containing the configuration for Azure DNS
+   * Use the Microsoft Azure DNS API to manage DNS01 challenge records.
    *
    * @schema ClusterIssuerSpecAcmeSolversDns01#azuredns
    */
   readonly azuredns?: ClusterIssuerSpecAcmeSolversDns01Azuredns;
 
   /**
-   * ACMEIssuerDNS01ProviderCloudDNS is a structure containing the DNS configuration for Google Cloud DNS
+   * Use the Google Cloud DNS API to manage DNS01 challenge records.
    *
    * @schema ClusterIssuerSpecAcmeSolversDns01#clouddns
    */
   readonly clouddns?: ClusterIssuerSpecAcmeSolversDns01Clouddns;
 
   /**
-   * ACMEIssuerDNS01ProviderCloudflare is a structure containing the DNS configuration for Cloudflare
+   * Use the Cloudflare API to manage DNS01 challenge records.
    *
    * @schema ClusterIssuerSpecAcmeSolversDns01#cloudflare
    */
@@ -1137,28 +1216,28 @@ export interface ClusterIssuerSpecAcmeSolversDns01 {
   readonly cnameStrategy?: ClusterIssuerSpecAcmeSolversDns01CnameStrategy;
 
   /**
-   * ACMEIssuerDNS01ProviderDigitalOcean is a structure containing the DNS configuration for DigitalOcean Domains
+   * Use the DigitalOcean DNS API to manage DNS01 challenge records.
    *
    * @schema ClusterIssuerSpecAcmeSolversDns01#digitalocean
    */
   readonly digitalocean?: ClusterIssuerSpecAcmeSolversDns01Digitalocean;
 
   /**
-   * ACMEIssuerDNS01ProviderRFC2136 is a structure containing the configuration for RFC2136 DNS
+   * Use RFC2136 ("Dynamic Updates in the Domain Name System") (https://datatracker.ietf.org/doc/rfc2136/) to manage DNS01 challenge records.
    *
    * @schema ClusterIssuerSpecAcmeSolversDns01#rfc2136
    */
   readonly rfc2136?: ClusterIssuerSpecAcmeSolversDns01Rfc2136;
 
   /**
-   * ACMEIssuerDNS01ProviderRoute53 is a structure containing the Route 53 configuration for AWS
+   * Use the AWS Route53 API to manage DNS01 challenge records.
    *
    * @schema ClusterIssuerSpecAcmeSolversDns01#route53
    */
   readonly route53?: ClusterIssuerSpecAcmeSolversDns01Route53;
 
   /**
-   * ACMEIssuerDNS01ProviderWebhook specifies configuration for a webhook DNS01 provider, including where to POST ChallengePayload resources.
+   * Configure an external webhook based DNS01 challenge solver to manage DNS01 challenge records.
    *
    * @schema ClusterIssuerSpecAcmeSolversDns01#webhook
    */
@@ -1167,7 +1246,7 @@ export interface ClusterIssuerSpecAcmeSolversDns01 {
 }
 
 /**
- * ACMEChallengeSolverHTTP01 contains configuration detailing how to solve HTTP01 challenges within a Kubernetes cluster. Typically this is accomplished through creating 'routes' of some description that configure ingress controllers to direct traffic to 'solver pods', which are responsible for responding to the ACME server's HTTP requests.
+ * Configures cert-manager to attempt to complete authorizations by performing the HTTP01 challenge flow. It is not possible to obtain certificates for wildcard domain names (e.g. `*.example.com`) using the HTTP01 challenge mechanism.
  *
  * @schema ClusterIssuerSpecAcmeSolversHttp01
  */
@@ -1182,7 +1261,7 @@ export interface ClusterIssuerSpecAcmeSolversHttp01 {
 }
 
 /**
- * Selector selects a set of DNSNames on the Certificate resource that should be solved using this challenge solver.
+ * Selector selects a set of DNSNames on the Certificate resource that should be solved using this challenge solver. If not specified, the solver will be treated as the 'default' solver with the lowest priority, i.e. if any other solver has a more specific match, it will be used instead.
  *
  * @schema ClusterIssuerSpecAcmeSolversSelector
  */
@@ -1211,24 +1290,28 @@ export interface ClusterIssuerSpecAcmeSolversSelector {
 }
 
 /**
- * This Secret contains a AppRole and Secret
+ * AppRole authenticates with Vault using the App Role auth mechanism, with the role and secret stored in a Kubernetes Secret resource.
  *
  * @schema ClusterIssuerSpecVaultAuthAppRole
  */
 export interface ClusterIssuerSpecVaultAuthAppRole {
   /**
-   * Where the authentication path is mounted in Vault.
+   * Path where the App Role authentication backend is mounted in Vault, e.g: "approle"
    *
    * @schema ClusterIssuerSpecVaultAuthAppRole#path
    */
   readonly path: string;
 
   /**
+   * RoleID configured in the App Role authentication backend when setting up the authentication backend in Vault.
+   *
    * @schema ClusterIssuerSpecVaultAuthAppRole#roleId
    */
   readonly roleId: string;
 
   /**
+   * Reference to a key in a Secret that contains the App Role secret used to authenticate with Vault. The `key` field must be specified and denotes which entry within the Secret resource is used as the app role secret.
+   *
    * @schema ClusterIssuerSpecVaultAuthAppRole#secretRef
    */
   readonly secretRef: ClusterIssuerSpecVaultAuthAppRoleSecretRef;
@@ -1236,7 +1319,7 @@ export interface ClusterIssuerSpecVaultAuthAppRole {
 }
 
 /**
- * This contains a Role and Secret with a ServiceAccount token to authenticate with vault.
+ * Kubernetes authenticates with Vault by passing the ServiceAccount token stored in the named Secret resource to the Vault server.
  *
  * @schema ClusterIssuerSpecVaultAuthKubernetes
  */
@@ -1265,20 +1348,20 @@ export interface ClusterIssuerSpecVaultAuthKubernetes {
 }
 
 /**
- * This Secret contains the Vault token key
+ * TokenSecretRef authenticates with Vault by presenting a token.
  *
  * @schema ClusterIssuerSpecVaultAuthTokenSecretRef
  */
 export interface ClusterIssuerSpecVaultAuthTokenSecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema ClusterIssuerSpecVaultAuthTokenSecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema ClusterIssuerSpecVaultAuthTokenSecretRef#name
    */
@@ -1293,14 +1376,14 @@ export interface ClusterIssuerSpecVaultAuthTokenSecretRef {
  */
 export interface ClusterIssuerSpecVenafiCloudApiTokenSecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema ClusterIssuerSpecVenafiCloudApiTokenSecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema ClusterIssuerSpecVenafiCloudApiTokenSecretRef#name
    */
@@ -1315,7 +1398,7 @@ export interface ClusterIssuerSpecVenafiCloudApiTokenSecretRef {
  */
 export interface ClusterIssuerSpecVenafiTppCredentialsRef {
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema ClusterIssuerSpecVenafiTppCredentialsRef#name
    */
@@ -1324,12 +1407,14 @@ export interface ClusterIssuerSpecVenafiTppCredentialsRef {
 }
 
 /**
- * ACMEIssuerDNS01ProviderAcmeDNS is a structure containing the configuration for ACME-DNS servers
+ * Use the 'ACME DNS' (https://github.com/joohoi/acme-dns) API to manage DNS01 challenge records.
  *
  * @schema ClusterIssuerSpecAcmeSolversDns01Acmedns
  */
 export interface ClusterIssuerSpecAcmeSolversDns01Acmedns {
   /**
+   * A reference to a specific 'key' within a Secret resource. In some instances, `key` is a required field.
+   *
    * @schema ClusterIssuerSpecAcmeSolversDns01Acmedns#accountSecretRef
    */
   readonly accountSecretRef: ClusterIssuerSpecAcmeSolversDns01AcmednsAccountSecretRef;
@@ -1342,22 +1427,28 @@ export interface ClusterIssuerSpecAcmeSolversDns01Acmedns {
 }
 
 /**
- * ACMEIssuerDNS01ProviderAkamai is a structure containing the DNS configuration for Akamai DNS—Zone Record Management API
+ * Use the Akamai DNS zone management API to manage DNS01 challenge records.
  *
  * @schema ClusterIssuerSpecAcmeSolversDns01Akamai
  */
 export interface ClusterIssuerSpecAcmeSolversDns01Akamai {
   /**
+   * A reference to a specific 'key' within a Secret resource. In some instances, `key` is a required field.
+   *
    * @schema ClusterIssuerSpecAcmeSolversDns01Akamai#accessTokenSecretRef
    */
   readonly accessTokenSecretRef: ClusterIssuerSpecAcmeSolversDns01AkamaiAccessTokenSecretRef;
 
   /**
+   * A reference to a specific 'key' within a Secret resource. In some instances, `key` is a required field.
+   *
    * @schema ClusterIssuerSpecAcmeSolversDns01Akamai#clientSecretSecretRef
    */
   readonly clientSecretSecretRef: ClusterIssuerSpecAcmeSolversDns01AkamaiClientSecretSecretRef;
 
   /**
+   * A reference to a specific 'key' within a Secret resource. In some instances, `key` is a required field.
+   *
    * @schema ClusterIssuerSpecAcmeSolversDns01Akamai#clientTokenSecretRef
    */
   readonly clientTokenSecretRef: ClusterIssuerSpecAcmeSolversDns01AkamaiClientTokenSecretRef;
@@ -1370,7 +1461,7 @@ export interface ClusterIssuerSpecAcmeSolversDns01Akamai {
 }
 
 /**
- * ACMEIssuerDNS01ProviderAzureDNS is a structure containing the configuration for Azure DNS
+ * Use the Microsoft Azure DNS API to manage DNS01 challenge records.
  *
  * @schema ClusterIssuerSpecAcmeSolversDns01Azuredns
  */
@@ -1419,17 +1510,26 @@ export interface ClusterIssuerSpecAcmeSolversDns01Azuredns {
 }
 
 /**
- * ACMEIssuerDNS01ProviderCloudDNS is a structure containing the DNS configuration for Google Cloud DNS
+ * Use the Google Cloud DNS API to manage DNS01 challenge records.
  *
  * @schema ClusterIssuerSpecAcmeSolversDns01Clouddns
  */
 export interface ClusterIssuerSpecAcmeSolversDns01Clouddns {
+  /**
+   * HostedZoneName is an optional field that tells cert-manager in which Cloud DNS zone the challenge record has to be created. If left empty cert-manager will automatically choose a zone.
+   *
+   * @schema ClusterIssuerSpecAcmeSolversDns01Clouddns#hostedZoneName
+   */
+  readonly hostedZoneName?: string;
+
   /**
    * @schema ClusterIssuerSpecAcmeSolversDns01Clouddns#project
    */
   readonly project: string;
 
   /**
+   * A reference to a specific 'key' within a Secret resource. In some instances, `key` is a required field.
+   *
    * @schema ClusterIssuerSpecAcmeSolversDns01Clouddns#serviceAccountSecretRef
    */
   readonly serviceAccountSecretRef?: ClusterIssuerSpecAcmeSolversDns01ClouddnsServiceAccountSecretRef;
@@ -1437,25 +1537,31 @@ export interface ClusterIssuerSpecAcmeSolversDns01Clouddns {
 }
 
 /**
- * ACMEIssuerDNS01ProviderCloudflare is a structure containing the DNS configuration for Cloudflare
+ * Use the Cloudflare API to manage DNS01 challenge records.
  *
  * @schema ClusterIssuerSpecAcmeSolversDns01Cloudflare
  */
 export interface ClusterIssuerSpecAcmeSolversDns01Cloudflare {
   /**
+   * API key to use to authenticate with Cloudflare. Note: using an API token to authenticate is now the recommended method as it allows greater control of permissions.
+   *
    * @schema ClusterIssuerSpecAcmeSolversDns01Cloudflare#apiKeySecretRef
    */
   readonly apiKeySecretRef?: ClusterIssuerSpecAcmeSolversDns01CloudflareApiKeySecretRef;
 
   /**
+   * API token used to authenticate with Cloudflare.
+   *
    * @schema ClusterIssuerSpecAcmeSolversDns01Cloudflare#apiTokenSecretRef
    */
   readonly apiTokenSecretRef?: ClusterIssuerSpecAcmeSolversDns01CloudflareApiTokenSecretRef;
 
   /**
+   * Email of the account, only required when using API key based authentication.
+   *
    * @schema ClusterIssuerSpecAcmeSolversDns01Cloudflare#email
    */
-  readonly email: string;
+  readonly email?: string;
 
 }
 
@@ -1472,12 +1578,14 @@ export enum ClusterIssuerSpecAcmeSolversDns01CnameStrategy {
 }
 
 /**
- * ACMEIssuerDNS01ProviderDigitalOcean is a structure containing the DNS configuration for DigitalOcean Domains
+ * Use the DigitalOcean DNS API to manage DNS01 challenge records.
  *
  * @schema ClusterIssuerSpecAcmeSolversDns01Digitalocean
  */
 export interface ClusterIssuerSpecAcmeSolversDns01Digitalocean {
   /**
+   * A reference to a specific 'key' within a Secret resource. In some instances, `key` is a required field.
+   *
    * @schema ClusterIssuerSpecAcmeSolversDns01Digitalocean#tokenSecretRef
    */
   readonly tokenSecretRef: ClusterIssuerSpecAcmeSolversDns01DigitaloceanTokenSecretRef;
@@ -1485,7 +1593,7 @@ export interface ClusterIssuerSpecAcmeSolversDns01Digitalocean {
 }
 
 /**
- * ACMEIssuerDNS01ProviderRFC2136 is a structure containing the configuration for RFC2136 DNS
+ * Use RFC2136 ("Dynamic Updates in the Domain Name System") (https://datatracker.ietf.org/doc/rfc2136/) to manage DNS01 challenge records.
  *
  * @schema ClusterIssuerSpecAcmeSolversDns01Rfc2136
  */
@@ -1521,7 +1629,7 @@ export interface ClusterIssuerSpecAcmeSolversDns01Rfc2136 {
 }
 
 /**
- * ACMEIssuerDNS01ProviderRoute53 is a structure containing the Route 53 configuration for AWS
+ * Use the AWS Route53 API to manage DNS01 challenge records.
  *
  * @schema ClusterIssuerSpecAcmeSolversDns01Route53
  */
@@ -1564,7 +1672,7 @@ export interface ClusterIssuerSpecAcmeSolversDns01Route53 {
 }
 
 /**
- * ACMEIssuerDNS01ProviderWebhook specifies configuration for a webhook DNS01 provider, including where to POST ChallengePayload resources.
+ * Configure an external webhook based DNS01 challenge solver to manage DNS01 challenge records.
  *
  * @schema ClusterIssuerSpecAcmeSolversDns01Webhook
  */
@@ -1636,18 +1744,20 @@ export interface ClusterIssuerSpecAcmeSolversHttp01Ingress {
 }
 
 /**
+ * Reference to a key in a Secret that contains the App Role secret used to authenticate with Vault. The `key` field must be specified and denotes which entry within the Secret resource is used as the app role secret.
+ *
  * @schema ClusterIssuerSpecVaultAuthAppRoleSecretRef
  */
 export interface ClusterIssuerSpecVaultAuthAppRoleSecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema ClusterIssuerSpecVaultAuthAppRoleSecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema ClusterIssuerSpecVaultAuthAppRoleSecretRef#name
    */
@@ -1662,14 +1772,14 @@ export interface ClusterIssuerSpecVaultAuthAppRoleSecretRef {
  */
 export interface ClusterIssuerSpecVaultAuthKubernetesSecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema ClusterIssuerSpecVaultAuthKubernetesSecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema ClusterIssuerSpecVaultAuthKubernetesSecretRef#name
    */
@@ -1678,18 +1788,20 @@ export interface ClusterIssuerSpecVaultAuthKubernetesSecretRef {
 }
 
 /**
+ * A reference to a specific 'key' within a Secret resource. In some instances, `key` is a required field.
+ *
  * @schema ClusterIssuerSpecAcmeSolversDns01AcmednsAccountSecretRef
  */
 export interface ClusterIssuerSpecAcmeSolversDns01AcmednsAccountSecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema ClusterIssuerSpecAcmeSolversDns01AcmednsAccountSecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema ClusterIssuerSpecAcmeSolversDns01AcmednsAccountSecretRef#name
    */
@@ -1698,18 +1810,20 @@ export interface ClusterIssuerSpecAcmeSolversDns01AcmednsAccountSecretRef {
 }
 
 /**
+ * A reference to a specific 'key' within a Secret resource. In some instances, `key` is a required field.
+ *
  * @schema ClusterIssuerSpecAcmeSolversDns01AkamaiAccessTokenSecretRef
  */
 export interface ClusterIssuerSpecAcmeSolversDns01AkamaiAccessTokenSecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema ClusterIssuerSpecAcmeSolversDns01AkamaiAccessTokenSecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema ClusterIssuerSpecAcmeSolversDns01AkamaiAccessTokenSecretRef#name
    */
@@ -1718,18 +1832,20 @@ export interface ClusterIssuerSpecAcmeSolversDns01AkamaiAccessTokenSecretRef {
 }
 
 /**
+ * A reference to a specific 'key' within a Secret resource. In some instances, `key` is a required field.
+ *
  * @schema ClusterIssuerSpecAcmeSolversDns01AkamaiClientSecretSecretRef
  */
 export interface ClusterIssuerSpecAcmeSolversDns01AkamaiClientSecretSecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema ClusterIssuerSpecAcmeSolversDns01AkamaiClientSecretSecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema ClusterIssuerSpecAcmeSolversDns01AkamaiClientSecretSecretRef#name
    */
@@ -1738,18 +1854,20 @@ export interface ClusterIssuerSpecAcmeSolversDns01AkamaiClientSecretSecretRef {
 }
 
 /**
+ * A reference to a specific 'key' within a Secret resource. In some instances, `key` is a required field.
+ *
  * @schema ClusterIssuerSpecAcmeSolversDns01AkamaiClientTokenSecretRef
  */
 export interface ClusterIssuerSpecAcmeSolversDns01AkamaiClientTokenSecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema ClusterIssuerSpecAcmeSolversDns01AkamaiClientTokenSecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema ClusterIssuerSpecAcmeSolversDns01AkamaiClientTokenSecretRef#name
    */
@@ -1764,14 +1882,14 @@ export interface ClusterIssuerSpecAcmeSolversDns01AkamaiClientTokenSecretRef {
  */
 export interface ClusterIssuerSpecAcmeSolversDns01AzurednsClientSecretSecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema ClusterIssuerSpecAcmeSolversDns01AzurednsClientSecretSecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema ClusterIssuerSpecAcmeSolversDns01AzurednsClientSecretSecretRef#name
    */
@@ -1794,18 +1912,20 @@ export enum ClusterIssuerSpecAcmeSolversDns01AzurednsEnvironment {
 }
 
 /**
+ * A reference to a specific 'key' within a Secret resource. In some instances, `key` is a required field.
+ *
  * @schema ClusterIssuerSpecAcmeSolversDns01ClouddnsServiceAccountSecretRef
  */
 export interface ClusterIssuerSpecAcmeSolversDns01ClouddnsServiceAccountSecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema ClusterIssuerSpecAcmeSolversDns01ClouddnsServiceAccountSecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema ClusterIssuerSpecAcmeSolversDns01ClouddnsServiceAccountSecretRef#name
    */
@@ -1814,18 +1934,20 @@ export interface ClusterIssuerSpecAcmeSolversDns01ClouddnsServiceAccountSecretRe
 }
 
 /**
+ * API key to use to authenticate with Cloudflare. Note: using an API token to authenticate is now the recommended method as it allows greater control of permissions.
+ *
  * @schema ClusterIssuerSpecAcmeSolversDns01CloudflareApiKeySecretRef
  */
 export interface ClusterIssuerSpecAcmeSolversDns01CloudflareApiKeySecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema ClusterIssuerSpecAcmeSolversDns01CloudflareApiKeySecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema ClusterIssuerSpecAcmeSolversDns01CloudflareApiKeySecretRef#name
    */
@@ -1834,18 +1956,20 @@ export interface ClusterIssuerSpecAcmeSolversDns01CloudflareApiKeySecretRef {
 }
 
 /**
+ * API token used to authenticate with Cloudflare.
+ *
  * @schema ClusterIssuerSpecAcmeSolversDns01CloudflareApiTokenSecretRef
  */
 export interface ClusterIssuerSpecAcmeSolversDns01CloudflareApiTokenSecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema ClusterIssuerSpecAcmeSolversDns01CloudflareApiTokenSecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema ClusterIssuerSpecAcmeSolversDns01CloudflareApiTokenSecretRef#name
    */
@@ -1854,18 +1978,20 @@ export interface ClusterIssuerSpecAcmeSolversDns01CloudflareApiTokenSecretRef {
 }
 
 /**
+ * A reference to a specific 'key' within a Secret resource. In some instances, `key` is a required field.
+ *
  * @schema ClusterIssuerSpecAcmeSolversDns01DigitaloceanTokenSecretRef
  */
 export interface ClusterIssuerSpecAcmeSolversDns01DigitaloceanTokenSecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema ClusterIssuerSpecAcmeSolversDns01DigitaloceanTokenSecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema ClusterIssuerSpecAcmeSolversDns01DigitaloceanTokenSecretRef#name
    */
@@ -1880,14 +2006,14 @@ export interface ClusterIssuerSpecAcmeSolversDns01DigitaloceanTokenSecretRef {
  */
 export interface ClusterIssuerSpecAcmeSolversDns01Rfc2136TsigSecretSecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema ClusterIssuerSpecAcmeSolversDns01Rfc2136TsigSecretSecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema ClusterIssuerSpecAcmeSolversDns01Rfc2136TsigSecretSecretRef#name
    */
@@ -1902,14 +2028,14 @@ export interface ClusterIssuerSpecAcmeSolversDns01Rfc2136TsigSecretSecretRef {
  */
 export interface ClusterIssuerSpecAcmeSolversDns01Route53SecretAccessKeySecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema ClusterIssuerSpecAcmeSolversDns01Route53SecretAccessKeySecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema ClusterIssuerSpecAcmeSolversDns01Route53SecretAccessKeySecretRef#name
    */
@@ -1946,7 +2072,7 @@ export interface ClusterIssuerSpecAcmeSolversHttp01IngressPodTemplate {
   readonly metadata?: ClusterIssuerSpecAcmeSolversHttp01IngressPodTemplateMetadata;
 
   /**
-   * PodSpec defines overrides for the HTTP01 challenge solver pod. Only the 'nodeSelector', 'affinity' and 'tolerations' fields are supported currently. All other fields will be ignored.
+   * PodSpec defines overrides for the HTTP01 challenge solver pod. Only the 'priorityClassName', 'nodeSelector', 'affinity', 'serviceAccountName' and 'tolerations' fields are supported currently. All other fields will be ignored.
    *
    * @schema ClusterIssuerSpecAcmeSolversHttp01IngressPodTemplate#spec
    */
@@ -1999,7 +2125,7 @@ export interface ClusterIssuerSpecAcmeSolversHttp01IngressPodTemplateMetadata {
 }
 
 /**
- * PodSpec defines overrides for the HTTP01 challenge solver pod. Only the 'nodeSelector', 'affinity' and 'tolerations' fields are supported currently. All other fields will be ignored.
+ * PodSpec defines overrides for the HTTP01 challenge solver pod. Only the 'priorityClassName', 'nodeSelector', 'affinity', 'serviceAccountName' and 'tolerations' fields are supported currently. All other fields will be ignored.
  *
  * @schema ClusterIssuerSpecAcmeSolversHttp01IngressPodTemplateSpec
  */
@@ -2017,6 +2143,20 @@ export interface ClusterIssuerSpecAcmeSolversHttp01IngressPodTemplateSpec {
    * @schema ClusterIssuerSpecAcmeSolversHttp01IngressPodTemplateSpec#nodeSelector
    */
   readonly nodeSelector?: { [key: string]: string };
+
+  /**
+   * If specified, the pod's priorityClassName.
+   *
+   * @schema ClusterIssuerSpecAcmeSolversHttp01IngressPodTemplateSpec#priorityClassName
+   */
+  readonly priorityClassName?: string;
+
+  /**
+   * If specified, the pod's service account
+   *
+   * @schema ClusterIssuerSpecAcmeSolversHttp01IngressPodTemplateSpec#serviceAccountName
+   */
+  readonly serviceAccountName?: string;
 
   /**
    * If specified, the pod's tolerations.
@@ -2728,7 +2868,7 @@ export interface ClusterIssuerSpecAcmeSolversHttp01IngressPodTemplateSpecAffinit
 }
 
 /**
- * 
+ * An Issuer represents a certificate issuing authority which can be referenced as part of `issuerRef` fields. It is scoped to a single namespace and can therefore only be referenced by resources within the same namespace.
  *
  * @schema Issuer
  */
@@ -2767,6 +2907,8 @@ export class Issuer extends ApiObject {
 }
 
 /**
+ * An Issuer represents a certificate issuing authority which can be referenced as part of `issuerRef` fields. It is scoped to a single namespace and can therefore only be referenced by resources within the same namespace.
+ *
  * @schema Issuer
  */
 export interface IssuerProps {
@@ -2776,7 +2918,7 @@ export interface IssuerProps {
   readonly metadata?: any;
 
   /**
-   * IssuerSpec is the specification of an Issuer. This includes any configuration required for the issuer.
+   * Desired state of the Issuer resource.
    *
    * @schema Issuer#spec
    */
@@ -2785,35 +2927,41 @@ export interface IssuerProps {
 }
 
 /**
- * IssuerSpec is the specification of an Issuer. This includes any configuration required for the issuer.
+ * Desired state of the Issuer resource.
  *
  * @schema IssuerSpec
  */
 export interface IssuerSpec {
   /**
-   * ACMEIssuer contains the specification for an ACME issuer
+   * ACME configures this issuer to communicate with a RFC8555 (ACME) server to obtain signed x509 certificates.
    *
    * @schema IssuerSpec#acme
    */
   readonly acme?: IssuerSpecAcme;
 
   /**
+   * CA configures this issuer to sign certificates using a signing CA keypair stored in a Secret resource. This is used to build internal PKIs that are managed by cert-manager.
+   *
    * @schema IssuerSpec#ca
    */
   readonly ca?: IssuerSpecCa;
 
   /**
+   * SelfSigned configures this issuer to 'self sign' certificates using the private key used to create the CertificateRequest object.
+   *
    * @schema IssuerSpec#selfSigned
    */
   readonly selfSigned?: IssuerSpecSelfSigned;
 
   /**
+   * Vault configures this issuer to sign certificates using a HashiCorp Vault PKI backend.
+   *
    * @schema IssuerSpec#vault
    */
   readonly vault?: IssuerSpecVault;
 
   /**
-   * VenafiIssuer describes issuer configuration details for Venafi Cloud.
+   * Venafi configures this issuer to sign certificates using a Venafi TPP or Venafi Cloud policy zone.
    *
    * @schema IssuerSpec#venafi
    */
@@ -2822,48 +2970,72 @@ export interface IssuerSpec {
 }
 
 /**
- * ACMEIssuer contains the specification for an ACME issuer
+ * ACME configures this issuer to communicate with a RFC8555 (ACME) server to obtain signed x509 certificates.
  *
  * @schema IssuerSpecAcme
  */
 export interface IssuerSpecAcme {
   /**
-   * Email is the email for this account
+   * Enables or disables generating a new ACME account key. If true, the Issuer resource will *not* request a new account but will expect the account key to be supplied via an existing secret. If false, the cert-manager system will generate a new ACME account key for the Issuer. Defaults to false.
+   *
+   * @default false.
+   * @schema IssuerSpecAcme#disableAccountKeyGeneration
+   */
+  readonly disableAccountKeyGeneration?: boolean;
+
+  /**
+   * Email is the email address to be associated with the ACME account. This field is optional, but it is strongly recommended to be set. It will be used to contact you in case of issues with your account or certificates, including expiry notification emails. This field may be updated after the account is initially registered.
    *
    * @schema IssuerSpecAcme#email
    */
   readonly email?: string;
 
   /**
-   * ExternalAccountBinding is a reference to a CA external account of the ACME server.
+   * Enables requesting a Not After date on certificates that matches the duration of the certificate. This is not supported by all ACME servers like Let's Encrypt. If set to true when the ACME server does not support it it will create an error on the Order. Defaults to false.
+   *
+   * @default false.
+   * @schema IssuerSpecAcme#enableDurationFeature
+   */
+  readonly enableDurationFeature?: boolean;
+
+  /**
+   * ExternalAccountBinding is a reference to a CA external account of the ACME server. If set, upon registration cert-manager will attempt to associate the given external account credentials with the registered ACME account.
    *
    * @schema IssuerSpecAcme#externalAccountBinding
    */
   readonly externalAccountBinding?: IssuerSpecAcmeExternalAccountBinding;
 
   /**
-   * PrivateKey is the name of a secret containing the private key for this user account.
+   * PreferredChain is the chain to use if the ACME server outputs multiple. PreferredChain is no guarantee that this one gets delivered by the ACME endpoint. For example, for Let's Encrypt's DST crosssign you would use: "DST Root CA X3" or "ISRG Root X1" for the newer Let's Encrypt root CA. This value picks the first certificate bundle in the ACME alternative chains that has a certificate with this value as its issuer's CN
+   *
+   * @schema IssuerSpecAcme#preferredChain
+   */
+  readonly preferredChain?: string;
+
+  /**
+   * PrivateKey is the name of a Kubernetes Secret resource that will be used to store the automatically generated ACME account private key. Optionally, a `key` may be specified to select a specific entry within the named Secret resource. If `key` is not specified, a default of `tls.key` will be used.
    *
    * @schema IssuerSpecAcme#privateKeySecretRef
    */
   readonly privateKeySecretRef: IssuerSpecAcmePrivateKeySecretRef;
 
   /**
-   * Server is the ACME server URL
+   * Server is the URL used to access the ACME server's 'directory' endpoint. For example, for Let's Encrypt's staging endpoint, you would use: "https://acme-staging-v02.api.letsencrypt.org/directory". Only ACME v2 endpoints (i.e. RFC 8555) are supported.
    *
    * @schema IssuerSpecAcme#server
    */
   readonly server: string;
 
   /**
-   * If true, skip verifying the ACME server TLS certificate
+   * Enables or disables validation of the ACME server TLS certificate. If true, requests to the ACME server will not have their TLS certificate validated (i.e. insecure connections will be allowed). Only enable this option in development environments. The cert-manager system installed roots will be used to verify connections to the ACME server if this is false. Defaults to false.
    *
+   * @default false.
    * @schema IssuerSpecAcme#skipTLSVerify
    */
   readonly skipTLSVerify?: boolean;
 
   /**
-   * Solvers is a list of challenge solvers that will be used to solve ACME challenges for the matching domains.
+   * Solvers is a list of challenge solvers that will be used to solve ACME challenges for the matching domains. Solver configurations must be provided in order to obtain certificates from an ACME server. For more information, see: https://cert-manager.io/docs/configuration/acme/
    *
    * @schema IssuerSpecAcme#solvers
    */
@@ -2872,11 +3044,13 @@ export interface IssuerSpecAcme {
 }
 
 /**
+ * CA configures this issuer to sign certificates using a signing CA keypair stored in a Secret resource. This is used to build internal PKIs that are managed by cert-manager.
+ *
  * @schema IssuerSpecCa
  */
 export interface IssuerSpecCa {
   /**
-   * The CRL distribution points is an X.509 v3 certificate extension which identifies the location of the CRL from which the revocation of this certificate can be checked. If not set certificate will be issued without CDP. Values are strings.
+   * The CRL distribution points is an X.509 v3 certificate extension which identifies the location of the CRL from which the revocation of this certificate can be checked. If not set, certificates will be issued without distribution points set.
    *
    * @schema IssuerSpecCa#crlDistributionPoints
    */
@@ -2892,6 +3066,8 @@ export interface IssuerSpecCa {
 }
 
 /**
+ * SelfSigned configures this issuer to 'self sign' certificates using the private key used to create the CertificateRequest object.
+ *
  * @schema IssuerSpecSelfSigned
  */
 export interface IssuerSpecSelfSigned {
@@ -2905,32 +3081,41 @@ export interface IssuerSpecSelfSigned {
 }
 
 /**
+ * Vault configures this issuer to sign certificates using a HashiCorp Vault PKI backend.
+ *
  * @schema IssuerSpecVault
  */
 export interface IssuerSpecVault {
   /**
-   * Vault authentication
+   * Auth configures how cert-manager authenticates with the Vault server.
    *
    * @schema IssuerSpecVault#auth
    */
   readonly auth: IssuerSpecVaultAuth;
 
   /**
-   * Base64 encoded CA bundle to validate Vault server certificate. Only used if the Server URL is using HTTPS protocol. This parameter is ignored for plain HTTP protocol connection. If not set the system root certificates are used to validate the TLS connection.
+   * PEM encoded CA bundle used to validate Vault server certificate. Only used if the Server URL is using HTTPS protocol. This parameter is ignored for plain HTTP protocol connection. If not set the system root certificates are used to validate the TLS connection.
    *
    * @schema IssuerSpecVault#caBundle
    */
   readonly caBundle?: string;
 
   /**
-   * Vault URL path to the certificate role
+   * Name of the vault namespace. Namespaces is a set of features within Vault Enterprise that allows Vault environments to support Secure Multi-tenancy. e.g: "ns1" More about namespaces can be found here https://www.vaultproject.io/docs/enterprise/namespaces
+   *
+   * @schema IssuerSpecVault#namespace
+   */
+  readonly namespace?: string;
+
+  /**
+   * Path is the mount path of the Vault PKI backend's `sign` endpoint, e.g: "my_pki_mount/sign/my-role-name".
    *
    * @schema IssuerSpecVault#path
    */
   readonly path: string;
 
   /**
-   * Server is the vault connection address
+   * Server is the connection address for the Vault server, e.g: "https://vault.example.com:8200".
    *
    * @schema IssuerSpecVault#server
    */
@@ -2939,7 +3124,7 @@ export interface IssuerSpecVault {
 }
 
 /**
- * VenafiIssuer describes issuer configuration details for Venafi Cloud.
+ * Venafi configures this issuer to sign certificates using a Venafi TPP or Venafi Cloud policy zone.
  *
  * @schema IssuerSpecVenafi
  */
@@ -2968,7 +3153,7 @@ export interface IssuerSpecVenafi {
 }
 
 /**
- * ExternalAccountBinding is a reference to a CA external account of the ACME server.
+ * ExternalAccountBinding is a reference to a CA external account of the ACME server. If set, upon registration cert-manager will attempt to associate the given external account credentials with the registered ACME account.
  *
  * @schema IssuerSpecAcmeExternalAccountBinding
  */
@@ -2997,20 +3182,20 @@ export interface IssuerSpecAcmeExternalAccountBinding {
 }
 
 /**
- * PrivateKey is the name of a secret containing the private key for this user account.
+ * PrivateKey is the name of a Kubernetes Secret resource that will be used to store the automatically generated ACME account private key. Optionally, a `key` may be specified to select a specific entry within the named Secret resource. If `key` is not specified, a default of `tls.key` will be used.
  *
  * @schema IssuerSpecAcmePrivateKeySecretRef
  */
 export interface IssuerSpecAcmePrivateKeySecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema IssuerSpecAcmePrivateKeySecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema IssuerSpecAcmePrivateKeySecretRef#name
    */
@@ -3019,23 +3204,27 @@ export interface IssuerSpecAcmePrivateKeySecretRef {
 }
 
 /**
+ * Configures an issuer to solve challenges using the specified options. Only one of HTTP01 or DNS01 may be provided.
+ *
  * @schema IssuerSpecAcmeSolvers
  */
 export interface IssuerSpecAcmeSolvers {
   /**
+   * Configures cert-manager to attempt to complete authorizations by performing the DNS01 challenge flow.
+   *
    * @schema IssuerSpecAcmeSolvers#dns01
    */
   readonly dns01?: IssuerSpecAcmeSolversDns01;
 
   /**
-   * ACMEChallengeSolverHTTP01 contains configuration detailing how to solve HTTP01 challenges within a Kubernetes cluster. Typically this is accomplished through creating 'routes' of some description that configure ingress controllers to direct traffic to 'solver pods', which are responsible for responding to the ACME server's HTTP requests.
+   * Configures cert-manager to attempt to complete authorizations by performing the HTTP01 challenge flow. It is not possible to obtain certificates for wildcard domain names (e.g. `*.example.com`) using the HTTP01 challenge mechanism.
    *
    * @schema IssuerSpecAcmeSolvers#http01
    */
   readonly http01?: IssuerSpecAcmeSolversHttp01;
 
   /**
-   * Selector selects a set of DNSNames on the Certificate resource that should be solved using this challenge solver.
+   * Selector selects a set of DNSNames on the Certificate resource that should be solved using this challenge solver. If not specified, the solver will be treated as the 'default' solver with the lowest priority, i.e. if any other solver has a more specific match, it will be used instead.
    *
    * @schema IssuerSpecAcmeSolvers#selector
    */
@@ -3044,27 +3233,27 @@ export interface IssuerSpecAcmeSolvers {
 }
 
 /**
- * Vault authentication
+ * Auth configures how cert-manager authenticates with the Vault server.
  *
  * @schema IssuerSpecVaultAuth
  */
 export interface IssuerSpecVaultAuth {
   /**
-   * This Secret contains a AppRole and Secret
+   * AppRole authenticates with Vault using the App Role auth mechanism, with the role and secret stored in a Kubernetes Secret resource.
    *
    * @schema IssuerSpecVaultAuth#appRole
    */
   readonly appRole?: IssuerSpecVaultAuthAppRole;
 
   /**
-   * This contains a Role and Secret with a ServiceAccount token to authenticate with vault.
+   * Kubernetes authenticates with Vault by passing the ServiceAccount token stored in the named Secret resource to the Vault server.
    *
    * @schema IssuerSpecVaultAuth#kubernetes
    */
   readonly kubernetes?: IssuerSpecVaultAuthKubernetes;
 
   /**
-   * This Secret contains the Vault token key
+   * TokenSecretRef authenticates with Vault by presenting a token.
    *
    * @schema IssuerSpecVaultAuth#tokenSecretRef
    */
@@ -3086,8 +3275,9 @@ export interface IssuerSpecVenafiCloud {
   readonly apiTokenSecretRef: IssuerSpecVenafiCloudApiTokenSecretRef;
 
   /**
-   * URL is the base URL for Venafi Cloud
+   * URL is the base URL for Venafi Cloud. Defaults to "https://api.venafi.cloud/v1".
    *
+   * @default https://api.venafi.cloud/v1".
    * @schema IssuerSpecVenafiCloud#url
    */
   readonly url?: string;
@@ -3115,7 +3305,7 @@ export interface IssuerSpecVenafiTpp {
   readonly credentialsRef: IssuerSpecVenafiTppCredentialsRef;
 
   /**
-   * URL is the base URL for the Venafi TPP instance
+   * URL is the base URL for the vedsdk endpoint of the Venafi TPP instance, for example: "https://tpp.example.com/vedsdk".
    *
    * @schema IssuerSpecVenafiTpp#url
    */
@@ -3144,14 +3334,14 @@ export enum IssuerSpecAcmeExternalAccountBindingKeyAlgorithm {
  */
 export interface IssuerSpecAcmeExternalAccountBindingKeySecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema IssuerSpecAcmeExternalAccountBindingKeySecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema IssuerSpecAcmeExternalAccountBindingKeySecretRef#name
    */
@@ -3160,39 +3350,41 @@ export interface IssuerSpecAcmeExternalAccountBindingKeySecretRef {
 }
 
 /**
+ * Configures cert-manager to attempt to complete authorizations by performing the DNS01 challenge flow.
+ *
  * @schema IssuerSpecAcmeSolversDns01
  */
 export interface IssuerSpecAcmeSolversDns01 {
   /**
-   * ACMEIssuerDNS01ProviderAcmeDNS is a structure containing the configuration for ACME-DNS servers
+   * Use the 'ACME DNS' (https://github.com/joohoi/acme-dns) API to manage DNS01 challenge records.
    *
    * @schema IssuerSpecAcmeSolversDns01#acmedns
    */
   readonly acmedns?: IssuerSpecAcmeSolversDns01Acmedns;
 
   /**
-   * ACMEIssuerDNS01ProviderAkamai is a structure containing the DNS configuration for Akamai DNS—Zone Record Management API
+   * Use the Akamai DNS zone management API to manage DNS01 challenge records.
    *
    * @schema IssuerSpecAcmeSolversDns01#akamai
    */
   readonly akamai?: IssuerSpecAcmeSolversDns01Akamai;
 
   /**
-   * ACMEIssuerDNS01ProviderAzureDNS is a structure containing the configuration for Azure DNS
+   * Use the Microsoft Azure DNS API to manage DNS01 challenge records.
    *
    * @schema IssuerSpecAcmeSolversDns01#azuredns
    */
   readonly azuredns?: IssuerSpecAcmeSolversDns01Azuredns;
 
   /**
-   * ACMEIssuerDNS01ProviderCloudDNS is a structure containing the DNS configuration for Google Cloud DNS
+   * Use the Google Cloud DNS API to manage DNS01 challenge records.
    *
    * @schema IssuerSpecAcmeSolversDns01#clouddns
    */
   readonly clouddns?: IssuerSpecAcmeSolversDns01Clouddns;
 
   /**
-   * ACMEIssuerDNS01ProviderCloudflare is a structure containing the DNS configuration for Cloudflare
+   * Use the Cloudflare API to manage DNS01 challenge records.
    *
    * @schema IssuerSpecAcmeSolversDns01#cloudflare
    */
@@ -3206,28 +3398,28 @@ export interface IssuerSpecAcmeSolversDns01 {
   readonly cnameStrategy?: IssuerSpecAcmeSolversDns01CnameStrategy;
 
   /**
-   * ACMEIssuerDNS01ProviderDigitalOcean is a structure containing the DNS configuration for DigitalOcean Domains
+   * Use the DigitalOcean DNS API to manage DNS01 challenge records.
    *
    * @schema IssuerSpecAcmeSolversDns01#digitalocean
    */
   readonly digitalocean?: IssuerSpecAcmeSolversDns01Digitalocean;
 
   /**
-   * ACMEIssuerDNS01ProviderRFC2136 is a structure containing the configuration for RFC2136 DNS
+   * Use RFC2136 ("Dynamic Updates in the Domain Name System") (https://datatracker.ietf.org/doc/rfc2136/) to manage DNS01 challenge records.
    *
    * @schema IssuerSpecAcmeSolversDns01#rfc2136
    */
   readonly rfc2136?: IssuerSpecAcmeSolversDns01Rfc2136;
 
   /**
-   * ACMEIssuerDNS01ProviderRoute53 is a structure containing the Route 53 configuration for AWS
+   * Use the AWS Route53 API to manage DNS01 challenge records.
    *
    * @schema IssuerSpecAcmeSolversDns01#route53
    */
   readonly route53?: IssuerSpecAcmeSolversDns01Route53;
 
   /**
-   * ACMEIssuerDNS01ProviderWebhook specifies configuration for a webhook DNS01 provider, including where to POST ChallengePayload resources.
+   * Configure an external webhook based DNS01 challenge solver to manage DNS01 challenge records.
    *
    * @schema IssuerSpecAcmeSolversDns01#webhook
    */
@@ -3236,7 +3428,7 @@ export interface IssuerSpecAcmeSolversDns01 {
 }
 
 /**
- * ACMEChallengeSolverHTTP01 contains configuration detailing how to solve HTTP01 challenges within a Kubernetes cluster. Typically this is accomplished through creating 'routes' of some description that configure ingress controllers to direct traffic to 'solver pods', which are responsible for responding to the ACME server's HTTP requests.
+ * Configures cert-manager to attempt to complete authorizations by performing the HTTP01 challenge flow. It is not possible to obtain certificates for wildcard domain names (e.g. `*.example.com`) using the HTTP01 challenge mechanism.
  *
  * @schema IssuerSpecAcmeSolversHttp01
  */
@@ -3251,7 +3443,7 @@ export interface IssuerSpecAcmeSolversHttp01 {
 }
 
 /**
- * Selector selects a set of DNSNames on the Certificate resource that should be solved using this challenge solver.
+ * Selector selects a set of DNSNames on the Certificate resource that should be solved using this challenge solver. If not specified, the solver will be treated as the 'default' solver with the lowest priority, i.e. if any other solver has a more specific match, it will be used instead.
  *
  * @schema IssuerSpecAcmeSolversSelector
  */
@@ -3280,24 +3472,28 @@ export interface IssuerSpecAcmeSolversSelector {
 }
 
 /**
- * This Secret contains a AppRole and Secret
+ * AppRole authenticates with Vault using the App Role auth mechanism, with the role and secret stored in a Kubernetes Secret resource.
  *
  * @schema IssuerSpecVaultAuthAppRole
  */
 export interface IssuerSpecVaultAuthAppRole {
   /**
-   * Where the authentication path is mounted in Vault.
+   * Path where the App Role authentication backend is mounted in Vault, e.g: "approle"
    *
    * @schema IssuerSpecVaultAuthAppRole#path
    */
   readonly path: string;
 
   /**
+   * RoleID configured in the App Role authentication backend when setting up the authentication backend in Vault.
+   *
    * @schema IssuerSpecVaultAuthAppRole#roleId
    */
   readonly roleId: string;
 
   /**
+   * Reference to a key in a Secret that contains the App Role secret used to authenticate with Vault. The `key` field must be specified and denotes which entry within the Secret resource is used as the app role secret.
+   *
    * @schema IssuerSpecVaultAuthAppRole#secretRef
    */
   readonly secretRef: IssuerSpecVaultAuthAppRoleSecretRef;
@@ -3305,7 +3501,7 @@ export interface IssuerSpecVaultAuthAppRole {
 }
 
 /**
- * This contains a Role and Secret with a ServiceAccount token to authenticate with vault.
+ * Kubernetes authenticates with Vault by passing the ServiceAccount token stored in the named Secret resource to the Vault server.
  *
  * @schema IssuerSpecVaultAuthKubernetes
  */
@@ -3334,20 +3530,20 @@ export interface IssuerSpecVaultAuthKubernetes {
 }
 
 /**
- * This Secret contains the Vault token key
+ * TokenSecretRef authenticates with Vault by presenting a token.
  *
  * @schema IssuerSpecVaultAuthTokenSecretRef
  */
 export interface IssuerSpecVaultAuthTokenSecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema IssuerSpecVaultAuthTokenSecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema IssuerSpecVaultAuthTokenSecretRef#name
    */
@@ -3362,14 +3558,14 @@ export interface IssuerSpecVaultAuthTokenSecretRef {
  */
 export interface IssuerSpecVenafiCloudApiTokenSecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema IssuerSpecVenafiCloudApiTokenSecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema IssuerSpecVenafiCloudApiTokenSecretRef#name
    */
@@ -3384,7 +3580,7 @@ export interface IssuerSpecVenafiCloudApiTokenSecretRef {
  */
 export interface IssuerSpecVenafiTppCredentialsRef {
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema IssuerSpecVenafiTppCredentialsRef#name
    */
@@ -3393,12 +3589,14 @@ export interface IssuerSpecVenafiTppCredentialsRef {
 }
 
 /**
- * ACMEIssuerDNS01ProviderAcmeDNS is a structure containing the configuration for ACME-DNS servers
+ * Use the 'ACME DNS' (https://github.com/joohoi/acme-dns) API to manage DNS01 challenge records.
  *
  * @schema IssuerSpecAcmeSolversDns01Acmedns
  */
 export interface IssuerSpecAcmeSolversDns01Acmedns {
   /**
+   * A reference to a specific 'key' within a Secret resource. In some instances, `key` is a required field.
+   *
    * @schema IssuerSpecAcmeSolversDns01Acmedns#accountSecretRef
    */
   readonly accountSecretRef: IssuerSpecAcmeSolversDns01AcmednsAccountSecretRef;
@@ -3411,22 +3609,28 @@ export interface IssuerSpecAcmeSolversDns01Acmedns {
 }
 
 /**
- * ACMEIssuerDNS01ProviderAkamai is a structure containing the DNS configuration for Akamai DNS—Zone Record Management API
+ * Use the Akamai DNS zone management API to manage DNS01 challenge records.
  *
  * @schema IssuerSpecAcmeSolversDns01Akamai
  */
 export interface IssuerSpecAcmeSolversDns01Akamai {
   /**
+   * A reference to a specific 'key' within a Secret resource. In some instances, `key` is a required field.
+   *
    * @schema IssuerSpecAcmeSolversDns01Akamai#accessTokenSecretRef
    */
   readonly accessTokenSecretRef: IssuerSpecAcmeSolversDns01AkamaiAccessTokenSecretRef;
 
   /**
+   * A reference to a specific 'key' within a Secret resource. In some instances, `key` is a required field.
+   *
    * @schema IssuerSpecAcmeSolversDns01Akamai#clientSecretSecretRef
    */
   readonly clientSecretSecretRef: IssuerSpecAcmeSolversDns01AkamaiClientSecretSecretRef;
 
   /**
+   * A reference to a specific 'key' within a Secret resource. In some instances, `key` is a required field.
+   *
    * @schema IssuerSpecAcmeSolversDns01Akamai#clientTokenSecretRef
    */
   readonly clientTokenSecretRef: IssuerSpecAcmeSolversDns01AkamaiClientTokenSecretRef;
@@ -3439,7 +3643,7 @@ export interface IssuerSpecAcmeSolversDns01Akamai {
 }
 
 /**
- * ACMEIssuerDNS01ProviderAzureDNS is a structure containing the configuration for Azure DNS
+ * Use the Microsoft Azure DNS API to manage DNS01 challenge records.
  *
  * @schema IssuerSpecAcmeSolversDns01Azuredns
  */
@@ -3488,17 +3692,26 @@ export interface IssuerSpecAcmeSolversDns01Azuredns {
 }
 
 /**
- * ACMEIssuerDNS01ProviderCloudDNS is a structure containing the DNS configuration for Google Cloud DNS
+ * Use the Google Cloud DNS API to manage DNS01 challenge records.
  *
  * @schema IssuerSpecAcmeSolversDns01Clouddns
  */
 export interface IssuerSpecAcmeSolversDns01Clouddns {
+  /**
+   * HostedZoneName is an optional field that tells cert-manager in which Cloud DNS zone the challenge record has to be created. If left empty cert-manager will automatically choose a zone.
+   *
+   * @schema IssuerSpecAcmeSolversDns01Clouddns#hostedZoneName
+   */
+  readonly hostedZoneName?: string;
+
   /**
    * @schema IssuerSpecAcmeSolversDns01Clouddns#project
    */
   readonly project: string;
 
   /**
+   * A reference to a specific 'key' within a Secret resource. In some instances, `key` is a required field.
+   *
    * @schema IssuerSpecAcmeSolversDns01Clouddns#serviceAccountSecretRef
    */
   readonly serviceAccountSecretRef?: IssuerSpecAcmeSolversDns01ClouddnsServiceAccountSecretRef;
@@ -3506,25 +3719,31 @@ export interface IssuerSpecAcmeSolversDns01Clouddns {
 }
 
 /**
- * ACMEIssuerDNS01ProviderCloudflare is a structure containing the DNS configuration for Cloudflare
+ * Use the Cloudflare API to manage DNS01 challenge records.
  *
  * @schema IssuerSpecAcmeSolversDns01Cloudflare
  */
 export interface IssuerSpecAcmeSolversDns01Cloudflare {
   /**
+   * API key to use to authenticate with Cloudflare. Note: using an API token to authenticate is now the recommended method as it allows greater control of permissions.
+   *
    * @schema IssuerSpecAcmeSolversDns01Cloudflare#apiKeySecretRef
    */
   readonly apiKeySecretRef?: IssuerSpecAcmeSolversDns01CloudflareApiKeySecretRef;
 
   /**
+   * API token used to authenticate with Cloudflare.
+   *
    * @schema IssuerSpecAcmeSolversDns01Cloudflare#apiTokenSecretRef
    */
   readonly apiTokenSecretRef?: IssuerSpecAcmeSolversDns01CloudflareApiTokenSecretRef;
 
   /**
+   * Email of the account, only required when using API key based authentication.
+   *
    * @schema IssuerSpecAcmeSolversDns01Cloudflare#email
    */
-  readonly email: string;
+  readonly email?: string;
 
 }
 
@@ -3541,12 +3760,14 @@ export enum IssuerSpecAcmeSolversDns01CnameStrategy {
 }
 
 /**
- * ACMEIssuerDNS01ProviderDigitalOcean is a structure containing the DNS configuration for DigitalOcean Domains
+ * Use the DigitalOcean DNS API to manage DNS01 challenge records.
  *
  * @schema IssuerSpecAcmeSolversDns01Digitalocean
  */
 export interface IssuerSpecAcmeSolversDns01Digitalocean {
   /**
+   * A reference to a specific 'key' within a Secret resource. In some instances, `key` is a required field.
+   *
    * @schema IssuerSpecAcmeSolversDns01Digitalocean#tokenSecretRef
    */
   readonly tokenSecretRef: IssuerSpecAcmeSolversDns01DigitaloceanTokenSecretRef;
@@ -3554,7 +3775,7 @@ export interface IssuerSpecAcmeSolversDns01Digitalocean {
 }
 
 /**
- * ACMEIssuerDNS01ProviderRFC2136 is a structure containing the configuration for RFC2136 DNS
+ * Use RFC2136 ("Dynamic Updates in the Domain Name System") (https://datatracker.ietf.org/doc/rfc2136/) to manage DNS01 challenge records.
  *
  * @schema IssuerSpecAcmeSolversDns01Rfc2136
  */
@@ -3590,7 +3811,7 @@ export interface IssuerSpecAcmeSolversDns01Rfc2136 {
 }
 
 /**
- * ACMEIssuerDNS01ProviderRoute53 is a structure containing the Route 53 configuration for AWS
+ * Use the AWS Route53 API to manage DNS01 challenge records.
  *
  * @schema IssuerSpecAcmeSolversDns01Route53
  */
@@ -3633,7 +3854,7 @@ export interface IssuerSpecAcmeSolversDns01Route53 {
 }
 
 /**
- * ACMEIssuerDNS01ProviderWebhook specifies configuration for a webhook DNS01 provider, including where to POST ChallengePayload resources.
+ * Configure an external webhook based DNS01 challenge solver to manage DNS01 challenge records.
  *
  * @schema IssuerSpecAcmeSolversDns01Webhook
  */
@@ -3705,18 +3926,20 @@ export interface IssuerSpecAcmeSolversHttp01Ingress {
 }
 
 /**
+ * Reference to a key in a Secret that contains the App Role secret used to authenticate with Vault. The `key` field must be specified and denotes which entry within the Secret resource is used as the app role secret.
+ *
  * @schema IssuerSpecVaultAuthAppRoleSecretRef
  */
 export interface IssuerSpecVaultAuthAppRoleSecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema IssuerSpecVaultAuthAppRoleSecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema IssuerSpecVaultAuthAppRoleSecretRef#name
    */
@@ -3731,14 +3954,14 @@ export interface IssuerSpecVaultAuthAppRoleSecretRef {
  */
 export interface IssuerSpecVaultAuthKubernetesSecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema IssuerSpecVaultAuthKubernetesSecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema IssuerSpecVaultAuthKubernetesSecretRef#name
    */
@@ -3747,18 +3970,20 @@ export interface IssuerSpecVaultAuthKubernetesSecretRef {
 }
 
 /**
+ * A reference to a specific 'key' within a Secret resource. In some instances, `key` is a required field.
+ *
  * @schema IssuerSpecAcmeSolversDns01AcmednsAccountSecretRef
  */
 export interface IssuerSpecAcmeSolversDns01AcmednsAccountSecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema IssuerSpecAcmeSolversDns01AcmednsAccountSecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema IssuerSpecAcmeSolversDns01AcmednsAccountSecretRef#name
    */
@@ -3767,18 +3992,20 @@ export interface IssuerSpecAcmeSolversDns01AcmednsAccountSecretRef {
 }
 
 /**
+ * A reference to a specific 'key' within a Secret resource. In some instances, `key` is a required field.
+ *
  * @schema IssuerSpecAcmeSolversDns01AkamaiAccessTokenSecretRef
  */
 export interface IssuerSpecAcmeSolversDns01AkamaiAccessTokenSecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema IssuerSpecAcmeSolversDns01AkamaiAccessTokenSecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema IssuerSpecAcmeSolversDns01AkamaiAccessTokenSecretRef#name
    */
@@ -3787,18 +4014,20 @@ export interface IssuerSpecAcmeSolversDns01AkamaiAccessTokenSecretRef {
 }
 
 /**
+ * A reference to a specific 'key' within a Secret resource. In some instances, `key` is a required field.
+ *
  * @schema IssuerSpecAcmeSolversDns01AkamaiClientSecretSecretRef
  */
 export interface IssuerSpecAcmeSolversDns01AkamaiClientSecretSecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema IssuerSpecAcmeSolversDns01AkamaiClientSecretSecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema IssuerSpecAcmeSolversDns01AkamaiClientSecretSecretRef#name
    */
@@ -3807,18 +4036,20 @@ export interface IssuerSpecAcmeSolversDns01AkamaiClientSecretSecretRef {
 }
 
 /**
+ * A reference to a specific 'key' within a Secret resource. In some instances, `key` is a required field.
+ *
  * @schema IssuerSpecAcmeSolversDns01AkamaiClientTokenSecretRef
  */
 export interface IssuerSpecAcmeSolversDns01AkamaiClientTokenSecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema IssuerSpecAcmeSolversDns01AkamaiClientTokenSecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema IssuerSpecAcmeSolversDns01AkamaiClientTokenSecretRef#name
    */
@@ -3833,14 +4064,14 @@ export interface IssuerSpecAcmeSolversDns01AkamaiClientTokenSecretRef {
  */
 export interface IssuerSpecAcmeSolversDns01AzurednsClientSecretSecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema IssuerSpecAcmeSolversDns01AzurednsClientSecretSecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema IssuerSpecAcmeSolversDns01AzurednsClientSecretSecretRef#name
    */
@@ -3863,18 +4094,20 @@ export enum IssuerSpecAcmeSolversDns01AzurednsEnvironment {
 }
 
 /**
+ * A reference to a specific 'key' within a Secret resource. In some instances, `key` is a required field.
+ *
  * @schema IssuerSpecAcmeSolversDns01ClouddnsServiceAccountSecretRef
  */
 export interface IssuerSpecAcmeSolversDns01ClouddnsServiceAccountSecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema IssuerSpecAcmeSolversDns01ClouddnsServiceAccountSecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema IssuerSpecAcmeSolversDns01ClouddnsServiceAccountSecretRef#name
    */
@@ -3883,18 +4116,20 @@ export interface IssuerSpecAcmeSolversDns01ClouddnsServiceAccountSecretRef {
 }
 
 /**
+ * API key to use to authenticate with Cloudflare. Note: using an API token to authenticate is now the recommended method as it allows greater control of permissions.
+ *
  * @schema IssuerSpecAcmeSolversDns01CloudflareApiKeySecretRef
  */
 export interface IssuerSpecAcmeSolversDns01CloudflareApiKeySecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema IssuerSpecAcmeSolversDns01CloudflareApiKeySecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema IssuerSpecAcmeSolversDns01CloudflareApiKeySecretRef#name
    */
@@ -3903,18 +4138,20 @@ export interface IssuerSpecAcmeSolversDns01CloudflareApiKeySecretRef {
 }
 
 /**
+ * API token used to authenticate with Cloudflare.
+ *
  * @schema IssuerSpecAcmeSolversDns01CloudflareApiTokenSecretRef
  */
 export interface IssuerSpecAcmeSolversDns01CloudflareApiTokenSecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema IssuerSpecAcmeSolversDns01CloudflareApiTokenSecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema IssuerSpecAcmeSolversDns01CloudflareApiTokenSecretRef#name
    */
@@ -3923,18 +4160,20 @@ export interface IssuerSpecAcmeSolversDns01CloudflareApiTokenSecretRef {
 }
 
 /**
+ * A reference to a specific 'key' within a Secret resource. In some instances, `key` is a required field.
+ *
  * @schema IssuerSpecAcmeSolversDns01DigitaloceanTokenSecretRef
  */
 export interface IssuerSpecAcmeSolversDns01DigitaloceanTokenSecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema IssuerSpecAcmeSolversDns01DigitaloceanTokenSecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema IssuerSpecAcmeSolversDns01DigitaloceanTokenSecretRef#name
    */
@@ -3949,14 +4188,14 @@ export interface IssuerSpecAcmeSolversDns01DigitaloceanTokenSecretRef {
  */
 export interface IssuerSpecAcmeSolversDns01Rfc2136TsigSecretSecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema IssuerSpecAcmeSolversDns01Rfc2136TsigSecretSecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema IssuerSpecAcmeSolversDns01Rfc2136TsigSecretSecretRef#name
    */
@@ -3971,14 +4210,14 @@ export interface IssuerSpecAcmeSolversDns01Rfc2136TsigSecretSecretRef {
  */
 export interface IssuerSpecAcmeSolversDns01Route53SecretAccessKeySecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema IssuerSpecAcmeSolversDns01Route53SecretAccessKeySecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema IssuerSpecAcmeSolversDns01Route53SecretAccessKeySecretRef#name
    */
@@ -4015,7 +4254,7 @@ export interface IssuerSpecAcmeSolversHttp01IngressPodTemplate {
   readonly metadata?: IssuerSpecAcmeSolversHttp01IngressPodTemplateMetadata;
 
   /**
-   * PodSpec defines overrides for the HTTP01 challenge solver pod. Only the 'nodeSelector', 'affinity' and 'tolerations' fields are supported currently. All other fields will be ignored.
+   * PodSpec defines overrides for the HTTP01 challenge solver pod. Only the 'priorityClassName', 'nodeSelector', 'affinity', 'serviceAccountName' and 'tolerations' fields are supported currently. All other fields will be ignored.
    *
    * @schema IssuerSpecAcmeSolversHttp01IngressPodTemplate#spec
    */
@@ -4068,7 +4307,7 @@ export interface IssuerSpecAcmeSolversHttp01IngressPodTemplateMetadata {
 }
 
 /**
- * PodSpec defines overrides for the HTTP01 challenge solver pod. Only the 'nodeSelector', 'affinity' and 'tolerations' fields are supported currently. All other fields will be ignored.
+ * PodSpec defines overrides for the HTTP01 challenge solver pod. Only the 'priorityClassName', 'nodeSelector', 'affinity', 'serviceAccountName' and 'tolerations' fields are supported currently. All other fields will be ignored.
  *
  * @schema IssuerSpecAcmeSolversHttp01IngressPodTemplateSpec
  */
@@ -4086,6 +4325,20 @@ export interface IssuerSpecAcmeSolversHttp01IngressPodTemplateSpec {
    * @schema IssuerSpecAcmeSolversHttp01IngressPodTemplateSpec#nodeSelector
    */
   readonly nodeSelector?: { [key: string]: string };
+
+  /**
+   * If specified, the pod's priorityClassName.
+   *
+   * @schema IssuerSpecAcmeSolversHttp01IngressPodTemplateSpec#priorityClassName
+   */
+  readonly priorityClassName?: string;
+
+  /**
+   * If specified, the pod's service account
+   *
+   * @schema IssuerSpecAcmeSolversHttp01IngressPodTemplateSpec#serviceAccountName
+   */
+  readonly serviceAccountName?: string;
 
   /**
    * If specified, the pod's tolerations.

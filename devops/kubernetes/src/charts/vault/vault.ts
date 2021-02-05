@@ -15,130 +15,7 @@ export class VaultChart extends Chart {
 			chart: "hashicorp/vault",
 			releaseName: "vault",
 			values: {
-				global: {
-					enabled: true,
-					imagePullSecrets: [],
-					tlsDisable: true,
-					openshift: false,
-					psp: {
-						enable: false,
-						annotations: stripIndent`
-							seccomp.security.alpha.kubernetes.io/allowedProfileNames: docker/default,runtime/default
-							apparmor.security.beta.kubernetes.io/allowedProfileNames: runtime/default
-							seccomp.security.alpha.kubernetes.io/defaultProfileName:  runtime/default
-							apparmor.security.beta.kubernetes.io/defaultProfileName:  runtime/default
-						`,
-					},
-				},
-				injector: {
-					enabled: false,
-					metrics: {
-						enabled: false,
-					},
-					externalVaultAddr: "",
-					image: {
-						repository: "hashicorp/vault-k8s",
-						tag: "0.6.0",
-						pullPolicy: "IfNotPresent",
-					},
-					agentImage: {
-						repository: "vault",
-						tag: "1.5.4",
-					},
-					authPath: "auth/kubernetes",
-					logLevel: "info",
-					logFormat: "standard",
-					revokeOnShutdown: false,
-					namespaceSelector: {},
-					certs: {
-						secretName: null,
-						caBundle: "",
-						certName: "tls.crt",
-						keyName: "tls.key",
-					},
-					resources: {},
-					extraEnvironmentVars: {},
-					affinity: null,
-					tolerations: null,
-					nodeSelector: null,
-					priorityClassName: "",
-					annotations: {},
-				},
 				server: {
-					image: {
-						repository: "vault",
-						tag: "1.5.5",
-						pullPolicy: "IfNotPresent",
-					},
-					updateStrategyType: "OnDelete",
-					resources: {},
-					ingress: {
-						enabled: false,
-						labels: {},
-						annotations: {},
-						hosts: [
-							{
-								host: "chart-example.local",
-								paths: [],
-							},
-						],
-						tls: [],
-					},
-					route: {
-						enabled: false,
-						labels: {},
-						annotations: {},
-						host: "chart-example.local",
-					},
-					authDelegator: {
-						enabled: true,
-					},
-					extraInitContainers: null,
-					extraContainers: null,
-					shareProcessNamespace: false,
-					extraArgs: "",
-					readinessProbe: {
-						enabled: true,
-						failureThreshold: 2,
-						initialDelaySeconds: 5,
-						periodSeconds: 5,
-						successThreshold: 1,
-						timeoutSeconds: 3,
-					},
-					livenessProbe: {
-						enabled: false,
-						path: "/v1/sys/health?standbyok=true",
-						failureThreshold: 2,
-						initialDelaySeconds: 60,
-						periodSeconds: 5,
-						successThreshold: 1,
-						timeoutSeconds: 3,
-					},
-					preStopSleepSeconds: 5,
-					postStart: [],
-					extraEnvironmentVars: {},
-					extraSecretEnvironmentVars: [],
-					extraVolumes: [],
-					volumes: null,
-					volumeMounts: null,
-					affinity: stripIndent`
-                        podAntiAffinity:
-                          requiredDuringSchedulingIgnoredDuringExecution:
-                            - labelSelector:
-                                matchLabels:
-                                  app.kubernetes.io/name: {{ template "vault.name" . }}
-                                    app.kubernetes.io/instance: "{{ .Release.Name }}"
-                                    component: server
-                              topologyKey: kubernetes.io/hostname
-                    `,
-					tolerations: null,
-					nodeSelector: null,
-					networkPolicy: {
-						enabled: false,
-					},
-					priorityClassName: "",
-					extraLabels: {},
-					annotations: {},
 					service: {
 						enabled: true,
 						port: 8200,
@@ -222,14 +99,6 @@ export class VaultChart extends Chart {
 							maxUnavailable: null,
 						},
 					},
-					serviceAccount: {
-						create: true,
-						name: "",
-						annotations: {},
-					},
-					statefulSet: {
-						annotations: {},
-					},
 				},
 				ui: {
 					enabled: true,
@@ -253,7 +122,7 @@ export class VaultChart extends Chart {
 				dnsNames: ["fortify.dev", "vault.fortify.dev"],
 				issuerRef: {
 					kind: "ClusterIssuer",
-					name: "cf-letsencrypt-staging",
+					name: "cf-letsencrypt",
 				},
 				secretName: "fortify-vault-ssl-cert",
 			},

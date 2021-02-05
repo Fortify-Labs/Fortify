@@ -106,11 +106,11 @@ export interface ChallengeSpec {
   readonly token: string;
 
   /**
-   * Type is the type of ACME challenge this resource represents, e.g. "dns01" or "http01".
+   * Type is the type of ACME challenge this resource represents. One of "http-01" or "dns-01".
    *
    * @schema ChallengeSpec#type
    */
-  readonly type: string;
+  readonly type: ChallengeSpecType;
 
   /**
    * URL is the URL of the ACME Challenge resource for this challenge. This can be used to lookup details about the status of this challenge.
@@ -135,16 +135,22 @@ export interface ChallengeSpec {
  */
 export interface ChallengeSpecIssuerRef {
   /**
+   * Group of the resource being referred to.
+   *
    * @schema ChallengeSpecIssuerRef#group
    */
   readonly group?: string;
 
   /**
+   * Kind of the resource being referred to.
+   *
    * @schema ChallengeSpecIssuerRef#kind
    */
   readonly kind?: string;
 
   /**
+   * Name of the resource being referred to.
+   *
    * @schema ChallengeSpecIssuerRef#name
    */
   readonly name: string;
@@ -158,19 +164,21 @@ export interface ChallengeSpecIssuerRef {
  */
 export interface ChallengeSpecSolver {
   /**
+   * Configures cert-manager to attempt to complete authorizations by performing the DNS01 challenge flow.
+   *
    * @schema ChallengeSpecSolver#dns01
    */
   readonly dns01?: ChallengeSpecSolverDns01;
 
   /**
-   * ACMEChallengeSolverHTTP01 contains configuration detailing how to solve HTTP01 challenges within a Kubernetes cluster. Typically this is accomplished through creating 'routes' of some description that configure ingress controllers to direct traffic to 'solver pods', which are responsible for responding to the ACME server's HTTP requests.
+   * Configures cert-manager to attempt to complete authorizations by performing the HTTP01 challenge flow. It is not possible to obtain certificates for wildcard domain names (e.g. `*.example.com`) using the HTTP01 challenge mechanism.
    *
    * @schema ChallengeSpecSolver#http01
    */
   readonly http01?: ChallengeSpecSolverHttp01;
 
   /**
-   * Selector selects a set of DNSNames on the Certificate resource that should be solved using this challenge solver.
+   * Selector selects a set of DNSNames on the Certificate resource that should be solved using this challenge solver. If not specified, the solver will be treated as the 'default' solver with the lowest priority, i.e. if any other solver has a more specific match, it will be used instead.
    *
    * @schema ChallengeSpecSolver#selector
    */
@@ -179,39 +187,53 @@ export interface ChallengeSpecSolver {
 }
 
 /**
+ * Type is the type of ACME challenge this resource represents. One of "http-01" or "dns-01".
+ *
+ * @schema ChallengeSpecType
+ */
+export enum ChallengeSpecType {
+  /** http-01 */
+  HTTP_01 = "http-01",
+  /** dns-01 */
+  DNS_01 = "dns-01",
+}
+
+/**
+ * Configures cert-manager to attempt to complete authorizations by performing the DNS01 challenge flow.
+ *
  * @schema ChallengeSpecSolverDns01
  */
 export interface ChallengeSpecSolverDns01 {
   /**
-   * ACMEIssuerDNS01ProviderAcmeDNS is a structure containing the configuration for ACME-DNS servers
+   * Use the 'ACME DNS' (https://github.com/joohoi/acme-dns) API to manage DNS01 challenge records.
    *
    * @schema ChallengeSpecSolverDns01#acmedns
    */
   readonly acmedns?: ChallengeSpecSolverDns01Acmedns;
 
   /**
-   * ACMEIssuerDNS01ProviderAkamai is a structure containing the DNS configuration for Akamai DNS—Zone Record Management API
+   * Use the Akamai DNS zone management API to manage DNS01 challenge records.
    *
    * @schema ChallengeSpecSolverDns01#akamai
    */
   readonly akamai?: ChallengeSpecSolverDns01Akamai;
 
   /**
-   * ACMEIssuerDNS01ProviderAzureDNS is a structure containing the configuration for Azure DNS
+   * Use the Microsoft Azure DNS API to manage DNS01 challenge records.
    *
    * @schema ChallengeSpecSolverDns01#azuredns
    */
   readonly azuredns?: ChallengeSpecSolverDns01Azuredns;
 
   /**
-   * ACMEIssuerDNS01ProviderCloudDNS is a structure containing the DNS configuration for Google Cloud DNS
+   * Use the Google Cloud DNS API to manage DNS01 challenge records.
    *
    * @schema ChallengeSpecSolverDns01#clouddns
    */
   readonly clouddns?: ChallengeSpecSolverDns01Clouddns;
 
   /**
-   * ACMEIssuerDNS01ProviderCloudflare is a structure containing the DNS configuration for Cloudflare
+   * Use the Cloudflare API to manage DNS01 challenge records.
    *
    * @schema ChallengeSpecSolverDns01#cloudflare
    */
@@ -225,28 +247,28 @@ export interface ChallengeSpecSolverDns01 {
   readonly cnameStrategy?: ChallengeSpecSolverDns01CnameStrategy;
 
   /**
-   * ACMEIssuerDNS01ProviderDigitalOcean is a structure containing the DNS configuration for DigitalOcean Domains
+   * Use the DigitalOcean DNS API to manage DNS01 challenge records.
    *
    * @schema ChallengeSpecSolverDns01#digitalocean
    */
   readonly digitalocean?: ChallengeSpecSolverDns01Digitalocean;
 
   /**
-   * ACMEIssuerDNS01ProviderRFC2136 is a structure containing the configuration for RFC2136 DNS
+   * Use RFC2136 ("Dynamic Updates in the Domain Name System") (https://datatracker.ietf.org/doc/rfc2136/) to manage DNS01 challenge records.
    *
    * @schema ChallengeSpecSolverDns01#rfc2136
    */
   readonly rfc2136?: ChallengeSpecSolverDns01Rfc2136;
 
   /**
-   * ACMEIssuerDNS01ProviderRoute53 is a structure containing the Route 53 configuration for AWS
+   * Use the AWS Route53 API to manage DNS01 challenge records.
    *
    * @schema ChallengeSpecSolverDns01#route53
    */
   readonly route53?: ChallengeSpecSolverDns01Route53;
 
   /**
-   * ACMEIssuerDNS01ProviderWebhook specifies configuration for a webhook DNS01 provider, including where to POST ChallengePayload resources.
+   * Configure an external webhook based DNS01 challenge solver to manage DNS01 challenge records.
    *
    * @schema ChallengeSpecSolverDns01#webhook
    */
@@ -255,7 +277,7 @@ export interface ChallengeSpecSolverDns01 {
 }
 
 /**
- * ACMEChallengeSolverHTTP01 contains configuration detailing how to solve HTTP01 challenges within a Kubernetes cluster. Typically this is accomplished through creating 'routes' of some description that configure ingress controllers to direct traffic to 'solver pods', which are responsible for responding to the ACME server's HTTP requests.
+ * Configures cert-manager to attempt to complete authorizations by performing the HTTP01 challenge flow. It is not possible to obtain certificates for wildcard domain names (e.g. `*.example.com`) using the HTTP01 challenge mechanism.
  *
  * @schema ChallengeSpecSolverHttp01
  */
@@ -270,7 +292,7 @@ export interface ChallengeSpecSolverHttp01 {
 }
 
 /**
- * Selector selects a set of DNSNames on the Certificate resource that should be solved using this challenge solver.
+ * Selector selects a set of DNSNames on the Certificate resource that should be solved using this challenge solver. If not specified, the solver will be treated as the 'default' solver with the lowest priority, i.e. if any other solver has a more specific match, it will be used instead.
  *
  * @schema ChallengeSpecSolverSelector
  */
@@ -299,12 +321,14 @@ export interface ChallengeSpecSolverSelector {
 }
 
 /**
- * ACMEIssuerDNS01ProviderAcmeDNS is a structure containing the configuration for ACME-DNS servers
+ * Use the 'ACME DNS' (https://github.com/joohoi/acme-dns) API to manage DNS01 challenge records.
  *
  * @schema ChallengeSpecSolverDns01Acmedns
  */
 export interface ChallengeSpecSolverDns01Acmedns {
   /**
+   * A reference to a specific 'key' within a Secret resource. In some instances, `key` is a required field.
+   *
    * @schema ChallengeSpecSolverDns01Acmedns#accountSecretRef
    */
   readonly accountSecretRef: ChallengeSpecSolverDns01AcmednsAccountSecretRef;
@@ -317,22 +341,28 @@ export interface ChallengeSpecSolverDns01Acmedns {
 }
 
 /**
- * ACMEIssuerDNS01ProviderAkamai is a structure containing the DNS configuration for Akamai DNS—Zone Record Management API
+ * Use the Akamai DNS zone management API to manage DNS01 challenge records.
  *
  * @schema ChallengeSpecSolverDns01Akamai
  */
 export interface ChallengeSpecSolverDns01Akamai {
   /**
+   * A reference to a specific 'key' within a Secret resource. In some instances, `key` is a required field.
+   *
    * @schema ChallengeSpecSolverDns01Akamai#accessTokenSecretRef
    */
   readonly accessTokenSecretRef: ChallengeSpecSolverDns01AkamaiAccessTokenSecretRef;
 
   /**
+   * A reference to a specific 'key' within a Secret resource. In some instances, `key` is a required field.
+   *
    * @schema ChallengeSpecSolverDns01Akamai#clientSecretSecretRef
    */
   readonly clientSecretSecretRef: ChallengeSpecSolverDns01AkamaiClientSecretSecretRef;
 
   /**
+   * A reference to a specific 'key' within a Secret resource. In some instances, `key` is a required field.
+   *
    * @schema ChallengeSpecSolverDns01Akamai#clientTokenSecretRef
    */
   readonly clientTokenSecretRef: ChallengeSpecSolverDns01AkamaiClientTokenSecretRef;
@@ -345,7 +375,7 @@ export interface ChallengeSpecSolverDns01Akamai {
 }
 
 /**
- * ACMEIssuerDNS01ProviderAzureDNS is a structure containing the configuration for Azure DNS
+ * Use the Microsoft Azure DNS API to manage DNS01 challenge records.
  *
  * @schema ChallengeSpecSolverDns01Azuredns
  */
@@ -394,17 +424,26 @@ export interface ChallengeSpecSolverDns01Azuredns {
 }
 
 /**
- * ACMEIssuerDNS01ProviderCloudDNS is a structure containing the DNS configuration for Google Cloud DNS
+ * Use the Google Cloud DNS API to manage DNS01 challenge records.
  *
  * @schema ChallengeSpecSolverDns01Clouddns
  */
 export interface ChallengeSpecSolverDns01Clouddns {
+  /**
+   * HostedZoneName is an optional field that tells cert-manager in which Cloud DNS zone the challenge record has to be created. If left empty cert-manager will automatically choose a zone.
+   *
+   * @schema ChallengeSpecSolverDns01Clouddns#hostedZoneName
+   */
+  readonly hostedZoneName?: string;
+
   /**
    * @schema ChallengeSpecSolverDns01Clouddns#project
    */
   readonly project: string;
 
   /**
+   * A reference to a specific 'key' within a Secret resource. In some instances, `key` is a required field.
+   *
    * @schema ChallengeSpecSolverDns01Clouddns#serviceAccountSecretRef
    */
   readonly serviceAccountSecretRef?: ChallengeSpecSolverDns01ClouddnsServiceAccountSecretRef;
@@ -412,25 +451,31 @@ export interface ChallengeSpecSolverDns01Clouddns {
 }
 
 /**
- * ACMEIssuerDNS01ProviderCloudflare is a structure containing the DNS configuration for Cloudflare
+ * Use the Cloudflare API to manage DNS01 challenge records.
  *
  * @schema ChallengeSpecSolverDns01Cloudflare
  */
 export interface ChallengeSpecSolverDns01Cloudflare {
   /**
+   * API key to use to authenticate with Cloudflare. Note: using an API token to authenticate is now the recommended method as it allows greater control of permissions.
+   *
    * @schema ChallengeSpecSolverDns01Cloudflare#apiKeySecretRef
    */
   readonly apiKeySecretRef?: ChallengeSpecSolverDns01CloudflareApiKeySecretRef;
 
   /**
+   * API token used to authenticate with Cloudflare.
+   *
    * @schema ChallengeSpecSolverDns01Cloudflare#apiTokenSecretRef
    */
   readonly apiTokenSecretRef?: ChallengeSpecSolverDns01CloudflareApiTokenSecretRef;
 
   /**
+   * Email of the account, only required when using API key based authentication.
+   *
    * @schema ChallengeSpecSolverDns01Cloudflare#email
    */
-  readonly email: string;
+  readonly email?: string;
 
 }
 
@@ -447,12 +492,14 @@ export enum ChallengeSpecSolverDns01CnameStrategy {
 }
 
 /**
- * ACMEIssuerDNS01ProviderDigitalOcean is a structure containing the DNS configuration for DigitalOcean Domains
+ * Use the DigitalOcean DNS API to manage DNS01 challenge records.
  *
  * @schema ChallengeSpecSolverDns01Digitalocean
  */
 export interface ChallengeSpecSolverDns01Digitalocean {
   /**
+   * A reference to a specific 'key' within a Secret resource. In some instances, `key` is a required field.
+   *
    * @schema ChallengeSpecSolverDns01Digitalocean#tokenSecretRef
    */
   readonly tokenSecretRef: ChallengeSpecSolverDns01DigitaloceanTokenSecretRef;
@@ -460,7 +507,7 @@ export interface ChallengeSpecSolverDns01Digitalocean {
 }
 
 /**
- * ACMEIssuerDNS01ProviderRFC2136 is a structure containing the configuration for RFC2136 DNS
+ * Use RFC2136 ("Dynamic Updates in the Domain Name System") (https://datatracker.ietf.org/doc/rfc2136/) to manage DNS01 challenge records.
  *
  * @schema ChallengeSpecSolverDns01Rfc2136
  */
@@ -496,7 +543,7 @@ export interface ChallengeSpecSolverDns01Rfc2136 {
 }
 
 /**
- * ACMEIssuerDNS01ProviderRoute53 is a structure containing the Route 53 configuration for AWS
+ * Use the AWS Route53 API to manage DNS01 challenge records.
  *
  * @schema ChallengeSpecSolverDns01Route53
  */
@@ -539,7 +586,7 @@ export interface ChallengeSpecSolverDns01Route53 {
 }
 
 /**
- * ACMEIssuerDNS01ProviderWebhook specifies configuration for a webhook DNS01 provider, including where to POST ChallengePayload resources.
+ * Configure an external webhook based DNS01 challenge solver to manage DNS01 challenge records.
  *
  * @schema ChallengeSpecSolverDns01Webhook
  */
@@ -611,18 +658,20 @@ export interface ChallengeSpecSolverHttp01Ingress {
 }
 
 /**
+ * A reference to a specific 'key' within a Secret resource. In some instances, `key` is a required field.
+ *
  * @schema ChallengeSpecSolverDns01AcmednsAccountSecretRef
  */
 export interface ChallengeSpecSolverDns01AcmednsAccountSecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema ChallengeSpecSolverDns01AcmednsAccountSecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema ChallengeSpecSolverDns01AcmednsAccountSecretRef#name
    */
@@ -631,18 +680,20 @@ export interface ChallengeSpecSolverDns01AcmednsAccountSecretRef {
 }
 
 /**
+ * A reference to a specific 'key' within a Secret resource. In some instances, `key` is a required field.
+ *
  * @schema ChallengeSpecSolverDns01AkamaiAccessTokenSecretRef
  */
 export interface ChallengeSpecSolverDns01AkamaiAccessTokenSecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema ChallengeSpecSolverDns01AkamaiAccessTokenSecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema ChallengeSpecSolverDns01AkamaiAccessTokenSecretRef#name
    */
@@ -651,18 +702,20 @@ export interface ChallengeSpecSolverDns01AkamaiAccessTokenSecretRef {
 }
 
 /**
+ * A reference to a specific 'key' within a Secret resource. In some instances, `key` is a required field.
+ *
  * @schema ChallengeSpecSolverDns01AkamaiClientSecretSecretRef
  */
 export interface ChallengeSpecSolverDns01AkamaiClientSecretSecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema ChallengeSpecSolverDns01AkamaiClientSecretSecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema ChallengeSpecSolverDns01AkamaiClientSecretSecretRef#name
    */
@@ -671,18 +724,20 @@ export interface ChallengeSpecSolverDns01AkamaiClientSecretSecretRef {
 }
 
 /**
+ * A reference to a specific 'key' within a Secret resource. In some instances, `key` is a required field.
+ *
  * @schema ChallengeSpecSolverDns01AkamaiClientTokenSecretRef
  */
 export interface ChallengeSpecSolverDns01AkamaiClientTokenSecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema ChallengeSpecSolverDns01AkamaiClientTokenSecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema ChallengeSpecSolverDns01AkamaiClientTokenSecretRef#name
    */
@@ -697,14 +752,14 @@ export interface ChallengeSpecSolverDns01AkamaiClientTokenSecretRef {
  */
 export interface ChallengeSpecSolverDns01AzurednsClientSecretSecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema ChallengeSpecSolverDns01AzurednsClientSecretSecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema ChallengeSpecSolverDns01AzurednsClientSecretSecretRef#name
    */
@@ -727,18 +782,20 @@ export enum ChallengeSpecSolverDns01AzurednsEnvironment {
 }
 
 /**
+ * A reference to a specific 'key' within a Secret resource. In some instances, `key` is a required field.
+ *
  * @schema ChallengeSpecSolverDns01ClouddnsServiceAccountSecretRef
  */
 export interface ChallengeSpecSolverDns01ClouddnsServiceAccountSecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema ChallengeSpecSolverDns01ClouddnsServiceAccountSecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema ChallengeSpecSolverDns01ClouddnsServiceAccountSecretRef#name
    */
@@ -747,18 +804,20 @@ export interface ChallengeSpecSolverDns01ClouddnsServiceAccountSecretRef {
 }
 
 /**
+ * API key to use to authenticate with Cloudflare. Note: using an API token to authenticate is now the recommended method as it allows greater control of permissions.
+ *
  * @schema ChallengeSpecSolverDns01CloudflareApiKeySecretRef
  */
 export interface ChallengeSpecSolverDns01CloudflareApiKeySecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema ChallengeSpecSolverDns01CloudflareApiKeySecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema ChallengeSpecSolverDns01CloudflareApiKeySecretRef#name
    */
@@ -767,18 +826,20 @@ export interface ChallengeSpecSolverDns01CloudflareApiKeySecretRef {
 }
 
 /**
+ * API token used to authenticate with Cloudflare.
+ *
  * @schema ChallengeSpecSolverDns01CloudflareApiTokenSecretRef
  */
 export interface ChallengeSpecSolverDns01CloudflareApiTokenSecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema ChallengeSpecSolverDns01CloudflareApiTokenSecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema ChallengeSpecSolverDns01CloudflareApiTokenSecretRef#name
    */
@@ -787,18 +848,20 @@ export interface ChallengeSpecSolverDns01CloudflareApiTokenSecretRef {
 }
 
 /**
+ * A reference to a specific 'key' within a Secret resource. In some instances, `key` is a required field.
+ *
  * @schema ChallengeSpecSolverDns01DigitaloceanTokenSecretRef
  */
 export interface ChallengeSpecSolverDns01DigitaloceanTokenSecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema ChallengeSpecSolverDns01DigitaloceanTokenSecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema ChallengeSpecSolverDns01DigitaloceanTokenSecretRef#name
    */
@@ -813,14 +876,14 @@ export interface ChallengeSpecSolverDns01DigitaloceanTokenSecretRef {
  */
 export interface ChallengeSpecSolverDns01Rfc2136TsigSecretSecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema ChallengeSpecSolverDns01Rfc2136TsigSecretSecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema ChallengeSpecSolverDns01Rfc2136TsigSecretSecretRef#name
    */
@@ -835,14 +898,14 @@ export interface ChallengeSpecSolverDns01Rfc2136TsigSecretSecretRef {
  */
 export interface ChallengeSpecSolverDns01Route53SecretAccessKeySecretRef {
   /**
-   * The key of the secret to select from. Must be a valid secret key.
+   * The key of the entry in the Secret resource's `data` field to be used. Some instances of this field may be defaulted, in others it may be required.
    *
    * @schema ChallengeSpecSolverDns01Route53SecretAccessKeySecretRef#key
    */
   readonly key?: string;
 
   /**
-   * Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names TODO: Add other useful fields. apiVersion, kind, uid?
+   * Name of the resource being referred to. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
    *
    * @schema ChallengeSpecSolverDns01Route53SecretAccessKeySecretRef#name
    */
@@ -879,7 +942,7 @@ export interface ChallengeSpecSolverHttp01IngressPodTemplate {
   readonly metadata?: ChallengeSpecSolverHttp01IngressPodTemplateMetadata;
 
   /**
-   * PodSpec defines overrides for the HTTP01 challenge solver pod. Only the 'nodeSelector', 'affinity' and 'tolerations' fields are supported currently. All other fields will be ignored.
+   * PodSpec defines overrides for the HTTP01 challenge solver pod. Only the 'priorityClassName', 'nodeSelector', 'affinity', 'serviceAccountName' and 'tolerations' fields are supported currently. All other fields will be ignored.
    *
    * @schema ChallengeSpecSolverHttp01IngressPodTemplate#spec
    */
@@ -932,7 +995,7 @@ export interface ChallengeSpecSolverHttp01IngressPodTemplateMetadata {
 }
 
 /**
- * PodSpec defines overrides for the HTTP01 challenge solver pod. Only the 'nodeSelector', 'affinity' and 'tolerations' fields are supported currently. All other fields will be ignored.
+ * PodSpec defines overrides for the HTTP01 challenge solver pod. Only the 'priorityClassName', 'nodeSelector', 'affinity', 'serviceAccountName' and 'tolerations' fields are supported currently. All other fields will be ignored.
  *
  * @schema ChallengeSpecSolverHttp01IngressPodTemplateSpec
  */
@@ -950,6 +1013,20 @@ export interface ChallengeSpecSolverHttp01IngressPodTemplateSpec {
    * @schema ChallengeSpecSolverHttp01IngressPodTemplateSpec#nodeSelector
    */
   readonly nodeSelector?: { [key: string]: string };
+
+  /**
+   * If specified, the pod's priorityClassName.
+   *
+   * @schema ChallengeSpecSolverHttp01IngressPodTemplateSpec#priorityClassName
+   */
+  readonly priorityClassName?: string;
+
+  /**
+   * If specified, the pod's service account
+   *
+   * @schema ChallengeSpecSolverHttp01IngressPodTemplateSpec#serviceAccountName
+   */
+  readonly serviceAccountName?: string;
 
   /**
    * If specified, the pod's tolerations.
@@ -1722,7 +1799,7 @@ export interface OrderProps {
  */
 export interface OrderSpec {
   /**
-   * CommonName is the common name as specified on the DER encoded CSR. If CommonName is not specified, the first DNSName specified will be used as the CommonName. At least one of CommonName or a DNSNames must be set. This field must match the corresponding field on the DER encoded CSR.
+   * CommonName is the common name as specified on the DER encoded CSR. If specified, this value must also be present in `dnsNames` or `ipAddresses`. This field must match the corresponding field on the DER encoded CSR.
    *
    * @schema OrderSpec#commonName
    */
@@ -1736,11 +1813,25 @@ export interface OrderSpec {
   readonly csr: string;
 
   /**
-   * DNSNames is a list of DNS names that should be included as part of the Order validation process. If CommonName is not specified, the first DNSName specified will be used as the CommonName. At least one of CommonName or a DNSNames must be set. This field must match the corresponding field on the DER encoded CSR.
+   * DNSNames is a list of DNS names that should be included as part of the Order validation process. This field must match the corresponding field on the DER encoded CSR.
    *
    * @schema OrderSpec#dnsNames
    */
   readonly dnsNames?: string[];
+
+  /**
+   * Duration is the duration for the not after date for the requested certificate. this is set on order creation as pe the ACME spec.
+   *
+   * @schema OrderSpec#duration
+   */
+  readonly duration?: string;
+
+  /**
+   * IPAddresses is a list of IP addresses that should be included as part of the Order validation process. This field must match the corresponding field on the DER encoded CSR.
+   *
+   * @schema OrderSpec#ipAddresses
+   */
+  readonly ipAddresses?: string[];
 
   /**
    * IssuerRef references a properly configured ACME-type Issuer which should be used to create this Order. If the Issuer does not exist, processing will be retried. If the Issuer is not an 'ACME' Issuer, an error will be returned and the Order will be marked as failed.
@@ -1758,16 +1849,22 @@ export interface OrderSpec {
  */
 export interface OrderSpecIssuerRef {
   /**
+   * Group of the resource being referred to.
+   *
    * @schema OrderSpecIssuerRef#group
    */
   readonly group?: string;
 
   /**
+   * Kind of the resource being referred to.
+   *
    * @schema OrderSpecIssuerRef#kind
    */
   readonly kind?: string;
 
   /**
+   * Name of the resource being referred to.
+   *
    * @schema OrderSpecIssuerRef#name
    */
   readonly name: string;

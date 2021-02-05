@@ -91,7 +91,7 @@ export class KowlChart extends Chart {
 				dnsNames: ["fortify.dev", "kowl.fortify.dev"],
 				issuerRef: {
 					kind: "ClusterIssuer",
-					name: "cf-letsencrypt-staging",
+					name: "cf-letsencrypt",
 				},
 				secretName: "fortify-kowl-ssl-cert",
 			},

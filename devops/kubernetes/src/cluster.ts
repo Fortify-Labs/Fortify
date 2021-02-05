@@ -40,6 +40,7 @@ const devHosts = [
 	`influxdb-rc-${ENVIRONMENT}.fortify.dev`,
 	`kibana-${ENVIRONMENT}.fortify.dev`,
 	`fortify.dev`,
+	`grafana.fortify.dev`,
 ];
 
 export interface CustomKafkaProps extends KafkaProps {
@@ -533,7 +534,7 @@ export class ClusterSetup extends Chart {
 				commonName: DOMAIN,
 				dnsNames: hosts,
 				issuerRef: {
-					name: "cf-letsencrypt-staging",
+					name: "cf-letsencrypt",
 					kind: "ClusterIssuer",
 				},
 			},
@@ -550,7 +551,7 @@ export class ClusterSetup extends Chart {
 				commonName: "fortify.dev",
 				dnsNames: devHosts,
 				issuerRef: {
-					name: "cf-letsencrypt-staging",
+					name: "cf-letsencrypt",
 					kind: "ClusterIssuer",
 				},
 			},

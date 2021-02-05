@@ -733,7 +733,7 @@ export interface ElasticsearchSpecNodeSetsVolumeClaimTemplatesSpec {
   readonly accessModes?: string[];
 
   /**
-   * This field requires the VolumeSnapshotDataSource alpha feature gate to be enabled and currently VolumeSnapshot is the only supported data source. If the provisioner can support VolumeSnapshot data source, it will create a new volume and data will be restored to the volume at the same time. If the provisioner does not support VolumeSnapshot data source, volume will not be created and the failure will be reported as an event. In the future, we plan to support more data source types and the behavior of the provisioner may change.
+   * This field can be used to specify either: * An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot - Beta) * An existing PVC (PersistentVolumeClaim) * An existing custom resource/object that implements data population (Alpha) In order to use VolumeSnapshot object types, the appropriate feature gate must be enabled (VolumeSnapshotDataSource or AnyVolumeDataSource) If the provisioner or an external controller can support the specified data source, it will create a new volume based on the contents of the specified data source. If the specified data source is not supported, the volume will not be created and the failure will be reported as an event. In the future, we plan to support more data source types and the behavior of the provisioner may change.
    *
    * @schema ElasticsearchSpecNodeSetsVolumeClaimTemplatesSpec#dataSource
    */
@@ -761,7 +761,7 @@ export interface ElasticsearchSpecNodeSetsVolumeClaimTemplatesSpec {
   readonly storageClassName?: string;
 
   /**
-   * volumeMode defines what type of volume is required by the claim. Value of Filesystem is implied when not included in claim spec. This is a beta feature.
+   * volumeMode defines what type of volume is required by the claim. Value of Filesystem is implied when not included in claim spec.
    *
    * @schema ElasticsearchSpecNodeSetsVolumeClaimTemplatesSpec#volumeMode
    */
@@ -990,6 +990,13 @@ export interface ElasticsearchSpecTransportServiceSpec {
  */
 export interface ElasticsearchSpecHttpServiceSpecPorts {
   /**
+   * The application protocol for this port. This field follows standard Kubernetes label syntax. Un-prefixed names are reserved for IANA standard service names (as per RFC-6335 and http://www.iana.org/assignments/service-names). Non-standard protocols should use prefixed names such as mycompany.com/my-custom-protocol. Field can be enabled with ServiceAppProtocol feature gate.
+   *
+   * @schema ElasticsearchSpecHttpServiceSpecPorts#appProtocol
+   */
+  readonly appProtocol?: string;
+
+  /**
    * The name of this port within the service. This must be a DNS_LABEL. All ports within a ServiceSpec must have unique names. When considering the endpoints for a Service, this must match the 'name' field in the EndpointPort. Optional if only one ServicePort is defined on this service.
    *
    * @schema ElasticsearchSpecHttpServiceSpecPorts#name
@@ -1066,7 +1073,7 @@ export interface ElasticsearchSpecHttpTlsSelfSignedCertificateSubjectAltNames {
 }
 
 /**
- * This field requires the VolumeSnapshotDataSource alpha feature gate to be enabled and currently VolumeSnapshot is the only supported data source. If the provisioner can support VolumeSnapshot data source, it will create a new volume and data will be restored to the volume at the same time. If the provisioner does not support VolumeSnapshot data source, volume will not be created and the failure will be reported as an event. In the future, we plan to support more data source types and the behavior of the provisioner may change.
+ * This field can be used to specify either: * An existing VolumeSnapshot object (snapshot.storage.k8s.io/VolumeSnapshot - Beta) * An existing PVC (PersistentVolumeClaim) * An existing custom resource/object that implements data population (Alpha) In order to use VolumeSnapshot object types, the appropriate feature gate must be enabled (VolumeSnapshotDataSource or AnyVolumeDataSource) If the provisioner or an external controller can support the specified data source, it will create a new volume based on the contents of the specified data source. If the specified data source is not supported, the volume will not be created and the failure will be reported as an event. In the future, we plan to support more data source types and the behavior of the provisioner may change.
  *
  * @schema ElasticsearchSpecNodeSetsVolumeClaimTemplatesSpecDataSource
  */
@@ -1236,6 +1243,13 @@ export interface ElasticsearchSpecPodDisruptionBudgetSpecSelectorMatchExpression
  * @schema ElasticsearchSpecTransportServiceSpecPorts
  */
 export interface ElasticsearchSpecTransportServiceSpecPorts {
+  /**
+   * The application protocol for this port. This field follows standard Kubernetes label syntax. Un-prefixed names are reserved for IANA standard service names (as per RFC-6335 and http://www.iana.org/assignments/service-names). Non-standard protocols should use prefixed names such as mycompany.com/my-custom-protocol. Field can be enabled with ServiceAppProtocol feature gate.
+   *
+   * @schema ElasticsearchSpecTransportServiceSpecPorts#appProtocol
+   */
+  readonly appProtocol?: string;
+
   /**
    * The name of this port within the service. This must be a DNS_LABEL. All ports within a ServiceSpec must have unique names. When considering the endpoints for a Service, this must match the 'name' field in the EndpointPort. Optional if only one ServicePort is defined on this service.
    *
