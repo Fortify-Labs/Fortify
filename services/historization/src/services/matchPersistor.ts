@@ -138,7 +138,17 @@ export class MatchPersistor {
 		for (const { id, level } of activeAlliances.sort(
 			(a, b) => a.id - b.id,
 		)) {
-			point = point.tag(`alliance-${id.toFixed(0)}`, level.toFixed(0));
+			if (
+				id !== null &&
+				id !== undefined &&
+				level !== null &&
+				level !== undefined
+			) {
+				point = point.tag(
+					`alliance-${id.toFixed(0)}`,
+					level.toFixed(0),
+				);
+			}
 		}
 
 		for (const item of equippedItems.sort()) {
@@ -180,7 +190,17 @@ export class MatchPersistor {
 		for (const { id, level } of activeAlliances.sort(
 			(a, b) => a.id - b.id,
 		)) {
-			point = point.tag(`alliance-${id.toFixed(0)}`, level.toFixed(0));
+			if (
+				id !== null &&
+				id !== undefined &&
+				level !== null &&
+				level !== undefined
+			) {
+				point = point.tag(
+					`alliance-${id.toFixed(0)}`,
+					level.toFixed(0),
+				);
+			}
 		}
 
 		return point;
@@ -212,7 +232,17 @@ export class MatchPersistor {
 		for (const { id, level } of activeAlliances.sort(
 			(a, b) => a.id - b.id,
 		)) {
-			point = point.tag(`alliance-${id.toFixed(0)}`, level.toFixed(0));
+			if (
+				id !== null &&
+				id !== undefined &&
+				level !== null &&
+				level !== undefined
+			) {
+				point = point.tag(
+					`alliance-${id.toFixed(0)}`,
+					level.toFixed(0),
+				);
+			}
 		}
 
 		return point;
