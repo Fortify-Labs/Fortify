@@ -1,6 +1,6 @@
 {
   "name": "shared",
-  "version": "1.14.1",
+  "version": "1.15.0",
   "description": "Shared library for fortify micro services",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
@@ -23,7 +23,7 @@
   "devDependencies": {
     "@types/ioredis": "^4.19.3",
     "@types/jsonwebtoken": "^8.5.0",
-    "@types/node": "^14.14.22",
+    "@types/node": "^14.14.25",
     "@types/node-fetch": "^2.5.8",
     "dotenv": "^8.2.0",
     "gts": "^3.1.0",
@@ -34,8 +34,8 @@
     "@godaddy/terminus": "^4.6.0",
     "@influxdata/influxdb-client": "^1.10.0",
     "@influxdata/influxdb-client-apis": "^1.10.0",
-    "@sentry/integrations": "^6.0.3",
-    "@sentry/node": "^6.0.3",
+    "@sentry/integrations": "^6.1.0",
+    "@sentry/node": "^6.1.0",
     "bignumber.js": "^9.0.1",
     "inversify": "^5.0.5",
     "ioredis": "^4.19.4",

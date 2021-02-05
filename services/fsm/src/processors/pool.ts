@@ -1,6 +1,7 @@
 import { injectable } from "inversify";
 import { FortifyGameMode, MatchState } from "@shared/state";
-import { units, currentSeason, Unit as S1Unit } from "@shared/units";
+import { units, Unit as S1Unit } from "@shared/units";
+import { currentSeason } from "@shared/season";
 import { poolSize } from "@shared/pool";
 
 @injectable()

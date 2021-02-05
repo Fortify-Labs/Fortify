@@ -135,22 +135,22 @@ export class SmurfDetectedEvent extends FortifyEventClass<GameEventType> {
 	}
 
 	public static deserialize<GameEventType>(obj: FortifyEvent<GameEventType>) {
-		// TODO: Delete line after a release or two
-		const originalAccountID = obj["originalAccountID"] as string | null;
 		const mainAccountID = obj["mainAccountID"] as string | null;
 		const smurfAccountID = obj["smurfAccountID"] as string | null;
 
-		if ((originalAccountID || mainAccountID) && smurfAccountID)
-			return new this(
-				mainAccountID ?? originalAccountID!,
-				smurfAccountID,
-			);
+		if (mainAccountID && smurfAccountID)
+			return new this(mainAccountID, smurfAccountID);
 		else throw new DeserializationError();
 	}
 }
 
 export interface ExtraArgs {
 	underlordTalents?: number[];
+}
+
+export interface ActiveAlliance {
+	id: number;
+	level: number;
 }
 
 export class UnitStatsEvent extends FortifyEventClass<GameEventType> {
@@ -168,7 +168,7 @@ export class UnitStatsEvent extends FortifyEventClass<GameEventType> {
 		public value: number,
 		public roundNumber: number,
 		public averageMMR: number,
-		public activeAlliances: number[],
+		public activeAlliances: ActiveAlliance[],
 		public equippedItems: number[],
 		public gameMode: FortifyGameMode = FortifyGameMode.Invalid,
 		public extra?: ExtraArgs,
@@ -182,7 +182,7 @@ export class UnitStatsEvent extends FortifyEventClass<GameEventType> {
 		const value = obj["value"] as number;
 		const roundNumber = obj["roundNumber"] as number;
 		const averageMMR = obj["averageMMR"] as number;
-		const activeAlliances = obj["activeAlliances"] as number[];
+		const activeAlliances = obj["activeAlliances"] as ActiveAlliance[];
 		const equippedItems = obj["equippedItems"] as number[];
 		const gameMode = obj["gameMode"] as FortifyGameMode;
 		const extra = obj["extra"] as ExtraArgs | undefined;
@@ -199,7 +199,8 @@ export class UnitStatsEvent extends FortifyEventClass<GameEventType> {
 			roundNumber !== undefined &&
 			averageMMR !== null &&
 			averageMMR !== undefined &&
-			activeAlliances &&
+			activeAlliances !== null &&
+			activeAlliances !== undefined &&
 			equippedItems
 		) {
 			return new this(
@@ -231,7 +232,7 @@ export class ItemStatsEvent extends FortifyEventClass<GameEventType> {
 		public value: number,
 		public roundNumber: number,
 		public averageMMR: number,
-		public activeAlliances: number[],
+		public activeAlliances: ActiveAlliance[],
 		public gameMode: FortifyGameMode = FortifyGameMode.Invalid,
 	) {
 		super();
@@ -242,7 +243,7 @@ export class ItemStatsEvent extends FortifyEventClass<GameEventType> {
 		const value = obj["value"] as number;
 		const roundNumber = obj["roundNumber"] as number;
 		const averageMMR = obj["averageMMR"] as number;
-		const activeAlliances = obj["activeAlliances"] as number[];
+		const activeAlliances = obj["activeAlliances"] as ActiveAlliance[];
 		const gameMode = obj["gameMode"] as FortifyGameMode;
 
 		// A check for not null & undefined is required, as JS would convert a zero to false
@@ -255,7 +256,8 @@ export class ItemStatsEvent extends FortifyEventClass<GameEventType> {
 			roundNumber !== undefined &&
 			averageMMR !== null &&
 			averageMMR !== undefined &&
-			activeAlliances
+			activeAlliances !== null &&
+			activeAlliances !== undefined
 		) {
 			return new this(
 				itemID,
@@ -267,6 +269,10 @@ export class ItemStatsEvent extends FortifyEventClass<GameEventType> {
 			);
 		} else throw new DeserializationError();
 	}
+}
+
+export interface AllianceStatsExtraArgs {
+	allianceLevel: number;
 }
 
 export class AllianceStatsEvent extends FortifyEventClass<GameEventType> {
@@ -283,8 +289,9 @@ export class AllianceStatsEvent extends FortifyEventClass<GameEventType> {
 		public value: number,
 		public roundNumber: number,
 		public averageMMR: number,
-		public activeAlliances: number[],
+		public activeAlliances: ActiveAlliance[],
 		public gameMode: FortifyGameMode = FortifyGameMode.Invalid,
+		public extra?: AllianceStatsExtraArgs,
 	) {
 		super();
 	}
@@ -294,8 +301,9 @@ export class AllianceStatsEvent extends FortifyEventClass<GameEventType> {
 		const value = obj["value"] as number;
 		const roundNumber = obj["roundNumber"] as number;
 		const averageMMR = obj["averageMMR"] as number;
-		const activeAlliances = obj["activeAlliances"] as number[];
+		const activeAlliances = obj["activeAlliances"] as ActiveAlliance[];
 		const gameMode = obj["gameMode"] as FortifyGameMode;
+		const extra = obj["extra"] as AllianceStatsExtraArgs;
 
 		// A check for not null & undefined is required, as JS would convert a zero to false
 		if (
@@ -307,7 +315,8 @@ export class AllianceStatsEvent extends FortifyEventClass<GameEventType> {
 			roundNumber !== undefined &&
 			averageMMR !== null &&
 			averageMMR !== undefined &&
-			activeAlliances
+			activeAlliances !== null &&
+			activeAlliances !== undefined
 		) {
 			return new this(
 				allianceID,
@@ -316,6 +325,7 @@ export class AllianceStatsEvent extends FortifyEventClass<GameEventType> {
 				averageMMR,
 				activeAlliances,
 				gameMode,
+				extra,
 			);
 		} else throw new DeserializationError();
 	}

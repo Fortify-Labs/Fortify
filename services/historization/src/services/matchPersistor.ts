@@ -111,6 +111,7 @@ export class MatchPersistor {
 			throw e;
 		}
 	}
+
 	mapUnitStats({
 		activeAlliances,
 		averageMMR,
@@ -134,8 +135,10 @@ export class MatchPersistor {
 			.tag("gameMode", gameMode.toFixed(0))
 			.timestamp(new Date(timestamp).getTime() * 1000000);
 
-		for (const alliance of activeAlliances.sort()) {
-			point = point.tag(`alliance-${alliance.toFixed(0)}`, "1");
+		for (const { id, level } of activeAlliances.sort(
+			(a, b) => a.id - b.id,
+		)) {
+			point = point.tag(`alliance-${id.toFixed(0)}`, level.toFixed(0));
 		}
 
 		for (const item of equippedItems.sort()) {
@@ -174,8 +177,10 @@ export class MatchPersistor {
 			.tag("gameMode", gameMode.toFixed(0))
 			.timestamp(new Date(timestamp).getTime() * 1000000);
 
-		for (const alliance of activeAlliances.sort()) {
-			point = point.tag(`alliance-${alliance.toFixed(0)}`, "1");
+		for (const { id, level } of activeAlliances.sort(
+			(a, b) => a.id - b.id,
+		)) {
+			point = point.tag(`alliance-${id.toFixed(0)}`, level.toFixed(0));
 		}
 
 		return point;
@@ -189,6 +194,7 @@ export class MatchPersistor {
 		timestamp,
 		value,
 		gameMode,
+		extra,
 	}: AllianceStatsEvent): Point {
 		let point = new Point("alliance")
 			.floatField("win", value)
@@ -199,8 +205,14 @@ export class MatchPersistor {
 			.tag("gameMode", gameMode.toFixed(0))
 			.timestamp(new Date(timestamp).getTime() * 1000000);
 
-		for (const alliance of activeAlliances.sort()) {
-			point = point.tag(`alliance-${alliance.toFixed(0)}`, "1");
+		if (extra) {
+			point.tag("allianceLevel", extra.allianceLevel.toFixed(0));
+		}
+
+		for (const { id, level } of activeAlliances.sort(
+			(a, b) => a.id - b.id,
+		)) {
+			point = point.tag(`alliance-${id.toFixed(0)}`, level.toFixed(0));
 		}
 
 		return point;

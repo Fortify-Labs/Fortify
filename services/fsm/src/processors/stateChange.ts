@@ -2,17 +2,23 @@ import { injectable } from "inversify";
 import {
 	PrivatePlayerState,
 	PublicPlayerState,
+	Synergy,
+	Unit,
 } from "@shared/definitions/gsiTypes";
 import { EventService } from "@shared/services/eventService";
 import { FortifyGameMode, MatchState } from "@shared/state";
 import { Logger } from "@shared/logger";
 import {
+	ActiveAlliance,
 	AllianceStatsEvent,
 	CombinedStatsEvent,
 	ExtraArgs,
 	ItemStatsEvent,
 	UnitStatsEvent,
 } from "@shared/events/gameEvents";
+import { EUnitKeyword } from "@shared/assets/keyword_mappings";
+import { synergies } from "@shared/synergies";
+import { currentSeason } from "../../../shared/src/season";
 
 const { STATS_EVENTS_GENERATION_ENABLED = "true" } = process.env;
 
@@ -104,7 +110,7 @@ export class StateChangeHandler {
 
 	private getUnitStatsEvents({
 		publicPlayerState: {
-			synergies,
+			synergies: boardSynergies,
 			units,
 			item_slots,
 			underlord_selected_talents,
@@ -114,8 +120,7 @@ export class StateChangeHandler {
 		gameMode,
 		timestamp,
 	}: StateSourceData): UnitStatsEvent[] {
-		const activeAlliances =
-			synergies?.map((synergy) => synergy.keyword) ?? [];
+		const activeAlliances = this.getActiveAlliances(boardSynergies, units);
 
 		// First iteration of round number tracking
 		const underlordRank =
@@ -168,14 +173,13 @@ export class StateChangeHandler {
 	}
 
 	private getAllianceStatsEvents({
-		publicPlayerState: { synergies, units },
+		publicPlayerState: { synergies: boardSynergies, units },
 		fightOutcome: wonFight,
 		averageMMR = 0,
 		timestamp,
 		gameMode,
 	}: StateSourceData): AllianceStatsEvent[] {
-		const activeAlliances =
-			synergies?.map((synergy) => synergy.keyword) ?? [];
+		const activeAlliances = this.getActiveAlliances(boardSynergies, units);
 
 		// First iteration of round number tracking
 		const underlordRank =
@@ -183,14 +187,17 @@ export class StateChangeHandler {
 		const estimatedRoundNumber =
 			underlordRank >= 1 ? 5 + 5 * underlordRank : 0;
 
-		return activeAlliances.map((alliance) => {
+		return activeAlliances.map(({ id, level }) => {
 			const event = new AllianceStatsEvent(
-				alliance,
+				id,
 				wonFight,
 				estimatedRoundNumber,
 				averageMMR,
 				activeAlliances,
 				gameMode,
+				{
+					allianceLevel: level,
+				},
 			);
 			event.timestamp = new Date(timestamp);
 			return event;
@@ -198,14 +205,13 @@ export class StateChangeHandler {
 	}
 
 	private getItemStatsEvents({
-		publicPlayerState: { synergies, item_slots, units },
+		publicPlayerState: { synergies: boardSynergies, item_slots, units },
 		fightOutcome: wonFight,
 		averageMMR = 0,
 		timestamp,
 		gameMode,
 	}: StateSourceData): ItemStatsEvent[] {
-		const activeAlliances =
-			synergies?.map((synergy) => synergy.keyword) ?? [];
+		const activeAlliances = this.getActiveAlliances(boardSynergies, units);
 
 		// First iteration of round number tracking
 		const underlordRank =
@@ -233,5 +239,56 @@ export class StateChangeHandler {
 					return event;
 				}) ?? []
 		);
+	}
+
+	private getActiveAlliances(
+		boardSynergies: Synergy[] | undefined,
+		units: Unit[] | undefined,
+	): ActiveAlliance[] {
+		const synergyKeywords =
+			boardSynergies?.map((synergy) => synergy.keyword) ?? [];
+		const eUnitKeywords = synergyKeywords
+			.map((synergyID) => ({
+				synergyID,
+				unitKeyword: EUnitKeyword[synergyID],
+			}))
+			.filter((synergy) => synergy.unitKeyword);
+		const allSynergies = eUnitKeywords
+			.map(({ synergyID, unitKeyword }) => ({
+				synergyID,
+				unitKeyword,
+				synergy: synergies[currentSeason][unitKeyword],
+			}))
+			.filter((synergy) => synergy.synergy);
+
+		const activeSynergies: ActiveAlliance[] = [];
+
+		for (const { synergy, synergyID } of allSynergies) {
+			// sort the array, so that the highest level comes first
+			const levels = synergy.levels.sort(
+				(a, b) => b.unitcount - a.unitcount,
+			);
+
+			// Get the unit count of units for the given synergy
+			const unitCount =
+				units?.filter((unit) => unit.keywords?.includes(synergyID))
+					.length ?? 0;
+
+			for (let index = 0; index < levels.length; index++) {
+				const level = levels[index];
+
+				// if the unit count is higher or equal to the current level requirement
+				// insert it into the active synergies and break
+				if (unitCount >= level.unitcount) {
+					activeSynergies.push({
+						id: synergyID,
+						level: levels.length - index - 1,
+					});
+					break;
+				}
+			}
+		}
+
+		return activeSynergies;
 	}
 }
