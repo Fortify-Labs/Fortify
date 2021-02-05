@@ -3,7 +3,7 @@ import { Construct } from "constructs";
 import {
 	KubeServiceAccount,
 	KubeRoleBinding,
-	KubeClusterRole,
+	KubeRole,
 } from "../../../imports/k8s";
 
 export class CICDUser extends Chart {
@@ -17,9 +17,10 @@ export class CICDUser extends Chart {
 			automountServiceAccountToken: false,
 		});
 
-		new KubeClusterRole(this, "role", {
+		new KubeRole(this, "role-fortify-ns", {
 			metadata: {
 				name: "cicd-user-role",
+				namespace: "fortify",
 			},
 			rules: [
 				{
@@ -76,6 +77,19 @@ export class CICDUser extends Chart {
 				},
 			],
 		});
+		new KubeRole(this, "role-kube-system-ns", {
+			metadata: {
+				name: "cicd-user-role",
+				namespace: "kube-system",
+			},
+			rules: [
+				{
+					apiGroups: ["traefik.containo.us"],
+					resources: ["ingressroutes"],
+					verbs: ["create", "delete", "list", "get", "patch"],
+				},
+			],
+		});
 
 		new KubeRoleBinding(this, "role-binding-fortify", {
 			metadata: {
@@ -91,11 +105,10 @@ export class CICDUser extends Chart {
 			],
 			roleRef: {
 				apiGroup: "rbac.authorization.k8s.io",
-				kind: "ClusterRole",
+				kind: "Role",
 				name: "cicd-user-role",
 			},
 		});
-
 		new KubeRoleBinding(this, "role-binding-kube-system", {
 			metadata: {
 				name: "cicd-user-kube-system-rolebinding",
@@ -110,7 +123,7 @@ export class CICDUser extends Chart {
 			],
 			roleRef: {
 				apiGroup: "rbac.authorization.k8s.io",
-				kind: "ClusterRole",
+				kind: "Role",
 				name: "cicd-user-role",
 			},
 		});
