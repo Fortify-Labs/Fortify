@@ -18,7 +18,7 @@ import {
 } from "@shared/events/gameEvents";
 import { EUnitKeyword } from "@shared/assets/keyword_mappings";
 import { synergies } from "@shared/synergies";
-import { currentSeason } from "../../../shared/src/season";
+import { currentSeason } from "@shared/season";
 
 const { STATS_EVENTS_GENERATION_ENABLED = "true" } = process.env;
 
