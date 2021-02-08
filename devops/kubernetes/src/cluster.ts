@@ -6,6 +6,7 @@ import {
 	KubeStatefulSet,
 	KubeService,
 	ObjectMeta,
+	KubeConfigMap,
 } from "../imports/k8s";
 import { RedisCommander } from "./constructs/redis-commander/redis-commander";
 import { ClusterIngressTraefik } from "./constructs/fortify/ingressTraefik";
@@ -13,8 +14,10 @@ import { FluentdConstruct } from "./constructs/fluentd/fluentd";
 import {
 	Kafka,
 	KafkaProps,
+	KafkaSpecKafkaMetricsConfigType,
 	KafkaSpecKafkaStorageType,
 	KafkaSpecKafkaStorageVolumesType,
+	KafkaSpecZookeeperMetricsConfigType,
 	KafkaSpecZookeeperStorageType,
 	KafkaTopic,
 	KafkaTopicProps,
@@ -25,6 +28,7 @@ import { Elasticsearch } from "../imports/elasticsearch.k8s.elastic.co";
 import { Kibana } from "../imports/kibana.k8s.elastic.co";
 import { Certificate } from "../imports/cert-manager.io";
 import { Middleware } from "../imports/traefik.containo.us";
+import { stripIndent } from "common-tags";
 
 const {
 	DOMAIN = "fortify.gg",
@@ -69,6 +73,172 @@ export class ClusterSetup extends Chart {
 			},
 		});
 
+		const kafkaMetricsCM = new KubeConfigMap(this, "kafka-metrics-cm", {
+			metadata: {
+				name: "kafka-metrics",
+				namespace: kafkaNS.name,
+			},
+			data: {
+				// See https://github.com/prometheus/jmx_exporter for more info about JMX Prometheus Exporter metrics
+				"kafka-metrics-config.yml": stripIndent(String.raw`
+                lowercaseOutputName: true
+                rules: 
+                # Special cases and very specific rules
+                - pattern: kafka.server<type=(.+), name=(.+), clientId=(.+), topic=(.+), partition=(.*)><>Value
+                  name: kafka_server_$1_$2
+                  type: GAUGE
+                  labels:
+                   clientId: "$3"
+                   topic: "$4"
+                   partition: "$5"
+                - pattern: kafka.server<type=(.+), name=(.+), clientId=(.+), brokerHost=(.+), brokerPort=(.+)><>Value
+                  name: kafka_server_$1_$2
+                  type: GAUGE
+                  labels:
+                   clientId: "$3"
+                   broker: "$4:$5"
+                - pattern: kafka.server<type=(.+), cipher=(.+), protocol=(.+), listener=(.+), networkProcessor=(.+)><>connections
+                  name: kafka_server_$1_connections_tls_info
+                  type: GAUGE
+                  labels:
+                    listener: "$2"
+                    networkProcessor: "$3"
+                    protocol: "$4"
+                    cipher: "$5"
+                - pattern: kafka.server<type=(.+), clientSoftwareName=(.+), clientSoftwareVersion=(.+), listener=(.+), networkProcessor=(.+)><>connections
+                  name: kafka_server_$1_connections_software
+                  type: GAUGE
+                  labels:
+                    clientSoftwareName: "$2"
+                    clientSoftwareVersion: "$3"
+                    listener: "$4"
+                    networkProcessor: "$5"
+                - pattern: "kafka.server<type=(.+), listener=(.+), networkProcessor=(.+)><>(.+):"
+                  name: kafka_server_$1_$4
+                  type: GAUGE
+                  labels:
+                   listener: "$2"
+                   networkProcessor: "$3"
+                - pattern: kafka.server<type=(.+), listener=(.+), networkProcessor=(.+)><>(.+)
+                  name: kafka_server_$1_$4
+                  type: GAUGE
+                  labels:
+                   listener: "$2"
+                   networkProcessor: "$3"
+                # Some percent metrics use MeanRate attribute
+                # Ex) kafka.server<type=(KafkaRequestHandlerPool), name=(RequestHandlerAvgIdlePercent)><>MeanRate
+                - pattern: kafka.(\w+)<type=(.+), name=(.+)Percent\w*><>MeanRate
+                  name: kafka_$1_$2_$3_percent
+                  type: GAUGE
+                # Generic gauges for percents
+                - pattern: kafka.(\w+)<type=(.+), name=(.+)Percent\w*><>Value
+                  name: kafka_$1_$2_$3_percent
+                  type: GAUGE
+                - pattern: kafka.(\w+)<type=(.+), name=(.+)Percent\w*, (.+)=(.+)><>Value
+                  name: kafka_$1_$2_$3_percent
+                  type: GAUGE
+                  labels:
+                    "$4": "$5"
+                # Generic per-second counters with 0-2 key/value pairs
+                - pattern: kafka.(\w+)<type=(.+), name=(.+)PerSec\w*, (.+)=(.+), (.+)=(.+)><>Count
+                  name: kafka_$1_$2_$3_total
+                  type: COUNTER
+                  labels:
+                    "$4": "$5"
+                    "$6": "$7"
+                - pattern: kafka.(\w+)<type=(.+), name=(.+)PerSec\w*, (.+)=(.+)><>Count
+                  name: kafka_$1_$2_$3_total
+                  type: COUNTER
+                  labels:
+                    "$4": "$5"
+                - pattern: kafka.(\w+)<type=(.+), name=(.+)PerSec\w*><>Count
+                  name: kafka_$1_$2_$3_total
+                  type: COUNTER
+                # Generic gauges with 0-2 key/value pairs
+                - pattern: kafka.(\w+)<type=(.+), name=(.+), (.+)=(.+), (.+)=(.+)><>Value
+                  name: kafka_$1_$2_$3
+                  type: GAUGE
+                  labels:
+                    "$4": "$5"
+                    "$6": "$7"
+                - pattern: kafka.(\w+)<type=(.+), name=(.+), (.+)=(.+)><>Value
+                  name: kafka_$1_$2_$3
+                  type: GAUGE
+                  labels:
+                    "$4": "$5"
+                - pattern: kafka.(\w+)<type=(.+), name=(.+)><>Value
+                  name: kafka_$1_$2_$3
+                  type: GAUGE
+                # Emulate Prometheus 'Summary' metrics for the exported 'Histogram's.
+                # Note that these are missing the '_sum' metric!
+                - pattern: kafka.(\w+)<type=(.+), name=(.+), (.+)=(.+), (.+)=(.+)><>Count
+                  name: kafka_$1_$2_$3_count
+                  type: COUNTER
+                  labels:
+                    "$4": "$5"
+                    "$6": "$7"
+                - pattern: kafka.(\w+)<type=(.+), name=(.+), (.+)=(.*), (.+)=(.+)><>(\d+)thPercentile
+                  name: kafka_$1_$2_$3
+                  type: GAUGE
+                  labels:
+                    "$4": "$5"
+                    "$6": "$7"
+                    quantile: "0.$8"
+                - pattern: kafka.(\w+)<type=(.+), name=(.+), (.+)=(.+)><>Count
+                  name: kafka_$1_$2_$3_count
+                  type: COUNTER
+                  labels:
+                    "$4": "$5"
+                - pattern: kafka.(\w+)<type=(.+), name=(.+), (.+)=(.*)><>(\d+)thPercentile
+                  name: kafka_$1_$2_$3
+                  type: GAUGE
+                  labels:
+                    "$4": "$5"
+                    quantile: "0.$6"
+                - pattern: kafka.(\w+)<type=(.+), name=(.+)><>Count
+                  name: kafka_$1_$2_$3_count
+                  type: COUNTER
+                - pattern: kafka.(\w+)<type=(.+), name=(.+)><>(\d+)thPercentile
+                  name: kafka_$1_$2_$3
+                  type: GAUGE
+                  labels:
+                    quantile: "0.$4"
+                `),
+				// See https://github.com/prometheus/jmx_exporter for more info about JMX Prometheus Exporter metrics
+				"zookeeper-metrics-config.yml": stripIndent(String.raw`
+                lowercaseOutputName: true
+                rules:
+                # replicated Zookeeper
+                - pattern: "org.apache.ZooKeeperService<name0=ReplicatedServer_id(\\d+)><>(\\w+)"
+                  name: "zookeeper_$2"
+                  type: GAUGE
+                - pattern: "org.apache.ZooKeeperService<name0=ReplicatedServer_id(\\d+), name1=replica.(\\d+)><>(\\w+)"
+                  name: "zookeeper_$3"
+                  type: GAUGE
+                  labels:
+                    replicaId: "$2"
+                - pattern: "org.apache.ZooKeeperService<name0=ReplicatedServer_id(\\d+), name1=replica.(\\d+), name2=(\\w+)><>(Packets\\w+)"
+                  name: "zookeeper_$4"
+                  type: COUNTER
+                  labels:
+                    replicaId: "$2"
+                    memberType: "$3"
+                - pattern: "org.apache.ZooKeeperService<name0=ReplicatedServer_id(\\d+), name1=replica.(\\d+), name2=(\\w+)><>(\\w+)"
+                  name: "zookeeper_$4"
+                  type: GAUGE
+                  labels:
+                    replicaId: "$2"
+                    memberType: "$3"
+                - pattern: "org.apache.ZooKeeperService<name0=ReplicatedServer_id(\\d+), name1=replica.(\\d+), name2=(\\w+), name3=(\\w+)><>(\\w+)"
+                  name: "zookeeper_$4_$5"
+                  type: GAUGE
+                  labels:
+                    replicaId: "$2"
+                    memberType: "$3"
+                `),
+			},
+		});
+
 		const kafka = new Kafka(this, "kafka", {
 			metadata: {
 				name: "fortify",
@@ -78,10 +248,20 @@ export class ClusterSetup extends Chart {
 				kafka: {
 					version: "2.5.0",
 					replicas: 3,
-					listeners: {
-						plain: {},
-						tls: {},
-					},
+					listeners: [
+						{
+							name: "plain",
+							port: 9092,
+							type: "internal",
+							tls: false,
+						},
+						{
+							name: "tls",
+							port: 9093,
+							type: "internal",
+							tls: true,
+						},
+					],
 					config: {
 						"offsets.topic.replication.factor": 1,
 						"transaction.state.log.replication.factor": 1,
@@ -100,8 +280,25 @@ export class ClusterSetup extends Chart {
 							},
 						],
 					},
+					metricsConfig: {
+						type:
+							KafkaSpecKafkaMetricsConfigType.JMX_PROMETHEUS_EXPORTER,
+						valueFrom: {
+							configMapKeyRef: {
+								name: kafkaMetricsCM.name,
+								key: "kafka-metrics-config.yml",
+							},
+						},
+					},
 					template: {
 						pod: {
+							metadata: {
+								annotations: {
+									"prometheus.io/scrape": "true",
+									"prometheus.io/port": 9404,
+									"prometheus.io/path": "/",
+								},
+							},
 							affinity: {
 								podAntiAffinity: {
 									preferredDuringSchedulingIgnoredDuringExecution: [
@@ -137,8 +334,25 @@ export class ClusterSetup extends Chart {
 						size: "10Gi",
 						deleteClaim: false,
 					},
+					metricsConfig: {
+						type:
+							KafkaSpecZookeeperMetricsConfigType.JMX_PROMETHEUS_EXPORTER,
+						valueFrom: {
+							configMapKeyRef: {
+								name: kafkaMetricsCM.name,
+								key: "zookeeper-metrics-config.yml",
+							},
+						},
+					},
 					template: {
 						pod: {
+							metadata: {
+								annotations: {
+									"prometheus.io/scrape": "true",
+									"prometheus.io/port": 9404,
+									"prometheus.io/path": "/",
+								},
+							},
 							affinity: {
 								podAntiAffinity: {
 									preferredDuringSchedulingIgnoredDuringExecution: [
@@ -169,6 +383,21 @@ export class ClusterSetup extends Chart {
 				},
 				entityOperator: {
 					topicOperator: {},
+				},
+				kafkaExporter: {
+					template: {
+						pod: {
+							metadata: {
+								annotations: {
+									"prometheus.io/scrape": "true",
+									"prometheus.io/port": 9404,
+									"prometheus.io/path": "/metrics",
+								},
+							},
+						},
+					},
+					topicRegex: ".*",
+					groupRegex: ".*",
 				},
 			},
 		} as CustomKafkaProps);
