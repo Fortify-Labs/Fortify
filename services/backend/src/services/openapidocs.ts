@@ -35,6 +35,7 @@ export class OpenAPIDocs {
 			apiPath ?? "/api",
 			useSofa({
 				schema,
+				basePath: "/api",
 				context: async ({ req }) => {
 					try {
 						let token = "";
