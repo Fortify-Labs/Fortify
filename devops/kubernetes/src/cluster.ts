@@ -7,6 +7,7 @@ import {
 	KubeService,
 	ObjectMeta,
 	KubeConfigMap,
+	KubeCronJobV1Beta1,
 } from "../imports/k8s";
 import { RedisCommander } from "./constructs/redis-commander/redis-commander";
 import { ClusterIngressTraefik } from "./constructs/fortify/ingressTraefik";
@@ -34,6 +35,13 @@ const {
 	DOMAIN = "fortify.gg",
 	ENVIRONMENT = "prod",
 	CLUSTER_BASIC_AUTH = "",
+} = process.env;
+
+const {
+	S3_ENDPOINT = "",
+	S3_REGION = "",
+	S3_ACCESS_KEY_ID = "",
+	S3_SECRET_ACCESS_KEY = "",
 } = process.env;
 
 const hosts = [DOMAIN, `api.${DOMAIN}`, `gsi.${DOMAIN}`];
@@ -529,6 +537,75 @@ export class ClusterSetup extends Chart {
 										storage: "10Gi",
 									},
 								},
+							},
+						},
+					},
+				},
+			},
+		});
+
+		const s3Secret = new KubeSecret(this, "s3-secret", {
+			metadata: {
+				name: "s3-secret",
+				namespace: redisNS.name,
+			},
+			stringData: {
+				S3_ACCESS_KEY: S3_ACCESS_KEY_ID,
+				S3_SECRET_KEY: S3_SECRET_ACCESS_KEY,
+			},
+		});
+
+		new KubeCronJobV1Beta1(this, "redis-backup", {
+			metadata: {
+				name: "redis-backup",
+				namespace: redisNS.name,
+			},
+			spec: {
+				schedule: "0 */12 * * *",
+				jobTemplate: {
+					spec: {
+						template: {
+							spec: {
+								restartPolicy: "Never",
+								containers: [
+									{
+										image: "d3fk/s3cmd",
+										imagePullPolicy: "IfNotPresent",
+										command: [
+											"sh",
+											"-c",
+											stripIndent`
+												tar czf /tmp/redis-bak-$(date -u -Iseconds).tar.gz /data/*.*
+												s3cmd --region=${S3_REGION} --host=${S3_ENDPOINT} --host-bucket=${S3_ENDPOINT} \
+													--access_key=$S3_ACCESS_KEY --secret_key=$S3_SECRET_KEY \
+													put /tmp/redis-bak-* s3://fortify-backups/redis/
+											`,
+										],
+										name: "redis-backup",
+										envFrom: [
+											{
+												secretRef: {
+													name: s3Secret.name,
+												},
+											},
+										],
+										volumeMounts: [
+											{
+												mountPath: "/data",
+												name: "redis-data",
+											},
+										],
+									},
+								],
+								volumes: [
+									{
+										name: "redis-data",
+										persistentVolumeClaim: {
+											claimName:
+												"redisfailover-persistent-keep-data-rfr-redis-0",
+										},
+									},
+								],
 							},
 						},
 					},
