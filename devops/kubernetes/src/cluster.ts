@@ -22,7 +22,6 @@ import {
 	KafkaTopic,
 	KafkaTopicProps,
 } from "../imports/kafka.strimzi.io";
-import { Postgres } from "../imports/kubedb.com";
 import { RedisFailover } from "../imports/databases.spotahome.com";
 import { Elasticsearch } from "../imports/elasticsearch.k8s.elastic.co";
 import { Kibana } from "../imports/kibana.k8s.elastic.co";

@@ -71,8 +71,9 @@ jobs:
       - run: mkdir -p ~/.kube/ && touch ~/.kube/config && echo ${{ secrets.KUBECONFIG }} | base64 --decode > ~/.kube/config
       - run: touch .env && echo ${{ secrets.K8S_DOTENV }} | base64 --decode > .env
       - run: npm ci
-      - run: npm run record
-      - run: npm run build
+      # - run: npm run record
+      # - run: npm run build
+      - run: npm run synth
       - run: kubectl apply -f dist/fortify.k8s.yaml
       - uses: sarisia/actions-status-discord@v1
         if: always()
