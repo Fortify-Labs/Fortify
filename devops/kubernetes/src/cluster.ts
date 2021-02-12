@@ -29,6 +29,7 @@ import { Kibana } from "../imports/kibana.k8s.elastic.co";
 import { Certificate } from "../imports/cert-manager.io";
 import { Middleware } from "../imports/traefik.containo.us";
 import { stripIndent } from "common-tags";
+import { Postgresql, PostgresqlProps } from "../imports/acid.zalan.do";
 
 const {
 	DOMAIN = "fortify.gg",
@@ -461,60 +462,41 @@ export class ClusterSetup extends Chart {
 
 		// --- Postgres setup ---
 
-		const postgresNS = new KubeNamespace(this, "postgres-namespace", {
+		const postgresqlNS = new KubeNamespace(this, "postgresql-namespace", {
 			metadata: {
-				name: "postgres",
+				name: "postgresql",
 			},
 		});
 
-		new Postgres(this, "postgres", {
+		new Postgresql(this, "postgres", {
 			metadata: {
-				name: "postgres",
-				namespace: postgresNS.name,
+				name: "fortify-postgres",
+				namespace: postgresqlNS.name,
 			},
 			spec: {
-				version: "11.2",
-				replicas: 3,
-				storageType: "Durable",
-				storage: {
-					accessModes: ["ReadWriteOnce"],
-					resources: {
-						requests: {
-							storage: "10Gi",
+				numberOfInstances: 3,
+				teamId: "fortify",
+				volume: {
+					size: "5Gi",
+				},
+				users: {
+					fortify: ["SUPERUSER", "CREATEDB"],
+				},
+				dockerImage:
+					"registry.opensource.zalan.do/acid/spilo-13:2.0-p3",
+				preparedDatabases: {
+					fortify: {
+						extensions: {
+							timescaledb: "public",
 						},
 					},
 				},
-				databaseSecret: {
-					secretName: "postgres-auth",
+				postgresql: {
+					version: "12",
 				},
-				podTemplate: {
-					spec: {
-						affinity: {
-							podAntiAffinity: {
-								preferredDuringSchedulingIgnoredDuringExecution: [
-									{
-										weight: 1,
-										podAffinityTerm: {
-											labelSelector: {
-												matchExpressions: [
-													{
-														key: "kubedb.com/name",
-														operator: "In",
-														values: ["postgres"],
-													},
-												],
-											},
-											topologyKey:
-												"kubernetes.io/hostname",
-										},
-									},
-								],
-							},
-						},
-					},
-				},
+				enableLogicalBackup: true,
 			},
-		});
+		} as { metadata: ObjectMeta } & PostgresqlProps);
 
 		// --- Redis setup ---
 

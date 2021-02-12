@@ -15,6 +15,7 @@ const {
 	POSTGRES_HOST,
 	POSTGRES_PORT,
 	POSTGRES_DATABASE,
+	POSTGRES_SSL = "false",
 	// NODE_ENV,
 	DB_LOG,
 } = process.env;
@@ -70,6 +71,7 @@ export class PostgresConnector implements HealthCheckable, Connector {
 
 		const connection = createConnection({
 			type: "postgres",
+			ssl: POSTGRES_SSL === "true",
 			host: POSTGRES_HOST,
 			port: parseInt(POSTGRES_PORT ?? "5432"),
 			username: POSTGRES_USER,

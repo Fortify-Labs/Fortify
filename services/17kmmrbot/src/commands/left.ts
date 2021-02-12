@@ -3,13 +3,8 @@ import { Client, ChatUserstate } from "tmi.js";
 import { injectable, inject } from "inversify";
 import { ExtractorService } from "@shared/services/extractor";
 
-import {
-	units,
-	currentSeason,
-	Unit as SeasonUnit,
-	unitMappings,
-	Unit,
-} from "@shared/units";
+import { units, Unit as SeasonUnit, unitMappings, Unit } from "@shared/units";
+import { currentSeason } from "@shared/season";
 import { poolSize } from "@shared/pool";
 import { RedisConnector } from "@shared/connectors/redis";
 import { FortifyGameMode, MatchState, UserCacheKey } from "@shared/state";

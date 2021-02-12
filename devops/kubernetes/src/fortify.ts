@@ -52,10 +52,11 @@ export class Fortify extends Chart {
 				name: "postgres-config",
 			},
 			data: {
-				POSTGRES_USER: "postgres",
-				POSTGRES_HOST: "postgres.postgres",
+				POSTGRES_USER: "fortify",
+				POSTGRES_HOST: "fortify-postgres.postgresql",
 				POSTGRES_PORT: "5432",
-				POSTGRES_DATABASE: "postgres",
+				POSTGRES_DATABASE: "fortify",
+				POSTGRES_SSL: "true",
 			},
 		});
 

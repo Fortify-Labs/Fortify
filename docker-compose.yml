@@ -60,12 +60,23 @@ services:
       - kafka-data:/kafka
     restart: unless-stopped
 
-  influxdb:
-    image: quay.io/influxdb/influxdb:v2.0.3
+  # influxdb:
+  #   image: quay.io/influxdb/influxdb:v2.0.3
+  #   ports:
+  #     - 8086:8086
+  #   volumes:
+  #     - influx-data:/root/.influxdbv2
+  #   restart: unless-stopped
+
+  timescaledb:
+    image: timescale/timescaledb:2.0.1-pg12
     ports:
-      - 8086:8086
+      - 25432:5432
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: fortify
     volumes:
-      - influx-data:/root/.influxdbv2
+      - timescale-data:/var/lib/postgresql/data
     restart: unless-stopped
 
   akhq:
@@ -107,6 +118,7 @@ volumes:
   kafka-data:
   zookeeper-data:
   postgres-data:
+  timescale-data:
   influx-data:
   vault-file-data:
   vault-unseal-data:
