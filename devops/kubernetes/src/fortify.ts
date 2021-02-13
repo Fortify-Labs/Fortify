@@ -209,9 +209,10 @@ export class Fortify extends Chart {
 				match: `Host(\`${DOMAIN}\`)`,
 			},
 
-			// TODO: Implement probes
+			// TODO: Implement
 			livenessProbe: null,
 			readinessProbe: null,
+			metrics: false,
 		});
 
 		new WebService(this, "gsi-receiver", {
@@ -269,6 +270,9 @@ export class Fortify extends Chart {
 				namespace: "fortify",
 				match: `Host(\`sentry.fortify.dev\`)`,
 			},
+
+			// TODO: Implement
+			metrics: false,
 		});
 
 		new WebService(this, "sentry-discord-dev-webhook", {
@@ -298,6 +302,9 @@ export class Fortify extends Chart {
 				namespace: "fortify",
 				match: `Host(\`sentry-dev.fortify.dev\`)`,
 			},
+
+			// TODO: Implement
+			metrics: false,
 		});
 
 		// Deployments that are not exposed to the web

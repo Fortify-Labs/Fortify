@@ -41,6 +41,11 @@ export interface FortifyDeploymentOptions {
 
 	livenessProbe?: Probe | null;
 	readinessProbe?: Probe | null;
+
+	/**
+	 * Boolean wether prometheus scraper shall scrape for metrics
+	 */
+	metrics?: boolean;
 }
 
 export class FortifyDeployment extends Construct {
@@ -51,7 +56,7 @@ export class FortifyDeployment extends Construct {
 	) {
 		super(scope, ns);
 
-		let { livenessProbe, readinessProbe } = options;
+		let { livenessProbe, readinessProbe, metrics = true } = options;
 
 		if (livenessProbe === undefined) {
 			livenessProbe = {
@@ -142,11 +147,13 @@ export class FortifyDeployment extends Construct {
 				revisionHistoryLimit: 3,
 				template: {
 					metadata: {
-						annotations: {
-							"prometheus.io/scrape": "true",
-							"prometheus.io/port": "8000",
-							"prometheus.io/path": "/metrics",
-						},
+						annotations: metrics
+							? {
+									"prometheus.io/scrape": "true",
+									"prometheus.io/port": "8000",
+									"prometheus.io/path": "/metrics",
+							  }
+							: undefined,
 						labels,
 					},
 					spec: {
