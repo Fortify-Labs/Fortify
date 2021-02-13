@@ -15,7 +15,6 @@
     "clean": "gts clean",
     "compile": "tsc",
     "fix": "gts fix",
-    "prepare": "npm run compile",
     "pretest": "npm run compile",
     "posttest": "npm run check",
     "typeorm": "ts-node ./node_modules/.bin/typeorm -f ./ormconfig.ts"

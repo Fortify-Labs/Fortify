@@ -33,7 +33,7 @@ COPY --from=builder /usr/src/app/${SERVICE_NAME}/package-lock.json .
 COPY --from=builder /usr/src/app/${SERVICE_NAME}/tsconfig.json .
 
 # Install only prod dependencies
-RUN npm install --only=prod
+RUN npm install --only=production
 
 # Change file ownership inside of container
 RUN chown -R node:node /usr/src/app

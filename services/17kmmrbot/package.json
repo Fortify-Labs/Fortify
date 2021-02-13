@@ -32,7 +32,6 @@
     "clean": "gts clean",
     "compile": "tsc -b",
     "fix": "gts fix",
-    "prepare": "npm run compile",
     "pretest": "npm run compile",
     "posttest": "npm run check",
     "sentry": "cross-env SENTRY_PROJECT=$npm_package_name sentry-cli releases new $npm_package_version && cross-env SENTRY_PROJECT=$npm_package_name sentry-cli releases files $npm_package_version upload-sourcemaps --rewrite ./build && cross-env SENTRY_PROJECT=$npm_package_name sentry-cli releases finalize $npm_package_version",
