@@ -92,6 +92,8 @@ const {
 	await consumer.run({
 		autoCommit: KAFKA_AUTO_COMMIT !== "false" ?? true,
 		eachMessage: async ({ message, topic, partition }) => {
+			const end = messageSummary.labels({ topic }).startTimer();
+
 			if (!message.value) {
 				return;
 			}
@@ -99,10 +101,6 @@ const {
 			const value = message.value.toString();
 
 			if (topic === FortifyEventTopics.SYSTEM) {
-				const end = messageSummary
-					.labels({ topic, status: 200 })
-					.startTimer();
-
 				const event: FortifyEvent<SystemEventType> = JSON.parse(value);
 				const steamid = event["steamid"] as string | null;
 
@@ -112,12 +110,10 @@ const {
 					}
 				}
 
-				end();
+				end({ status: 200 });
 			}
 
 			if (topic === FortifyEventTopics.GSI) {
-				const end = messageSummary.labels({ topic }).startTimer();
-
 				try {
 					const gsi: Log = JSON.parse(value);
 					const ctx = gsi.auth;
