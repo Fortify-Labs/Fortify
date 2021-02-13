@@ -15,10 +15,14 @@ export interface FortifyCronJobOptions {
 	readonly name: string;
 	readonly version: string;
 
-	// absolute image name
+	/**
+	 * absolute image name
+	 */
 	readonly image?: string;
-	// only the image name, registry and version will be added
-	// will only be used when image variable is not set
+	/**
+	 * only the image name, registry and version will be added
+	 * will only be used when image variable is not set
+	 */
 	readonly imageName?: string;
 
 	readonly env?: EnvVar[] | undefined;
@@ -38,12 +42,13 @@ export class FortifyCronJob extends Construct {
 			? [...options.env, { name: "DEBUG", value: "app::*" }]
 			: [];
 
-		// env.push({ name: "ENVOY_ADMIN_API", value: "http://127.0.0.1:15000" });
-		// env.push({ name: "ISTIO_QUIT_API", value: "http://127.0.0.1:15020" });
-
 		env.push({
 			name: "SENTRY_DSN",
 			value: JOBS_SENTRY_DSN,
+		});
+		env.push({
+			name: "PROMETHEUS_PUSH_GATEWAY",
+			value: "http://prometheus-pushgateway.default:9091",
 		});
 
 		if (!env.find((envvar) => envvar.name === "NODE_ENV")) {
@@ -89,7 +94,6 @@ export class FortifyCronJob extends Construct {
 											})),
 										],
 										command: [
-											// "scuttle",
 											"npm",
 											"run",
 											"start",

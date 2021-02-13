@@ -18,6 +18,7 @@ import express from "express";
 import * as bodyParser from "body-parser";
 import { Secrets } from "./secrets";
 import { HealthCheck } from "@shared/services/healthCheck";
+import { MetricsService } from "@shared/services/metrics";
 import { Logger } from "@shared/logger";
 import { Connector } from "@shared/definitions/connector";
 
@@ -35,6 +36,9 @@ import { Connector } from "@shared/definitions/connector";
 
 	const healthCheck = container.get(HealthCheck);
 	await healthCheck.start();
+
+	const metricsService = container.get(MetricsService);
+	await metricsService.start();
 
 	const app = express();
 	app.use(bodyParser.json());

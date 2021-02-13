@@ -20,6 +20,8 @@ import { HealthCheck } from "@shared/services/healthCheck";
 
 import { Logger } from "@shared/logger";
 import { Connector } from "@shared/definitions/connector";
+import { MetricsService, servicePrefix } from "@shared/services/metrics";
+import { Summary } from "prom-client";
 
 const { KAFKA_TOPIC, MY_PORT } = process.env;
 
@@ -39,6 +41,18 @@ const { KAFKA_TOPIC, MY_PORT } = process.env;
 	const healthCheck = container.get(HealthCheck);
 	await healthCheck.start();
 
+	const metrics = container.get(MetricsService);
+	await metrics.start();
+
+	const messageSummary = new Summary({
+		name: `${servicePrefix}_gsi_requests`,
+		help: "Duration & status for received /gsi requests",
+		registers: [metrics.register],
+		labelNames: ["status"],
+		maxAgeSeconds: 600,
+		ageBuckets: 5,
+	});
+
 	const kafka = container.get(KafkaConnector);
 
 	const producer = kafka.producer();
@@ -50,6 +64,8 @@ const { KAFKA_TOPIC, MY_PORT } = process.env;
 	app.use(json({ limit: "10mb" }));
 
 	app.post("/gsi", async (req, res) => {
+		const end = messageSummary.startTimer();
+
 		// Send an unsuccessful response on failed auth
 		if (req.body && req.body.auth) {
 			try {
@@ -77,10 +93,14 @@ const { KAFKA_TOPIC, MY_PORT } = process.env;
 							},
 						],
 					});
+
+					end({ status: 200 });
 				} else {
 					res.status(401)
 						.contentType("text/html")
 						.end("UNAUTHORIZED");
+
+					end({ status: 401 });
 				}
 			} catch (e) {
 				const exceptionID = captureException(e, {
@@ -97,8 +117,11 @@ const { KAFKA_TOPIC, MY_PORT } = process.env;
 				res.status(500)
 					.contentType("text/html")
 					.end(`SERVER ERROR (${exceptionID})`);
+
+				end({ status: 500 });
 			}
 		} else {
+			end({ status: 401 });
 			res.status(401).contentType("text/html").end("UNAUTHORIZED");
 		}
 	});

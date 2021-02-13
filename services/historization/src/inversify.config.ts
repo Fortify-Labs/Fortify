@@ -11,11 +11,14 @@ import { KafkaConnector } from "@shared/connectors/kafka";
 import { RedisConnector } from "@shared/connectors/redis";
 import { InfluxDBConnector } from "@shared/connectors/influxdb";
 import { Connector } from "@shared/definitions/connector";
+import { MetricsService } from "@shared/services/metrics";
 
 const container = new Container({ autoBindInjectable: true });
 
 container.bind(Secrets).toSelf().inSingletonScope();
 container.bind(SecretsManager).toService(Secrets);
+
+container.bind(MetricsService).toSelf().inSingletonScope();
 
 container.bind(PostgresConnector).toSelf().inSingletonScope();
 container.bind(KafkaConnector).toSelf().inSingletonScope();

@@ -4,6 +4,15 @@ export enum FortifyEventTopics {
 	GENERIC = "generic-events",
 	SYSTEM = "system-events",
 	GAME = "game-events",
+	/**
+	 * Technically GSI is not an event topic,
+	 * as it contains raw data.
+	 *
+	 * I'll leave it in here for now,
+	 * in order to have all Kafka topics
+	 * in one place.
+	 */
+	GSI = "gsi",
 }
 
 // Abstract implementation and interfaces for events

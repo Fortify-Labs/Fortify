@@ -1,6 +1,6 @@
 {
   "name": "historization",
-  "version": "1.8.3",
+  "version": "1.9.0",
   "description": "A historization service responsible for persisting info",
   "author": {
     "name": "Thomas Kosiewski"
@@ -60,6 +60,7 @@
     "jsonwebtoken": "^8.5.1",
     "kafkajs": "^1.15.0",
     "node-fetch": "^2.6.1",
+    "prom-client": "^13.1.0",
     "redis": "^3.0.2",
     "reflect-metadata": "^0.1.13",
     "tsconfig-paths": "^3.9.0",

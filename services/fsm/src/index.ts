@@ -28,6 +28,9 @@ import { MatchProcessor } from "./processors/match";
 import { UserCacheKey } from "@shared/state";
 import { Connector } from "@shared/definitions/connector";
 import { Logger } from "@shared/logger";
+import { MetricsService, servicePrefix } from "@shared/services/metrics";
+
+import { Summary } from "prom-client";
 
 const {
 	KAFKA_FROM_START,
@@ -50,6 +53,18 @@ const {
 
 	const healthCheck = container.get(HealthCheck);
 	await healthCheck.start();
+
+	const metrics = container.get(MetricsService);
+	await metrics.start();
+
+	const messageSummary = new Summary({
+		name: `${servicePrefix}_processed_messages`,
+		help: "Summary of duration & outcomes of processed kafka messages",
+		registers: [metrics.register],
+		labelNames: ["topic", "status"],
+		maxAgeSeconds: 600,
+		ageBuckets: 5,
+	});
 
 	const kafka = container.get(KafkaConnector);
 
@@ -84,6 +99,10 @@ const {
 			const value = message.value.toString();
 
 			if (topic === FortifyEventTopics.SYSTEM) {
+				const end = messageSummary
+					.labels({ topic, status: 200 })
+					.startTimer();
+
 				const event: FortifyEvent<SystemEventType> = JSON.parse(value);
 				const steamid = event["steamid"] as string | null;
 
@@ -92,9 +111,13 @@ const {
 						await commandReducer.processor(event);
 					}
 				}
+
+				end();
 			}
 
-			if (topic === "gsi") {
+			if (topic === FortifyEventTopics.GSI) {
+				const end = messageSummary.labels({ topic }).startTimer();
+
 				try {
 					const gsi: Log = JSON.parse(value);
 					const ctx = gsi.auth;
@@ -299,7 +322,10 @@ const {
 							}
 						}
 					}
+
+					end({ status: 200 });
 				} catch (e) {
+					end({ status: 500 });
 					const exceptionID = captureException(e, {
 						contexts: {
 							kafka: {

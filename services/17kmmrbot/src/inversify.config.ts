@@ -23,6 +23,7 @@ import { CodeCommand } from "./commands/code";
 
 import { SecretsManager } from "@shared/services/secrets";
 import { HealthCheckable } from "@shared/services/healthCheck";
+import { MetricsService } from "@shared/services/metrics";
 import { Connector } from "@shared/definitions/connector";
 
 const container = new Container({ autoBindInjectable: true });
@@ -31,6 +32,8 @@ container.bind(Logger).toSelf().inSingletonScope();
 
 container.bind(Secrets).toSelf().inSingletonScope();
 container.bind(SecretsManager).toService(Secrets);
+
+container.bind(MetricsService).toSelf().inSingletonScope();
 
 container.bind<TwitchCommand>("command").to(CountdownCommand);
 container.bind<TwitchCommand>("command").to(NotablePlayersCommand);

@@ -24,6 +24,8 @@ import { Secrets } from "./secrets";
 import { HealthCheck } from "@shared/services/healthCheck";
 import { Connector } from "@shared/definitions/connector";
 import { Logger } from "@shared/logger";
+import { MetricsService, servicePrefix } from "@shared/services/metrics";
+import { Summary } from "prom-client";
 
 const {
 	KAFKA_AUTO_COMMIT,
@@ -44,6 +46,18 @@ const {
 	const healthCheck = container.get(HealthCheck);
 	await healthCheck.start();
 
+	const metrics = container.get(MetricsService);
+	await metrics.start();
+
+	const messageSummary = new Summary({
+		name: `${servicePrefix}_processed_messages`,
+		help: "Summary of duration & outcomes of processed kafka messages",
+		registers: [metrics.register],
+		labelNames: ["topic", "status", "type"],
+		maxAgeSeconds: 600,
+		ageBuckets: 5,
+	});
+
 	const kafka = container.get(KafkaConnector);
 
 	const consumer = kafka.consumer({ groupId: KAFKA_GROUP_ID });
@@ -62,6 +76,8 @@ const {
 	await consumer.run({
 		autoCommit: KAFKA_AUTO_COMMIT !== "false" ?? true,
 		eachMessage: async ({ message, topic, partition }) => {
+			const end = messageSummary.startTimer();
+
 			try {
 				if (!message.value) {
 					return;
@@ -75,6 +91,8 @@ const {
 					);
 
 					await matchPersistor.handleEvent(event);
+
+					end({ status: 200, topic, type: event.type });
 				} else if (topic === FortifyEventTopics.SYSTEM) {
 					const event: FortifyEvent<SystemEventType> = JSON.parse(
 						value,
@@ -88,6 +106,8 @@ const {
 							importEvent,
 						);
 					}
+
+					end({ status: 200, topic, type: event.type });
 				}
 			} catch (e) {
 				const exceptionID = captureException(e, {
@@ -115,6 +135,8 @@ const {
 					() => consumer.resume([{ topic, partitions: [partition] }]),
 					15 * 1000,
 				);
+
+				end({ status: 500, topic });
 
 				throw e;
 			}

@@ -12,21 +12,36 @@ import { EventService } from "@shared/services/eventService";
 import { Logger } from "@shared/logger";
 
 import { ImportCompletedEvent } from "@shared/events/systemEvents";
+import { Gauge, Pushgateway, Registry } from "prom-client";
+import { servicePrefix } from "@shared/services/metrics";
 
-const { LEADERBOARD_TYPE = "standard" } = process.env;
+const { LEADERBOARD_TYPE = "standard", PROMETHEUS_PUSH_GATEWAY } = process.env;
 
 @injectable()
 export class LeaderboardImportService implements FortifyScript {
 	name = "LeaderboardImportService";
+	register: Registry;
 
 	constructor(
 		@inject(RedisConnector) private redis: RedisConnector,
 		@inject(EventService) private eventService: EventService,
 		@inject(Logger) private logger: Logger,
-	) {}
+	) {
+		this.register = new Registry();
+	}
 
 	async handler() {
 		const type = LEADERBOARD_TYPE;
+
+		const gauge = new Gauge({
+			name: `${servicePrefix}_imports`,
+			help: "Gauge tracking duration of imports",
+			labelNames: ["type"],
+			registers: [this.register],
+		});
+		this.register.registerMetric(gauge);
+
+		const end = gauge.startTimer();
 
 		const leaderboard: ULLeaderboard = await fetch(
 			"https://underlords.com/leaderboarddata?type=" + type,
@@ -67,6 +82,38 @@ export class LeaderboardImportService implements FortifyScript {
 			await this.eventService.sendEvent(finishedEvent);
 
 			this.logger.info(`Sent ImportCompletedEvent for ${type}`);
+		}
+
+		end();
+
+		if (PROMETHEUS_PUSH_GATEWAY) {
+			const gateway = new Pushgateway(
+				PROMETHEUS_PUSH_GATEWAY,
+				[],
+				this.register,
+			);
+
+			await new Promise<void>((resolve, reject) => {
+				gateway.push(
+					{ jobName: `fortify_import_${type}` },
+					(err, res, body) => {
+						if (err) {
+							this.logger.error(
+								"An error occurred while pushing metrics",
+								{ e: err },
+							);
+							this.logger.error(err);
+							return reject(err);
+						}
+
+						this.logger.info("Push gateway response", {
+							body,
+							statusCode: res.statusCode,
+						});
+						resolve();
+					},
+				);
+			});
 		}
 	}
 }

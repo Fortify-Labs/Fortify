@@ -1,6 +1,6 @@
 {
   "name": "shared",
-  "version": "1.15.3",
+  "version": "1.16.0",
   "description": "Shared library for fortify micro services",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
@@ -21,6 +21,7 @@
     "typeorm": "ts-node ./node_modules/.bin/typeorm -f ./ormconfig.ts"
   },
   "devDependencies": {
+    "@types/express": "^4.17.11",
     "@types/ioredis": "^4.19.4",
     "@types/jsonwebtoken": "^8.5.0",
     "@types/node": "^14.14.27",
@@ -37,6 +38,7 @@
     "@sentry/integrations": "^6.1.0",
     "@sentry/node": "^6.1.0",
     "bignumber.js": "^9.0.1",
+    "express": "^4.17.1",
     "inversify": "^5.0.5",
     "ioredis": "^4.22.0",
     "jsonwebtoken": "^8.5.1",
@@ -44,6 +46,7 @@
     "node-fetch": "^2.6.1",
     "node-vault": "^0.9.21",
     "pg": "^8.5.1",
+    "prom-client": "^13.1.0",
     "reflect-metadata": "^0.1.13",
     "typeorm": "^0.2.31",
     "winston": "^3.3.3"

@@ -11,33 +11,63 @@ import {
 } from "@shared/events/systemEvents";
 import { PostgresConnector } from "@shared/connectors/postgres";
 import { convertMS } from "../lib/dateUtils";
+import { Gauge, Summary } from "prom-client";
+import { MetricsService, servicePrefix } from "@shared/services/metrics";
 
 const { BOT_BROADCAST_DISABLED } = process.env;
 
 @injectable()
 export class BotCommandProcessor {
+	kafkaMessageSummary: Summary<"type" | "status">;
+
 	constructor(
 		@inject(PostgresConnector) private postgres: PostgresConnector,
-	) {}
+		@inject(MetricsService) private metrics: MetricsService,
+	) {
+		this.kafkaMessageSummary = new Summary({
+			name: `${servicePrefix}_processed_messages`,
+			help: "Summary of duration & outcomes of processed kafka messages",
+			registers: [this.metrics.register],
+			labelNames: ["type", "status"],
+			maxAgeSeconds: 600,
+			ageBuckets: 5,
+		});
+	}
 
 	async process(payload: EachMessagePayload, client: Client) {
 		const message: FortifyEvent<SystemEventType> = JSON.parse(
 			(payload.message.value ?? "{}").toString(),
 		);
 
+		const end = this.kafkaMessageSummary
+			.labels({ type: message.type })
+			.startTimer();
+
 		if (message.type === SystemEventType.TWITCH_LINKED) {
 			const event = TwitchLinkedEvent.deserialize(message);
 
 			await client.join(event.twitchName);
-		}
 
-		if (message.type === SystemEventType.TWITCH_UNLINKED) {
+			end({ status: 200 });
+			const channelsGauge = this.metrics.register.getSingleMetric(
+				`${servicePrefix}_channels`,
+			);
+			if (channelsGauge) {
+				(channelsGauge as Gauge<string>).inc();
+			}
+		} else if (message.type === SystemEventType.TWITCH_UNLINKED) {
 			const event = TwitchLinkedEvent.deserialize(message);
 
 			await client.part(event.twitchName);
-		}
 
-		if (message.type === SystemEventType.TWITCH_MESSAGE_BROADCAST) {
+			end({ status: 200 });
+			const channelsGauge = this.metrics.register.getSingleMetric(
+				`${servicePrefix}_channels`,
+			);
+			if (channelsGauge) {
+				(channelsGauge as Gauge<string>).dec();
+			}
+		} else if (message.type === SystemEventType.TWITCH_MESSAGE_BROADCAST) {
 			const event = TwitchMessageBroadcastEvent.deserialize(message);
 
 			const userRepo = await this.postgres.getUserRepo();
@@ -76,6 +106,10 @@ export class BotCommandProcessor {
 				}
 				await sleep(2000);
 			}
+
+			end({ status: 200 });
+		} else {
+			end({ status: 404 });
 		}
 	}
 }

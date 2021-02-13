@@ -26,10 +26,14 @@ import { SecretsManager } from "@shared/services/secrets";
 import { Secrets } from "./secrets";
 import { Connector } from "@shared/definitions/connector";
 
+import { MetricsService } from "@shared/services/metrics";
+
 const container = new Container({ autoBindInjectable: true });
 
 container.bind(Secrets).toSelf().inSingletonScope();
 container.bind(SecretsManager).toService(Secrets);
+
+container.bind(MetricsService).toSelf().inSingletonScope();
 
 container.bind<GQLModule>("module").to(BaseModule);
 container.bind<GQLModule>("module").to(DebugModule);

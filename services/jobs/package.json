@@ -1,6 +1,6 @@
 {
   "name": "jobs",
-  "version": "1.5.2",
+  "version": "1.6.0",
   "description": "Job scripts and one off scripts",
   "author": {
     "name": "Thomas Kosiewski"
@@ -57,6 +57,7 @@
     "kafkajs": "^1.15.0",
     "node-fetch": "^2.6.1",
     "pg": "^8.5.1",
+    "prom-client": "^13.1.0",
     "redis": "^3.0.2",
     "reflect-metadata": "^0.1.13",
     "tsconfig-paths": "^3.9.0",

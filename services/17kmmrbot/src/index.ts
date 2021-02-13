@@ -33,6 +33,8 @@ import { HealthCheck } from "@shared/services/healthCheck";
 
 import { Logger } from "@shared/logger";
 import { Connector } from "@shared/definitions/connector";
+import { MetricsService, servicePrefix } from "@shared/services/metrics";
+import { Gauge, Summary } from "prom-client";
 
 const {
 	KAFKA_FROM_START = "false",
@@ -55,12 +57,30 @@ const {
 	const healthCheck = container.get(HealthCheck);
 	await healthCheck.start();
 
+	const metrics = container.get(MetricsService);
+	await metrics.start();
+
+	const channelsGauge = new Gauge({
+		name: `${servicePrefix}_channels`,
+		help: "Gauge counting the amount of joined twitch channels",
+		registers: [metrics.register],
+	});
+
+	const twitchCommandSummary = new Summary({
+		name: `${servicePrefix}_commands`,
+		help: "Summary of duration & outcomes of invoked twitch commands",
+		registers: [metrics.register],
+		labelNames: ["command", "status"],
+		maxAgeSeconds: 600,
+		ageBuckets: 5,
+	});
+
 	const commands = container.getAll<TwitchCommand>("command");
 	const helpCommand = container.get<TwitchCommand>(HelpCommand);
 
 	const postgres = container.get(PostgresConnector);
 	const userRepo = await postgres.getUserRepo();
-	const channels = await (
+	const channels = (
 		await userRepo.find({
 			select: ["twitchName"],
 			where: { suspended: false },
@@ -68,6 +88,8 @@ const {
 	)
 		.map((channel) => channel.twitchName ?? "")
 		.filter((value) => value);
+
+	channelsGauge.set(channels.length);
 
 	const commandProcessor = container.get(BotCommandProcessor);
 	const kafka = container.get(KafkaConnector);
@@ -157,6 +179,7 @@ const {
 	});
 
 	client.on("message", async (channel, tags, message, self) => {
+		const end = twitchCommandSummary.startTimer();
 		try {
 			// Ignore echoed messages.
 			if (self) return;
@@ -192,7 +215,13 @@ const {
 						});
 						await command.handler(client, channel, tags, message);
 						transaction.finish();
+
+						end({ command: command.invocations[0], status: 200 });
+					} else {
+						end({ command: command.invocations[0], status: 401 });
 					}
+				} else {
+					end({ status: 404 });
 				}
 			}
 		} catch (e) {
@@ -222,6 +251,7 @@ const {
 				channel,
 				`Something went wrong. (Exception ID: ${exceptionID})`,
 			);
+			end({ status: 500 });
 		}
 	});
 

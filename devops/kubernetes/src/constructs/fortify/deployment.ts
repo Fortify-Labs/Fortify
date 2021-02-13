@@ -17,7 +17,9 @@ export interface FortifyDeploymentOptions {
 
 	readonly version?: string;
 
-	// Override image incase image shall not be interpolated from name
+	/**
+	 * Override image incase image shall not be interpolated from name
+	 */
 	readonly image?: string;
 
 	readonly replicas?: number;
@@ -102,8 +104,6 @@ export class FortifyDeployment extends Construct {
 			});
 		}
 
-		// env.push({ name: "ENVOY_ADMIN_API", value: "http://127.0.0.1:15000" });
-
 		const image =
 			options.image ??
 			(REGISTRY ?? "") +
@@ -141,7 +141,14 @@ export class FortifyDeployment extends Construct {
 				},
 				revisionHistoryLimit: 3,
 				template: {
-					metadata: { labels },
+					metadata: {
+						annotations: {
+							"prometheus.io/scrape": "true",
+							"prometheus.io/port": "8000",
+							"prometheus.io/path": "/metrics",
+						},
+						labels,
+					},
 					spec: {
 						containers: [
 							{

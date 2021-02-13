@@ -16,11 +16,14 @@ import { SecretsManager, SecretsRequest } from "@shared/services/secrets";
 import { Secrets } from "./secrets";
 import { HealthCheckable } from "@shared/services/healthCheck";
 import { Connector } from "@shared/definitions/connector";
+import { MetricsService } from "@shared/services/metrics";
 
 const container = new Container({ autoBindInjectable: true });
 
 container.bind(Secrets).toSelf().inSingletonScope();
 container.bind(SecretsManager).toService(Secrets);
+
+container.bind(MetricsService).toSelf().inSingletonScope();
 
 container.bind<CommandReducer>("command").to(ResetCommandReducer);
 

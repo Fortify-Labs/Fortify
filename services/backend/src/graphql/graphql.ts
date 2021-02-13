@@ -1,5 +1,5 @@
 import { ApolloServer, ApolloError } from "apollo-server-express";
-import { injectable } from "inversify";
+import { inject, injectable } from "inversify";
 import { verifyToken } from "../util/jwt";
 import { schema } from "./schemaLoader";
 
@@ -7,6 +7,10 @@ import * as Sentry from "@sentry/node";
 import { Transaction } from "@sentry/types";
 import { Context } from "@shared/definitions/context";
 import { GraphQLError } from "graphql";
+import { MetricsService } from "@shared/services/metrics";
+import createMetricsPlugin from "apollo-metrics";
+
+import { ApolloServerPlugin } from "apollo-server-plugin-base";
 
 const { IGNORE_ERROR_CODES } = process.env;
 
@@ -14,9 +18,14 @@ const ignorableErrorCodes = IGNORE_ERROR_CODES?.split(";");
 
 @injectable()
 export class GraphQL {
+	constructor(@inject(MetricsService) private metrics: MetricsService) {}
+
 	server() {
+		const apolloMetricsPlugin = createMetricsPlugin(
+			this.metrics.register,
+		) as ApolloServerPlugin<Record<string, string>>;
+
 		const server = new ApolloServer({
-			// TODO: Change this in the future - Disable tracing in production
 			tracing: true,
 			playground: true,
 			schema,
@@ -181,6 +190,7 @@ export class GraphQL {
 						};
 					},
 				},
+				apolloMetricsPlugin,
 			],
 		});
 
