@@ -39,7 +39,14 @@ export class LeaderboardImportService implements FortifyScript {
 			labelNames: ["type"],
 			registers: [this.register],
 		});
+		const importCountGauge = new Gauge({
+			name: `${servicePrefix}_leaderboard_entries`,
+			help: "Gauge tracking amount of leaderboard entries",
+			labelNames: ["type"],
+			registers: [this.register],
+		});
 		this.register.registerMetric(gauge);
+		this.register.registerMetric(importCountGauge);
 
 		const end = gauge.startTimer();
 
@@ -85,6 +92,7 @@ export class LeaderboardImportService implements FortifyScript {
 		}
 
 		end();
+		importCountGauge.labels({ type }).set(leaderboard.leaderboard.length);
 
 		if (PROMETHEUS_PUSH_GATEWAY) {
 			const gateway = new Pushgateway(

@@ -63,7 +63,7 @@ export interface CustomKafkaTopicProps extends KafkaTopicProps {
 	metadata?: ObjectMeta;
 }
 
-export class ClusterSetup extends Chart {
+export class Cluster extends Chart {
 	constructor(scope: Construct, name: string) {
 		super(scope, name);
 

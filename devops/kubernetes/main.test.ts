@@ -1,6 +1,6 @@
 import { Testing } from "cdk8s";
 
-import { ClusterSetup } from "./src/cluster";
+import { Cluster } from "./src/cluster";
 import { Fortify } from "./src/fortify";
 
 describe("Placeholder", () => {
@@ -13,7 +13,7 @@ describe("Placeholder", () => {
 
 	test("Empty Clean Cluster", () => {
 		const app = Testing.app();
-		const chart = new ClusterSetup(app, "test-cluster");
+		const chart = new Cluster(app, "test-cluster");
 		const results = Testing.synth(chart);
 		expect(results).toMatchSnapshot();
 	});

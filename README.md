@@ -1,25 +1,65 @@
 # Fortify
 
+![Fortify banner](docs/assets/Fortify_Banner.png)
+
 ## Overview
 
-This project aims to develop a platform, that is aggregating and processing game state integration logs in order to extract live information from matches and collect stats from played matches.
-
-## Architecture
-
-![Image of Architecture](resources/architecture.png)
+This project is a big data processing platform, that is aggregating and processing Dota Underlord's game state integration logs in order to extract live information from matches and collect stats from played matches.
 
 ## Getting started
 
 ### Local Setup
 
-All necessary databases and systems can be started using `docker-compose up -d`.
+All necessary containers to for a development environment can be pulled & started using `docker-compose up -d`.
 
-The corresponding microservices are located in the `services/` directory.
-Those can be started locally by navigating into the service's directory and running `npm run dev`. (Each microservice will have a dedicated Readme explaining necessary setup steps.)
+### Starting already build images
 
-### Kubernetes Setup
+All fortify docker images (that are running in production) can also be downloaded locally.
 
-TODO: Write Kubernetes setup guide
+This can be done, using the following commands:
+
+- Pulling all images
+
+  ```bash
+  source ./scripts/versions.sh
+  docker-compose -f build.docker-compose.yml pull
+  ```
+
+- Pulling a specific image
+
+  ```bash
+  source ./scripts/versions.sh
+  docker-compose -f build.docker-compose.yml pull <service name>
+  ```
+
+## Services
+
+Fortify contains of many smaller services, that each have their own documentation.
+
+- [17kmmrbot](services/17kmmrbot/)
+- [backend](services/backend/)
+- [frontend](services/frontend/)
+- [fsm](services/fsm/)
+- [gsi-receiver](services/gsi-receiver/)
+- [historization](services/historization/)
+- [jobs](services/jobs/)
+- [sentry-discord-webhook](services/sentry-discord-webhook/)
+
+And shared libraries:
+
+- [shared](services/shared/)
+
+## Production deployment
+
+[See Kubernetes docs](./docs/kubernetes.md)
+
+[See Vault docs](./docs/vault.md)
+
+## Implementation details
+
+[GSI parsing finite state machine](./docs/fsm.md)
+
+[Fortify internal events](./docs/events.md)
 
 ## Resources
 
@@ -29,6 +69,10 @@ TODO: Write Kubernetes setup guide
 
 ## Disclaimer
 
-Fortify (© 2020 Thomas Kosiewski) is a community project and is not affiliated with Valve or Steam.
+Fortify (© 2021 Thomas Kosiewski) is a community project and is not affiliated with Valve or Steam or Twitch.
 
-Dota Underlords is a registered trademark of Valve Corporation.
+Valve, the Valve logo, Steam, the Steam logo, Source, the Source logo, Dota, the Dota 2 logo, Defense of the Ancients, Dota Underlords and the Dota Underlords logo are trademarks and/or registered trademarks of Valve Corporation.
+
+TWITCH, the TWITCH Logo, the Glitch Logo, and/or TWITCHTV are trademarks of Twitch Interactive, Inc. or its affiliates.
+
+The Fortify logo and Fortify banner are intellectual property of John "johnxfire" Nathan Fernandez.
