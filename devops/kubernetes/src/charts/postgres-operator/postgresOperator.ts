@@ -53,6 +53,7 @@ export class PostgresOperator extends Chart {
 			data: {
 				BACKUP_SCHEDULE: "0 */12 * * *",
 				USE_WALG_BACKUP: "true",
+				USE_WALG_RESTORE: "true",
 				BACKUP_NUM_TO_RETAIN: "14",
 				AWS_ACCESS_KEY_ID: S3_ACCESS_KEY_ID,
 				AWS_SECRET_ACCESS_KEY: S3_SECRET_ACCESS_KEY,

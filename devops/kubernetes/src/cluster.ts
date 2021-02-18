@@ -8,6 +8,7 @@ import {
 	ObjectMeta,
 	KubeConfigMap,
 	KubeCronJobV1Beta1,
+	Volume,
 } from "../imports/k8s";
 import { RedisCommander } from "./constructs/redis-commander/redis-commander";
 import { ClusterIngressTraefik } from "./constructs/fortify/ingressTraefik";
@@ -475,6 +476,19 @@ export class Cluster extends Chart {
 			},
 		});
 
+		// FIXME: This is a temporary workaround, until a new Spilo version is released
+		// This has already been fixed and merge on master
+		// yet no official Spilo release has happened since then
+		const walgFixCM = new KubeConfigMap(this, "walg-fix", {
+			metadata: {
+				name: "wal-g-fix",
+				namespace: postgresqlNS.name,
+			},
+			data: {
+				AWS_REGION: S3_REGION,
+			},
+		});
+
 		new Postgresql(this, "postgres", {
 			metadata: {
 				name: "fortify-postgres",
@@ -502,6 +516,22 @@ export class Cluster extends Chart {
 					version: "12",
 				},
 				enableLogicalBackup: true,
+				additionalVolumes: [
+					{
+						name: "aws-region-config",
+						mountPath: "/run/etc/wal-e.d/env/AWS_REGION",
+						subPath: "AWS_REGION",
+						volumeSource: {
+							name: "aws-region-config",
+							configMap: {
+								name: walgFixCM.name,
+								items: [
+									{ key: "AWS_REGION", path: "AWS_REGION" },
+								],
+							},
+						} as Volume,
+					},
+				],
 			},
 		} as { metadata: ObjectMeta } & PostgresqlProps);
 
