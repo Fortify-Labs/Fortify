@@ -95,6 +95,7 @@ const {
 			const end = messageSummary.labels({ topic }).startTimer();
 
 			if (!message.value) {
+				end({ topic, status: 404 });
 				return;
 			}
 
@@ -346,7 +347,7 @@ const {
 					throw e;
 				}
 			} else {
-				end({ status: 404 });
+				end({ status: 501 });
 			}
 		},
 	});

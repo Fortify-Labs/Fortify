@@ -76,10 +76,11 @@ const {
 	await consumer.run({
 		autoCommit: KAFKA_AUTO_COMMIT !== "false" ?? true,
 		eachMessage: async ({ message, topic, partition }) => {
-			const end = messageSummary.startTimer();
+			const end = messageSummary.labels({ topic }).startTimer();
 
 			try {
 				if (!message.value) {
+					end({ topic, status: 404 });
 					return;
 				}
 
@@ -92,7 +93,7 @@ const {
 
 					await matchPersistor.handleEvent(event);
 
-					end({ status: 200, topic, type: event.type });
+					end({ status: 200, type: event.type });
 				} else if (topic === FortifyEventTopics.SYSTEM) {
 					const event: FortifyEvent<SystemEventType> = JSON.parse(
 						value,
@@ -107,7 +108,9 @@ const {
 						);
 					}
 
-					end({ status: 200, topic, type: event.type });
+					end({ status: 200, type: event.type });
+				} else {
+					end({ status: 501 });
 				}
 			} catch (e) {
 				const exceptionID = captureException(e, {
@@ -136,7 +139,7 @@ const {
 					15 * 1000,
 				);
 
-				end({ status: 500, topic });
+				end({ status: 500 });
 
 				throw e;
 			}
