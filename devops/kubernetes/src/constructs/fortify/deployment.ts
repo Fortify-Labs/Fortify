@@ -40,7 +40,33 @@ export interface FortifyDeploymentOptions {
 	readonly minAvailable?: number;
 	readonly maxUnavailable?: number;
 
+	/**
+	 * Defaults to:
+	 * ```json
+	 * {
+	 *		httpGet: {
+	 *			path: "/live",
+	 *			port: 9000,
+	 *		},
+	 *		initialDelaySeconds: 30,
+	 *		periodSeconds: 10,
+	 *	}
+	 * ```
+	 */
 	livenessProbe?: Probe | null;
+	/**
+	 * Defaults to:
+	 * ```json
+	 * {
+	 *		httpGet: {
+	 *			path: "/ready",
+	 *			port: 9000,
+	 *		},
+	 *		initialDelaySeconds: 30,
+	 *		periodSeconds: 10,
+	 *	}
+	 * ```
+	 */
 	readinessProbe?: Probe | null;
 
 	/**

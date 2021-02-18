@@ -437,6 +437,23 @@ export class Fortify extends Chart {
 					memory: "90Mi",
 				},
 			},
+
+			livenessProbe: {
+				httpGet: {
+					path: "/live",
+					port: 9000,
+				},
+				initialDelaySeconds: 60,
+				periodSeconds: 10,
+			},
+			readinessProbe: {
+				httpGet: {
+					path: "/ready",
+					port: 9000,
+				},
+				initialDelaySeconds: 60,
+				periodSeconds: 10,
+			},
 		});
 
 		// CronJobs
