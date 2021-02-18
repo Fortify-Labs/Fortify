@@ -239,6 +239,17 @@ export class Fortify extends Chart {
 				portName: "http-gsi-ingress",
 			},
 
+			resources: {
+				limits: {
+					cpu: "0.2",
+					memory: "128Mi",
+				},
+				requests: {
+					cpu: "0.1",
+					memory: "64Mi",
+				},
+			},
+
 			traefik: {
 				entryPoints: ["web", "websecure"],
 				namespace: "fortify",
@@ -273,6 +284,17 @@ export class Fortify extends Chart {
 
 			// TODO: Implement
 			metrics: false,
+
+			resources: {
+				limits: {
+					cpu: "0.2",
+					memory: "32Mi",
+				},
+				requests: {
+					cpu: "0.1",
+					memory: "8Mi",
+				},
+			},
 		});
 
 		new WebService(this, "sentry-discord-dev-webhook", {
@@ -305,6 +327,17 @@ export class Fortify extends Chart {
 
 			// TODO: Implement
 			metrics: false,
+
+			resources: {
+				limits: {
+					cpu: "0.2",
+					memory: "32Mi",
+				},
+				requests: {
+					cpu: "0.1",
+					memory: "8Mi",
+				},
+			},
 		});
 
 		// Deployments that are not exposed to the web
@@ -324,6 +357,16 @@ export class Fortify extends Chart {
 			],
 			secrets: [vaultSecret],
 			configmaps: [postgresConfig, redisConfig, kafkaConfig, vaultConfig],
+			resources: {
+				limits: {
+					cpu: "0.2",
+					memory: "256Mi",
+				},
+				requests: {
+					cpu: "0.1",
+					memory: "80Mi",
+				},
+			},
 		});
 
 		new FortifyDeployment(this, "fsm", {
@@ -344,6 +387,16 @@ export class Fortify extends Chart {
 			],
 			secrets: [vaultSecret],
 			configmaps: [redisConfig, kafkaConfig, postgresConfig, vaultConfig],
+			resources: {
+				limits: {
+					cpu: "0.2",
+					memory: "256Mi",
+				},
+				requests: {
+					cpu: "0.1",
+					memory: "90Mi",
+				},
+			},
 		});
 
 		new FortifyDeployment(this, "historization", {
@@ -374,6 +427,16 @@ export class Fortify extends Chart {
 				vaultConfig,
 			],
 			secrets: [vaultSecret],
+			resources: {
+				limits: {
+					cpu: "0.2",
+					memory: "256Mi",
+				},
+				requests: {
+					cpu: "0.1",
+					memory: "90Mi",
+				},
+			},
 		});
 
 		// CronJobs

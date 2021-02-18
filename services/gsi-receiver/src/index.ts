@@ -105,9 +105,9 @@ const { KAFKA_TOPIC, MY_PORT } = process.env;
 			} catch (e) {
 				const exceptionID = captureException(e, {
 					extra: {
-						jwtPayload: (req.body.auth as
-							| string
-							| undefined)?.split(".")[1],
+						jwtPayload: (
+							(req.body.auth as string | undefined) ?? ""
+						).split(".")[1],
 					},
 				});
 				logger.error("GSI message processing failed", {

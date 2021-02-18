@@ -111,9 +111,7 @@ const {
 				}
 
 				end({ status: 200 });
-			}
-
-			if (topic === FortifyEventTopics.GSI) {
+			} else if (topic === FortifyEventTopics.GSI) {
 				try {
 					const gsi: Log = JSON.parse(value);
 					const ctx = gsi.auth;
@@ -176,7 +174,7 @@ const {
 
 								if (containsSameUsers && matchData) {
 									// Proceed to processing match data
-									return matchProcessor.process({
+									await matchProcessor.process({
 										matchState: matchData,
 										sourceAccountID: id,
 										timestamp: gsi.timestamp,
@@ -347,6 +345,8 @@ const {
 					});
 					throw e;
 				}
+			} else {
+				end({ status: 404 });
 			}
 		},
 	});

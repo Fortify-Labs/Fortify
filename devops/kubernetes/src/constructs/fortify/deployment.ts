@@ -8,6 +8,7 @@ import {
 	KubeSecret,
 	KubeConfigMap,
 	Probe,
+	ResourceRequirements,
 } from "../../../imports/k8s";
 
 const { REGISTRY } = process.env;
@@ -43,6 +44,25 @@ export interface FortifyDeploymentOptions {
 	readinessProbe?: Probe | null;
 
 	/**
+	 * Compute Resources required by this container
+	 *
+	 * Defaults to:
+	 * ```json
+	 * {
+	 *		limits: {
+	 *			cpu: "0.2",
+	 *			memory: "256Mi",
+	 *		},
+	 *		requests: {
+	 *			cpu: "0.1",
+	 *			memory: "128Mi",
+	 *		}
+	 *	}
+	 *	```
+	 */
+	resources?: ResourceRequirements;
+
+	/**
 	 * Boolean wether prometheus scraper shall scrape for metrics
 	 */
 	metrics?: boolean;
@@ -55,6 +75,19 @@ export class FortifyDeployment extends Construct {
 		options: FortifyDeploymentOptions
 	) {
 		super(scope, ns);
+
+		const {
+			resources = {
+				limits: {
+					cpu: "0.2",
+					memory: "256Mi",
+				},
+				requests: {
+					cpu: "0.1",
+					memory: "128Mi",
+				},
+			},
+		} = options;
 
 		let { livenessProbe, readinessProbe, metrics = true } = options;
 
@@ -185,6 +218,7 @@ export class FortifyDeployment extends Construct {
 								env,
 								livenessProbe,
 								readinessProbe,
+								resources,
 							},
 						],
 					},
