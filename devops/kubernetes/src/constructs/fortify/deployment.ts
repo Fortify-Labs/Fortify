@@ -79,7 +79,7 @@ export class FortifyDeployment extends Construct {
 		const {
 			resources = {
 				limits: {
-					cpu: "0.2",
+					cpu: "1.0",
 					memory: "256Mi",
 				},
 				requests: {
@@ -97,7 +97,7 @@ export class FortifyDeployment extends Construct {
 					path: "/live",
 					port: 9000,
 				},
-				initialDelaySeconds: 5,
+				initialDelaySeconds: 30,
 				periodSeconds: 10,
 			};
 		}
@@ -107,7 +107,7 @@ export class FortifyDeployment extends Construct {
 					path: "/ready",
 					port: 9000,
 				},
-				initialDelaySeconds: 5,
+				initialDelaySeconds: 30,
 				periodSeconds: 10,
 			};
 		}
