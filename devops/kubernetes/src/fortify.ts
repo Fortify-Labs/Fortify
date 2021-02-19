@@ -212,6 +212,7 @@ export class Fortify extends Chart {
 			// TODO: Implement
 			livenessProbe: null,
 			readinessProbe: null,
+			startupProbe: null,
 			metrics: false,
 		});
 
@@ -436,23 +437,6 @@ export class Fortify extends Chart {
 					cpu: "0.1",
 					memory: "90Mi",
 				},
-			},
-
-			livenessProbe: {
-				httpGet: {
-					path: "/live",
-					port: 9000,
-				},
-				initialDelaySeconds: 60,
-				periodSeconds: 10,
-			},
-			readinessProbe: {
-				httpGet: {
-					path: "/ready",
-					port: 9000,
-				},
-				initialDelaySeconds: 60,
-				periodSeconds: 10,
 			},
 		});
 

@@ -9,6 +9,7 @@ import {
 	KubeConfigMap,
 	KubeCronJobV1Beta1,
 	Volume,
+	Container,
 } from "../imports/k8s";
 import { RedisCommander } from "./constructs/redis-commander/redis-commander";
 import { ClusterIngressTraefik } from "./constructs/fortify/ingressTraefik";
@@ -516,6 +517,13 @@ export class Cluster extends Chart {
 					version: "12",
 				},
 				enableLogicalBackup: true,
+				initContainers: [
+					{
+						name: "init-container",
+						image: "busybox:1.32",
+						command: ["echo", "hello"],
+					},
+				] as Container[],
 				additionalVolumes: [
 					{
 						name: "aws-region-config",

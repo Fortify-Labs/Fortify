@@ -1,7 +1,7 @@
 language: typescript
 app: ts-node --files main.ts
 imports:
-  - k8s
+  - k8s@1.19.0
   - https://github.com/jetstack/cert-manager/releases/download/v1.1.0/cert-manager.crds.yaml
   - https://strimzi.io/install/latest?namespace=kafka
   - crds/kubedb.yaml

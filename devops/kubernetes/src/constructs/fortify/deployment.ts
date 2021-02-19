@@ -48,7 +48,6 @@ export interface FortifyDeploymentOptions {
 	 *			path: "/live",
 	 *			port: 9000,
 	 *		},
-	 *		initialDelaySeconds: 30,
 	 *		periodSeconds: 10,
 	 *	}
 	 * ```
@@ -59,10 +58,23 @@ export interface FortifyDeploymentOptions {
 	 * ```json
 	 * {
 	 *		httpGet: {
+	 *			path: "/live",
+	 *			port: 9000,
+	 *		},
+	 *		failureThreshold: 30,
+	 *		periodSeconds: 10,
+	 *	}
+	 * ```
+	 */
+	startupProbe?: Probe | null;
+	/**
+	 * Defaults to:
+	 * ```json
+	 * {
+	 *		httpGet: {
 	 *			path: "/ready",
 	 *			port: 9000,
 	 *		},
-	 *		initialDelaySeconds: 30,
 	 *		periodSeconds: 10,
 	 *	}
 	 * ```
@@ -115,7 +127,12 @@ export class FortifyDeployment extends Construct {
 			},
 		} = options;
 
-		let { livenessProbe, readinessProbe, metrics = true } = options;
+		let {
+			livenessProbe,
+			readinessProbe,
+			startupProbe,
+			metrics = true,
+		} = options;
 
 		if (livenessProbe === undefined) {
 			livenessProbe = {
@@ -123,7 +140,6 @@ export class FortifyDeployment extends Construct {
 					path: "/live",
 					port: 9000,
 				},
-				initialDelaySeconds: 30,
 				periodSeconds: 10,
 			};
 		}
@@ -133,7 +149,16 @@ export class FortifyDeployment extends Construct {
 					path: "/ready",
 					port: 9000,
 				},
-				initialDelaySeconds: 30,
+				periodSeconds: 10,
+			};
+		}
+		if (startupProbe === undefined) {
+			startupProbe = {
+				httpGet: {
+					path: "/live",
+					port: 9000,
+				},
+				failureThreshold: 30,
 				periodSeconds: 10,
 			};
 		}
@@ -142,6 +167,9 @@ export class FortifyDeployment extends Construct {
 		}
 		if (readinessProbe === null) {
 			readinessProbe = undefined;
+		}
+		if (startupProbe === null) {
+			startupProbe = undefined;
 		}
 
 		const selectorLabels = {
@@ -244,6 +272,7 @@ export class FortifyDeployment extends Construct {
 								env,
 								livenessProbe,
 								readinessProbe,
+								startupProbe,
 								resources,
 							},
 						],

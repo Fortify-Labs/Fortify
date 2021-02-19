@@ -59,6 +59,9 @@ export class GrafanaChart extends Chart {
 						client_secret: GRAFANA_GITHUB_CLIENT_SECRET,
 					},
 				},
+				imageRenderer: {
+					enabled: true,
+				},
 			},
 		});
 

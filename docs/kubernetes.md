@@ -1,6 +1,6 @@
 # Kubernetes
 
-At the time of writing, Fortify is running on Kubernetes version 1.20.2.
+At the time of writing, Fortify is running on Kubernetes version 1.20.4.
 
 The philosophy behind the cluster's architecture and operations are aimed towards high availability, general system stability and horizontal scalability.
 
