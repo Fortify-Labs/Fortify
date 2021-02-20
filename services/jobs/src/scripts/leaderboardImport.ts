@@ -101,6 +101,19 @@ export class LeaderboardImportService implements FortifyScript {
 				this.register,
 			);
 
+			new Gauge({
+				name: "fortify_jobs_version_info",
+				help: "Version info for jobs service.",
+				labelNames: ["version"],
+				registers: [this.register],
+				aggregator: "first",
+				collect() {
+					this.labels(process.env.npm_package_version ?? "0.0.0").set(
+						1,
+					);
+				},
+			});
+
 			await new Promise<void>((resolve, reject) => {
 				gateway.push(
 					{ jobName: `fortify_import_${type}` },

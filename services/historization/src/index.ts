@@ -80,7 +80,7 @@ const {
 
 			try {
 				if (!message.value) {
-					end({ topic, status: 404 });
+					end({ status: 404 });
 					return;
 				}
 

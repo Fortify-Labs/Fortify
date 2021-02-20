@@ -1,6 +1,6 @@
 {
   "name": "17kmmrbot",
-  "version": "1.6.0",
+  "version": "1.6.1",
   "description": "Fortify twitch bot",
   "private": "true",
   "engines": {
@@ -18,7 +18,7 @@
   "homepage": "https://github.com/Fortify-Labs/Fortify#readme",
   "devDependencies": {
     "@sentry/cli": "^1.62.0",
-    "@types/node": "^14.14.27",
+    "@types/node": "^14.14.31",
     "@types/redis": "^2.8.28",
     "@types/tmi.js": "^1.7.1",
     "gts": "^3.1.0",
@@ -41,7 +41,7 @@
     "dev": "DEBUG=app::* nodemon"
   },
   "dependencies": {
-    "@sentry/node": "^6.1.0",
+    "@sentry/node": "^6.2.0",
     "cross-env": "^7.0.3",
     "dotenv": "^8.2.0",
     "inversify": "^5.0.5",

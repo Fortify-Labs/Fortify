@@ -5,7 +5,7 @@ import { TwitchCommand } from "../definitions/twitchCommand";
 
 @injectable()
 export class CountdownCommand implements TwitchCommand {
-	invocations = ["!cd", "!countdown"];
+	invocations = ["!cd", "!countdown", "digitamzSnipe"];
 	showInHelp = true;
 	description = "Starts a countdown, counting down from 5 to 1 (+ go).";
 
