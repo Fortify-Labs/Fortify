@@ -273,10 +273,19 @@ export class Cluster extends Chart {
 						},
 					],
 					config: {
-						"offsets.topic.replication.factor": 1,
-						"transaction.state.log.replication.factor": 1,
-						"transaction.state.log.min.isr": 1,
+						"offsets.topic.replication.factor": 3,
+						"transaction.state.log.replication.factor": 3,
+						"transaction.state.log.min.isr": 2,
 						"log.message.format.version": "2.5",
+						"default.replication.factor": 3,
+						"min.insync.replicas": 2,
+						acks: "all",
+						"delivery.timeout.ms": 900000,
+						"zookeeper.connection.timeout.ms": 30000,
+
+						"session.timeout.ms": 30000,
+						"heartbeat.interval.ms": 10000,
+						"auto.offset.reset": "earliest",
 					},
 					storage: {
 						type: KafkaSpecKafkaStorageType.JBOD,
@@ -341,7 +350,7 @@ export class Cluster extends Chart {
 					replicas: 3,
 					storage: {
 						type: KafkaSpecZookeeperStorageType.PERSISTENT_CLAIM,
-						size: "10Gi",
+						size: "1Gi",
 						deleteClaim: false,
 					},
 					metricsConfig: {
@@ -421,7 +430,7 @@ export class Cluster extends Chart {
 				},
 			},
 			spec: {
-				partitions: 3,
+				partitions: 9,
 				replicas: 3,
 				config: {
 					"retention.ms": 1 * 24 * 60 * 60 * 1000, // 1 * 1 day,
@@ -440,7 +449,7 @@ export class Cluster extends Chart {
 				},
 			},
 			spec: {
-				partitions: 3,
+				partitions: 9,
 				replicas: 3,
 				config: {
 					"retention.ms": 1 * 24 * 60 * 60 * 1000, // 1 * 1 day,
@@ -459,7 +468,7 @@ export class Cluster extends Chart {
 				},
 			},
 			spec: {
-				partitions: 3,
+				partitions: 9,
 				replicas: 3,
 				config: {
 					"retention.ms": 7 * 24 * 60 * 60 * 1000, // 7 * 1 day,
@@ -572,7 +581,7 @@ export class Cluster extends Chart {
 								accessModes: ["ReadWriteOnce"],
 								resources: {
 									requests: {
-										storage: "10Gi",
+										storage: "1Gi",
 									},
 								},
 							},
