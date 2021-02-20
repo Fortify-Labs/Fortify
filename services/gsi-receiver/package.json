@@ -1,6 +1,6 @@
 {
   "name": "gsi-receiver",
-  "version": "1.3.2",
+  "version": "1.4.0",
   "description": "Web Endpoint receiving GSI data",
   "author": {
     "name": "Thomas Kosiewski"

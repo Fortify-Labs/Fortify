@@ -154,6 +154,17 @@ export class Fortify extends Chart {
 				namespace: "fortify",
 				match: `Host(\`api.${DOMAIN}\`)`,
 			},
+
+			resources: {
+				limits: {
+					cpu: "0.2",
+					memory: "512Mi",
+				},
+				requests: {
+					cpu: "0.1",
+					memory: "128Mi",
+				},
+			},
 		});
 
 		new WebService(this, "frontend", {

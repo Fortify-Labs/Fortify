@@ -9,7 +9,10 @@ import express from "express";
 import { json, urlencoded } from "body-parser";
 
 import { container } from "./inversify.config";
-import { KafkaConnector } from "@shared/connectors/kafka";
+import {
+	KafkaConnector,
+	RoundRobinPartitioner,
+} from "@shared/connectors/kafka";
 
 import { PermissionScope } from "@shared/definitions/context";
 import { AuthService } from "@shared/services/auth";
@@ -55,7 +58,9 @@ const { KAFKA_TOPIC, MY_PORT } = process.env;
 
 	const kafka = container.get(KafkaConnector);
 
-	const producer = kafka.producer();
+	const producer = kafka.producer({
+		createPartitioner: RoundRobinPartitioner,
+	});
 	await producer.connect();
 
 	const app = express();
