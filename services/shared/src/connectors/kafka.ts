@@ -46,6 +46,15 @@ export class KafkaConnector implements HealthCheckable, Connector {
 					winstonLevel = "info";
 				}
 
+				if (
+					message.startsWith("Consumer has joined the group") ||
+					message.startsWith("The group is rebalancing") ||
+					message.startsWith("Response Heartbeat")
+				) {
+					//
+					winstonLevel = "debug";
+				}
+
 				this.logger.log({
 					level: winstonLevel,
 					message,

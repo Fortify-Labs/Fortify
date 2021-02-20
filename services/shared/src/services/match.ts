@@ -320,7 +320,7 @@ export class MatchService {
 				// TODO: Refactor this to be one request getting all 8 images instead of 8 requests getting one image
 				// Fetch image from steam web api
 				const playerSummariesRaw = await fetch(
-					`http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${apiKey}&steamids=${convert32to64SteamId(
+					`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${apiKey}&steamids=${convert32to64SteamId(
 						accountID,
 					)}`,
 				);
