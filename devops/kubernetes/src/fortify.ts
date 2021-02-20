@@ -396,6 +396,7 @@ export class Fortify extends Chart {
 					value: FSM_SENTRY_DSN,
 				},
 				{ name: "SENTRY_TRACE_SAMPLE_RATE", value: "0" },
+				{ name: "STATS_EVENTS_GENERATION_ENABLED", value: "false" },
 			],
 			secrets: [vaultSecret],
 			configmaps: [redisConfig, kafkaConfig, postgresConfig, vaultConfig],
@@ -430,6 +431,7 @@ export class Fortify extends Chart {
 					value: HISTORIZATION_SENTRY_DSN,
 				},
 				{ name: "SENTRY_TRACE_SAMPLE_RATE", value: "0" },
+				{ name: "OMIT_TOPICS", value: "system-events" },
 			],
 			configmaps: [
 				redisConfig,

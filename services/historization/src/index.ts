@@ -30,6 +30,7 @@ import { Summary } from "prom-client";
 const {
 	KAFKA_AUTO_COMMIT,
 	KAFKA_GROUP_ID = "historization-group",
+	OMIT_TOPICS = "",
 } = process.env;
 
 (async () => {
@@ -65,13 +66,17 @@ const {
 	const leaderboardPersistor = container.get(LeaderboardPersistor);
 	const matchPersistor = container.get(MatchPersistor);
 
-	await consumer.subscribe({
-		topic: FortifyEventTopics.SYSTEM,
-	});
+	if (!OMIT_TOPICS.split(",").includes(FortifyEventTopics.SYSTEM)) {
+		await consumer.subscribe({
+			topic: FortifyEventTopics.SYSTEM,
+		});
+	}
 
-	await consumer.subscribe({
-		topic: FortifyEventTopics.GAME,
-	});
+	if (!OMIT_TOPICS.split(",").includes(FortifyEventTopics.GAME)) {
+		await consumer.subscribe({
+			topic: FortifyEventTopics.GAME,
+		});
+	}
 
 	await consumer.run({
 		autoCommit: KAFKA_AUTO_COMMIT !== "false" ?? true,
