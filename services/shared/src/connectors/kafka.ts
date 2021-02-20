@@ -8,6 +8,7 @@ import {
 	logLevel,
 	ICustomPartitioner,
 	PartitionerArgs,
+	Consumer,
 } from "kafkajs";
 import { Connector } from "../definitions/connector";
 import { Logger } from "../logger";
@@ -23,6 +24,8 @@ export class KafkaConnector implements HealthCheckable, Connector {
 	healthCheck: () => Promise<boolean>;
 	shutdown: () => Promise<unknown>;
 
+	consumers: Consumer[];
+
 	private sessionTimeout = 30000;
 
 	constructor(@inject(Logger) public logger: Logger) {
@@ -31,6 +34,8 @@ export class KafkaConnector implements HealthCheckable, Connector {
 			return false;
 		};
 		this.shutdown = async () => {};
+
+		this.consumers = [];
 	}
 	async connect() {
 		this._kafka = new Kafka({
@@ -77,24 +82,15 @@ export class KafkaConnector implements HealthCheckable, Connector {
 	}
 
 	public async setupHealthCheck() {
-		const consumer = this.consumer({
-			groupId: "healthcheck",
-			sessionTimeout: this.sessionTimeout,
-		});
-		await consumer
-			.run()
-			.catch(
-				(e) =>
-					this.logger.error("Kafka health check failed", { e }) &&
-					this.logger.error(e),
-			);
-
 		let lastHeartbeat = 0;
-		consumer.on(
-			"consumer.heartbeat",
-			({ timestamp }: ConsumerHeartbeatEvent) =>
-				(lastHeartbeat = timestamp),
-		);
+
+		for (const consumer of this.consumers) {
+			consumer.on(
+				"consumer.heartbeat",
+				({ timestamp }: ConsumerHeartbeatEvent) =>
+					(lastHeartbeat = timestamp),
+			);
+		}
 
 		this.healthCheck = async () => {
 			// Consumer has heartbeat within the session timeout,
@@ -105,10 +101,19 @@ export class KafkaConnector implements HealthCheckable, Connector {
 
 			// Consumer has not heartbeat, but maybe it's because the group is currently rebalancing
 			try {
-				const { state } = await consumer.describeGroup();
+				const groups = await Promise.all(
+					this.consumers.map((consumer) => consumer.describeGroup()),
+				);
 
-				return ["CompletingRebalance", "PreparingRebalance"].includes(
-					state,
+				const rebalancingGroups = groups.map(({ state }) =>
+					["CompletingRebalance", "PreparingRebalance"].includes(
+						state,
+					),
+				);
+
+				return rebalancingGroups.reduce(
+					(previous, current) => previous || current,
+					false,
 				);
 			} catch (e) {
 				return false;
@@ -116,8 +121,12 @@ export class KafkaConnector implements HealthCheckable, Connector {
 		};
 
 		this.shutdown = async () => {
-			await consumer.stop();
-			await consumer.disconnect();
+			await Promise.all(
+				this.consumers.map((consumer) => consumer.stop()),
+			);
+			await Promise.all(
+				this.consumers.map((consumer) => consumer.disconnect()),
+			);
 		};
 	}
 
@@ -126,7 +135,11 @@ export class KafkaConnector implements HealthCheckable, Connector {
 	}
 
 	public consumer(config?: ConsumerConfig) {
-		return this.kafka.consumer(config);
+		const consumer = this.kafka.consumer(config);
+
+		this.consumers.push(consumer);
+
+		return consumer;
 	}
 }
 

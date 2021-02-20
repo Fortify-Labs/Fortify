@@ -185,9 +185,7 @@ export class FortifyDeployment extends Construct {
 
 		const replicas = options.replicas ?? 1;
 
-		const env: EnvVar[] = options.env
-			? [...options.env, { name: "DEBUG", value: "app::*" }]
-			: [];
+		const env: EnvVar[] = options.env ?? [];
 
 		if (!env.find((envvar) => envvar.name === "NODE_ENV")) {
 			env.push({
@@ -198,10 +196,7 @@ export class FortifyDeployment extends Construct {
 
 		const image =
 			options.image ??
-			(REGISTRY ?? "") +
-				options.name +
-				":" +
-				(options.version ?? "invalid");
+			`${REGISTRY}${options.name}:${options.version ?? "invalid"}`;
 
 		if (options.service) {
 			new KubeService(this, "service", {
