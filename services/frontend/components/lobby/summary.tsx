@@ -74,61 +74,69 @@ export const LobbySummary: FunctionComponent<{ id?: string }> = ({ id }) => {
 						</tr>
 					</thead>
 					<tbody>
-						{lobby?.slots?.map((slot) => (
-							<tr key={slot?.lobbySlotId}>
-								<td>
-									<HStack>
-										<Link
-											href="/profile/[[...id]]"
-											as={`/profile/${
-												slot?.user?.steamid ?? 0
-											}`}
-											passHref
-										>
-											<a>
-												<figure
-													className="image is-64x64"
-													style={{
-														marginRight: "2rem",
-													}}
-												>
-													<img
-														className="is-rounded"
-														loading="lazy"
-														src={
-															slot?.user
-																?.profilePicture ??
-															"https://bulma.io/images/placeholders/128x128.png"
-														}
-													/>
-												</figure>
-											</a>
-										</Link>
-										<Link
-											href="/profile/[[...id]]"
-											as={`/profile/${
-												slot?.user?.steamid ?? 0
-											}`}
-											passHref
-										>
-											<a>{slot?.user?.name ?? ""}</a>
-										</Link>
-									</HStack>
-								</td>
-								<td>
-									{mapRankTierToName(
-										slot?.user?.standardRating?.rankTier ??
-											0
-									)}
-								</td>
-								<td>{slot?.user?.standardRating?.rank}</td>
-								<td>{slot?.user?.standardRating?.mmr}</td>
-								<td></td>
-								<td></td>
-								<td></td>
-								<td></td>
-							</tr>
-						))}
+						{lobby?.slots
+							?.sort((a, b) =>
+								(a?.slot ?? 0) < (b?.slot ?? 0)
+									? 1
+									: (a?.slot ?? 0) > (b?.slot ?? 0)
+									? -1
+									: 0
+							)
+							.map((slot) => (
+								<tr key={slot?.lobbySlotId}>
+									<td>
+										<HStack>
+											<Link
+												href="/profile/[[...id]]"
+												as={`/profile/${
+													slot?.user?.steamid ?? 0
+												}`}
+												passHref
+											>
+												<a>
+													<figure
+														className="image is-64x64"
+														style={{
+															marginRight: "2rem",
+														}}
+													>
+														<img
+															className="is-rounded"
+															loading="lazy"
+															src={
+																slot?.user
+																	?.profilePicture ??
+																"https://bulma.io/images/placeholders/128x128.png"
+															}
+														/>
+													</figure>
+												</a>
+											</Link>
+											<Link
+												href="/profile/[[...id]]"
+												as={`/profile/${
+													slot?.user?.steamid ?? 0
+												}`}
+												passHref
+											>
+												<a>{slot?.user?.name ?? ""}</a>
+											</Link>
+										</HStack>
+									</td>
+									<td>
+										{mapRankTierToName(
+											slot?.user?.standardRating
+												?.rankTier ?? 0
+										)}
+									</td>
+									<td>{slot?.user?.standardRating?.rank}</td>
+									<td>{slot?.user?.standardRating?.mmr}</td>
+									<td></td>
+									<td></td>
+									<td></td>
+									<td></td>
+								</tr>
+							))}
 					</tbody>
 				</table>
 			</div>
