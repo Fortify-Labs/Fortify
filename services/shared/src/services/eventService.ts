@@ -1,4 +1,5 @@
 import { injectable, inject } from "inversify";
+import { ProducerConfig } from "kafkajs";
 
 import { KafkaConnector } from "../connectors/kafka";
 import { FortifyEventClass } from "../events/events";
@@ -7,8 +8,12 @@ import { FortifyEventClass } from "../events/events";
 export class EventService {
 	constructor(@inject(KafkaConnector) private kafka: KafkaConnector) {}
 
-	async sendEvent<T>(event: FortifyEventClass<T>, key?: string) {
-		const producer = this.kafka.producer();
+	async sendEvent<T>(
+		event: FortifyEventClass<T>,
+		key?: string,
+		config?: ProducerConfig,
+	) {
+		const producer = this.kafka.producer(config);
 		await producer.connect();
 		await producer.send({
 			topic: event._topic,

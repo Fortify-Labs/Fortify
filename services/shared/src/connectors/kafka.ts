@@ -6,6 +6,8 @@ import {
 	ProducerConfig,
 	ConsumerHeartbeatEvent,
 	logLevel,
+	ICustomPartitioner,
+	PartitionerArgs,
 } from "kafkajs";
 import { Connector } from "../definitions/connector";
 import { Logger } from "../logger";
@@ -140,4 +142,20 @@ const toWinstonLogLevel = (level: logLevel) => {
 		case logLevel.DEBUG:
 			return "debug";
 	}
+};
+
+export const RoundRobinPartitioner: ICustomPartitioner = () => {
+	let counter = 0;
+
+	return ({ partitionMetadata }: PartitionerArgs) => {
+		const partition = counter;
+
+		counter++;
+
+		if (counter > partitionMetadata.length - 1) {
+			counter = 0;
+		}
+
+		return partition;
+	};
 };
