@@ -440,7 +440,7 @@ export class Fortify extends Chart {
 					value: HISTORIZATION_SENTRY_DSN,
 				},
 				{ name: "SENTRY_TRACE_SAMPLE_RATE", value: "0" },
-				{ name: "OMIT_TOPICS", value: "system-events" },
+				// { name: "OMIT_TOPICS", value: "system-events" },
 			],
 			configmaps: [
 				redisConfig,

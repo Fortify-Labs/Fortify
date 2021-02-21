@@ -75,6 +75,7 @@ jobs:
       # - run: npm run build
       - run: npm run synth
       - run: kubectl apply -f dist/fortify.k8s.yaml
+      - run: kubectl get deployment --output name -n fortify | xargs -n1 -t kubectl rollout status -n fortify --timeout=300s
       - uses: sarisia/actions-status-discord@v1
         if: always()
         with:
