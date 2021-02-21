@@ -99,6 +99,11 @@ export class KafkaConnector implements HealthCheckable, Connector {
 				return true;
 			}
 
+			// If no consumer exist, assume it's successful
+			if (this.consumers.length === 0) {
+				return true;
+			}
+
 			// Consumer has not heartbeat, but maybe it's because the group is currently rebalancing
 			try {
 				const groups = await Promise.all(
@@ -138,12 +143,12 @@ export class KafkaConnector implements HealthCheckable, Connector {
 		};
 
 		this.shutdown = async () => {
-			await Promise.all(
-				this.consumers.map((consumer) => consumer.stop()),
-			);
-			await Promise.all(
-				this.consumers.map((consumer) => consumer.disconnect()),
-			);
+			// await Promise.all(
+			// 	this.consumers.map((consumer) => consumer.stop()),
+			// );
+			// await Promise.all(
+			// 	this.consumers.map((consumer) => consumer.disconnect()),
+			// );
 		};
 	}
 

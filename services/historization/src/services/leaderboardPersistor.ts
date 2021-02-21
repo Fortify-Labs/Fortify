@@ -107,7 +107,7 @@ export class LeaderboardPersistor {
 		// Send requests to steam web api to get current display names
 		const requests = chunkedSteamIDs.map((steamids) =>
 			fetch(
-				`http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${apiKey}&steamids=${steamids.join(
+				`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${apiKey}&steamids=${steamids.join(
 					",",
 				)}`,
 			).then((res) => res.json() as Promise<GetPlayerSummaries>),

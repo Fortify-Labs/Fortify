@@ -63,11 +63,12 @@ export class PostgresConnector implements HealthCheckable, Connector {
 
 			return result;
 		};
+
 		this.shutdown = async () => {
-			if (this._connection?.isConnected) {
-				await this._connection?.close();
-				this._connection = undefined;
-			}
+			// if (this._connection?.isConnected) {
+			// 	await this._connection?.close();
+			// 	this._connection = undefined;
+			// }
 		};
 	}
 
