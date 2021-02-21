@@ -105,18 +105,20 @@ export class KafkaConnector implements HealthCheckable, Connector {
 					this.consumers.map((consumer) => consumer.describeGroup()),
 				);
 
-				const rebalancingGroups = groups.map(({ state }) =>
-					["CompletingRebalance", "PreparingRebalance"].includes(
-						state,
-					),
+				const rebalancingOrStableGroups = groups.map(({ state }) =>
+					[
+						"Stable",
+						"CompletingRebalance",
+						"PreparingRebalance",
+					].includes(state),
 				);
 
-				const isRebalancing = rebalancingGroups.reduce(
+				const isRebalancingOrStable = rebalancingOrStableGroups.reduce(
 					(previous, current) => previous || current,
 					false,
 				);
 
-				if (!isRebalancing) {
+				if (!isRebalancingOrStable) {
 					this.logger.error(
 						"Kafka health check failed, is not rebalancing",
 						{
@@ -125,7 +127,7 @@ export class KafkaConnector implements HealthCheckable, Connector {
 					);
 				}
 
-				return isRebalancing;
+				return isRebalancingOrStable;
 			} catch (e) {
 				this.logger.error("Kafka health check failed with exception", {
 					e,
