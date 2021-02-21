@@ -272,7 +272,7 @@ export class Fortify extends Chart {
 		});
 
 		const sentryDiscordWebhookVersion = readFileSync(
-			"../../../services/sentry-discord-webhook/version"
+			"../../services/sentry-discord-webhook/version"
 		).toString();
 
 		new WebService(this, "sentry-discord-webhook", {

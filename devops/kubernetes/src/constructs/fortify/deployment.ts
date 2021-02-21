@@ -141,6 +141,7 @@ export class FortifyDeployment extends Construct {
 					port: 9000,
 				},
 				periodSeconds: 10,
+				timeoutSeconds: 5,
 			};
 		}
 		if (readinessProbe === undefined) {
@@ -150,6 +151,7 @@ export class FortifyDeployment extends Construct {
 					port: 9000,
 				},
 				periodSeconds: 10,
+				timeoutSeconds: 5,
 			};
 		}
 		if (startupProbe === undefined) {
