@@ -58,7 +58,13 @@ export class VaultConnector implements HealthCheckable {
 			try {
 				const health = (await this.vault.health()) as VaultHealthResponse;
 
-				return health.initialized && !health.sealed;
+				const status = health.initialized && !health.sealed;
+
+				if (!status) {
+					this.logger.error("Vault health check failed");
+				}
+
+				return status;
 			} catch (e) {
 				this.logger.error("Vault health check failed", { e });
 				this.logger.error(e);

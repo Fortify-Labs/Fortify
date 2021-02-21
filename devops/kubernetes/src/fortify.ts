@@ -1,6 +1,8 @@
 import { Construct } from "constructs";
 import { Chart } from "cdk8s";
 
+import { readFileSync } from "fs";
+
 import { FortifyDeployment } from "./constructs/fortify/deployment";
 import { WebService } from "./constructs/fortify/webservice";
 import { KubeConfigMap, KubeSecret } from "../imports/k8s";
@@ -269,10 +271,14 @@ export class Fortify extends Chart {
 			},
 		});
 
+		const sentryDiscordWebhookVersion = readFileSync(
+			"../../../services/sentry-discord-webhook/version"
+		).toString();
+
 		new WebService(this, "sentry-discord-webhook", {
 			name: "sentry-discord-webhook",
 			replicas: 1,
-			version: "1.1.4",
+			version: sentryDiscordWebhookVersion,
 			env: [
 				{ name: "LISTEN_ADDRESS", value: ":8080" },
 				{ name: "WEBHOOK_ENV", value: "prod" },
@@ -312,8 +318,11 @@ export class Fortify extends Chart {
 		new WebService(this, "sentry-discord-dev-webhook", {
 			name: "sentry-discord-dev-webhook",
 			replicas: 1,
-			version: "1.1.4",
-			image: REGISTRY + "sentry-discord-webhook:1.1.4",
+			version: sentryDiscordWebhookVersion,
+			image:
+				REGISTRY +
+				"sentry-discord-webhook:" +
+				sentryDiscordWebhookVersion,
 			env: [
 				{ name: "LISTEN_ADDRESS", value: ":8080" },
 				{

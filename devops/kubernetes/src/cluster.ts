@@ -549,6 +549,16 @@ export class Cluster extends Chart {
 						} as Volume,
 					},
 				],
+				resources: {
+					limits: {
+						cpu: "2",
+						memory: "500Mi",
+					},
+					requests: {
+						cpu: "0.1",
+						memory: "100Mi",
+					},
+				},
 			},
 		} as { metadata: ObjectMeta } & PostgresqlProps);
 

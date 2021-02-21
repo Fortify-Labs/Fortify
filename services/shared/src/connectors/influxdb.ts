@@ -76,8 +76,16 @@ export class InfluxDBConnector implements HealthCheckable, Connector {
 	public async setupHealthCheck() {
 		this.healthAPI = new HealthAPI(this.client);
 
-		this.healthCheck = async () =>
-			(await this.healthAPI?.getHealth())?.status === "pass";
+		this.healthCheck = async () => {
+			const result =
+				(await this.healthAPI?.getHealth())?.status === "pass";
+
+			if (!result) {
+				this.logger.error("Influx health check failed");
+			}
+
+			return result;
+		};
 	}
 
 	async writePoints(points: Point[], bucket = INFLUXDB_BUCKET) {
