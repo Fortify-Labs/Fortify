@@ -117,12 +117,19 @@ export class KafkaConnector implements HealthCheckable, Connector {
 				);
 
 				if (!isRebalancing) {
-					this.logger.error("Kafka health check failed, is not rebalancing");
+					this.logger.error(
+						"Kafka health check failed, is not rebalancing",
+						{
+							states: groups.map(({ state }) => state),
+						},
+					);
 				}
 
 				return isRebalancing;
 			} catch (e) {
-				this.logger.error("Kafka health check failed with exception", { e });
+				this.logger.error("Kafka health check failed with exception", {
+					e,
+				});
 				this.logger.error(e);
 				return false;
 			}

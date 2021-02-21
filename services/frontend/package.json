@@ -1,6 +1,6 @@
 {
   "name": "frontend",
-  "version": "1.3.1",
+  "version": "1.3.2",
   "author": "Thomas Kosiewski",
   "license": "AGPL-3.0-or-later",
   "private": true,
@@ -44,7 +44,8 @@
     "react-cookie-consent": "^6.2.2",
     "react-dom": "^17.0.1",
     "sass": "^1.32.5",
-    "subscriptions-transport-ws": "^0.9.18"
+    "subscriptions-transport-ws": "^0.9.18",
+    "tsconfig-paths-webpack-plugin": "^3.3.0"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "1.20.1",
@@ -63,7 +64,6 @@
     "graphql-let": "^0.16.3",
     "next-transpile-modules": "^6.1.0",
     "sync-dotenv": "^2.6.2",
-    "tsconfig-paths-webpack-plugin": "^3.3.0",
     "typescript": "^4.1.3"
   }
 }
