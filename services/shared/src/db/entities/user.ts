@@ -8,6 +8,7 @@ import {
 	ManyToOne,
 } from "typeorm";
 import { MatchSlot } from "./matchSlot";
+import { MmrStats } from "./mmr";
 
 export class MMR {
 	@Column({ default: 0 })
@@ -83,6 +84,9 @@ export class User {
 	// --- Relations ---
 	@OneToMany(() => MatchSlot, (slot) => slot.user)
 	matchSlots!: MatchSlot[];
+
+	@OneToMany(() => MmrStats, (stat) => stat.user)
+	mmrStats!: MmrStats;
 
 	// --- Smurfs ---
 

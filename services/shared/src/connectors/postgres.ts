@@ -9,6 +9,8 @@ import { SecretsManager, SecretsRequest } from "../services/secrets";
 import { HealthCheckable } from "../services/healthCheck";
 import { Logger } from "../logger";
 import { Connector } from "../definitions/connector";
+import { MmrStats } from "../db/entities/mmr";
+import { ItemStats, SynergyStats, UnitStats } from "../db/entities/stats";
 
 const {
 	POSTGRES_USER,
@@ -137,15 +139,31 @@ export class PostgresConnector implements HealthCheckable, Connector {
 		await this.connection.runMigrations();
 	}
 
-	async getUserRepo() {
+	getUserRepo() {
 		return this.connection.getRepository(User);
 	}
 
-	async getMatchRepo() {
+	getMatchRepo() {
 		return this.connection.getRepository(Match);
 	}
 
-	async getMatchSlotRepo() {
+	getMatchSlotRepo() {
 		return this.connection.getRepository(MatchSlot);
+	}
+
+	getMmrStatsRepo() {
+		return this.connection.getRepository(MmrStats);
+	}
+
+	getUnitStatsRepo() {
+		return this.connection.getRepository(UnitStats);
+	}
+
+	getItemStatsRepo() {
+		return this.connection.getRepository(ItemStats);
+	}
+
+	getSynergyStatsRepo() {
+		return this.connection.getRepository(SynergyStats);
 	}
 }

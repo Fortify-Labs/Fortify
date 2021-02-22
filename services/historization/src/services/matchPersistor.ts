@@ -14,19 +14,18 @@ import {
 import { FortifyEvent } from "@shared/events/events";
 import { MatchService } from "@shared/services/match";
 import { PostgresConnector } from "@shared/connectors/postgres";
-import { InfluxDBConnector, Point } from "@shared/connectors/influxdb";
 import { rankToMMRMapping } from "@shared/ranks";
 import { MMR, User } from "@shared/db/entities/user";
 import { FortifyGameMode } from "@shared/state";
-import { LeaderboardType } from "@shared/definitions/leaderboard";
 import { Logger } from "@shared/logger";
+import { UnitStats, SynergyStats, ItemStats } from "@shared/db/entities/stats";
+import { MmrStats } from "@shared/db/entities/mmr";
 
 @injectable()
 export class MatchPersistor {
 	constructor(
 		@inject(MatchService) private matchService: MatchService,
 		@inject(PostgresConnector) private postgres: PostgresConnector,
-		@inject(InfluxDBConnector) private influx: InfluxDBConnector,
 		@inject(Logger) private logger: Logger,
 	) {}
 
@@ -61,43 +60,46 @@ export class MatchPersistor {
 					event,
 				);
 
-				const point = this.mapAllianceStats(allianceStatsEvent);
+				const synergyStats = this.mapAllianceStats(allianceStatsEvent);
+				const synergyStatsRepo = this.postgres.getSynergyStatsRepo();
 
-				return this.influx.writePoints([point], "alliance_stats");
+				return synergyStatsRepo.save(synergyStats);
 			}
 			if (event.type === GameEventType.ITEM_STATS) {
 				const itemStatsEvent = ItemStatsEvent.deserialize(event);
 
-				const point = this.mapItemStats(itemStatsEvent);
+				const itemStats = this.mapItemStats(itemStatsEvent);
+				const itemStatsRepo = this.postgres.getItemStatsRepo();
 
-				return this.influx.writePoints([point], "item_stats");
+				return itemStatsRepo.save(itemStats);
 			}
 			if (event.type === GameEventType.UNIT_STATS) {
-				const unitStats = UnitStatsEvent.deserialize(event);
+				const unitStatsEvent = UnitStatsEvent.deserialize(event);
 
-				const point = this.mapUnitStats(unitStats);
+				const unitStats = this.mapUnitStats(unitStatsEvent);
+				const unitStatsRepo = this.postgres.getUnitStatsRepo();
 
-				return this.influx.writePoints([point], "unit_stats");
+				return unitStatsRepo.save(unitStats);
 			}
 
 			if (event.type === GameEventType.COMBINED_STATS) {
 				const combinedStats = CombinedStatsEvent.deserialize(event);
 
-				const alliancePoints = combinedStats.allianceStatsEvents.map(
+				const allianceStats = combinedStats.allianceStatsEvents.map(
 					(allianceStatsEvent) =>
 						this.mapAllianceStats(allianceStatsEvent),
 				);
-				const itemPoints = combinedStats.itemStatsEvents.map(
+				const itemStats = combinedStats.itemStatsEvents.map(
 					(itemStatsEvent) => this.mapItemStats(itemStatsEvent),
 				);
-				const unitPoints = combinedStats.unitStatsEvents.map(
+				const unitStats = combinedStats.unitStatsEvents.map(
 					(unitStatsEvent) => this.mapUnitStats(unitStatsEvent),
 				);
 
 				return Promise.allSettled([
-					this.influx.writePoints(alliancePoints, "alliance_stats"),
-					this.influx.writePoints(itemPoints, "item_stats"),
-					this.influx.writePoints(unitPoints, "unit_stats"),
+					this.postgres.getSynergyStatsRepo().save(allianceStats),
+					this.postgres.getItemStatsRepo().save(itemStats),
+					this.postgres.getUnitStatsRepo().save(unitStats),
 				]);
 			}
 		} catch (e) {
@@ -123,17 +125,19 @@ export class MatchPersistor {
 		value,
 		gameMode,
 		extra,
-	}: UnitStatsEvent): Point {
-		let point = new Point("unit")
-			.floatField("win", value)
-			.intField("rank", rank)
-			.intField("averageMMR", averageMMR)
-			.tag("unitID", unitID.toFixed(0))
-			.tag("round", roundNumber.toFixed(0))
-			.tag("rank", rank.toFixed(0))
-			.tag("averageMMR", averageMMR.toFixed(0))
-			.tag("gameMode", gameMode.toFixed(0))
-			.timestamp(new Date(timestamp).getTime() * 1000000);
+	}: UnitStatsEvent): UnitStats {
+		const stat = new UnitStats();
+
+		stat.activeAlliances = [];
+		stat.averageMMR = averageMMR;
+		stat.gameMode = gameMode;
+		stat.id = unitID;
+		stat.items = equippedItems;
+		stat.rank = rank;
+		stat.round = roundNumber;
+		stat.time = timestamp;
+		stat.underlordTalent = extra?.underlordTalents;
+		stat.win = value;
 
 		for (const { id, level } of activeAlliances.sort(
 			(a, b) => a.id - b.id,
@@ -144,29 +148,14 @@ export class MatchPersistor {
 				level !== null &&
 				level !== undefined
 			) {
-				point = point.tag(
-					`alliance-${id.toFixed(0)}`,
-					level.toFixed(0),
-				);
+				stat.activeAlliances.push({
+					id,
+					level,
+				});
 			}
 		}
 
-		for (const item of equippedItems.sort()) {
-			point = point.tag(`item-${item.toFixed(0)}`, "1");
-		}
-
-		if (extra) {
-			if (extra.underlordTalents) {
-				for (const underlordTalent of extra.underlordTalents.sort()) {
-					point = point.tag(
-						`underlordTalent-${underlordTalent.toFixed(0)}`,
-						"1",
-					);
-				}
-			}
-		}
-
-		return point;
+		return stat;
 	}
 
 	mapItemStats({
@@ -177,15 +166,16 @@ export class MatchPersistor {
 		timestamp,
 		value,
 		gameMode,
-	}: ItemStatsEvent): Point {
-		let point = new Point("item")
-			.floatField("win", value)
-			.intField("averageMMR", averageMMR)
-			.tag("itemID", itemID.toFixed(0))
-			.tag("round", roundNumber.toFixed(0))
-			.tag("averageMMR", averageMMR.toFixed(0))
-			.tag("gameMode", gameMode.toFixed(0))
-			.timestamp(new Date(timestamp).getTime() * 1000000);
+	}: ItemStatsEvent): ItemStats {
+		const stat = new ItemStats();
+
+		stat.activeAlliances = [];
+		stat.averageMMR = averageMMR;
+		stat.gameMode = gameMode;
+		stat.id = itemID;
+		stat.round = roundNumber;
+		stat.time = timestamp;
+		stat.win = value;
 
 		for (const { id, level } of activeAlliances.sort(
 			(a, b) => a.id - b.id,
@@ -196,14 +186,11 @@ export class MatchPersistor {
 				level !== null &&
 				level !== undefined
 			) {
-				point = point.tag(
-					`alliance-${id.toFixed(0)}`,
-					level.toFixed(0),
-				);
+				stat.activeAlliances.push({ id, level });
 			}
 		}
 
-		return point;
+		return stat;
 	}
 
 	mapAllianceStats({
@@ -215,19 +202,17 @@ export class MatchPersistor {
 		value,
 		gameMode,
 		extra,
-	}: AllianceStatsEvent): Point {
-		let point = new Point("alliance")
-			.floatField("win", value)
-			.intField("averageMMR", averageMMR)
-			.tag("allianceID", allianceID.toFixed(0))
-			.tag("round", roundNumber.toFixed(0))
-			.tag("averageMMR", averageMMR.toFixed(0))
-			.tag("gameMode", gameMode.toFixed(0))
-			.timestamp(new Date(timestamp).getTime() * 1000000);
+	}: AllianceStatsEvent): SynergyStats {
+		const stat = new SynergyStats();
 
-		if (extra) {
-			point.tag("allianceLevel", extra.allianceLevel.toFixed(0));
-		}
+		stat.activeAlliances = [];
+		stat.averageMMR = averageMMR;
+		stat.gameMode = gameMode;
+		stat.id = allianceID;
+		stat.round = roundNumber;
+		stat.time = timestamp;
+		stat.win = value;
+		stat.rank = extra?.allianceLevel;
 
 		for (const { id, level } of activeAlliances.sort(
 			(a, b) => a.id - b.id,
@@ -238,14 +223,11 @@ export class MatchPersistor {
 				level !== null &&
 				level !== undefined
 			) {
-				point = point.tag(
-					`alliance-${id.toFixed(0)}`,
-					level.toFixed(0),
-				);
+				stat.activeAlliances.push({ id, level });
 			}
 		}
 
-		return point;
+		return stat;
 	}
 
 	async startHandler(startedEvent: MatchStartedEvent) {
@@ -260,7 +242,12 @@ export class MatchPersistor {
 		return this.matchService.storeMatchEnd(endedEvent);
 	}
 
-	async updateRankTier({ accountID, rankTier, mode }: RankTierUpdateEvent) {
+	async updateRankTier({
+		accountID,
+		rankTier,
+		mode,
+		timestamp,
+	}: RankTierUpdateEvent) {
 		const userRepo = await this.postgres.getUserRepo();
 		let user = await userRepo.findOne(accountID);
 
@@ -288,24 +275,16 @@ export class MatchPersistor {
 
 			const mmr = rankToMMRMapping[majorRank][minorRank];
 
-			const points = [
-				new Point("mmr")
-					.intField("mmr", mmr)
-					.intField("rank", 0)
-					.tag("steamid", accountID)
-					.tag(
-						"type",
-						mode === FortifyGameMode.Normal
-							? LeaderboardType.Standard
-							: mode === FortifyGameMode.Turbo
-							? LeaderboardType.Turbo
-							: mode === FortifyGameMode.Duos
-							? LeaderboardType.Duos
-							: FortifyGameMode[mode],
-					),
-			];
+			const mmrStat = new MmrStats();
 
-			await this.influx.writePoints(points, "mmr");
+			mmrStat.mmr = mmr;
+			mmrStat.rank = 0;
+			mmrStat.time = timestamp;
+			mmrStat.type = mode as number;
+			mmrStat.user = user;
+
+			const mmrStatsRepo = this.postgres.getMmrStatsRepo();
+			await mmrStatsRepo.save(mmrStat);
 
 			// Store interpolate mmr into postgres
 			const ratings: MMR = {

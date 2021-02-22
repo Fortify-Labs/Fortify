@@ -1,31 +1,30 @@
 import { injectable, inject } from "inversify";
 
-import { Point } from "@influxdata/influxdb-client";
 import fetch from "node-fetch";
 
 import {
 	ImportCompletedEvent,
 	HistorizationCompletedEvent,
 } from "@shared/events/systemEvents";
-import { InfluxDBConnector } from "@shared/connectors/influxdb";
 import { RedisConnector } from "@shared/connectors/redis";
 import { PostgresConnector } from "@shared/connectors/postgres";
 import {
 	ULLeaderboard,
 	MappedLeaderboardEntry,
 	LeaderboardType,
+	leaderboardTypeToNumber,
 } from "@shared/definitions/leaderboard";
 import { GetPlayerSummaries } from "@shared/definitions/playerSummaries";
 import { convert32to64SteamId, convert64to32SteamId } from "@shared/steamid";
 import { EventService } from "@shared/services/eventService";
-import { MMR } from "@shared/db/entities/user";
+import { MMR, User } from "@shared/db/entities/user";
 import { Secrets } from "../secrets";
 import { Logger } from "@shared/logger";
+import { MmrStats } from "@shared/db/entities/mmr";
 
 @injectable()
 export class LeaderboardPersistor {
 	constructor(
-		@inject(InfluxDBConnector) private influx: InfluxDBConnector,
 		@inject(RedisConnector) private redis: RedisConnector,
 		@inject(PostgresConnector) private postgres: PostgresConnector,
 		@inject(EventService) private eventService: EventService,
@@ -171,15 +170,24 @@ export class LeaderboardPersistor {
 		);
 
 		// Save mmr and leaderboard rank to influx
-		const points = mappedLeaderboard.map(({ mmr, rank, steamid }) =>
-			new Point("mmr")
-				.intField("mmr", mmr)
-				.intField("rank", rank)
-				.tag("steamid", steamid)
-				.tag("type", leaderboardType),
-		);
+		// const points = mappedLeaderboard.map(({ mmr, rank, steamid }) =>
+		const points = mappedLeaderboard.map(({ mmr, rank, steamid }) => {
+			const point = new MmrStats();
 
-		await this.influx.writePoints(points);
+			point.mmr = mmr;
+			point.rank = rank;
+			point.type = leaderboardTypeToNumber(leaderboardType);
+			point.time = new Date();
+
+			const user = new User();
+			user.steamid = steamid;
+			point.user = user;
+
+			return point;
+		});
+
+		const mmrStatsRepo = this.postgres.getMmrStatsRepo();
+		await mmrStatsRepo.save(points);
 
 		// Save latest mmr and leaderboard rank to postgres
 		const kvMappedLeaderboard = mappedLeaderboard.reduce<

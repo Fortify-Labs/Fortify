@@ -17,19 +17,6 @@ services:
     cap_add:
       - IPC_LOCK
 
-  postgres:
-    image: "postgres:11"
-    hostname: postgres
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_USER: "PG_USER"
-      POSTGRES_PASSWORD: "PG_PASS"
-      POSTGRES_DB: "fortify"
-    volumes:
-      - postgres-data:/var/lib/postgresql/data
-    restart: unless-stopped
-
   redis:
     image: redis:latest
     ports:
@@ -60,21 +47,14 @@ services:
       - kafka-data:/kafka
     restart: unless-stopped
 
-  # influxdb:
-  #   image: quay.io/influxdb/influxdb:v2.0.3
-  #   ports:
-  #     - 8086:8086
-  #   volumes:
-  #     - influx-data:/root/.influxdbv2
-  #   restart: unless-stopped
-
   timescaledb:
     image: timescale/timescaledb:2.0.1-pg12
     ports:
-      - 25432:5432
+      - 5432:5432
     environment:
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: fortify
+      POSTGRES_USER: "PG_USER"
+      POSTGRES_PASSWORD: "PG_PASS"
+      POSTGRES_DB: "fortify"
     volumes:
       - timescale-data:/var/lib/postgresql/data
     restart: unless-stopped
@@ -117,8 +97,6 @@ volumes:
   redis-data:
   kafka-data:
   zookeeper-data:
-  postgres-data:
   timescale-data:
-  influx-data:
   vault-file-data:
   vault-unseal-data:
