@@ -46,7 +46,8 @@ export class SmurfDetector {
 						// This check is needed as someone can switch from a match
 						// to either a new match or freestyle
 						matchState.players[smurfAccountID] &&
-						!matchState.players[smurfAccountID].smurfDetected
+						(matchState.players[smurfAccountID].smurfDetected ??
+							0) === 10
 					) {
 						const smurfDetectedEvent = new SmurfDetectedEvent(
 							mainAccountID,
@@ -57,9 +58,11 @@ export class SmurfDetector {
 							smurfDetectedEvent,
 							`match-${matchState.id}`,
 						);
-
-						matchState.players[smurfAccountID].smurfDetected = true;
 					}
+
+					matchState.players[smurfAccountID].smurfDetected =
+						(matchState.players[smurfAccountID].smurfDetected ??
+							0) + 1;
 				}
 			}
 		}

@@ -116,6 +116,7 @@ export class MetricsService {
 					this.logger.info(
 						"Successful shut down of metrics endpoint",
 					);
+					this.server = undefined;
 					resolve();
 				}
 			});

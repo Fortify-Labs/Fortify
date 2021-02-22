@@ -81,10 +81,10 @@ export interface PlayerSnapshot {
 	id: string;
 
 	/**
-	 * Optional boolean indicating wether
+	 * Optional number indicating wether
 	 * said account has been already detected as smurf
 	 */
-	smurfDetected?: boolean;
+	smurfDetected?: number;
 
 	/**
 	 * Raw GSI public player state

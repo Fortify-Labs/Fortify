@@ -280,11 +280,13 @@ export class Cluster extends Chart {
 						"default.replication.factor": 3,
 						"min.insync.replicas": 2,
 						acks: "all",
-						"delivery.timeout.ms": 900000,
 						"zookeeper.connection.timeout.ms": 30000,
 
-						"session.timeout.ms": 30000,
-						"heartbeat.interval.ms": 10000,
+						"delivery.timeout.ms": 15 * 60 * 1000, // 15 minutes
+						"session.timeout.ms": 30 * 1000, // 30 seconds
+						"heartbeat.interval.ms": 10 * 1000, // 10 seconds
+						"max.poll.interval.ms": 15 * 60 * 1000, // 5 minutes
+						"max.poll.records": 10,
 						"auto.offset.reset": "earliest",
 					},
 					storage: {
