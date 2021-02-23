@@ -177,7 +177,7 @@ export class LeaderboardPersistor {
 			point.mmr = mmr;
 			point.rank = rank;
 			point.type = leaderboardTypeToNumber(leaderboardType);
-			point.time = new Date();
+			point.time = event.timestamp;
 
 			const user = new User();
 			user.steamid = steamid;
