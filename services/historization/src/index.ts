@@ -95,6 +95,7 @@ const {
 			isRunning,
 			isStale,
 		}) => {
+			await heartbeat();
 			const intervalId = setInterval(async () => {
 				try {
 					await heartbeat();
@@ -155,6 +156,12 @@ const {
 					} else {
 						end({ status: 501 });
 					}
+
+					if (KAFKA_AUTO_COMMIT !== "false") {
+						resolveOffset(message.offset);
+					} else {
+						await commitOffsetsIfNecessary();
+					}
 				} catch (e) {
 					const exceptionID = captureException(e, {
 						contexts: {
@@ -187,17 +194,13 @@ const {
 
 					end({ status: 500 });
 
-					throw e;
-				} finally {
 					clearInterval(intervalId);
-				}
 
-				if (KAFKA_AUTO_COMMIT !== "false") {
-					resolveOffset(message.offset);
-				} else {
-					await commitOffsetsIfNecessary();
+					throw e;
 				}
 			}
+
+			clearInterval(intervalId);
 		},
 	});
 
