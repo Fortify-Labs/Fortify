@@ -31,6 +31,9 @@ const {
 	KAFKA_AUTO_COMMIT = "true",
 	KAFKA_GROUP_ID = "historization-group",
 	KAFKA_HEARTBEAET_INTERVAL = "3000",
+	KAFKA_AUTO_COMMIT_INTERVAL = "5000",
+	KAFKA_AUTO_COMMIT_THRESHOLD = "100",
+	KAFKA_ALWAYS_RESOLVE_OFFSET = "false",
 	OMIT_TOPICS = "",
 } = process.env;
 
@@ -84,8 +87,8 @@ const {
 
 	await consumer.run({
 		autoCommit: KAFKA_AUTO_COMMIT !== "false",
-		autoCommitInterval: 5000,
-		autoCommitThreshold: 100,
+		autoCommitInterval: parseInt(KAFKA_AUTO_COMMIT_INTERVAL),
+		autoCommitThreshold: parseInt(KAFKA_AUTO_COMMIT_THRESHOLD),
 		eachBatchAutoResolve: false,
 		eachBatch: async ({
 			batch,
@@ -161,7 +164,7 @@ const {
 						end({ status: 501 });
 					}
 
-					if (KAFKA_AUTO_COMMIT !== "false") {
+					if (KAFKA_ALWAYS_RESOLVE_OFFSET === "true") {
 						resolveOffset(message.offset);
 					} else {
 						await commitOffsetsIfNecessary();

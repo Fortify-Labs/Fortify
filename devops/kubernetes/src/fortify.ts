@@ -440,7 +440,12 @@ export class Fortify extends Chart {
 					value: HISTORIZATION_SENTRY_DSN,
 				},
 				{ name: "SENTRY_TRACE_SAMPLE_RATE", value: "0" },
-				// { name: "OMIT_TOPICS", value: "system-events" },
+				// { name: "OMIT_TOPICS", value: "game-events" },
+				// { name: "DEBUG", value: "*" },
+				{ name: "KAFKA_HEARTBEAET_INTERVAL", value: "2000" },
+				{ name: "KAFKA_AUTO_COMMIT", value: "false" },
+				{ name: "KAFKA_ALWAYS_RESOLVE_OFFSET", value: "true" },
+				// { name: "LOG_LEVEL", value: "debug" },
 			],
 			configmaps: [
 				redisConfig,
@@ -452,13 +457,29 @@ export class Fortify extends Chart {
 			secrets: [vaultSecret],
 			resources: {
 				limits: {
-					cpu: "0.2",
+					cpu: "0.5",
 					memory: "256Mi",
 				},
 				requests: {
 					cpu: "0.1",
 					memory: "90Mi",
 				},
+			},
+			readinessProbe: {
+				httpGet: {
+					path: "/ready",
+					port: 9000,
+				},
+				periodSeconds: 30,
+				timeoutSeconds: 30,
+			},
+			livenessProbe: {
+				httpGet: {
+					path: "/live",
+					port: 9000,
+				},
+				periodSeconds: 30,
+				timeoutSeconds: 30,
 			},
 		});
 
