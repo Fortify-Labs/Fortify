@@ -1,11 +1,5 @@
 import { LeaderboardTypeNumbersEnum } from "../../definitions/leaderboard";
-import {
-	Column,
-	CreateDateColumn,
-	Entity,
-	ManyToOne,
-	PrimaryColumn,
-} from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryColumn } from "typeorm";
 import { User } from "./user";
 
 @Entity()
@@ -13,7 +7,7 @@ export class MmrStats {
 	/**
 	 * Auto-generated date
 	 */
-	@CreateDateColumn()
+	@Column()
 	time!: Date;
 
 	@Column()

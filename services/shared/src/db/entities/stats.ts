@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, PrimaryColumn } from "typeorm";
+import { Column, Entity, PrimaryColumn } from "typeorm";
 
 export interface ActiveAlliance {
 	id: number;
@@ -21,7 +21,7 @@ export abstract class Stats {
 	@Column()
 	gameMode!: number;
 
-	@CreateDateColumn()
+	@Column()
 	time!: Date;
 
 	@Column({ type: "jsonb" })

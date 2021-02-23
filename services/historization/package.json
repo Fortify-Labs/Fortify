@@ -1,6 +1,6 @@
 {
   "name": "historization",
-  "version": "1.12.6",
+  "version": "1.12.7",
   "description": "A historization service responsible for persisting info",
   "author": {
     "name": "Thomas Kosiewski"
