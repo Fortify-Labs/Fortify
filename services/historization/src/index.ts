@@ -28,8 +28,9 @@ import { MetricsService, servicePrefix } from "@shared/services/metrics";
 import { Summary } from "prom-client";
 
 const {
-	KAFKA_AUTO_COMMIT,
+	KAFKA_AUTO_COMMIT = "true",
 	KAFKA_GROUP_ID = "historization-group",
+	KAFKA_HEARTBEAET_INTERVAL = "3000",
 	OMIT_TOPICS = "",
 } = process.env;
 
@@ -61,7 +62,10 @@ const {
 
 	const kafka = container.get(KafkaConnector);
 
-	const consumer = kafka.consumer({ groupId: KAFKA_GROUP_ID });
+	const consumer = kafka.consumer({
+		groupId: KAFKA_GROUP_ID,
+		heartbeatInterval: parseInt(KAFKA_HEARTBEAET_INTERVAL),
+	});
 
 	const leaderboardPersistor = container.get(LeaderboardPersistor);
 	const matchPersistor = container.get(MatchPersistor);
@@ -79,74 +83,120 @@ const {
 	}
 
 	await consumer.run({
-		autoCommit: KAFKA_AUTO_COMMIT !== "false" ?? true,
-		eachMessage: async ({ message, topic, partition }) => {
-			const end = messageSummary.labels({ topic }).startTimer();
-
-			try {
-				if (!message.value) {
-					end({ status: 404 });
-					return;
+		autoCommit: KAFKA_AUTO_COMMIT !== "false",
+		autoCommitInterval: 5000,
+		autoCommitThreshold: 100,
+		eachBatchAutoResolve: false,
+		eachBatch: async ({
+			batch,
+			resolveOffset,
+			heartbeat,
+			commitOffsetsIfNecessary,
+			isRunning,
+			isStale,
+		}) => {
+			const intervalId = setInterval(async () => {
+				try {
+					await heartbeat();
+				} catch (e) {
+					const exceptionID = captureException(e, {
+						contexts: {
+							kafka: {
+								topic,
+								partition,
+							},
+						},
+					});
+					logger.error("Failed to send heartbeat to Kafka", {
+						e,
+						exceptionID,
+					});
+					logger.error(e, { exceptionID });
 				}
+			}, parseInt(KAFKA_HEARTBEAET_INTERVAL));
 
-				const value = message.value.toString();
+			const { messages, topic, partition } = batch;
+			for (const message of messages) {
+				if (!isRunning() || isStale()) break;
 
-				if (topic === FortifyEventTopics.GAME) {
-					const event: FortifyEvent<GameEventType> = JSON.parse(
-						value,
-					);
+				const end = messageSummary.labels({ topic }).startTimer();
 
-					await matchPersistor.handleEvent(event);
-
-					end({ status: 200, type: event.type });
-				} else if (topic === FortifyEventTopics.SYSTEM) {
-					const event: FortifyEvent<SystemEventType> = JSON.parse(
-						value,
-					);
-
-					if (event.type === SystemEventType.IMPORT_COMPLETED) {
-						const importEvent = ImportCompletedEvent.deserialize(
-							event,
-						);
-						await leaderboardPersistor.storeLeaderboard(
-							importEvent,
-						);
+				try {
+					if (!message.value) {
+						end({ status: 404 });
+						continue;
 					}
 
-					end({ status: 200, type: event.type });
-				} else {
-					end({ status: 501 });
-				}
-			} catch (e) {
-				const exceptionID = captureException(e, {
-					contexts: {
-						kafka: {
-							topic,
-							partition,
-							offset: message.offset,
-							key: message.key?.toString() || "undefined",
-							value: message.value?.toString(),
+					const value = message.value.toString();
+
+					if (topic === FortifyEventTopics.GAME) {
+						const event: FortifyEvent<GameEventType> = JSON.parse(
+							value,
+						);
+
+						await matchPersistor.handleEvent(event);
+
+						end({ status: 200, type: event.type });
+					} else if (topic === FortifyEventTopics.SYSTEM) {
+						const event: FortifyEvent<SystemEventType> = JSON.parse(
+							value,
+						);
+
+						if (event.type === SystemEventType.IMPORT_COMPLETED) {
+							const importEvent = ImportCompletedEvent.deserialize(
+								event,
+							);
+							await leaderboardPersistor.storeLeaderboard(
+								importEvent,
+							);
+						}
+
+						end({ status: 200, type: event.type });
+					} else {
+						end({ status: 501 });
+					}
+				} catch (e) {
+					const exceptionID = captureException(e, {
+						contexts: {
+							kafka: {
+								topic,
+								partition,
+								offset: message.offset,
+								key: message.key?.toString() || "undefined",
+								value: message.value?.toString(),
+							},
 						},
-					},
-				});
-				logger.error("Consumer run failed", {
-					e,
-					exceptionID,
-				});
-				logger.error(e, { exceptionID });
+					});
+					logger.error("Consumer run failed", {
+						e,
+						exceptionID,
+					});
+					logger.error(e, { exceptionID });
 
-				// In case something doesn't work for a given topic (e.g. influx down and historization fails)
-				// pause the consumption of said topic for 30 seconds
-				consumer.pause([{ topic, partitions: [partition] }]);
-				// Resume the topics consumption after 15 seconds
-				setTimeout(
-					() => consumer.resume([{ topic, partitions: [partition] }]),
-					15 * 1000,
-				);
+					// In case something doesn't work for a given topic (e.g. influx down and historization fails)
+					// pause the consumption of said topic for 30 seconds
+					consumer.pause([{ topic, partitions: [partition] }]);
+					// Resume the topics consumption after 15 seconds
+					setTimeout(
+						() =>
+							consumer.resume([
+								{ topic, partitions: [partition] },
+							]),
+						15 * 1000,
+					);
 
-				end({ status: 500 });
+					end({ status: 500 });
 
-				throw e;
+					throw e;
+				} finally {
+					clearInterval(intervalId);
+				}
+
+				if (KAFKA_AUTO_COMMIT !== "false") {
+					resolveOffset(message.offset);
+				} else {
+					await commitOffsetsIfNecessary();
+				}
 			}
 		},
 	});
