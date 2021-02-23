@@ -14,6 +14,7 @@ import { PrometheusChart } from "./src/charts/prometheus/prometheus";
 import { RedisOperatorChart } from "./src/charts/redis-operator/redis-operator";
 import { TraefikChart } from "./src/charts/traefik/traefik";
 import { VaultChart } from "./src/charts/vault/vault";
+import { OpenVpnChart } from "./src/charts/openvpn/openvpn";
 
 const { CLUSTER_SETUP } = process.env;
 
@@ -29,6 +30,7 @@ if (CLUSTER_SETUP) {
 	new RedisOperatorChart(app, "redis");
 	new TraefikChart(app, "traefik");
 	new VaultChart(app, "vault");
+	new OpenVpnChart(app, "openvpn");
 }
 
 new Cluster(app, "cluster");

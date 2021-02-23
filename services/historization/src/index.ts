@@ -105,19 +105,8 @@ const {
 					await heartbeat();
 					logger.debug("Sent heartbeat");
 				} catch (e) {
-					const exceptionID = captureException(e, {
-						contexts: {
-							kafka: {
-								topic,
-								partition,
-							},
-						},
-					});
-					logger.error("Failed to send heartbeat to Kafka", {
-						e,
-						exceptionID,
-					});
-					logger.error(e, { exceptionID });
+					logger.error("Failed to send heartbeat to Kafka", { e });
+					logger.error(e);
 				}
 			}, parseInt(KAFKA_HEARTBEAET_INTERVAL));
 

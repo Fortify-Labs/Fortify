@@ -109,6 +109,12 @@ export class TraefikChart extends Chart {
 						exposedPort: 443,
 						protocol: "TCP",
 					},
+					vpn: {
+						port: 9443,
+						expose: true,
+						exposedPort: 9443,
+						protocol: "TCP",
+					},
 				},
 				service: {
 					enabled: true,
