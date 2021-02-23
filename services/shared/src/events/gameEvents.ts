@@ -119,10 +119,13 @@ export class RankTierUpdateEvent extends FortifyEventClass<GameEventType> {
 		const accountID = obj["accountID"] as string | null;
 		const rankTier = obj["rankTier"] as number | null;
 		const mode = obj["mode"] as FortifyGameMode | null;
+		const timestamp = obj["timestamp"] as string | null;
 
-		if (accountID && !!rankTier && mode)
-			return new this(accountID, rankTier, mode);
-		else throw new DeserializationError();
+		if (accountID && !!rankTier && mode && timestamp) {
+			const event = new this(accountID, rankTier, mode);
+			event.timestamp = new Date(timestamp);
+			return event;
+		} else throw new DeserializationError();
 	}
 }
 
@@ -137,10 +140,14 @@ export class SmurfDetectedEvent extends FortifyEventClass<GameEventType> {
 	public static deserialize<GameEventType>(obj: FortifyEvent<GameEventType>) {
 		const mainAccountID = obj["mainAccountID"] as string | null;
 		const smurfAccountID = obj["smurfAccountID"] as string | null;
+		const timestamp = obj["timestamp"] as string | null;
 
-		if (mainAccountID && smurfAccountID)
-			return new this(mainAccountID, smurfAccountID);
-		else throw new DeserializationError();
+		if (mainAccountID && smurfAccountID && timestamp) {
+			const event = new this(mainAccountID, smurfAccountID);
+			event.timestamp = new Date(timestamp);
+
+			return event;
+		} else throw new DeserializationError();
 	}
 }
 
@@ -186,6 +193,7 @@ export class UnitStatsEvent extends FortifyEventClass<GameEventType> {
 		const equippedItems = obj["equippedItems"] as number[];
 		const gameMode = obj["gameMode"] as FortifyGameMode;
 		const extra = obj["extra"] as ExtraArgs | undefined;
+		const timestamp = obj["timestamp"] as string | null;
 
 		// A check for not null & undefined is required, as JS would convert a zero to false
 		if (
@@ -201,9 +209,10 @@ export class UnitStatsEvent extends FortifyEventClass<GameEventType> {
 			averageMMR !== undefined &&
 			activeAlliances !== null &&
 			activeAlliances !== undefined &&
-			equippedItems
+			equippedItems &&
+			timestamp
 		) {
-			return new this(
+			const event = new this(
 				unitID,
 				rank,
 				value,
@@ -214,6 +223,9 @@ export class UnitStatsEvent extends FortifyEventClass<GameEventType> {
 				gameMode,
 				extra,
 			);
+			event.timestamp = new Date(timestamp);
+
+			return event;
 		} else throw new DeserializationError();
 	}
 }
@@ -245,6 +257,7 @@ export class ItemStatsEvent extends FortifyEventClass<GameEventType> {
 		const averageMMR = obj["averageMMR"] as number;
 		const activeAlliances = obj["activeAlliances"] as ActiveAlliance[];
 		const gameMode = obj["gameMode"] as FortifyGameMode;
+		const timestamp = obj["timestamp"] as string | null;
 
 		// A check for not null & undefined is required, as JS would convert a zero to false
 		if (
@@ -257,9 +270,10 @@ export class ItemStatsEvent extends FortifyEventClass<GameEventType> {
 			averageMMR !== null &&
 			averageMMR !== undefined &&
 			activeAlliances !== null &&
-			activeAlliances !== undefined
+			activeAlliances !== undefined &&
+			timestamp
 		) {
-			return new this(
+			const event = new this(
 				itemID,
 				value,
 				roundNumber,
@@ -267,6 +281,9 @@ export class ItemStatsEvent extends FortifyEventClass<GameEventType> {
 				activeAlliances,
 				gameMode,
 			);
+			event.timestamp = new Date(timestamp);
+
+			return event;
 		} else throw new DeserializationError();
 	}
 }
@@ -304,6 +321,7 @@ export class AllianceStatsEvent extends FortifyEventClass<GameEventType> {
 		const activeAlliances = obj["activeAlliances"] as ActiveAlliance[];
 		const gameMode = obj["gameMode"] as FortifyGameMode;
 		const extra = obj["extra"] as AllianceStatsExtraArgs;
+		const timestamp = obj["timestamp"] as string | null;
 
 		// A check for not null & undefined is required, as JS would convert a zero to false
 		if (
@@ -316,9 +334,10 @@ export class AllianceStatsEvent extends FortifyEventClass<GameEventType> {
 			averageMMR !== null &&
 			averageMMR !== undefined &&
 			activeAlliances !== null &&
-			activeAlliances !== undefined
+			activeAlliances !== undefined &&
+			timestamp
 		) {
-			return new this(
+			const event = new this(
 				allianceID,
 				value,
 				roundNumber,
@@ -327,6 +346,9 @@ export class AllianceStatsEvent extends FortifyEventClass<GameEventType> {
 				gameMode,
 				extra,
 			);
+			event.timestamp = new Date(timestamp);
+
+			return event;
 		} else throw new DeserializationError();
 	}
 }
@@ -349,6 +371,7 @@ export class CombinedStatsEvent extends FortifyEventClass<GameEventType> {
 		const allianceStatsEvents = obj[
 			"allianceStatsEvents"
 		] as AllianceStatsEvent[];
+		const timestamp = obj["timestamp"] as string | null;
 
 		// A check for not null & undefined is required, as JS would convert a zero to false
 		if (
@@ -357,13 +380,17 @@ export class CombinedStatsEvent extends FortifyEventClass<GameEventType> {
 			itemStatsEvents !== null &&
 			itemStatsEvents !== undefined &&
 			allianceStatsEvents !== null &&
-			allianceStatsEvents !== undefined
+			allianceStatsEvents !== undefined &&
+			timestamp
 		) {
-			return new this(
+			const event = new this(
 				unitStatsEvents,
 				itemStatsEvents,
 				allianceStatsEvents,
 			);
+			event.timestamp = new Date(timestamp);
+
+			return event;
 		} else throw new DeserializationError();
 	}
 }

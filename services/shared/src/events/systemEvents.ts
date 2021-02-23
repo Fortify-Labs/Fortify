@@ -110,10 +110,18 @@ export class ImportCompletedEvent extends FortifyEventClass<SystemEventType> {
 	) {
 		const type = obj["leaderboardType"] as LeaderboardType | undefined;
 		const args = obj["args"] as ImportCompletedEventArgs | undefined;
+		const timestamp = obj["timestamp"] as string | null;
 
-		if (type && Object.values(LeaderboardType).includes(type))
-			return new this(type, args);
-		else throw new DeserializationError();
+		if (
+			type &&
+			Object.values(LeaderboardType).includes(type) &&
+			timestamp
+		) {
+			const event = new this(type, args);
+			event.timestamp = new Date(timestamp);
+
+			return event;
+		} else throw new DeserializationError();
 	}
 }
 
@@ -129,9 +137,16 @@ export class HistorizationCompletedEvent extends FortifyEventClass<SystemEventTy
 		obj: FortifyEvent<SystemEventType>,
 	) {
 		const type = obj["leaderboardType"] as LeaderboardType | null;
+		const timestamp = obj["timestamp"] as string | null;
 
-		if (type && Object.values(LeaderboardType).includes(type))
-			return new this(type);
-		else throw new DeserializationError();
+		if (
+			type &&
+			Object.values(LeaderboardType).includes(type) &&
+			timestamp
+		) {
+			const event = new this(type);
+			event.timestamp = new Date(timestamp);
+			return event;
+		} else throw new DeserializationError();
 	}
 }
