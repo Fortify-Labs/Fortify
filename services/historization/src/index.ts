@@ -33,7 +33,7 @@ const {
 	KAFKA_HEARTBEAET_INTERVAL = "3000",
 	KAFKA_AUTO_COMMIT_INTERVAL = "5000",
 	KAFKA_AUTO_COMMIT_THRESHOLD = "100",
-	KAFKA_ALWAYS_RESOLVE_OFFSET = "false",
+	KAFKA_EACH_BATCH_AUTO_RESOLVE = "false",
 	OMIT_TOPICS = "",
 } = process.env;
 
@@ -89,7 +89,7 @@ const {
 		autoCommit: KAFKA_AUTO_COMMIT !== "false",
 		autoCommitInterval: parseInt(KAFKA_AUTO_COMMIT_INTERVAL),
 		autoCommitThreshold: parseInt(KAFKA_AUTO_COMMIT_THRESHOLD),
-		eachBatchAutoResolve: false,
+		eachBatchAutoResolve: KAFKA_EACH_BATCH_AUTO_RESOLVE !== "false",
 		eachBatch: async ({
 			batch,
 			resolveOffset,
@@ -164,11 +164,8 @@ const {
 						end({ status: 501 });
 					}
 
-					if (KAFKA_ALWAYS_RESOLVE_OFFSET === "true") {
-						resolveOffset(message.offset);
-					} else {
-						await commitOffsetsIfNecessary();
-					}
+					resolveOffset(message.offset);
+					await commitOffsetsIfNecessary();
 				} catch (e) {
 					const exceptionID = captureException(e, {
 						contexts: {
