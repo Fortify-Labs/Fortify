@@ -25,6 +25,8 @@ export class RedisConnector implements HealthCheckable, Connector {
 
 	constructor(@inject(Logger) private logger: Logger) {
 		this.healthCheck = async () => {
+			this.logger.debug("Starting redis health check");
+
 			const result =
 				this._client?.status === "ready" &&
 				(await this._client.ping()) === "PONG";
@@ -32,6 +34,8 @@ export class RedisConnector implements HealthCheckable, Connector {
 			if (!result) {
 				this.logger.error("Redis health check failed");
 			}
+
+			this.logger.debug("Finished redis health check");
 
 			return result;
 		};

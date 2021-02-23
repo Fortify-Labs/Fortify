@@ -98,7 +98,9 @@ const {
 			await heartbeat();
 			const intervalId = setInterval(async () => {
 				try {
+					logger.debug("Sending heartbeat");
 					await heartbeat();
+					logger.debug("Sent heartbeat");
 				} catch (e) {
 					const exceptionID = captureException(e, {
 						contexts: {
@@ -115,6 +117,8 @@ const {
 					logger.error(e, { exceptionID });
 				}
 			}, parseInt(KAFKA_HEARTBEAET_INTERVAL));
+
+			logger.debug("Processing batch");
 
 			const { messages, topic, partition } = batch;
 			for (const message of messages) {
@@ -180,7 +184,7 @@ const {
 					});
 					logger.error(e, { exceptionID });
 
-					// In case something doesn't work for a given topic (e.g. influx down and historization fails)
+					// In case something doesn't work for a given topic (e.g. time series db down and historization fails)
 					// pause the consumption of said topic for 30 seconds
 					consumer.pause([{ topic, partitions: [partition] }]);
 					// Resume the topics consumption after 15 seconds
@@ -199,6 +203,8 @@ const {
 					throw e;
 				}
 			}
+
+			logger.debug("Finished processing batch");
 
 			clearInterval(intervalId);
 		},

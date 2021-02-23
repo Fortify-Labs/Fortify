@@ -55,6 +55,8 @@ export class VaultConnector implements HealthCheckable {
 		}
 
 		this.healthCheck = async () => {
+			this.logger.debug("Starting vault health check");
+
 			try {
 				const health = (await this.vault.health()) as VaultHealthResponse;
 
@@ -64,10 +66,14 @@ export class VaultConnector implements HealthCheckable {
 					this.logger.error("Vault health check failed");
 				}
 
+				this.logger.debug("Finished vault health check");
+
 				return status;
 			} catch (e) {
 				this.logger.error("Vault health check failed", { e });
 				this.logger.error(e);
+
+				this.logger.debug("Finished vault health check");
 
 				return false;
 			}

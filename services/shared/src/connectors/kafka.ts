@@ -93,14 +93,18 @@ export class KafkaConnector implements HealthCheckable, Connector {
 		}
 
 		this.healthCheck = async () => {
+			this.logger.debug("Starting Kafka health check");
+
 			// Consumer has heartbeat within the session timeout,
 			// so it is healthy
 			if (Date.now() - lastHeartbeat < this.sessionTimeout) {
+				this.logger.debug("Finished Kafka health check");
 				return true;
 			}
 
 			// If no consumer exist, assume it's successful
 			if (this.consumers.length === 0) {
+				this.logger.debug("Finished Kafka health check");
 				return true;
 			}
 
@@ -132,12 +136,15 @@ export class KafkaConnector implements HealthCheckable, Connector {
 					);
 				}
 
+				this.logger.debug("Finished Kafka health check");
+
 				return isRebalancingOrStable;
 			} catch (e) {
 				this.logger.error("Kafka health check failed with exception", {
 					e,
 				});
 				this.logger.error(e);
+				this.logger.debug("Finished Kafka health check");
 				return false;
 			}
 		};

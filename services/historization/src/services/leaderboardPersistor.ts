@@ -169,7 +169,7 @@ export class LeaderboardPersistor {
 			JSON.stringify(mappedLeaderboard),
 		);
 
-		// Save mmr and leaderboard rank to influx
+		// Save mmr and leaderboard rank to time series db
 		// const points = mappedLeaderboard.map(({ mmr, rank, steamid }) =>
 		const points = mappedLeaderboard.map(({ mmr, rank, steamid }) => {
 			const point = new MmrStats();

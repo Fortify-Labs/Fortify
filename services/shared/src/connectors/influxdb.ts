@@ -77,12 +77,16 @@ export class InfluxDBConnector implements HealthCheckable, Connector {
 		this.healthAPI = new HealthAPI(this.client);
 
 		this.healthCheck = async () => {
+			this.logger.debug("Starting influx health check");
+
 			const result =
 				(await this.healthAPI?.getHealth())?.status === "pass";
 
 			if (!result) {
 				this.logger.error("Influx health check failed");
 			}
+
+			this.logger.debug("Finished influx health check");
 
 			return result;
 		};

@@ -269,7 +269,7 @@ export class MatchPersistor {
 
 		// Convert all rank tiers below Lord to mmr
 		if (rankTier < 80) {
-			// Insert interpolated mmr into influxdb
+			// Insert interpolated mmr into time series db
 			const minorRank = rankTier % 10;
 			const majorRank = (rankTier - minorRank) / 10;
 

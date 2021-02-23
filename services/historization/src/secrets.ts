@@ -2,9 +2,6 @@ import { injectable } from "inversify";
 import { SecretsManager } from "@shared/services/secrets";
 
 const requestedSecrets = {
-	influxdb: {
-		historizationToken: "",
-	},
 	postgres: {
 		password: "",
 	},

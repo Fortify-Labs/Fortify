@@ -52,6 +52,8 @@ export class PostgresConnector implements HealthCheckable, Connector {
 		@inject(Logger) public logger: Logger,
 	) {
 		this.healthCheck = async () => {
+			this.logger.debug("Starting Postgres health check");
+
 			const result =
 				this._connection?.isConnected &&
 				(await this._connection.query("SELECT now();"));
@@ -62,6 +64,8 @@ export class PostgresConnector implements HealthCheckable, Connector {
 				});
 				this.logger.error(result);
 			}
+
+			this.logger.debug("Finished Postgres health check");
 
 			return result;
 		};
