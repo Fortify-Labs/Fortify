@@ -105,8 +105,14 @@ const {
 					await heartbeat();
 					logger.debug("Sent heartbeat");
 				} catch (e) {
-					logger.error("Failed to send heartbeat to Kafka", { e });
-					logger.error(e);
+					if (!isRunning() || isStale()) {
+						clearInterval(intervalId);
+					} else {
+						logger.error("Failed to send heartbeat to Kafka", {
+							e,
+						});
+						logger.error(e);
+					}
 				}
 			}, parseInt(KAFKA_HEARTBEAET_INTERVAL));
 

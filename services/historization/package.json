@@ -1,6 +1,6 @@
 {
   "name": "historization",
-  "version": "1.12.8",
+  "version": "1.12.9",
   "description": "A historization service responsible for persisting info",
   "author": {
     "name": "Thomas Kosiewski"
@@ -47,7 +47,7 @@
     "nodemon": "^2.0.7",
     "sync-dotenv": "^2.6.2",
     "ts-node": "^9.1.1",
-    "typescript": "^4.1.5"
+    "typescript": "^4.2.2"
   },
   "dependencies": {
     "@influxdata/influxdb-client": "^1.10.0",

@@ -1,6 +1,6 @@
 {
   "name": "fsm",
-  "version": "1.14.6",
+  "version": "1.14.7",
   "description": "Finite State Machine",
   "author": {
     "name": "Thomas Kosiewski"
@@ -46,7 +46,7 @@
     "nodemon": "^2.0.7",
     "sync-dotenv": "^2.6.2",
     "ts-node": "^9.1.1",
-    "typescript": "^4.1.5"
+    "typescript": "^4.2.2"
   },
   "dependencies": {
     "@sentry/node": "^6.2.0",
