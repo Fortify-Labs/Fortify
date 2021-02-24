@@ -101,18 +101,16 @@ const {
 			await heartbeat();
 			const intervalId = setInterval(async () => {
 				try {
-					logger.debug("Sending heartbeat");
-					await heartbeat();
-					logger.debug("Sent heartbeat");
-				} catch (e) {
-					if (!isRunning() || isStale()) {
-						clearInterval(intervalId);
+					if (isRunning()) {
+						logger.debug("Sending heartbeat");
+						await heartbeat();
+						logger.debug("Sent heartbeat");
 					} else {
-						logger.error("Failed to send heartbeat to Kafka", {
-							e,
-						});
-						logger.error(e);
+						clearInterval(intervalId);
 					}
+				} catch (e) {
+					logger.error("Failed to send heartbeat to Kafka", { e });
+					logger.error(e);
 				}
 			}, parseInt(KAFKA_HEARTBEAET_INTERVAL));
 
