@@ -96,8 +96,14 @@ const {
 
 	await consumer.run({
 		autoCommit: KAFKA_AUTO_COMMIT !== "false",
-		autoCommitInterval: parseInt(KAFKA_AUTO_COMMIT_INTERVAL),
-		autoCommitThreshold: parseInt(KAFKA_AUTO_COMMIT_THRESHOLD),
+		autoCommitInterval:
+			KAFKA_AUTO_COMMIT_INTERVAL === "undefined"
+				? undefined
+				: parseInt(KAFKA_AUTO_COMMIT_INTERVAL),
+		autoCommitThreshold:
+			KAFKA_AUTO_COMMIT_THRESHOLD === "undefined"
+				? undefined
+				: parseInt(KAFKA_AUTO_COMMIT_THRESHOLD),
 		eachBatchAutoResolve: KAFKA_EACH_BATCH_AUTO_RESOLVE !== "false",
 		eachBatch: async ({
 			batch,

@@ -410,8 +410,8 @@ export class Fortify extends Chart {
 			configmaps: [redisConfig, kafkaConfig, postgresConfig, vaultConfig],
 			resources: {
 				limits: {
-					cpu: "0.2",
-					memory: "256Mi",
+					cpu: "1",
+					memory: "512Mi",
 				},
 				requests: {
 					cpu: "0.1",
