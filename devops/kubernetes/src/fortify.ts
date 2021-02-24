@@ -229,6 +229,66 @@ export class Fortify extends Chart {
 			metrics: false,
 		});
 
+		new WebService(this, "dev-frontend", {
+			name: "dev-frontend",
+			replicas: 1,
+			version: frontendPackage.devVersion,
+			env: [
+				{
+					name: "NEXT_PUBLIC_GRAPHQL_URI",
+					value: `http://backend:8080/graphql`,
+				},
+				{
+					name: "NEXT_PUBLIC_GRAPHQL_WS_URI",
+					value: `ws://backend:8080/graphql`,
+				},
+				{
+					name: "NEXT_PUBLIC_LOGIN_URL",
+					value: `https://api.${DOMAIN}/auth/steam`,
+				},
+				{
+					name: "NEXT_PUBLIC_TWITCH_LOGIN_URL",
+					value: `https://api.${DOMAIN}/auth/twitch`,
+				},
+				{
+					name: "NEXT_PUBLIC_URL",
+					value: "https://fortify.dev",
+				},
+				{
+					name: "NEXT_PUBLIC_GA_TRACKING_ID",
+					value: GA_TRACKING_ID,
+				},
+				{
+					name: "NEXT_PUBLIC_SENTRY_DSN",
+					value: SENTRY_DSN,
+				},
+				{
+					name: "NODE_ENV",
+					value: "production",
+				},
+				{ name: "SENTRY_TRACE_SAMPLE_RATE", value: "0" },
+			],
+			service: {
+				name: "dev-frontend",
+				containerPort: 3000,
+				port: 3000,
+				portName: "http-frontend",
+			},
+
+			traefik: {
+				entryPoints: ["web", "websecure"],
+				namespace: "fortify",
+				match: `Host(\`fortify.dev\`)`,
+				basicAuth: true,
+			},
+
+			// TODO: Implement
+			livenessProbe: null,
+			readinessProbe: null,
+			startupProbe: null,
+			metrics: false,
+		});
+
 		new WebService(this, "gsi-receiver", {
 			name: "gsi-receiver",
 			replicas: 3,

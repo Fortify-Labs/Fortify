@@ -8,6 +8,7 @@ export interface WebServiceOptions {
 		readonly entryPoints: string[];
 		readonly match: string;
 		readonly namespace: string;
+		readonly basicAuth?: boolean;
 	};
 }
 
@@ -25,7 +26,26 @@ export class WebService extends Construct {
 
 		if (service) {
 			if (traefik) {
-				const { entryPoints, match, namespace } = traefik;
+				const {
+					entryPoints,
+					match,
+					namespace,
+					basicAuth = false,
+				} = traefik;
+
+				const middlewares = [
+					{
+						name: "compression",
+						namespace: "kube-system",
+					},
+				];
+
+				if (basicAuth) {
+					middlewares.push({
+						name: "basic-auth",
+						namespace: "kube-system",
+					});
+				}
 
 				new IngressRoute(this, "ingress-route", {
 					metadata: {
@@ -34,17 +54,11 @@ export class WebService extends Construct {
 					},
 					spec: {
 						entryPoints,
-
 						routes: [
 							{
-								match: match,
 								kind: "Rule",
-								middlewares: [
-									{
-										name: "compression",
-										namespace: "kube-system",
-									},
-								],
+								match,
+								middlewares,
 								services: [
 									{
 										name: service.name,

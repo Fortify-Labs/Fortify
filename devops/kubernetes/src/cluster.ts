@@ -937,15 +937,5 @@ export class Cluster extends Chart {
 
 			basicAuth: false,
 		});
-
-		// Placeholder until the staging cluster arrives
-		new ClusterIngressTraefik(this, "frontend-dev-ingress", {
-			name: "frontend",
-			namespace: fortifyNS.name,
-			serviceName: "frontend",
-			servicePort: 3000,
-
-			host: "fortify.dev",
-		});
 	}
 }
