@@ -233,6 +233,7 @@ export class Fortify extends Chart {
 			name: "dev-frontend",
 			replicas: 1,
 			version: frontendPackage.devVersion,
+			image: `${REGISTRY}frontend:${frontendPackage.devVersion}`,
 			env: [
 				{
 					name: "NEXT_PUBLIC_GRAPHQL_URI",
