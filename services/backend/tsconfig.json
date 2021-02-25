@@ -4,23 +4,20 @@
 		"rootDir": "src",
 		"outDir": "build",
 		"baseUrl": "src",
-		
 		"target": "ES2020",
+		"module": "CommonJS",
 		"lib": ["ES2020", "ES2018.AsyncIterable"],
-		"types": ["reflect-metadata"],
-		"module": "commonjs",
 		"moduleResolution": "node",
+		"paths": {
+      		"@shared/*": ["../../shared/build/src/*"]
+		},
 		"experimentalDecorators": true,
 		"emitDecoratorMetadata": true,
-
-		"paths": {
-      "@shared/*": ["../../shared/build/src/*"]
-		},
-
-    "skipLibCheck": true,
-    "resolveJsonModule": false,
-
-    "esModuleInterop": true
+    	"resolveJsonModule": false,
+    	"esModuleInterop": true,
+    	"skipLibCheck": true,
+    	"sourceMap": true,
+		"types": ["reflect-metadata"]
 	},
 	"include": [
 		"src/**/*.ts",

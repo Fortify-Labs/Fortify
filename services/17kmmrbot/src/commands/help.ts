@@ -1,4 +1,4 @@
-import { TwitchCommand } from "src/definitions/twitchCommand";
+import { TwitchCommand } from "definitions/twitchCommand";
 import { injectable, multiInject } from "inversify";
 import { Client, ChatUserstate } from "tmi.js";
 

@@ -7,14 +7,18 @@
 		{
 			"type": "node",
 			"request": "launch",
-			"name": "DEBUG",
-			"args": [],
+			"name": "DEBUG Import",
+			"args": [
+				"run",
+				"import"
+			],
 			"cwd": "${workspaceRoot}",
 			"outFiles": [
 				"${workspaceRoot}/build/*"
 			],
 			"preLaunchTask": "npm: compile",
 			"program": "${workspaceRoot}/src/index.ts",
+      		"internalConsoleOptions": "openOnSessionStart",
 			"runtimeArgs": [
 				"--nolazy",
 				"-r",
@@ -24,15 +28,18 @@
 			"sourceMaps": true,
 			"stopOnEntry": false,
 			"env": {
-        "DEBUG": "app::*",
+        		"DEBUG": "app::*",
 				"TS_NODE_PROJECT": "."
 			}
 		},
 		{
 			"type": "node",
 			"request": "launch",
-			"name": "DEBUG Verbose",
-			"args": [],
+			"name": "DEBUG Import - Verbose",
+			"args": [
+				"run",
+				"import"
+			],
 			"cwd": "${workspaceRoot}",
 			"env": {
 				"DEBUG": "*",
@@ -43,6 +50,7 @@
 			],
 			"preLaunchTask": "npm: compile",
 			"program": "${workspaceRoot}/src/index.ts",
+      		"internalConsoleOptions": "openOnSessionStart",
 			"runtimeArgs": [
 				"--nolazy",
 				"-r",

@@ -15,10 +15,11 @@
 			],
 			"preLaunchTask": "npm: compile",
 			"program": "${workspaceRoot}/src/index.ts",
+      "internalConsoleOptions": "openOnSessionStart",
 			"runtimeArgs": [
 				"--nolazy",
 				"-r",
-				"tsconfig-paths/register",
+				"tsconfig-paths/register"
 			],
 			"runtimeExecutable": null,
 			"sourceMaps": true,
@@ -43,10 +44,11 @@
 			],
 			"preLaunchTask": "npm: compile",
 			"program": "${workspaceRoot}/src/index.ts",
+      "internalConsoleOptions": "openOnSessionStart",
 			"runtimeArgs": [
 				"--nolazy",
 				"-r",
-				"tsconfig-paths/register",
+				"tsconfig-paths/register"
 			],
 			"runtimeExecutable": null,
 			"sourceMaps": true,

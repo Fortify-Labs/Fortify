@@ -3,24 +3,24 @@
 	"compilerOptions": {
 		"rootDir": "src",
 		"outDir": "build",
-		"baseUrl": ".",
+		"baseUrl": "src",
 		"target": "ES2020",
-		"lib": ["ES6", "ES2020.Promise"],
 		"module": "CommonJS",
+		"lib": ["ES6", "ES2020.Promise"],
 		"moduleResolution": "Node",
 		"paths": {
-			"@shared/*": ["../shared/build/src/*"]
+			"@shared/*": ["../../shared/build/src/*"]
 		},
 		"experimentalDecorators": true,
 		"emitDecoratorMetadata": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    
-    "sourceMap": true,
-    "inlineSources": true,
-    "sourceRoot": "/"
-	},
-	"include": ["src/**/*.ts", "test/**/*.ts"],
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"sourceMap": true
+		},
+		"include": [
+			"src/**/*.ts",
+			"test/**/*.ts"
+		],
 	"references": [
 		{
 			"path": "../shared"

@@ -11,10 +11,11 @@
 			"args": [],
 			"cwd": "${workspaceRoot}",
 			"outFiles": [
-				"${workspaceRoot}/build/*"
+				"${workspaceRoot}/build/**/*.js"
 			],
 			"preLaunchTask": "npm: compile",
 			"program": "${workspaceRoot}/src/index.ts",
+      		"internalConsoleOptions": "openOnSessionStart",
 			"runtimeArgs": [
 				"--nolazy",
 				"-r",
@@ -24,7 +25,7 @@
 			"sourceMaps": true,
 			"stopOnEntry": false,
 			"env": {
-        "DEBUG": "app::*",
+        		"DEBUG": "app::*",
 				"TS_NODE_PROJECT": "./"
 			}
 		},
@@ -43,6 +44,7 @@
 			],
 			"preLaunchTask": "npm: compile",
 			"program": "${workspaceRoot}/src/index.ts",
+      		"internalConsoleOptions": "openOnSessionStart",
 			"runtimeArgs": [
 				"--nolazy",
 				"-r",
