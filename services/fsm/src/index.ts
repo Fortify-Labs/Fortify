@@ -164,12 +164,10 @@ const {
 						const ctx = gsi.auth;
 
 						if (ctx instanceof Object) {
-							const context = ctx as Pick<Context, "user">;
-
 							// Get source account id
 							const {
 								user: { id },
-							} = context;
+							} = ctx as Pick<Context, "user">;
 
 							for (const block of gsi.block) {
 								// Get matchID for source account
@@ -236,17 +234,23 @@ const {
 											block,
 										});
 									} else {
-										// Unset matchID cache for source account
-										await stateService.resetUserCache(
-											id,
-											UserCacheKey.matchID,
-										);
 										// Clean user cache
 										await stateService.resetUserCache(
 											id,
 											UserCacheKey.cache,
 										);
+										logger.debug("Reset user cache", {
+											id,
+										});
+										// Unset matchID cache for source account
+										await stateService.resetUserCache(
+											id,
+											UserCacheKey.matchID,
+										);
 										matchID = null;
+										logger.debug("Reset user matchID", {
+											id,
+										});
 									}
 								}
 
@@ -323,9 +327,27 @@ const {
 												);
 											}
 										} else {
-											newMatchID = await matchService.generateMatchID(
-												matchServicePlayers,
-											);
+											// In case it's not a duos match and more players have been cached
+											if (
+												Object.keys(cache.players)
+													.length > 8
+											) {
+												// Reset user cache
+												await stateService.resetUserCache(
+													id,
+													UserCacheKey.cache,
+												);
+												logger.debug(
+													"Reset user cache",
+													{
+														id,
+													},
+												);
+											} else {
+												newMatchID = await matchService.generateMatchID(
+													matchServicePlayers,
+												);
+											}
 										}
 									}
 
