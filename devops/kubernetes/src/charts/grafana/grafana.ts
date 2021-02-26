@@ -1,6 +1,7 @@
 import { Chart, ChartProps } from "cdk8s";
 import { Construct } from "constructs";
 import { Certificate } from "../../../imports/cert-manager.io";
+import { KubeDeployment, KubeService } from "../../../imports/k8s";
 import { IngressRoute } from "../../../imports/traefik.containo.us";
 import { HelmChart } from "../../constructs/helmChart";
 
@@ -59,8 +60,10 @@ export class GrafanaChart extends Chart {
 						client_secret: GRAFANA_GITHUB_CLIENT_SECRET,
 					},
 				},
-				imageRenderer: {
-					enabled: true,
+				env: {
+					GF_RENDERING_CALLBACK_URL: "http://grafana:80/",
+					GF_RENDERING_SERVER_URL:
+						"http://grafana-image-renderer:8081/render",
 				},
 			},
 		});
@@ -104,6 +107,76 @@ export class GrafanaChart extends Chart {
 				tls: {
 					secretName: "fortify-grafana-ssl-cert",
 				},
+			},
+		});
+
+		new KubeDeployment(this, "image-renderer", {
+			metadata: {
+				name: "grafana-image-renderer",
+			},
+			spec: {
+				selector: {
+					matchLabels: {
+						app: "grafana-image-renderer",
+					},
+				},
+				template: {
+					metadata: {
+						labels: {
+							app: "grafana-image-renderer",
+						},
+					},
+					spec: {
+						containers: [
+							{
+								name: "grafana-image-renderer",
+								image: "grafana/grafana-image-renderer:latest",
+								ports: [
+									{
+										name: "http",
+										containerPort: 8081,
+									},
+								],
+								env: [
+									{
+										name: "HTTP_HOST",
+										value: "0.0.0.0",
+									},
+								],
+								volumeMounts: [
+									{
+										name: "tmpfs",
+										mountPath: "/tmp",
+									},
+								],
+							},
+						],
+						volumes: [
+							{
+								name: "tmpfs",
+								emptyDir: {},
+							},
+						],
+					},
+				},
+			},
+		});
+
+		new KubeService(this, "image-renderer-service", {
+			metadata: {
+				name: "grafana-image-renderer",
+			},
+			spec: {
+				selector: {
+					app: "grafana-image-renderer",
+				},
+				ports: [
+					{
+						port: 8081,
+						name: "http",
+						targetPort: "http",
+					},
+				],
 			},
 		});
 	}
