@@ -13,6 +13,7 @@ import { PostgresConnector } from "@shared/connectors/postgres";
 import { convertMS } from "../lib/dateUtils";
 import { Gauge, Summary } from "prom-client";
 import { MetricsService, servicePrefix } from "@shared/services/metrics";
+import { Logger } from "@shared/logger";
 
 const { BOT_BROADCAST_DISABLED } = process.env;
 
@@ -23,6 +24,7 @@ export class BotCommandProcessor {
 	constructor(
 		@inject(PostgresConnector) private postgres: PostgresConnector,
 		@inject(MetricsService) private metrics: MetricsService,
+		@inject(Logger) private logger: Logger,
 	) {
 		this.kafkaMessageSummary = new Summary({
 			name: `${servicePrefix}_processed_messages`,
@@ -46,6 +48,10 @@ export class BotCommandProcessor {
 		if (message.type === SystemEventType.TWITCH_LINKED) {
 			const event = TwitchLinkedEvent.deserialize(message);
 
+			this.logger.info("Joining twitch channel", {
+				twitchName: event.twitchName,
+			});
+
 			await client.join(event.twitchName);
 
 			end({ status: 200 });
@@ -57,6 +63,10 @@ export class BotCommandProcessor {
 			}
 		} else if (message.type === SystemEventType.TWITCH_UNLINKED) {
 			const event = TwitchLinkedEvent.deserialize(message);
+
+			this.logger.info("Leaving twitch channel", {
+				twitchName: event.twitchName,
+			});
 
 			await client.part(event.twitchName);
 
