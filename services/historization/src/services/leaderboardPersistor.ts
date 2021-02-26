@@ -21,16 +21,29 @@ import { MMR, User } from "@shared/db/entities/user";
 import { Secrets } from "../secrets";
 import { Logger } from "@shared/logger";
 import { MmrStats } from "@shared/db/entities/mmr";
+import { Summary } from "prom-client";
+import { MetricsService, servicePrefix } from "@shared/services/metrics";
 
 @injectable()
 export class LeaderboardPersistor {
+	playerSummaries: Summary<"status" | "size">;
+
 	constructor(
 		@inject(RedisConnector) private redis: RedisConnector,
 		@inject(PostgresConnector) private postgres: PostgresConnector,
 		@inject(EventService) private eventService: EventService,
 		@inject(Secrets) private secrets: Secrets,
 		@inject(Logger) private logger: Logger,
-	) {}
+		@inject(MetricsService) private metrics: MetricsService,
+	) {
+		this.playerSummaries = new Summary({
+			name: `${servicePrefix}_player_summaries`,
+			help:
+				"Summary of duration & outcomes of steam web api player summary resolving",
+			labelNames: ["status", "size"],
+			registers: [metrics.register],
+		});
+	}
 
 	async storeLeaderboard(event: ImportCompletedEvent) {
 		// Fetch corresponding leaderboard from redis
@@ -104,13 +117,33 @@ export class LeaderboardPersistor {
 		} = await this.secrets.getSecrets();
 
 		// Send requests to steam web api to get current display names
-		const requests = chunkedSteamIDs.map((steamids) =>
-			fetch(
+		const requests = chunkedSteamIDs.map((steamids) => {
+			// Create a timer for each request to track how long it takes
+			const end = this.playerSummaries
+				.labels({ size: steamids.length })
+				.startTimer();
+
+			return fetch(
 				`https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${apiKey}&steamids=${steamids.join(
 					",",
 				)}`,
-			).then((res) => res.json() as Promise<GetPlayerSummaries>),
-		);
+			)
+				.then((res) => res.json() as Promise<GetPlayerSummaries>)
+				.then((res) => {
+					end({ status: 200 });
+					return res;
+				})
+				.catch((e) => {
+					this.logger.error(
+						"An error occurred while fetching player summaries from the steam web api",
+					);
+					this.logger.error(e);
+					end({ status: 500 });
+
+					// In case of a failure, just return an empty players array
+					return { response: { players: [] } } as GetPlayerSummaries;
+				});
+		});
 		const responses = await Promise.allSettled(requests);
 
 		interface MappedUser {
