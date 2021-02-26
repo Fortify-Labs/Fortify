@@ -496,7 +496,7 @@ export class Cluster extends Chart {
 				numberOfInstances: 3,
 				teamId: "fortify",
 				volume: {
-					size: "10Gi",
+					size: "15Gi",
 				},
 				users: {
 					fortify: ["SUPERUSER", "CREATEDB"],
