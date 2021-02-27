@@ -49,6 +49,7 @@ export class MatchProcessor {
 		timestamp,
 	}: ProcessArgs) {
 		matchState.updateCount += 1;
+		matchState.updated = new Date().getTime();
 		const promises: Promise<unknown>[] = [];
 		// Run block update loop
 		for (const {

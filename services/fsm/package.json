@@ -1,6 +1,6 @@
 {
   "name": "fsm",
-  "version": "1.14.10",
+  "version": "1.14.11",
   "description": "Finite State Machine",
   "author": {
     "name": "Thomas Kosiewski"
@@ -38,7 +38,7 @@
     "dev": "DEBUG=app:* nodemon"
   },
   "devDependencies": {
-    "@sentry/cli": "^1.62.0",
+    "@sentry/cli": "^1.63.0",
     "@types/jsonwebtoken": "^8.5.0",
     "@types/node": "^14.14.31",
     "@types/redis": "^2.8.28",
