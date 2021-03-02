@@ -16,7 +16,7 @@ export class UnitStats1614000818059 implements MigrationInterface {
 
 		for (const table of ["unit_stats", "item_stats", "synergy_stats"]) {
 			await queryRunner.query(`
-				SELECT create_hypertable('${table}', 'time');
+				SELECT create_hypertable('${table}', 'time', chunk_time_interval => INTERVAL '1 day');
 			`);
 
 			await queryRunner.query(`

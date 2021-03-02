@@ -41,6 +41,12 @@ subscription Match($id: ID!) {
 					}
 					rank
 				}
+
+				item_slots {
+					slot_index
+					item_id
+					assigned_unit_entindex
+				}
 			}
 		}
 		pool {

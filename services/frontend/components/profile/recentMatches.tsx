@@ -2,6 +2,7 @@ import { FunctionComponent } from "react";
 import { dateFormatter } from "utils/date";
 import { prettyError } from "utils/error";
 import { useProfileMatchQuery } from "../../gql/ProfileMatch.graphql";
+import Link from "next/link";
 
 export const RecentMatchesTable: FunctionComponent<{
 	steamid?: string;
@@ -20,6 +21,7 @@ export const RecentMatchesTable: FunctionComponent<{
 						<th>Duration</th>
 						<th>Average MMR</th>
 						<th>Date</th>
+						<th></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -50,6 +52,19 @@ export const RecentMatchesTable: FunctionComponent<{
 									</td>
 									<td>{match?.match?.averageMMR}</td>
 									<td>{dateFormatter(match?.created)}</td>
+									<td>
+										{match && match.match && (
+											<Link
+												href="/match/[[...id]]"
+												as={`/match/${
+													match.match?.id ?? 0
+												}`}
+												passHref
+											>
+												<a>View Match</a>
+											</Link>
+										)}
+									</td>
 								</tr>
 							);
 						})}

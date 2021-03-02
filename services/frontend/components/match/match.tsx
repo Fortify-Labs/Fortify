@@ -6,6 +6,8 @@ import Link from "next/link";
 import React, { FunctionComponent } from "react";
 import { mapRankTierToAssetName } from "@shared/ranks";
 import Image from "next/image";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHeart } from "@fortawesome/free-solid-svg-icons";
 
 export const MatchSummary: FunctionComponent<MatchComponentProps> = ({
 	id,
@@ -126,7 +128,9 @@ export const MatchSummary: FunctionComponent<MatchComponentProps> = ({
 									{slot?.global_leaderboard_rank && (
 										<>
 											<br />
-											{slot?.global_leaderboard_rank}
+											<p style={{ marginTop: "-7%" }}>
+												{slot?.global_leaderboard_rank}
+											</p>
 										</>
 									)}
 								</td>
@@ -140,7 +144,13 @@ export const MatchSummary: FunctionComponent<MatchComponentProps> = ({
 									className="is-narrow"
 									style={{ verticalAlign: "middle" }}
 								>
-									{slot.health}
+									{slot.health}{" "}
+									<FontAwesomeIcon
+										icon={faHeart}
+										width="1em"
+										height="1em"
+										size="1x"
+									/>
 								</td>
 								<td
 									className="is-narrow"
@@ -158,7 +168,7 @@ export const MatchSummary: FunctionComponent<MatchComponentProps> = ({
 									className="is-narrow"
 									style={{ verticalAlign: "middle" }}
 								>
-									{slot.net_worth}
+									{slot.net_worth}{" "}
 									<Image
 										src={`/underlords/panorama/images/leaderboard/icon_gold_bevel_psd.png`}
 										loading="lazy"

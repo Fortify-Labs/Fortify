@@ -8,7 +8,7 @@ import {
 	GameMode,
 	useProfileMmrHistoryQuery,
 } from "../../gql/ProfileMmrHistory.graphql";
-import { LineChart } from "../linechart";
+import { ChartData, Line } from "react-chartjs-2";
 
 export const MmrHistory: FunctionComponent<{
 	steamid?: string;
@@ -23,19 +23,80 @@ export const MmrHistory: FunctionComponent<{
 			mode,
 		},
 	});
-	const { mmrHistory } = data?.profile ?? {};
+	const { mmrHistory = [] } = data?.profile ?? {};
 
-	const mmrData =
-		mmrHistory?.map((entry) => ({
-			date: entry?.date ?? 0,
-			value: entry?.mmr ?? 0,
-		})) ?? [];
+	const mmrData: ChartData<Chart.ChartData> = {
+		labels: mmrHistory?.map((entry) => new Date(entry?.date).toUTCString()),
+		datasets: [
+			{
+				label: "MMR",
+				type: "line",
+				data: mmrHistory?.map((entry) => entry?.mmr),
+				borderColor: "#375a7f",
+				backgroundColor: "#375a7f",
+				pointBorderColor: "#375a7f",
+				pointBackgroundColor: "#375a7f",
+				pointHoverBackgroundColor: "#375a7f",
+				pointHoverBorderColor: "#375a7f",
+				yAxisID: "y-axis-1",
+			},
+			{
+				label: "Rank",
+				type: "line",
+				data: mmrHistory?.map((entry) => entry?.rank),
+				borderColor: "#1abc9c",
+				backgroundColor: "#1abc9c",
+				pointBorderColor: "#1abc9c",
+				pointBackgroundColor: "#1abc9c",
+				pointHoverBackgroundColor: "#1abc9c",
+				pointHoverBorderColor: "#1abc9c",
+				yAxisID: "y-axis-2",
+			},
+		],
+	};
 
-	const rankData =
-		mmrHistory?.map((entry) => ({
-			date: entry?.date ?? 0,
-			value: entry?.rank ?? 0,
-		})) ?? [];
+	const options: Chart.ChartOptions = {
+		responsive: true,
+		tooltips: {
+			mode: "label",
+		},
+		elements: {
+			line: {
+				fill: false,
+			},
+		},
+		scales: {
+			xAxes: [
+				{
+					display: true,
+					gridLines: {
+						display: false,
+					},
+					stacked: false,
+				},
+			],
+			yAxes: [
+				{
+					type: "linear",
+					display: true,
+					position: "left",
+					id: "y-axis-1",
+					gridLines: {
+						display: false,
+					},
+				},
+				{
+					type: "linear",
+					display: true,
+					position: "right",
+					id: "y-axis-2",
+					gridLines: {
+						display: true,
+					},
+				},
+			],
+		},
+	};
 
 	return (
 		<div>
@@ -92,17 +153,12 @@ export const MmrHistory: FunctionComponent<{
 
 			{!loading && !error && (
 				<>
-					{mmrData.length > 0 ? (
-						<LineChart yName="MMR" xName="Date" data={mmrData} />
+					{mmrData ? (
+						<Line data={mmrData} options={options} />
 					) : (
 						<p>No MMR data points recorded</p>
 					)}{" "}
 					<hr />
-					{rankData.length > 0 ? (
-						<LineChart yName="Rank" xName="Date" data={rankData} />
-					) : (
-						<p>No rank data points recorded</p>
-					)}
 				</>
 			)}
 		</div>
