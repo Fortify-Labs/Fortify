@@ -573,12 +573,12 @@ const convertDbMatchToGqlMatch = (dbMatch: DbMatch) => {
 	return match;
 };
 
-const stripPrivatePlayerStates = (match: Match, context: Context) => {
-	if (context.scopes.includes(PermissionScope.Admin)) {
+const stripPrivatePlayerStates = (match: Match, context?: Context) => {
+	if (context?.scopes?.includes(PermissionScope.Admin)) {
 		return match;
 	} else {
 		match.players = match.players?.map((player) => {
-			if (player.id !== context.user.id) {
+			if (player.id !== context?.user?.id) {
 				return {
 					...player,
 					private_player_state: null,
