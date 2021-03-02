@@ -18,11 +18,12 @@ export class LobbyModule implements GQLModule {
 
 	typeDef = gql`
 		extend type Query {
-			lobby(id: ID): Lobby
+			lobby(id: ID): Lobby @deprecated(reason: "Use match query instead")
 		}
 
 		extend type Subscription {
 			lobby(id: ID): Lobby
+				@deprecated(reason: "Use match subscription instead")
 		}
 
 		type Lobby {
@@ -34,7 +35,7 @@ export class LobbyModule implements GQLModule {
 			duration: String
 
 			slots: [LobbySlot]
-			"Stringified pool snapshot"
+			"Stringified JSON pool snapshot"
 			pool: String
 		}
 

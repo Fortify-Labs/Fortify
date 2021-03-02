@@ -24,6 +24,7 @@ import { MmrHistory } from "components/profile/mmrHistory";
 import { useUpdateProfileMutation } from "gql/UpdateProfile.graphql";
 import { MmrRating, useProfileQuery } from "gql/Profile.graphql";
 import { useAuthenticatedQuery } from "gql/Authenticated.graphql";
+import { prettyError } from "utils/error";
 
 interface ProfilePageProps {
 	context?: Context;
@@ -86,11 +87,7 @@ const Profile: NextPage<ProfilePageProps> = ({ context }) => {
 
 			{loading && <div>Loading...</div>}
 
-			{error && (
-				<p>
-					{error.name} - {error.message}
-				</p>
-			)}
+			{error && prettyError(error)}
 
 			{!loading && (
 				<div style={{ margin: "1rem" }}>
@@ -159,7 +156,7 @@ const Profile: NextPage<ProfilePageProps> = ({ context }) => {
 										)}
 										<a
 											href={`https://steamcommunity.com/profiles/${new BigNumber(
-												profile?.steamid ?? ""
+												steamid ?? ""
 											).plus("76561197960265728")}`}
 											target="_blank"
 											rel="noopener noreferrer"

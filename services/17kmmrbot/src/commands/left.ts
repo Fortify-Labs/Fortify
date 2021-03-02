@@ -3,11 +3,10 @@ import { Client, ChatUserstate } from "tmi.js";
 import { injectable, inject } from "inversify";
 import { ExtractorService } from "@shared/services/extractor";
 
-import { units, Unit as SeasonUnit, unitMappings, Unit } from "@shared/units";
-import { currentSeason } from "@shared/season";
-import { poolSize } from "@shared/pool";
+import { unitMappings } from "@shared/units";
 import { RedisConnector } from "@shared/connectors/redis";
-import { FortifyGameMode, MatchState, UserCacheKey } from "@shared/state";
+import { MatchState, UserCacheKey } from "@shared/state";
+import { unitsLeftInTier, unitsLeftInPool } from "@shared/calculations/pool";
 
 @injectable()
 export class LeftCommand implements TwitchCommand {
@@ -46,7 +45,11 @@ export class LeftCommand implements TwitchCommand {
 
 		const matchState: MatchState = JSON.parse(rawMatch);
 
-		if (Object.keys(matchState.players).length < 8 || !matchState.pool) {
+		if (
+			Object.keys(matchState.players).length < 8 ||
+			!matchState.pool ||
+			!matchState.mode
+		) {
 			return client.say(
 				channel,
 				"Collecting game data, please try again in a little bit",
@@ -54,6 +57,8 @@ export class LeftCommand implements TwitchCommand {
 		}
 
 		const unitName = message.substr(6).trim().toLowerCase();
+
+		const { mode, pool } = matchState;
 
 		// Asking for amount of units in a tier
 		if (
@@ -68,48 +73,11 @@ export class LeftCommand implements TwitchCommand {
 			try {
 				const tier = parseInt(tierName);
 
-				// Copy & pasted from frontend "lobby/pool"-component
-				const pool = matchState.pool;
-				const currentUnits = units[currentSeason];
-				const mappedUnits = Object.entries(currentUnits).reduce<
-					Record<string, Unit & { name: string }>
-				>((acc, [name, unit]) => {
-					if (
-						unit.content_enable_group !== "rotation" &&
-						unit.draftTier > 0
-					) {
-						acc[unit.id] = {
-							id: unit.id,
-							dota_unit_name: unit.dota_unit_name,
-							draftTier: unit.draftTier,
-							name,
-						};
-					}
-
-					return acc;
-				}, {});
-
-				const draftTiers = Object.values(mappedUnits).reduce<
-					Record<string, Array<Unit & { name: string }>>
-				>((acc, value) => {
-					if (!acc[value.draftTier]) acc[value.draftTier] = [];
-					acc[value.draftTier].push(value);
-
-					return acc;
-				}, {});
-
-				const left = Object.values(draftTiers[tier])
-					.map((unit) => unit.id)
-					.reduce((acc, id) => {
-						if (pool[id] && Number.isInteger(pool[id]))
-							acc += pool[id] ?? 0;
-
-						return acc;
-					}, 0);
-				const total =
-					draftTiers[tier].length *
-					poolSize[tier] *
-					(matchState.mode === FortifyGameMode.Duos ? 2 : 1);
+				const { left, total } = unitsLeftInTier({
+					mode,
+					pool,
+					tier,
+				});
 
 				return client.say(
 					channel,
@@ -133,24 +101,24 @@ export class LeftCommand implements TwitchCommand {
 			}
 		}
 
-		const unit = units[currentSeason][codeName] as SeasonUnit | null;
+		try {
+			const { left, total } = unitsLeftInPool({
+				mode,
+				pool,
+				unitCodeName: codeName,
+			});
 
-		if (!unit || unit.id >= 1000) {
 			return client.say(
 				channel,
-				`${tags.username} no unit called "${unitName}" found`,
+				`${unitMappings[codeName].displayName}: ${left}/${total} units left`,
+			);
+		} catch (e) {
+			return client.say(
+				channel,
+				`${unitMappings[codeName].displayName}: ${
+					(e as Error).message
+				}`,
 			);
 		}
-
-		const { id, draftTier } = unit;
-		const left = matchState.pool[id];
-		const total =
-			(poolSize[draftTier] ?? 0) *
-			(matchState.mode === FortifyGameMode.Duos ? 2 : 1);
-
-		return client.say(
-			channel,
-			`${unitMappings[codeName].displayName}: ${left}/${total} units left`,
-		);
 	}
 }

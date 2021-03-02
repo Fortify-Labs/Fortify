@@ -9,6 +9,9 @@ import CookieConsent from "react-cookie-consent";
 import "../sass/mystyles.scss";
 import styles from "../css/_appStyles.module.css";
 
+// TODO: migrate this to CSS module
+import "../components/accordion/accordion.css";
+
 import { Context } from "@shared/definitions/context";
 
 import packageJSON from "../package.json";

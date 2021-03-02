@@ -6,3 +6,41 @@ $footer-padding: 2rem 1.5rem 1.5rem;
 @import "darkly/variables";
 @import "../node_modules/bulma/bulma.sass";
 @import "darkly/overrides";
+
+// --- Gauge styles ---
+
+.gauge-container {
+	width: 100px;
+	height: 100px;
+	margin: auto;
+	// padding: 10px;
+}
+
+.gauge-container > .label {
+	position: absolute;
+	right: 0;
+	top: 0;
+	display: inline-block;
+	background: rgba(0, 0, 0, 0.5);
+	font-family: monospace;
+	font-size: 0.8em;
+	padding: 5px 10px;
+}
+.gauge-container > .gauge .dial {
+	stroke: #334455;
+	stroke-width: 2;
+	fill: rgba(0, 0, 0, 0);
+}
+.gauge-container > .gauge .value {
+	// stroke: rgb(47, 227, 255);
+	stroke: #1abc9c;
+	stroke-width: 2;
+	fill: rgba(0, 0, 0, 0);
+}
+.gauge-container > .gauge .value-text {
+	// fill: rgb(47, 227, 255);
+	fill: #1abc9c;
+	font-family: sans-serif;
+	font-weight: bold;
+	font-size: 1.2em;
+}

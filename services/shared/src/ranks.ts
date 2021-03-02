@@ -42,3 +42,14 @@ export const mapRankTierToName = (rankTier: number) => {
 		majorRank < 8 ? ` ${minorRank + 1}` : ""
 	}`;
 };
+
+export const mapRankTierToAssetName = (rankTier: number) => {
+	if (rankTier > 80) {
+		return `No rank tier ${rankTier} found`;
+	}
+
+	const tier = rankTier % 10;
+	const rank = (rankTier - tier) / 10;
+
+	return `mini_profile_rank_${rank + 1}_tier_${tier + 1}_pin_psd.png`;
+};

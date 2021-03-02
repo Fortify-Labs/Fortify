@@ -8,6 +8,7 @@ import { units, Unit, unitMappings } from "@shared/units";
 import { currentSeason } from "@shared/season";
 import { poolSize } from "@shared/pool";
 import { VStack } from "components/vstack";
+import { prettyError } from "utils/error";
 
 export const PoolViewer: FunctionComponent<{ id?: string }> = ({ id }) => {
 	const { data, loading, error } = useLobbyPoolQuery({ variables: { id } });
@@ -58,11 +59,7 @@ export const PoolViewer: FunctionComponent<{ id?: string }> = ({ id }) => {
 
 	return (
 		<>
-			{error && (
-				<p style={{ margin: "1rem" }}>
-					{error.name} - {error.message}
-				</p>
-			)}
+			{error && prettyError(error)}
 
 			{loading && <p>Loading...</p>}
 

@@ -2,6 +2,7 @@ import classNames from "classnames";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { FunctionComponent } from "react";
+import { prettyError } from "utils/error";
 
 import {
 	GameMode,
@@ -14,7 +15,7 @@ export const MmrHistory: FunctionComponent<{
 }> = ({ steamid }) => {
 	const { query } = useRouter();
 	const mode =
-		GameMode[query.mode as keyof typeof GameMode] || GameMode.Standard;
+		GameMode[query.mode as keyof typeof GameMode] || GameMode.Normal;
 
 	const { data, loading, error } = useProfileMmrHistoryQuery({
 		variables: {
@@ -45,12 +46,12 @@ export const MmrHistory: FunctionComponent<{
 				<ul>
 					<li
 						className={classNames({
-							"is-active": mode === GameMode.Standard,
+							"is-active": mode === GameMode.Normal,
 						})}
 					>
 						<Link
-							href={`/profile/[[...id]]?tab=mmrHistory&mode=Standard`}
-							as={`/profile/${steamid}?tab=mmrHistory&mode=Standard`}
+							href={`/profile/[[...id]]?tab=mmrHistory&mode=Normal`}
+							as={`/profile/${steamid}?tab=mmrHistory&mode=Normal`}
 							passHref
 						>
 							<a>Standard</a>
@@ -87,11 +88,7 @@ export const MmrHistory: FunctionComponent<{
 
 			{loading && <p>Loading...</p>}
 
-			{error && (
-				<p>
-					{error.name} - {error.message}
-				</p>
-			)}
+			{error && prettyError(error)}
 
 			{!loading && !error && (
 				<>

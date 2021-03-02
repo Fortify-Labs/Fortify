@@ -4,7 +4,7 @@ import { PostgresConnector } from "../connectors/postgres";
 import { Match } from "../db/entities/match";
 import { MatchSlot } from "../db/entities/matchSlot";
 import { AverageMMRCalculationProps, ExtractorService } from "./extractor";
-import { FortifyGameMode } from "../state";
+import { FortifyGameMode, MatchState } from "../state";
 import { LeaderboardService } from "./leaderboard";
 import { LeaderboardType } from "../definitions/leaderboard";
 import { currentSeason } from "../season";
@@ -19,6 +19,7 @@ import {
 } from "../events/gameEvents";
 import { SecretsManager } from "./secrets";
 import { Logger } from "../logger";
+import { RedisConnector } from "../connectors/redis";
 
 export interface MatchServicePlayer {
 	accountID: string;
@@ -58,6 +59,7 @@ export class MatchService {
 			};
 		}>,
 		@inject(Logger) private logger: Logger,
+		@inject(RedisConnector) private redis: RedisConnector,
 	) {}
 
 	async generateMatchID(players: MatchServicePlayer[]) {
@@ -470,5 +472,18 @@ export class MatchService {
 			this.logger.error(e);
 			throw e;
 		}
+	}
+
+	async getMatchFromRedis(id: string) {
+		const rawMatch = await this.redis.getAsync(`match:${id}`);
+
+		if (!rawMatch) {
+			this.logger.debug(`No match found in cache for: ${id} `);
+			return null;
+		}
+
+		const matchState: MatchState = JSON.parse(rawMatch);
+
+		return matchState;
 	}
 }

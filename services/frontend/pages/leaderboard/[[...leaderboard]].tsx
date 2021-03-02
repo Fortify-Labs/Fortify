@@ -7,6 +7,7 @@ import { NextSeo } from "next-seo";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { FunctionComponent } from "react";
+import { prettyError } from "utils/error";
 
 const LeaderboardPage = () => {
 	const { query } = useRouter();
@@ -94,7 +95,7 @@ const LeaderboardPage = () => {
 								}}
 							>
 								{loading && <p>Loading...</p>}
-								{error && <pre>{error.message}</pre>}
+								{error && prettyError(error)}
 								{data && (
 									<table
 										className="table is-hoverable is-fullwidth"
@@ -132,6 +133,8 @@ const LeaderboardPage = () => {
 																			style={{
 																				marginRight:
 																					"2rem",
+																				marginLeft:
+																					"0px",
 																			}}
 																		>
 																			<img

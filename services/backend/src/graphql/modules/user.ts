@@ -192,12 +192,16 @@ export class UserModule implements GQLModule {
 						relations: ["match"],
 					});
 
-					return slots.map(({ match, slot, finalPlace }) => ({
-						matchSlotID: match.id + "#" + slot,
-						slot,
-						finalPlace,
-						user: parent,
-					}));
+					return slots.map(
+						({ match, slot, finalPlace, created, updated }) => ({
+							matchSlotID: match.id + "#" + slot,
+							slot,
+							finalPlace,
+							user: parent,
+							created,
+							updated,
+						}),
+					);
 				},
 				async mmrHistory({ steamid, publicProfile }, args, context) {
 					const allowed =
@@ -248,13 +252,19 @@ export class UserModule implements GQLModule {
 						stop = fluxDateTime(new Date().toISOString());
 					}
 
+					let mode = "standard";
+
+					if (args.mode?.toLowerCase() !== "normal") {
+						mode = args.mode?.toLowerCase() ?? "standard";
+					}
+
 					const fluxQuery = flux`
 						from(bucket: "mmr")
 						|> range(start: ${start}, stop: ${stop})
 						|> filter(fn: (r) => r["_measurement"] == "mmr")
 						|> filter(fn: (r) => r["_field"] == "mmr" or r["_field"] == "rank")
 						|> filter(fn: (r) => r["steamid"] == ${steamid})
-						|> filter(fn: (r) => r["type"] == ${args.mode.toLowerCase()})
+						|> filter(fn: (r) => r["type"] == ${mode})
 						|> yield(name: "history")
 					`;
 

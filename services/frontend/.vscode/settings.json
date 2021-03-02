@@ -18,5 +18,8 @@
 		"occured",
 		"steamid",
 		"vstack"
+	],
+	"todo-tree.filtering.excludeGlobs": [
+		"**/node_modules/**/*"
 	]
 }

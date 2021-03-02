@@ -8,7 +8,7 @@ export const Footer = () => {
 		<footer className="footer">
 			<div className="content is-pulled-left">
 				<p>
-					<strong>℗ Fortify Project, 2020</strong> <br />
+					<strong>℗ Fortify Project, 2021</strong> <br />
 					Dota, Dota Underlords and Steam are registered trademarks of
 					Valve Corporation. <br />
 					<a
@@ -17,15 +17,29 @@ export const Footer = () => {
 						rel="noopener noreferrer"
 						style={{ color: "white" }}
 					>
-						<FontAwesomeIcon icon={faDiscord} size="2x" />
+						<FontAwesomeIcon
+							icon={faDiscord}
+							width="2em"
+							height="2em"
+							size="2x"
+						/>
 					</a>{" "}
 					<a
 						href="https://github.com/Fortify-Labs/Fortify"
 						target="_blank"
 						rel="noopener noreferrer"
-						style={{ color: "white" }}
+						style={{
+							color: "white",
+							marginLeft: "0.5em",
+							marginTop: "0.5em",
+						}}
 					>
-						<FontAwesomeIcon icon={faGithub} size="2x" />
+						<FontAwesomeIcon
+							icon={faGithub}
+							width="2em"
+							height="2em"
+							size="2x"
+						/>
 					</a>{" "}
 				</p>
 			</div>

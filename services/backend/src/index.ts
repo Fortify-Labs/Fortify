@@ -40,14 +40,12 @@ import { Connector } from "@shared/definitions/connector";
 	const metricsService = container.get(MetricsService);
 	await metricsService.start();
 
-	const app = express();
+	const app: express.Application = express();
 	app.use(bodyParser.json());
 
 	const graphQL = container.get(GraphQL);
 	const graphQLServer = graphQL.server();
-	// FIXME: Remove the any
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	graphQLServer.applyMiddleware({ app: app as any, path: "/graphql" });
+	graphQLServer.applyMiddleware({ app: app, path: "/graphql" });
 
 	const openAPI = container.get(OpenAPIDocs);
 	openAPI.applyMiddleware({ app, apiPath: "/api", docsPath: "/docs" });

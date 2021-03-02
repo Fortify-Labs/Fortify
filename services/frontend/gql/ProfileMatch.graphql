@@ -6,7 +6,9 @@ query ProfileMatch($steamid: ID) {
 			matchSlotID
 
 			finalPlace
-			duration
+
+			created
+			updated
 
 			match {
 				id

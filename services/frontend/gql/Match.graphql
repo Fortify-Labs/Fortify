@@ -1,0 +1,51 @@
+query Match($id: ID!) {
+	match(id: $id) {
+		id
+		created
+		updated
+		ended
+		mode
+		averageMMR
+		players {
+			id
+
+			mmr
+			profilePicture
+
+			public_player_state {
+				account_id
+				player_slot
+				persona_name
+				health
+				gold
+				level
+				xp
+				final_place
+				next_level_xp
+				wins
+				losses
+				win_streak
+				lose_streak
+				rank_tier
+				global_leaderboard_rank
+				wins
+				losses
+				net_worth
+
+				units {
+					entindex
+					unit_id
+					position {
+						x
+						y
+					}
+					rank
+				}
+			}
+		}
+		pool {
+			index
+			count
+		}
+	}
+}

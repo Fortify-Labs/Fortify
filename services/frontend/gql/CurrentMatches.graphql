@@ -2,7 +2,10 @@ query CurrentMatches($limit: Int, $offset: Int) {
 	currentMatches(limit: $limit, offset: $offset) {
 		id
 		averageMMR
-		duration
+
+		created
+		updated
+		ended
 
 		slots {
 			matchSlotID

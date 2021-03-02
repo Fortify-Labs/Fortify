@@ -173,7 +173,7 @@ export class Fortify extends Chart {
 			name: "frontend",
 			replicas: 3,
 			maxUnavailable: 1,
-			version: frontendPackage.version,
+			version: frontendPackage.prodVersion,
 			env: [
 				{
 					name: "NEXT_PUBLIC_GRAPHQL_URI",
@@ -232,8 +232,8 @@ export class Fortify extends Chart {
 		new WebService(this, "dev-frontend", {
 			name: "dev-frontend",
 			replicas: 1,
-			version: frontendPackage.devVersion,
-			image: `${REGISTRY}frontend:${frontendPackage.devVersion}`,
+			version: frontendPackage.version,
+			image: `${REGISTRY}frontend:${frontendPackage.version}`,
 			env: [
 				{
 					name: "NEXT_PUBLIC_GRAPHQL_URI",

@@ -6,8 +6,10 @@ import { GraphQLResolveInfo, GraphQLScalarType, GraphQLScalarTypeConfig } from '
 import { Context } from '@shared/definitions/context';
 export type Maybe<T> = T | null;
 export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
 export type RequireFields<T, K extends keyof T> = { [X in Exclude<keyof T, K>]?: T[X] } & { [P in K]-?: NonNullable<T[P]> };
-// Generated on 2020-11-20T01:25:36+01:00
+// Generated on 2021-02-28T22:03:43+01:00
 
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
@@ -37,9 +39,13 @@ export type Query = {
   authenticated: AuthenticatedObject;
   /** Returns the current context */
   context: Scalars['String'];
+  /** Returns the current match of a user */
+  currentMatch?: Maybe<Match>;
   currentMatches?: Maybe<Array<Maybe<Match>>>;
   leaderboard?: Maybe<Leaderboard>;
+  /** @deprecated Use match query instead */
   lobby?: Maybe<Lobby>;
+  match?: Maybe<Match>;
   profile?: Maybe<UserProfile>;
   status?: Maybe<SystemStatus>;
   /** Returns the current package.json version */
@@ -60,6 +66,11 @@ export type QueryLeaderboardArgs = {
 
 export type QueryLobbyArgs = {
   id?: Maybe<Scalars['ID']>;
+};
+
+
+export type QueryMatchArgs = {
+  id: Scalars['ID'];
 };
 
 
@@ -101,12 +112,19 @@ export type Subscription = {
   __typename?: 'Subscription';
   /** Used as placeholder as empty types aren't currently supported. */
   _base_: Scalars['String'];
+  /** @deprecated Use match subscription instead */
   lobby?: Maybe<Lobby>;
+  match?: Maybe<Match>;
 };
 
 
 export type SubscriptionLobbyArgs = {
   id?: Maybe<Scalars['ID']>;
+};
+
+
+export type SubscriptionMatchArgs = {
+  id: Scalars['ID'];
 };
 
 
@@ -157,7 +175,7 @@ export type Lobby = {
   averageMMR?: Maybe<Scalars['Int']>;
   duration?: Maybe<Scalars['String']>;
   slots?: Maybe<Array<Maybe<LobbySlot>>>;
-  /** Stringified pool snapshot */
+  /** Stringified JSON pool snapshot */
   pool?: Maybe<Scalars['String']>;
 };
 
@@ -169,17 +187,44 @@ export type LobbySlot = {
 };
 
 export enum GameMode {
-  Standard = 'STANDARD',
+  Invalid = 'INVALID',
+  Normal = 'NORMAL',
   Turbo = 'TURBO',
-  Duos = 'DUOS'
+  Duos = 'DUOS',
+  Techprototypea = 'TECHPROTOTYPEA',
+  Sandbox = 'SANDBOX',
+  Puzzle = 'PUZZLE',
+  Tutorial = 'TUTORIAL',
+  Streetfight = 'STREETFIGHT'
 }
 
 export type Match = {
   __typename?: 'Match';
   id: Scalars['ID'];
+  created: Scalars['Date'];
+  updated: Scalars['Date'];
+  ended?: Maybe<Scalars['Date']>;
+  mode?: Maybe<GameMode>;
   averageMMR?: Maybe<Scalars['Int']>;
-  duration?: Maybe<Scalars['String']>;
-  slots?: Maybe<Array<Maybe<MatchSlot>>>;
+  players?: Maybe<Array<MatchPlayerSnapshot>>;
+  pool?: Maybe<Array<PoolEntry>>;
+  /** @deprecated Use players instead */
+  slots?: Maybe<Array<MatchSlot>>;
+};
+
+export type PoolEntry = {
+  __typename?: 'PoolEntry';
+  index: Scalars['Int'];
+  count: Scalars['Int'];
+};
+
+export type MatchPlayerSnapshot = {
+  __typename?: 'MatchPlayerSnapshot';
+  id: Scalars['ID'];
+  profilePicture?: Maybe<Scalars['String']>;
+  mmr?: Maybe<Scalars['Int']>;
+  public_player_state?: Maybe<PublicPlayerState>;
+  private_player_state?: Maybe<PrivatePlayerState>;
 };
 
 export type MatchSlot = {
@@ -188,10 +233,186 @@ export type MatchSlot = {
   matchSlotID: Scalars['ID'];
   slot: Scalars['Int'];
   finalPlace: Scalars['Int'];
-  duration?: Maybe<Scalars['String']>;
+  created: Scalars['Date'];
+  updated: Scalars['Date'];
   match?: Maybe<Match>;
   /** If no user profile is returned, matchPlayer will be populated instead */
   user?: Maybe<UserProfile>;
+};
+
+export type PublicPlayerState = {
+  __typename?: 'PublicPlayerState';
+  player_slot: Scalars['Int'];
+  account_id: Scalars['Int'];
+  connection_status: Scalars['Int'];
+  is_human_player?: Maybe<Scalars['Boolean']>;
+  health: Scalars['Int'];
+  gold: Scalars['Int'];
+  level: Scalars['Int'];
+  xp: Scalars['Int'];
+  final_place: Scalars['Int'];
+  next_level_xp: Scalars['Int'];
+  sequence_number: Scalars['Int'];
+  shop_cost_modifier: Scalars['Int'];
+  reroll_cost_modifier: Scalars['Int'];
+  win_streak: Scalars['Int'];
+  lose_streak: Scalars['Int'];
+  rank_tier: Scalars['Int'];
+  disconnected_time: Scalars['Int'];
+  platform: Scalars['Int'];
+  event_tier: Scalars['Int'];
+  persona_name?: Maybe<Scalars['String']>;
+  wins: Scalars['Int'];
+  losses: Scalars['Int'];
+  player_loadout?: Maybe<Array<PlayerLoadout>>;
+  net_worth: Scalars['Int'];
+  /**
+   * combat_result === 0 - if combat was drawn
+   * combat_result === 1 - if player won
+   * combat_result === 2 - if opponent won
+   */
+  combat_result?: Maybe<Scalars['Int']>;
+  lobby_team: Scalars['Int'];
+  is_mirrored_match?: Maybe<Scalars['Boolean']>;
+  underlord: Scalars['Int'];
+  underlord_selected_talents?: Maybe<Array<Scalars['Int']>>;
+  party_index: Scalars['Int'];
+  board_unit_limit: Scalars['Int'];
+  combat_type: Scalars['Int'];
+  board_buddy?: Maybe<BoardBuddy>;
+  brawny_kills_float: Scalars['Int'];
+  owns_event?: Maybe<Scalars['Boolean']>;
+  city_prestige_level: Scalars['Int'];
+  stat_best_victory_duration: Scalars['Int'];
+  stat_best_victory_net_worth: Scalars['Int'];
+  stat_best_victory_remaining_health_percent: Scalars['Int'];
+  stat_best_victory_units: Scalars['Int'];
+  stat_prev_victory_duration: Scalars['Int'];
+  stat_prev_victory_net_worth: Scalars['Int'];
+  stat_prev_victory_units: Scalars['Int'];
+  global_leaderboard_rank?: Maybe<Scalars['Int']>;
+  units?: Maybe<Array<Maybe<Unit>>>;
+  synergies?: Maybe<Array<Synergy>>;
+  combat_duration?: Maybe<Scalars['Int']>;
+  opponent_player_slot?: Maybe<Scalars['Int']>;
+  vs_opponent_wins?: Maybe<Scalars['Int']>;
+  vs_opponent_losses?: Maybe<Scalars['Int']>;
+  vs_opponent_draws?: Maybe<Scalars['Int']>;
+  item_slots?: Maybe<Array<ItemSlot>>;
+};
+
+export type PrivatePlayerState = {
+  __typename?: 'PrivatePlayerState';
+  player_slot: Scalars['Int'];
+  unclaimed_reward_count: Scalars['Int'];
+  shop_locked: Scalars['Boolean'];
+  shop_units?: Maybe<Array<ShopUnit>>;
+  gold_earned_this_round: Scalars['Int'];
+  shop_generation_id: Scalars['Int'];
+  grants_rewards: Scalars['Int'];
+  sequence_number: Scalars['Int'];
+  reroll_cost: Scalars['Int'];
+  can_select_underlord: Scalars['Boolean'];
+  used_item_reward_reroll_this_round: Scalars['Boolean'];
+  used_turbo_bucket_reroll?: Maybe<Scalars['Boolean']>;
+  turbo_buckets?: Maybe<Array<TurboBucket>>;
+  oldest_unclaimed_reward?: Maybe<OldestUnclaimedReward>;
+  challenges?: Maybe<Array<Maybe<Challenge>>>;
+  underlord_picker_offering?: Maybe<Array<Maybe<UnderlordPickerOffering>>>;
+};
+
+export type ShopUnit = {
+  __typename?: 'ShopUnit';
+  unit_id: Scalars['Int'];
+  will_combine_two_stars?: Maybe<Scalars['Boolean']>;
+  gold_cost?: Maybe<Scalars['Int']>;
+  wanted_legendary?: Maybe<Scalars['Boolean']>;
+  will_combine_three_stars?: Maybe<Scalars['Boolean']>;
+  keywords?: Maybe<Array<Scalars['Int']>>;
+};
+
+export type TurboBucket = {
+  __typename?: 'TurboBucket';
+  unit_ids: Array<Scalars['Int']>;
+  keywords?: Maybe<Array<Scalars['Int']>>;
+};
+
+export type OldestUnclaimedReward = {
+  __typename?: 'OldestUnclaimedReward';
+  reward_id: Scalars['Int'];
+  choices?: Maybe<Array<Choice>>;
+};
+
+export type Choice = {
+  __typename?: 'Choice';
+  item_id: Scalars['Int'];
+  available: Scalars['Boolean'];
+};
+
+export type Challenge = {
+  __typename?: 'Challenge';
+  slot_id: Scalars['Int'];
+  sequence_id: Scalars['Int'];
+  progress: Scalars['Int'];
+  initial_progress: Scalars['Int'];
+  claimed: Scalars['Int'];
+};
+
+export type UnderlordPickerOffering = {
+  __typename?: 'UnderlordPickerOffering';
+  underlord_id: Scalars['Int'];
+  build_id: Scalars['Int'];
+};
+
+export type PlayerLoadout = {
+  __typename?: 'PlayerLoadout';
+  slot: Scalars['Int'];
+  sub_slot: Scalars['Int'];
+  def_index: Scalars['Int'];
+};
+
+export type BoardBuddy = {
+  __typename?: 'BoardBuddy';
+  desired_pos_x: Scalars['Int'];
+  desired_pos_y: Scalars['Int'];
+};
+
+export type Unit = {
+  __typename?: 'Unit';
+  entindex: Scalars['Int'];
+  unit_id: Scalars['Int'];
+  position: Position;
+  rank: Scalars['Int'];
+  gold_value: Scalars['Int'];
+  kill_count: Scalars['Int'];
+  kill_streak: Scalars['Int'];
+  keywords?: Maybe<Array<Scalars['Int']>>;
+  duel_bonus_damage: Scalars['Int'];
+  unit_cap_cost: Scalars['Int'];
+  can_move_to_bench?: Maybe<Scalars['Boolean']>;
+  can_be_sold?: Maybe<Scalars['Boolean']>;
+  recommended_for_placement?: Maybe<Scalars['Boolean']>;
+  float_kill_count: Scalars['Int'];
+};
+
+export type Position = {
+  __typename?: 'Position';
+  x: Scalars['Int'];
+  y: Scalars['Int'];
+};
+
+export type Synergy = {
+  __typename?: 'Synergy';
+  keyword: Scalars['Int'];
+  unique_unit_count: Scalars['Int'];
+  bench_additional_unique_unit_count?: Maybe<Scalars['Int']>;
+};
+
+export type ItemSlot = {
+  __typename?: 'ItemSlot';
+  slot_index: Scalars['Int'];
+  item_id: Scalars['Int'];
+  assigned_unit_entindex?: Maybe<Scalars['Int']>;
 };
 
 export type UserProfile = {
@@ -342,7 +563,23 @@ export type ResolversTypes = ResolversObject<{
   LobbySlot: ResolverTypeWrapper<LobbySlot>;
   GameMode: GameMode;
   Match: ResolverTypeWrapper<Match>;
+  PoolEntry: ResolverTypeWrapper<PoolEntry>;
+  MatchPlayerSnapshot: ResolverTypeWrapper<MatchPlayerSnapshot>;
   MatchSlot: ResolverTypeWrapper<MatchSlot>;
+  PublicPlayerState: ResolverTypeWrapper<PublicPlayerState>;
+  PrivatePlayerState: ResolverTypeWrapper<PrivatePlayerState>;
+  ShopUnit: ResolverTypeWrapper<ShopUnit>;
+  TurboBucket: ResolverTypeWrapper<TurboBucket>;
+  OldestUnclaimedReward: ResolverTypeWrapper<OldestUnclaimedReward>;
+  Choice: ResolverTypeWrapper<Choice>;
+  Challenge: ResolverTypeWrapper<Challenge>;
+  UnderlordPickerOffering: ResolverTypeWrapper<UnderlordPickerOffering>;
+  PlayerLoadout: ResolverTypeWrapper<PlayerLoadout>;
+  BoardBuddy: ResolverTypeWrapper<BoardBuddy>;
+  Unit: ResolverTypeWrapper<Unit>;
+  Position: ResolverTypeWrapper<Position>;
+  Synergy: ResolverTypeWrapper<Synergy>;
+  ItemSlot: ResolverTypeWrapper<ItemSlot>;
   UserProfile: ResolverTypeWrapper<UserProfile>;
   MMRRating: ResolverTypeWrapper<MmrRating>;
   MMRHistory: ResolverTypeWrapper<MmrHistory>;
@@ -368,7 +605,23 @@ export type ResolversParentTypes = ResolversObject<{
   Lobby: Lobby;
   LobbySlot: LobbySlot;
   Match: Match;
+  PoolEntry: PoolEntry;
+  MatchPlayerSnapshot: MatchPlayerSnapshot;
   MatchSlot: MatchSlot;
+  PublicPlayerState: PublicPlayerState;
+  PrivatePlayerState: PrivatePlayerState;
+  ShopUnit: ShopUnit;
+  TurboBucket: TurboBucket;
+  OldestUnclaimedReward: OldestUnclaimedReward;
+  Choice: Choice;
+  Challenge: Challenge;
+  UnderlordPickerOffering: UnderlordPickerOffering;
+  PlayerLoadout: PlayerLoadout;
+  BoardBuddy: BoardBuddy;
+  Unit: Unit;
+  Position: Position;
+  Synergy: Synergy;
+  ItemSlot: ItemSlot;
   UserProfile: UserProfile;
   MMRRating: MmrRating;
   MMRHistory: MmrHistory;
@@ -382,9 +635,11 @@ export type AuthDirectiveResolver<Result, Parent, ContextType = Context, Args = 
 export type QueryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = ResolversObject<{
   authenticated?: Resolver<ResolversTypes['AuthenticatedObject'], ParentType, ContextType>;
   context?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  currentMatch?: Resolver<Maybe<ResolversTypes['Match']>, ParentType, ContextType>;
   currentMatches?: Resolver<Maybe<Array<Maybe<ResolversTypes['Match']>>>, ParentType, ContextType, RequireFields<QueryCurrentMatchesArgs, never>>;
   leaderboard?: Resolver<Maybe<ResolversTypes['Leaderboard']>, ParentType, ContextType, RequireFields<QueryLeaderboardArgs, 'type'>>;
   lobby?: Resolver<Maybe<ResolversTypes['Lobby']>, ParentType, ContextType, RequireFields<QueryLobbyArgs, never>>;
+  match?: Resolver<Maybe<ResolversTypes['Match']>, ParentType, ContextType, RequireFields<QueryMatchArgs, 'id'>>;
   profile?: Resolver<Maybe<ResolversTypes['UserProfile']>, ParentType, ContextType, RequireFields<QueryProfileArgs, never>>;
   status?: Resolver<Maybe<ResolversTypes['SystemStatus']>, ParentType, ContextType>;
   version?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -401,6 +656,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
 export type SubscriptionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = ResolversObject<{
   _base_?: SubscriptionResolver<ResolversTypes['String'], "_base_", ParentType, ContextType>;
   lobby?: SubscriptionResolver<Maybe<ResolversTypes['Lobby']>, "lobby", ParentType, ContextType, RequireFields<SubscriptionLobbyArgs, never>>;
+  match?: SubscriptionResolver<Maybe<ResolversTypes['Match']>, "match", ParentType, ContextType, RequireFields<SubscriptionMatchArgs, 'id'>>;
 }>;
 
 export interface DateScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes['Date'], any> {
@@ -454,9 +710,29 @@ export type LobbySlotResolvers<ContextType = Context, ParentType extends Resolve
 
 export type MatchResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Match'] = ResolversParentTypes['Match']> = ResolversObject<{
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  created?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  updated?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  ended?: Resolver<Maybe<ResolversTypes['Date']>, ParentType, ContextType>;
+  mode?: Resolver<Maybe<ResolversTypes['GameMode']>, ParentType, ContextType>;
   averageMMR?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
-  duration?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  slots?: Resolver<Maybe<Array<Maybe<ResolversTypes['MatchSlot']>>>, ParentType, ContextType>;
+  players?: Resolver<Maybe<Array<ResolversTypes['MatchPlayerSnapshot']>>, ParentType, ContextType>;
+  pool?: Resolver<Maybe<Array<ResolversTypes['PoolEntry']>>, ParentType, ContextType>;
+  slots?: Resolver<Maybe<Array<ResolversTypes['MatchSlot']>>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PoolEntryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['PoolEntry'] = ResolversParentTypes['PoolEntry']> = ResolversObject<{
+  index?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  count?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type MatchPlayerSnapshotResolvers<ContextType = Context, ParentType extends ResolversParentTypes['MatchPlayerSnapshot'] = ResolversParentTypes['MatchPlayerSnapshot']> = ResolversObject<{
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  profilePicture?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  mmr?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  public_player_state?: Resolver<Maybe<ResolversTypes['PublicPlayerState']>, ParentType, ContextType>;
+  private_player_state?: Resolver<Maybe<ResolversTypes['PrivatePlayerState']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -464,9 +740,180 @@ export type MatchSlotResolvers<ContextType = Context, ParentType extends Resolve
   matchSlotID?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   slot?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   finalPlace?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  duration?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  created?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
+  updated?: Resolver<ResolversTypes['Date'], ParentType, ContextType>;
   match?: Resolver<Maybe<ResolversTypes['Match']>, ParentType, ContextType>;
   user?: Resolver<Maybe<ResolversTypes['UserProfile']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PublicPlayerStateResolvers<ContextType = Context, ParentType extends ResolversParentTypes['PublicPlayerState'] = ResolversParentTypes['PublicPlayerState']> = ResolversObject<{
+  player_slot?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  account_id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  connection_status?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  is_human_player?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  health?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  gold?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  level?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  xp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  final_place?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  next_level_xp?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  sequence_number?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  shop_cost_modifier?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  reroll_cost_modifier?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  win_streak?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  lose_streak?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  rank_tier?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  disconnected_time?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  platform?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  event_tier?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  persona_name?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  wins?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  losses?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  player_loadout?: Resolver<Maybe<Array<ResolversTypes['PlayerLoadout']>>, ParentType, ContextType>;
+  net_worth?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  combat_result?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  lobby_team?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  is_mirrored_match?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  underlord?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  underlord_selected_talents?: Resolver<Maybe<Array<ResolversTypes['Int']>>, ParentType, ContextType>;
+  party_index?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  board_unit_limit?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  combat_type?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  board_buddy?: Resolver<Maybe<ResolversTypes['BoardBuddy']>, ParentType, ContextType>;
+  brawny_kills_float?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  owns_event?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  city_prestige_level?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  stat_best_victory_duration?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  stat_best_victory_net_worth?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  stat_best_victory_remaining_health_percent?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  stat_best_victory_units?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  stat_prev_victory_duration?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  stat_prev_victory_net_worth?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  stat_prev_victory_units?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  global_leaderboard_rank?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  units?: Resolver<Maybe<Array<Maybe<ResolversTypes['Unit']>>>, ParentType, ContextType>;
+  synergies?: Resolver<Maybe<Array<ResolversTypes['Synergy']>>, ParentType, ContextType>;
+  combat_duration?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  opponent_player_slot?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  vs_opponent_wins?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  vs_opponent_losses?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  vs_opponent_draws?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  item_slots?: Resolver<Maybe<Array<ResolversTypes['ItemSlot']>>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PrivatePlayerStateResolvers<ContextType = Context, ParentType extends ResolversParentTypes['PrivatePlayerState'] = ResolversParentTypes['PrivatePlayerState']> = ResolversObject<{
+  player_slot?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  unclaimed_reward_count?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  shop_locked?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  shop_units?: Resolver<Maybe<Array<ResolversTypes['ShopUnit']>>, ParentType, ContextType>;
+  gold_earned_this_round?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  shop_generation_id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  grants_rewards?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  sequence_number?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  reroll_cost?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  can_select_underlord?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  used_item_reward_reroll_this_round?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  used_turbo_bucket_reroll?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  turbo_buckets?: Resolver<Maybe<Array<ResolversTypes['TurboBucket']>>, ParentType, ContextType>;
+  oldest_unclaimed_reward?: Resolver<Maybe<ResolversTypes['OldestUnclaimedReward']>, ParentType, ContextType>;
+  challenges?: Resolver<Maybe<Array<Maybe<ResolversTypes['Challenge']>>>, ParentType, ContextType>;
+  underlord_picker_offering?: Resolver<Maybe<Array<Maybe<ResolversTypes['UnderlordPickerOffering']>>>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ShopUnitResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ShopUnit'] = ResolversParentTypes['ShopUnit']> = ResolversObject<{
+  unit_id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  will_combine_two_stars?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  gold_cost?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  wanted_legendary?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  will_combine_three_stars?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  keywords?: Resolver<Maybe<Array<ResolversTypes['Int']>>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type TurboBucketResolvers<ContextType = Context, ParentType extends ResolversParentTypes['TurboBucket'] = ResolversParentTypes['TurboBucket']> = ResolversObject<{
+  unit_ids?: Resolver<Array<ResolversTypes['Int']>, ParentType, ContextType>;
+  keywords?: Resolver<Maybe<Array<ResolversTypes['Int']>>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type OldestUnclaimedRewardResolvers<ContextType = Context, ParentType extends ResolversParentTypes['OldestUnclaimedReward'] = ResolversParentTypes['OldestUnclaimedReward']> = ResolversObject<{
+  reward_id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  choices?: Resolver<Maybe<Array<ResolversTypes['Choice']>>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ChoiceResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Choice'] = ResolversParentTypes['Choice']> = ResolversObject<{
+  item_id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  available?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ChallengeResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Challenge'] = ResolversParentTypes['Challenge']> = ResolversObject<{
+  slot_id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  sequence_id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  progress?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  initial_progress?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  claimed?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type UnderlordPickerOfferingResolvers<ContextType = Context, ParentType extends ResolversParentTypes['UnderlordPickerOffering'] = ResolversParentTypes['UnderlordPickerOffering']> = ResolversObject<{
+  underlord_id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  build_id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PlayerLoadoutResolvers<ContextType = Context, ParentType extends ResolversParentTypes['PlayerLoadout'] = ResolversParentTypes['PlayerLoadout']> = ResolversObject<{
+  slot?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  sub_slot?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  def_index?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type BoardBuddyResolvers<ContextType = Context, ParentType extends ResolversParentTypes['BoardBuddy'] = ResolversParentTypes['BoardBuddy']> = ResolversObject<{
+  desired_pos_x?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  desired_pos_y?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type UnitResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Unit'] = ResolversParentTypes['Unit']> = ResolversObject<{
+  entindex?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  unit_id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  position?: Resolver<ResolversTypes['Position'], ParentType, ContextType>;
+  rank?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  gold_value?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  kill_count?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  kill_streak?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  keywords?: Resolver<Maybe<Array<ResolversTypes['Int']>>, ParentType, ContextType>;
+  duel_bonus_damage?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  unit_cap_cost?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  can_move_to_bench?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  can_be_sold?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  recommended_for_placement?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
+  float_kill_count?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type PositionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Position'] = ResolversParentTypes['Position']> = ResolversObject<{
+  x?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  y?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type SynergyResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Synergy'] = ResolversParentTypes['Synergy']> = ResolversObject<{
+  keyword?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  unique_unit_count?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  bench_additional_unique_unit_count?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type ItemSlotResolvers<ContextType = Context, ParentType extends ResolversParentTypes['ItemSlot'] = ResolversParentTypes['ItemSlot']> = ResolversObject<{
+  slot_index?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  item_id?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  assigned_unit_entindex?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -481,7 +928,7 @@ export type UserProfileResolvers<ContextType = Context, ParentType extends Resol
   turboRating?: Resolver<Maybe<ResolversTypes['MMRRating']>, ParentType, ContextType>;
   duosRating?: Resolver<Maybe<ResolversTypes['MMRRating']>, ParentType, ContextType>;
   matches?: Resolver<Maybe<Array<Maybe<ResolversTypes['MatchSlot']>>>, ParentType, ContextType, RequireFields<UserProfileMatchesArgs, never>>;
-  mmrHistory?: Resolver<Maybe<Array<Maybe<ResolversTypes['MMRHistory']>>>, ParentType, ContextType, RequireFields<UserProfileMmrHistoryArgs, 'mode'>>;
+  mmrHistory?: Resolver<Maybe<Array<Maybe<ResolversTypes['MMRHistory']>>>, ParentType, ContextType, RequireFields<UserProfileMmrHistoryArgs, never>>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -511,7 +958,23 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   Lobby?: LobbyResolvers<ContextType>;
   LobbySlot?: LobbySlotResolvers<ContextType>;
   Match?: MatchResolvers<ContextType>;
+  PoolEntry?: PoolEntryResolvers<ContextType>;
+  MatchPlayerSnapshot?: MatchPlayerSnapshotResolvers<ContextType>;
   MatchSlot?: MatchSlotResolvers<ContextType>;
+  PublicPlayerState?: PublicPlayerStateResolvers<ContextType>;
+  PrivatePlayerState?: PrivatePlayerStateResolvers<ContextType>;
+  ShopUnit?: ShopUnitResolvers<ContextType>;
+  TurboBucket?: TurboBucketResolvers<ContextType>;
+  OldestUnclaimedReward?: OldestUnclaimedRewardResolvers<ContextType>;
+  Choice?: ChoiceResolvers<ContextType>;
+  Challenge?: ChallengeResolvers<ContextType>;
+  UnderlordPickerOffering?: UnderlordPickerOfferingResolvers<ContextType>;
+  PlayerLoadout?: PlayerLoadoutResolvers<ContextType>;
+  BoardBuddy?: BoardBuddyResolvers<ContextType>;
+  Unit?: UnitResolvers<ContextType>;
+  Position?: PositionResolvers<ContextType>;
+  Synergy?: SynergyResolvers<ContextType>;
+  ItemSlot?: ItemSlotResolvers<ContextType>;
   UserProfile?: UserProfileResolvers<ContextType>;
   MMRRating?: MmrRatingResolvers<ContextType>;
   MMRHistory?: MmrHistoryResolvers<ContextType>;

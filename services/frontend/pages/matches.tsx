@@ -2,6 +2,7 @@ import withApollo from "../lib/with-apollo";
 import { Navbar } from "../components/navbar";
 import { useCurrentMatchesQuery } from "../gql/CurrentMatches.graphql";
 import { NextSeo } from "next-seo";
+import { prettyError } from "utils/error";
 
 const Matches = () => {
 	const { loading, data, error } = useCurrentMatchesQuery({
@@ -48,9 +49,6 @@ const Matches = () => {
 						<thead>
 							<tr>
 								<th>Average MMR</th>
-								<th style={{ textDecoration: "line-through" }}>
-									Round
-								</th>
 								<th>Duration</th>
 								<th>Notable Players</th>
 							</tr>
@@ -62,29 +60,36 @@ const Matches = () => {
 								</tr>
 							</tbody>
 						)}
-						{error && (
-							<p>
-								{error.name} - {error.message}
-							</p>
-						)}
+						{error && prettyError(error)}
 						{!loading && (
 							<tbody>
-								{data?.currentMatches?.map((match) => (
-									<tr key={match?.id}>
-										<th>{match?.averageMMR}</th>
-										<th></th>
-										<th>{match?.duration}</th>
-										<th>
-											{match?.slots?.map((slot) => {
-												const name =
-													slot?.user?.name ?? "";
-												return `${name ?? ""}${
-													name ? "; " : ""
-												}`;
-											})}
-										</th>
-									</tr>
-								))}
+								{data?.currentMatches?.map((match) => {
+									const duration = match?.ended
+										? match?.ended - match.created
+										: match?.updated - match?.created;
+
+									return (
+										<tr key={match?.id}>
+											<th>{match?.averageMMR}</th>
+											<th>
+												{!isNaN(duration) &&
+													new Date(duration)
+														.toISOString()
+														.substr(11, 8)}{" "}
+												min
+											</th>
+											<th>
+												{match?.slots?.map((slot) => {
+													const name =
+														slot?.user?.name ?? "";
+													return `${name ?? ""}${
+														name ? "; " : ""
+													}`;
+												})}
+											</th>
+										</tr>
+									);
+								})}
 							</tbody>
 						)}
 					</table>

@@ -138,46 +138,6 @@ const {
 		}
 	}
 
-	consumer.on("consumer.disconnect", () => {
-		logger.info("Kafka consumer disconnected");
-		// const sentryID = captureMessage("Consumer disconnected");
-		// debug("app::kafka::consumer.disconnect")(sentryID);
-	});
-	consumer.on("consumer.connect", () => {
-		logger.info("Kafka consumer connected");
-		// const sentryID = captureMessage("Consumer connected");
-		// debug("app::kafka::consumer.connect")(sentryID);
-	});
-	consumer.on("consumer.crash", async (crashEvent: ConsumerCrashEvent) => {
-		const exceptionID = captureException(crashEvent.payload.error, {
-			extra: {
-				groupId: crashEvent.payload.groupId,
-			},
-		});
-		logger.error("Kafka consumer crashed", { crashEvent, exceptionID });
-		try {
-			await flush(10000);
-		} finally {
-			// eslint-disable-next-line no-process-exit
-			process.exit(-1);
-		}
-	});
-
-	await consumer.run({
-		autoCommit: KAFKA_FROM_START !== "true",
-		eachMessage: async (payload) => {
-			commandProcessor
-				.process(payload, client)
-				.catch(
-					(e) =>
-						logger.error("Consumer run failed", { e }) &&
-						logger.error(e),
-				);
-
-			return;
-		},
-	});
-
 	client.on("message", async (channel, tags, message, self) => {
 		const end = twitchCommandSummary.startTimer();
 		try {
@@ -267,8 +227,6 @@ const {
 		logger.info("Connected to Twitch", { address, port, messageID });
 	});
 
-	const connected = await client.connect();
-
 	client.on("disconnected", async (reason) => {
 		const messageID = captureMessage("Twitch bot disconnected", {
 			extra: {
@@ -279,7 +237,48 @@ const {
 		logger.info("Disconnected from Twitch", { reason, messageID });
 	});
 
+	const connected = await client.connect();
 	logger.info("Twitch bot connected", { connected });
+
+	consumer.on("consumer.disconnect", () => {
+		logger.info("Kafka consumer disconnected");
+		// const sentryID = captureMessage("Consumer disconnected");
+		// debug("app::kafka::consumer.disconnect")(sentryID);
+	});
+	consumer.on("consumer.connect", () => {
+		logger.info("Kafka consumer connected");
+		// const sentryID = captureMessage("Consumer connected");
+		// debug("app::kafka::consumer.connect")(sentryID);
+	});
+	consumer.on("consumer.crash", async (crashEvent: ConsumerCrashEvent) => {
+		const exceptionID = captureException(crashEvent.payload.error, {
+			extra: {
+				groupId: crashEvent.payload.groupId,
+			},
+		});
+		logger.error("Kafka consumer crashed", { crashEvent, exceptionID });
+		try {
+			await flush(10000);
+		} finally {
+			// eslint-disable-next-line no-process-exit
+			process.exit(-1);
+		}
+	});
+
+	await consumer.run({
+		autoCommit: KAFKA_FROM_START !== "true",
+		eachMessage: async (payload) => {
+			commandProcessor
+				.process(payload, client)
+				.catch(
+					(e) =>
+						logger.error("Consumer run failed", { e }) &&
+						logger.error(e),
+				);
+
+			return;
+		},
+	});
 
 	healthCheck.live = true;
 })().catch((e) => {

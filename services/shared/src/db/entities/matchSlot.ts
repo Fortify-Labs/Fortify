@@ -31,7 +31,7 @@ export class MatchSlot {
 
 	// --- Relations ---
 
-	// Will be used if said player has a fortify account
+	// User linked to slot
 	@ManyToOne(() => User, (user) => user.matchSlots, {
 		nullable: true,
 		cascade: true,
