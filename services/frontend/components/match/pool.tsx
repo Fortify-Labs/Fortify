@@ -1,25 +1,26 @@
-import React, { FunctionComponent } from "react";
+import React, { FunctionComponent, useState } from "react";
 import classNames from "classnames";
-import { createPoolLayoutDropdown } from "components/poolLayoutDropdown";
+import { PoolLayoutDropdown } from "components/poolLayoutDropdown";
 import { MatchComponentProps } from "definitions/match";
 import { PoolSizeHeading } from "./pool/poolSizeHeading";
 import { PoolTiers } from "./pool/components";
 
 export const PoolViewer: FunctionComponent<MatchComponentProps> = React.memo(
 	({ id }) => {
-		// --- UI variables ---
-		const {
-			PoolLayoutDropdown,
-			verticalLayout,
-			compactView,
-			gapLess,
-		} = createPoolLayoutDropdown();
+		// --- Variables ---
+		const [verticalLayout, setVerticalLayout] = useState(false);
+		const [compactView, setCompactView] = useState(false);
+		const [gapLess, setGapLess] = useState(true);
 
 		return (
 			<div className="content">
 				<div>
 					<PoolSizeHeading id={id} />
-					<PoolLayoutDropdown />
+					<PoolLayoutDropdown
+						setCompactView={setCompactView}
+						setGapLess={setGapLess}
+						setVerticalLayout={setVerticalLayout}
+					/>
 				</div>
 
 				<div

@@ -5,7 +5,7 @@ import Image from "next/image";
 import classNames from "classnames";
 import { poolCalculations } from "utils/pool";
 import { unitMappings } from "@shared/units";
-import { createPoolLayoutDropdown } from "components/poolLayoutDropdown";
+import { PoolLayoutDropdown } from "components/poolLayoutDropdown";
 import { odds, ShopOdds } from "@shared/calculations/consts";
 import { MatchComponentProps } from "definitions/match";
 import { PlayerSelectionDropdown } from "components/playerSelectionDropdown";
@@ -23,13 +23,9 @@ export const OddsCalculator: FunctionComponent<MatchComponentProps> = ({
 		([_key, mode]) => mode === data?.match?.mode
 	)?.[0] as keyof ShopOdds;
 
-	// --- Dynamic UI components ---
-	const {
-		PoolLayoutDropdown,
-		verticalLayout,
-		compactView,
-		gapLess,
-	} = createPoolLayoutDropdown();
+	const [verticalLayout, setVerticalLayout] = useState(false);
+	const [compactView, setCompactView] = useState(false);
+	const [gapLess, setGapLess] = useState(true);
 
 	// --- Pool Calculations ---
 	const { draftTiers, pool } = poolCalculations(data);
@@ -43,7 +39,11 @@ export const OddsCalculator: FunctionComponent<MatchComponentProps> = ({
 					id={id}
 				/>
 
-				<PoolLayoutDropdown />
+				<PoolLayoutDropdown
+					setCompactView={setCompactView}
+					setGapLess={setGapLess}
+					setVerticalLayout={setVerticalLayout}
+				/>
 			</div>
 
 			{
