@@ -8,6 +8,7 @@ import { PermissionScope } from "@shared/definitions/context";
 import { EventService } from "@shared/services/eventService";
 import { TwitchUnlinkedEvent } from "@shared/events/systemEvents";
 import { Logger } from "@shared/logger";
+import { FortifyGameMode } from "@shared/state";
 
 export interface InfluxMMRQueryRow {
 	result: string;
@@ -211,6 +212,12 @@ export class UserModule implements GQLModule {
 
 					const mmrStatsRepo = postgres.getMmrStatsRepo();
 
+					const mode = ((args.mode?.slice(0, 1).toUpperCase() ?? "") +
+						(args.mode?.slice(1).toLocaleLowerCase() ?? "") ||
+						"Normal") as keyof typeof FortifyGameMode;
+
+					const gameMode = FortifyGameMode[mode];
+
 					// TODO: Incorporate duration and time range from args
 
 					return mmrStatsRepo
@@ -220,6 +227,7 @@ export class UserModule implements GQLModule {
 							"time BETWEEN NOW() - interval '30 days' AND NOW()",
 						)
 						.andWhere('"userSteamid" = :steamid', { steamid })
+						.andWhere("type = :gameMode", { gameMode })
 						.getRawMany<MmrHistory>();
 				},
 			},
