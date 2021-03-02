@@ -46,8 +46,7 @@ export const MatchSummary: FunctionComponent<MatchComponentProps> = ({
 								(a?.final_place ?? 0) - (b?.final_place ?? 0);
 
 							if (!outcome) {
-								outcome =
-									(a.player_slot ?? 0) - (b.player_slot ?? 0);
+								outcome = (b.health ?? 0) - (a.health ?? 0);
 							}
 
 							return outcome;
@@ -147,13 +146,25 @@ export const MatchSummary: FunctionComponent<MatchComponentProps> = ({
 									className="is-narrow"
 									style={{ verticalAlign: "middle" }}
 								>
-									{slot.gold}
+									{slot.gold}{" "}
+									<Image
+										src={`/underlords/panorama/images/leaderboard/icon_gold_bevel_psd.png`}
+										loading="lazy"
+										width="16"
+										height="16"
+									/>
 								</td>
 								<td
 									className="is-narrow"
 									style={{ verticalAlign: "middle" }}
 								>
 									{slot.net_worth}
+									<Image
+										src={`/underlords/panorama/images/leaderboard/icon_gold_bevel_psd.png`}
+										loading="lazy"
+										width="16"
+										height="16"
+									/>
 								</td>
 								<td
 									className="is-narrow"

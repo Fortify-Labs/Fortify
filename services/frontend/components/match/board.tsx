@@ -15,10 +15,24 @@ export const BoardViewer: FunctionComponent<MatchComponentProps> = ({ id }) => {
 	const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null);
 	const [isFlipped, setIsFlipped] = useState(false);
 
-	const players = data?.match?.players ?? [];
+	let players = data?.match?.players ?? [];
 	const selectedBasePlayer = players.find(
 		(player) => player.id == selectedPlayer
 	);
+	players = players.slice().sort((a, b) => {
+		// Sort primarily by final place, secondary by slot number
+		let outcome =
+			(a.public_player_state?.final_place ?? 0) -
+			(b.public_player_state?.final_place ?? 0);
+
+		if (!outcome) {
+			outcome =
+				(b.public_player_state?.health ?? 0) -
+				(a.public_player_state?.health ?? 0);
+		}
+
+		return outcome;
+	});
 
 	return (
 		<>

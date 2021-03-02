@@ -9,7 +9,7 @@ export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K]
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
 export type RequireFields<T, K extends keyof T> = { [X in Exclude<keyof T, K>]?: T[X] } & { [P in K]-?: NonNullable<T[P]> };
-// Generated on 2021-02-28T22:03:43+01:00
+// Generated on 2021-03-02T13:06:17+01:00
 
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
@@ -112,6 +112,8 @@ export type Subscription = {
   __typename?: 'Subscription';
   /** Used as placeholder as empty types aren't currently supported. */
   _base_: Scalars['String'];
+  /** Returns the current match of a user */
+  currentMatchID?: Maybe<Scalars['String']>;
   /** @deprecated Use match subscription instead */
   lobby?: Maybe<Lobby>;
   match?: Maybe<Match>;
@@ -655,6 +657,7 @@ export type MutationResolvers<ContextType = Context, ParentType extends Resolver
 
 export type SubscriptionResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Subscription'] = ResolversParentTypes['Subscription']> = ResolversObject<{
   _base_?: SubscriptionResolver<ResolversTypes['String'], "_base_", ParentType, ContextType>;
+  currentMatchID?: SubscriptionResolver<Maybe<ResolversTypes['String']>, "currentMatchID", ParentType, ContextType>;
   lobby?: SubscriptionResolver<Maybe<ResolversTypes['Lobby']>, "lobby", ParentType, ContextType, RequireFields<SubscriptionLobbyArgs, never>>;
   match?: SubscriptionResolver<Maybe<ResolversTypes['Match']>, "match", ParentType, ContextType, RequireFields<SubscriptionMatchArgs, 'id'>>;
 }>;

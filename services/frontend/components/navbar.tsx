@@ -15,6 +15,8 @@ import packageJSON from "../package.json";
 
 import { useAuthenticatedQuery } from "../gql/Authenticated.graphql";
 import { useVersionQuery } from "../gql/Version.graphql";
+import { useMyMatchQuery } from "gql/MyMatch.graphql";
+import { useMyMatchSubscription } from "gql/MyMatchSubscription.graphql";
 
 export const Navbar = () => {
 	const [isActive, setIsActive] = useState(false);
@@ -23,6 +25,9 @@ export const Navbar = () => {
 	const { authenticated, user } = data?.authenticated ?? {};
 
 	const { data: versionData } = useVersionQuery();
+
+	const { data: myMatchDate } = useMyMatchQuery({ errorPolicy: "ignore" });
+	const { data: myMatchID } = useMyMatchSubscription();
 
 	return (
 		<nav className="navbar" role="navigation" aria-label="main navigation">
@@ -61,13 +66,18 @@ export const Navbar = () => {
 			>
 				<div className="navbar-start">
 					<NavbarLink href="/matches" value="Matches" />
-					{authenticated && (
-						<NavbarLink
-							href="/lobby/[[...id]]"
-							as="/lobby"
-							value="My Lobby"
-						/>
-					)}
+					{authenticated &&
+						(myMatchID?.currentMatchID ||
+							myMatchDate?.currentMatch?.id) && (
+							<NavbarLink
+								href="/match/[[...id]]"
+								as={`/match/${
+									myMatchID?.currentMatchID ||
+									myMatchDate?.currentMatch?.id
+								}`}
+								value="My Lobby"
+							/>
+						)}
 					<NavbarLink
 						href="/leaderboard/[[...leaderboard]]"
 						as="/leaderboard/standard"

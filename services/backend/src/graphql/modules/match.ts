@@ -12,7 +12,7 @@ import { injectable, inject } from "inversify";
 import { PostgresConnector } from "@shared/connectors/postgres";
 import { getQueryParams } from "../../util/params";
 import { MatchService } from "@shared/services/match";
-import { FortifyGameMode, MatchState } from "@shared/state";
+import { FortifyGameMode, MatchState, UserCacheKey } from "@shared/state";
 import { Match as DbMatch } from "@shared/db/entities/match";
 import { GQLPubSub } from "../pubsub";
 import { StateService } from "@shared/services/state";
@@ -47,6 +47,9 @@ export class MatchModule implements GQLModule {
 
 		extend type Subscription {
 			match(id: ID!): Match
+
+			"Returns the current match of a user"
+			currentMatchID: String @auth(requires: USER)
 		}
 
 		enum GameMode {
@@ -402,6 +405,16 @@ export class MatchModule implements GQLModule {
 							convertMatchStateToGqlMatch(matchState),
 							context,
 						);
+					},
+				},
+				currentMatchID: {
+					subscribe(_, __, { user: { id } }) {
+						return pubSub.asyncIterator(
+							`user:${id}:${UserCacheKey.matchID}`,
+						);
+					},
+					resolve(parent: string) {
+						return parent;
 					},
 				},
 			},

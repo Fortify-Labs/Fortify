@@ -3,6 +3,7 @@ import { Navbar } from "../components/navbar";
 import { useCurrentMatchesQuery } from "../gql/CurrentMatches.graphql";
 import { NextSeo } from "next-seo";
 import { prettyError } from "utils/error";
+import Link from "next/link";
 
 const Matches = () => {
 	const { loading, data, error } = useCurrentMatchesQuery({
@@ -51,6 +52,7 @@ const Matches = () => {
 								<th>Average MMR</th>
 								<th>Duration</th>
 								<th>Notable Players</th>
+								<th></th>
 							</tr>
 						</thead>
 						{loading && (
@@ -63,14 +65,26 @@ const Matches = () => {
 						{error && prettyError(error)}
 						{!loading && (
 							<tbody>
-								{data?.currentMatches?.map((match) => {
-									const duration = match?.ended
-										? match?.ended - match.created
-										: match?.updated - match?.created;
+								{data?.currentMatches?.map((match, index) => {
+									if (!match) {
+										return (
+											<tr
+												key={`unknown-match-${index}`}
+											></tr>
+										);
+									}
+
+									const created = new Date(match.created);
+									const updated = new Date(match.updated);
+
+									const duration = match.ended
+										? new Date(match.ended).getTime() -
+										  created.getTime()
+										: updated.getTime() - created.getTime();
 
 									return (
-										<tr key={match?.id}>
-											<th>{match?.averageMMR}</th>
+										<tr key={match.id}>
+											<th>{match.averageMMR}</th>
 											<th>
 												{!isNaN(duration) &&
 													new Date(duration)
@@ -79,13 +93,26 @@ const Matches = () => {
 												min
 											</th>
 											<th>
-												{match?.slots?.map((slot) => {
+												{match.slots?.map((slot) => {
 													const name =
 														slot?.user?.name ?? "";
 													return `${name ?? ""}${
 														name ? "; " : ""
 													}`;
 												})}
+											</th>
+											<th>
+												{match && (
+													<Link
+														href="/match/[[...id]]"
+														as={`/match/${
+															match.id ?? 0
+														}`}
+														passHref
+													>
+														<a>View Match</a>
+													</Link>
+												)}
 											</th>
 										</tr>
 									);
