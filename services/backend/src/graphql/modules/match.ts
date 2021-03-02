@@ -10,7 +10,7 @@ import {
 } from "../../definitions/graphql/types";
 import { injectable, inject } from "inversify";
 import { PostgresConnector } from "@shared/connectors/postgres";
-import { getQueryParams } from "util/params";
+import { getQueryParams } from "../../util/params";
 import { MatchService } from "@shared/services/match";
 import { FortifyGameMode, MatchState } from "@shared/state";
 import { Match as DbMatch } from "@shared/db/entities/match";
