@@ -1,8 +1,8 @@
 import { injectable, inject } from "inversify";
 
-import { GQLModule } from "definitions/module";
+import { GQLModule } from "../../definitions/module";
 import { gql, ApolloError } from "apollo-server-express";
-import { Resolvers, Lobby } from "definitions/graphql/types";
+import { Resolvers, Lobby } from "../../definitions/graphql/types";
 import { RedisConnector } from "@shared/connectors/redis";
 import { MatchState, UserCacheKey } from "@shared/state";
 import { PostgresConnector } from "@shared/connectors/postgres";

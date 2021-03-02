@@ -9,21 +9,21 @@
 		"lib": ["ES2020", "ES2018.AsyncIterable"],
 		"moduleResolution": "node",
 		"paths": {
-      		"@shared/*": ["../../shared/build/src/*"]
+			"@shared/*": ["../../shared/build/src/*"]
 		},
 		"experimentalDecorators": true,
 		"emitDecoratorMetadata": true,
-    	"resolveJsonModule": false,
-    	"esModuleInterop": true,
-    	"skipLibCheck": true,
-    	"sourceMap": true,
+		"resolveJsonModule": false,
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"sourceMap": true,
 		"types": ["reflect-metadata"]
 	},
 	"include": [
 		"src/**/*.ts",
 		"test/**/*.ts"
-  ],
-  "references": [{
-    "path": "../shared"
-  }]
+	],
+	"references": [{
+		"path": "../shared"
+	}]
 }

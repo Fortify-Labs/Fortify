@@ -2,8 +2,8 @@ import { injectable, inject } from "inversify";
 
 import { gql } from "apollo-server-express";
 
-import { GQLModule } from "definitions/module";
-import { Resolvers } from "definitions/graphql/types";
+import { GQLModule } from "../../definitions/module";
+import { Resolvers } from "../../definitions/graphql/types";
 
 import { PostgresConnector } from "@shared/connectors/postgres";
 import { EventService } from "@shared/services/eventService";

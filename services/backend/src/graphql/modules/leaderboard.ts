@@ -1,7 +1,7 @@
-import { GQLModule } from "definitions/module";
+import { GQLModule } from "../../definitions/module";
 import { ApolloError, gql } from "apollo-server-express";
 import { inject, injectable } from "inversify";
-import { LeaderboardEntry, Resolvers } from "definitions/graphql/types";
+import { LeaderboardEntry, Resolvers } from "../../definitions/graphql/types";
 import { RedisConnector } from "@shared/connectors/redis";
 import { PostgresConnector } from "@shared/connectors/postgres";
 import {

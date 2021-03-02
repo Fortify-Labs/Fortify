@@ -1,8 +1,8 @@
 import { injectable, inject } from "inversify";
 
-import { GQLModule } from "definitions/module";
+import { GQLModule } from "../../definitions/module";
 import { gql, ApolloError } from "apollo-server-express";
-import { Resolvers, MmrHistory } from "definitions/graphql/types";
+import { Resolvers, MmrHistory } from "../../definitions/graphql/types";
 import { PostgresConnector } from "@shared/connectors/postgres";
 import { InfluxDBConnector } from "@shared/connectors/influxdb";
 import { PermissionScope } from "@shared/definitions/context";

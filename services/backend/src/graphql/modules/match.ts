@@ -7,7 +7,7 @@ import {
 	MatchPlayerSnapshot,
 	MatchSlot,
 	PoolEntry,
-} from "definitions/graphql/types";
+} from "../../definitions/graphql/types";
 import { injectable, inject } from "inversify";
 import { PostgresConnector } from "@shared/connectors/postgres";
 import { getQueryParams } from "util/params";
