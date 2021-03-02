@@ -521,7 +521,7 @@ const convertDbMatchToGqlMatch = (dbMatch: DbMatch) => {
 		})),
 		// id: dbMatch.id,
 		averageMMR: dbMatch.averageMMR,
-		mode: FortifyGameMode[dbMatch.gameMode] as GameMode,
+		mode: FortifyGameMode[dbMatch.gameMode].toUpperCase() as GameMode,
 		pool: [],
 		players: dbMatch.slots.map<MatchPlayerSnapshot>((slot, index) => {
 			return {
@@ -563,6 +563,7 @@ const convertDbMatchToGqlMatch = (dbMatch: DbMatch) => {
 					win_streak: 0,
 					wins: 0,
 					xp: 0,
+					persona_name: slot.user?.name,
 				},
 				// TODO: Once match data will be stored, load private player state
 			};

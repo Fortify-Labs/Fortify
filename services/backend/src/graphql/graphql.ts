@@ -11,6 +11,7 @@ import { MetricsService } from "@shared/services/metrics";
 import createMetricsPlugin from "apollo-metrics";
 
 import { ApolloServerPlugin } from "apollo-server-plugin-base";
+import { Logger } from "@shared/logger";
 
 const { IGNORE_ERROR_CODES } = process.env;
 
@@ -18,12 +19,17 @@ const ignorableErrorCodes = IGNORE_ERROR_CODES?.split(";");
 
 @injectable()
 export class GraphQL {
-	constructor(@inject(MetricsService) private metrics: MetricsService) {}
+	constructor(
+		@inject(MetricsService) private metrics: MetricsService,
+		@inject(Logger) private logger: Logger,
+	) {}
 
 	server() {
 		const apolloMetricsPlugin = createMetricsPlugin(
 			this.metrics.register,
 		) as ApolloServerPlugin<Record<string, string>>;
+
+		const { logger } = this;
 
 		const server = new ApolloServer({
 			tracing: true,
@@ -161,6 +167,7 @@ export class GraphQL {
 										}
 
 										Sentry.captureException(err);
+										logger.debug(err);
 									});
 								}
 							},

@@ -159,7 +159,7 @@ export class Fortify extends Chart {
 
 			resources: {
 				limits: {
-					cpu: "0.2",
+					cpu: "1",
 					memory: "512Mi",
 				},
 				requests: {

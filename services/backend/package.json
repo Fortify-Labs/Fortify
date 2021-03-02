@@ -1,6 +1,6 @@
 {
   "name": "backend",
-  "version": "1.8.3",
+  "version": "1.8.4",
   "private": true,
   "main": "build/index.js",
   "types": "build/index.d.ts",
@@ -72,7 +72,6 @@
     "typescript": "^4.2.2"
   },
   "dependencies": {
-    "@influxdata/influxdb-client": "^1.10.0",
     "@sentry/node": "^6.2.1",
     "apollo-metrics": "^1.0.1",
     "apollo-server-express": "^2.21.0",

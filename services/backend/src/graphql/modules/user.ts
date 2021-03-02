@@ -4,17 +4,10 @@ import { GQLModule } from "../../definitions/module";
 import { gql, ApolloError } from "apollo-server-express";
 import { Resolvers, MmrHistory } from "../../definitions/graphql/types";
 import { PostgresConnector } from "@shared/connectors/postgres";
-import { InfluxDBConnector } from "@shared/connectors/influxdb";
 import { PermissionScope } from "@shared/definitions/context";
-
-import {
-	fluxDuration,
-	flux,
-	fluxDateTime,
-	FluxParameterLike,
-} from "@influxdata/influxdb-client";
 import { EventService } from "@shared/services/eventService";
 import { TwitchUnlinkedEvent } from "@shared/events/systemEvents";
+import { Logger } from "@shared/logger";
 
 export interface InfluxMMRQueryRow {
 	result: string;
@@ -34,8 +27,8 @@ export interface InfluxMMRQueryRow {
 export class UserModule implements GQLModule {
 	constructor(
 		@inject(PostgresConnector) private postgres: PostgresConnector,
-		@inject(InfluxDBConnector) private influx: InfluxDBConnector,
 		@inject(EventService) private eventService: EventService,
+		@inject(Logger) private logger: Logger,
 	) {}
 
 	typeDef = gql`
@@ -101,7 +94,7 @@ export class UserModule implements GQLModule {
 	`;
 
 	resolver(): Resolvers {
-		const { postgres, influx, eventService } = this;
+		const { postgres, eventService } = this;
 
 		return {
 			Query: {
@@ -216,83 +209,18 @@ export class UserModule implements GQLModule {
 						);
 					}
 
-					// Write influxdb queries to fetch data points
-					const queryApi = await influx.queryApi();
+					const mmrStatsRepo = postgres.getMmrStatsRepo();
 
-					let start: FluxParameterLike | undefined = undefined;
-					let stop: FluxParameterLike | undefined = undefined;
+					// TODO: Incorporate duration and time range from args
 
-					if (args.duration) {
-						start = fluxDuration(
-							`-${args.duration <= 60 ? args.duration : 30}d`,
-						);
-						stop = fluxDateTime(new Date().toISOString());
-					}
-
-					if (args.startDate && args.endDate) {
-						const startDate = args.startDate
-							? new Date(args.startDate)
-							: (() => {
-									const date = new Date();
-									date.setHours(date.getHours() - 24);
-									return date;
-							  })();
-
-						const endDate = args.endDate
-							? new Date(args.endDate)
-							: new Date();
-
-						start = fluxDateTime(startDate.toISOString());
-						stop = fluxDateTime(endDate.toISOString());
-					}
-
-					// stub these in as default values
-					if (!start || !stop) {
-						start = fluxDuration("-30d");
-						stop = fluxDateTime(new Date().toISOString());
-					}
-
-					let mode = "standard";
-
-					if (args.mode?.toLowerCase() !== "normal") {
-						mode = args.mode?.toLowerCase() ?? "standard";
-					}
-
-					const fluxQuery = flux`
-						from(bucket: "mmr")
-						|> range(start: ${start}, stop: ${stop})
-						|> filter(fn: (r) => r["_measurement"] == "mmr")
-						|> filter(fn: (r) => r["_field"] == "mmr" or r["_field"] == "rank")
-						|> filter(fn: (r) => r["steamid"] == ${steamid})
-						|> filter(fn: (r) => r["type"] == ${mode})
-						|> yield(name: "history")
-					`;
-
-					const rawRows = (await queryApi.collectRows(
-						fluxQuery,
-					)) as InfluxMMRQueryRow[];
-
-					const mmrs = rawRows.filter((row) => row._field === "mmr");
-					const ranks = rawRows.filter(
-						(row) => row._field === "rank",
-					);
-
-					const history: MmrHistory[] = [];
-
-					// Merge both data points based on _time
-					// this is not optimized at all and will probably be very expensive to run
-					for (const mmr of mmrs) {
-						history.push({
-							date: mmr._time,
-							mmr: parseInt(mmr._value),
-							rank: parseInt(
-								ranks.find((rank) => rank._time === mmr._time)
-									?._value ?? "0",
-							),
-						});
-					}
-
-					return history;
+					return mmrStatsRepo
+						.createQueryBuilder()
+						.select(["mmr", "rank", "time AS date"])
+						.where(
+							"time BETWEEN NOW() - interval '30 days' AND NOW()",
+						)
+						.andWhere('"userSteamid" = :steamid', { steamid })
+						.getRawMany<MmrHistory>();
 				},
 			},
 		};
