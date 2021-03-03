@@ -85,15 +85,6 @@ export const MmrHistory: FunctionComponent<{
 						display: false,
 					},
 				},
-				// {
-				// 	type: "linear",
-				// 	display: true,
-				// 	position: "right",
-				// 	id: "y-axis-2",
-				// 	gridLines: {
-				// 		display: true,
-				// 	},
-				// },
 			],
 		},
 	};
@@ -153,9 +144,7 @@ export const MmrHistory: FunctionComponent<{
 
 			{!loading && !error && (
 				<>
-					{mmrData.datasets?.every(
-						(set) => (set.data ?? []).length > 0
-					) ? (
+					{(mmrHistory?.length ?? 0) > 0 ? (
 						<Line data={mmrData} options={options} />
 					) : (
 						<p>No MMR data points recorded</p>

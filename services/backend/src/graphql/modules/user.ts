@@ -240,6 +240,7 @@ export class UserModule implements GQLModule {
 						.andWhere("type = :type", {
 							type: leaderboardTypeToNumber(leaderboardType),
 						})
+						.orderBy("time")
 						.getRawMany<MmrHistory>();
 				},
 			},
