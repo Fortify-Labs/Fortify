@@ -18,6 +18,7 @@ import { GQLPubSub } from "../pubsub";
 import { StateService } from "@shared/services/state";
 import { Logger } from "@shared/logger";
 import { Context, PermissionScope } from "@shared/definitions/context";
+import { Between } from "typeorm";
 
 @injectable()
 export class MatchModule implements GQLModule {
@@ -126,7 +127,7 @@ export class MatchModule implements GQLModule {
 			reroll_cost_modifier: Int!
 			win_streak: Int!
 			lose_streak: Int!
-			rank_tier: Int!
+			rank_tier: Int
 			disconnected_time: Int!
 			platform: Int!
 			event_tier: Int!
@@ -287,7 +288,13 @@ export class MatchModule implements GQLModule {
 
 					const matchRepo = await postgres.getMatchRepo();
 					const currentMatches = await matchRepo.find({
-						where: { ended: null },
+						where: {
+							ended: null,
+							created: Between(
+								"NOW() - interval '1 hour'",
+								"NOW()",
+							),
+						},
 						order: {
 							created: "DESC",
 						},
@@ -296,19 +303,7 @@ export class MatchModule implements GQLModule {
 						skip: offset,
 					});
 
-					const now = new Date();
-					const utc = new Date(
-						now.getTime() + now.getTimezoneOffset() * 60000,
-					).getTime();
-
-					return currentMatches.reduce<Match[]>((acc, match) => {
-						// If the match started <1h ago, return it as a current match
-						if (utc - match.created.getTime() < 60 * 60 * 1000) {
-							acc.push(convertDbMatchToGqlMatch(match));
-						}
-
-						return acc;
-					}, []);
+					return currentMatches.map(convertDbMatchToGqlMatch);
 				},
 				async match(parent, { id }, context) {
 					let match: Match | undefined = undefined;
