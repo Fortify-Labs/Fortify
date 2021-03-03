@@ -18,7 +18,6 @@ import { GQLPubSub } from "../pubsub";
 import { StateService } from "@shared/services/state";
 import { Logger } from "@shared/logger";
 import { Context, PermissionScope } from "@shared/definitions/context";
-import { Between } from "typeorm";
 
 @injectable()
 export class MatchModule implements GQLModule {
@@ -287,21 +286,19 @@ export class MatchModule implements GQLModule {
 					const { limit, offset } = getQueryParams(args);
 
 					const matchRepo = await postgres.getMatchRepo();
-					const currentMatches = await matchRepo.find({
-						where: {
-							ended: null,
-							created: Between(
-								"NOW() - interval '1 hour'",
-								"NOW()",
-							),
-						},
-						order: {
-							created: "DESC",
-						},
-						relations: ["slots", "slots.user"],
-						take: limit,
-						skip: offset,
-					});
+
+					const query = matchRepo
+						.createQueryBuilder()
+						.where("ended IS NULL")
+						.andWhere("created > NOW() - interval '1h'")
+						.orderBy("created", "DESC")
+						.loadAllRelationIds({
+							relations: ["slots", "slots.user"],
+						})
+						.take(limit)
+						.skip(offset);
+
+					const currentMatches = await query.getMany();
 
 					return currentMatches.map(convertDbMatchToGqlMatch);
 				},
