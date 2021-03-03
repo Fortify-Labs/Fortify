@@ -129,14 +129,16 @@ export const BoardComponent: FunctionComponent<{
 			<>
 				<div style={{ marginLeft: "1em", paddingBottom: "1em" }}>
 					{personaName}
-					<div style={{ float: "right", marginRight: "1em" }}>
-						{
-							// TODO: Implement share code generation
-						}
-						<button className="button is-primary">
-							Copy share code
-						</button>
-					</div>
+					{renderUnits && (
+						<div style={{ float: "right", marginRight: "1em" }}>
+							{
+								// TODO: Implement share code generation
+							}
+							<button className="button is-primary">
+								Copy share code
+							</button>
+						</div>
+					)}
 				</div>
 				<div className="box" style={{ margin: "1em" }}>
 					<div

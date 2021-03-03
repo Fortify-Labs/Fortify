@@ -50,7 +50,7 @@ export const MmrHistory: FunctionComponent<{
 				pointBackgroundColor: "#1abc9c",
 				pointHoverBackgroundColor: "#1abc9c",
 				pointHoverBorderColor: "#1abc9c",
-				yAxisID: "y-axis-2",
+				yAxisID: "y-axis-1",
 			},
 		],
 	};
@@ -85,15 +85,15 @@ export const MmrHistory: FunctionComponent<{
 						display: false,
 					},
 				},
-				{
-					type: "linear",
-					display: true,
-					position: "right",
-					id: "y-axis-2",
-					gridLines: {
-						display: true,
-					},
-				},
+				// {
+				// 	type: "linear",
+				// 	display: true,
+				// 	position: "right",
+				// 	id: "y-axis-2",
+				// 	gridLines: {
+				// 		display: true,
+				// 	},
+				// },
 			],
 		},
 	};
