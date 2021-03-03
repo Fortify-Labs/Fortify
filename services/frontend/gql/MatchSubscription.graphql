@@ -31,6 +31,8 @@ subscription Match($id: ID!) {
 				wins
 				losses
 				net_worth
+				underlord
+				underlord_selected_talents
 
 				units {
 					entindex

@@ -1,8 +1,10 @@
 import { MatchPlayer } from "definitions/match";
-import React, { FunctionComponent } from "react";
+import React, { FunctionComponent, useState } from "react";
 import { units } from "@shared/units";
 import { currentSeason } from "@shared/season";
 import Image from "next/image";
+import { EquippedItemV8, ShareCodeV8 } from "underlords";
+import { ItemSlot, Maybe, Unit } from "gql/Match.graphql";
 
 const cellCount = 8;
 const rowCount = 8;
@@ -14,6 +16,9 @@ export interface BoardUnit {
 	dota_unit_name: string;
 	rank: number;
 	item?: number;
+
+	underlordID?: number;
+	selectedTalents?: number[];
 }
 
 export const BoardComponent: FunctionComponent<{
@@ -24,15 +29,14 @@ export const BoardComponent: FunctionComponent<{
 	renderUnits?: boolean;
 }> = React.memo(
 	({ player, personaName, opponent, flip = false, renderUnits = true }) => {
+		// --- Hooks ---
+		const [buttonText, setButtonText] = useState("Copy share code");
+
 		// --- UI variables ---
-		const playerUnits = player?.public_player_state?.units ?? [];
-		const playerItemSlots = player?.public_player_state?.item_slots ?? [];
+		const playerInfos = getBoardInfos(player);
+		const opponentInfos = getBoardInfos(opponent);
 
-		const opponentUnits = opponent?.public_player_state?.units ?? [];
-		const opponentItemSlots =
-			opponent?.public_player_state?.item_slots ?? [];
-
-		const indexedUnits: (BoardUnit | undefined)[][] = [];
+		let indexedUnits: (BoardUnit | undefined)[][] = [];
 
 		// Create empty 2d array
 		for (let cellIndex = 0; cellIndex < cellCount; cellIndex++) {
@@ -44,82 +48,55 @@ export const BoardComponent: FunctionComponent<{
 		}
 
 		// Fill indexed units array
+		indexedUnits = populateIndexedArray(indexedUnits, playerInfos, flip);
+		indexedUnits = populateIndexedArray(indexedUnits, opponentInfos, !flip);
+
+		// --- Share code ---
+		// Generate a share code using the 2d indexes units array
+		const shareCode = new ShareCodeV8();
+
 		for (let cellIndex = 0; cellIndex < cellCount; cellIndex++) {
-			const rotatedCellIndex = 7 - cellIndex;
-
 			for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-				const rotatedRowIndex = 7 - rowIndex;
-
-				// Refactor this some time in the future, this is really ugly
-
-				// Insert player units into 2d indexed array
-				const unit = playerUnits.find(
-					(unit) =>
-						unit?.position.x == cellIndex &&
-						unit?.position.y == rowIndex
-				);
+				const unit = indexedUnits[cellIndex][rowIndex];
 
 				if (unit) {
-					const item = playerItemSlots.find(
-						(itemSlot) =>
-							itemSlot.assigned_unit_entindex == unit.entindex
-					);
+					shareCode.boardUnitIDs[cellIndex][7 - rowIndex] =
+						unit.id < 255 ? unit.id : 255;
+					shareCode.unitRanks[cellIndex][7 - rowIndex] = unit.rank;
 
-					const dota_unit_name =
-						Object.values(currentSeasonUnits).find(
-							({ id }) => id == unit.unit_id
-						)?.dota_unit_name ?? "";
-
-					if (flip) {
-						indexedUnits[rotatedCellIndex][rowIndex] = {
-							id: unit.unit_id,
-							rank: unit.rank,
-							dota_unit_name,
-							item: item?.item_id,
-						};
-					} else {
-						indexedUnits[cellIndex][rotatedRowIndex] = {
-							id: unit.unit_id,
-							rank: unit.rank,
-							dota_unit_name,
-							item: item?.item_id,
-						};
+					if (unit.item) {
+						shareCode.unitItems[cellIndex][
+							7 - rowIndex
+						] = new EquippedItemV8(unit.item);
 					}
-				}
 
-				// Insert opposing units into 2d array
-				const opponentUnit = opponentUnits.find(
-					(unit) =>
-						unit?.position.x == cellIndex &&
-						unit?.position.y == rowIndex
-				);
+					// Underlords have a unit id of 1000+
+					// yet the unitId field is a uint8
+					// thus the board unit ID has to be set to 255 (max value)
+					// indicating that this is a underlord that we're dealing with
+					if (
+						unit.id >= 1000 &&
+						unit.underlordID &&
+						unit.selectedTalents
+					) {
+						let index = 0;
 
-				if (opponentUnit) {
-					const item = opponentItemSlots.find(
-						(itemSlot) =>
-							itemSlot.assigned_unit_entindex ==
-							opponentUnit.entindex
-					);
+						if (shareCode.underlordIDs[0]) {
+							// If the first Underlord ID is already set
+							index += 1;
+						}
 
-					const dota_unit_name =
-						Object.values(currentSeasonUnits).find(
-							({ id }) => id == opponentUnit.unit_id
-						)?.dota_unit_name ?? "";
+						shareCode.underlordIDs[index] = unit.underlordID;
+						shareCode.underlordRanks[index] = unit.rank;
 
-					if (flip) {
-						indexedUnits[cellIndex][rotatedRowIndex] = {
-							id: opponentUnit.unit_id,
-							rank: opponentUnit.rank,
-							dota_unit_name,
-							item: item?.item_id,
-						};
-					} else {
-						indexedUnits[rotatedCellIndex][rowIndex] = {
-							id: opponentUnit.unit_id,
-							rank: opponentUnit.rank,
-							dota_unit_name,
-							item: item?.item_id,
-						};
+						// Selected talents are stored withing the 100k+ range,
+						// thus subtracting 100k will yield the uint8 value
+						// of the selected talents
+						shareCode.selectedTalents[
+							index
+						] = unit.selectedTalents.map(
+							(selectedTalent) => selectedTalent - 100000
+						);
 					}
 				}
 			}
@@ -131,11 +108,33 @@ export const BoardComponent: FunctionComponent<{
 					{personaName}
 					{renderUnits && (
 						<div style={{ float: "right", marginRight: "1em" }}>
-							{
-								// TODO: Implement share code generation
-							}
-							<button className="button is-primary">
-								Copy share code
+							<button
+								className="button is-primary"
+								onClick={() =>
+									navigator.clipboard
+										.writeText(shareCode.toString())
+										.then(() =>
+											setButtonText(
+												"Copied code to clipboard"
+											)
+										)
+										.catch((reason) => {
+											setButtonText("An error occured");
+											console.error(reason);
+										})
+										.finally(() =>
+											setTimeout(
+												() =>
+													setButtonText(
+														"Copy share code"
+													),
+												1500
+											)
+										)
+								}
+								disabled={buttonText != "Copy share code"}
+							>
+								{buttonText}
 							</button>
 						</div>
 					)}
@@ -208,3 +207,82 @@ const UnitIcon: FunctionComponent<{ dota_unit_name: string }> = ({
 		/>
 	</figure>
 );
+
+export interface BoardInfos {
+	units: Maybe<Unit>[];
+	itemSlots: ItemSlot[];
+	underlordID: number;
+	selectedTalents: number[];
+}
+
+const getBoardInfos = (player?: MatchPlayer): BoardInfos => {
+	const units = player?.public_player_state?.units ?? [];
+	const itemSlots = player?.public_player_state?.item_slots ?? [];
+	const underlordID = player?.public_player_state?.underlord ?? 0;
+	const selectedTalents = player?.public_player_state
+		?.underlord_selected_talents ?? [0, 0];
+
+	return {
+		units,
+		itemSlots,
+		underlordID,
+		selectedTalents,
+	};
+};
+
+const populateIndexedArray = (
+	indexedUnits: (BoardUnit | undefined)[][],
+	playerBoardInfos: BoardInfos,
+	flip: boolean = false
+) => {
+	// Fill indexed units array
+	for (let cellIndex = 0; cellIndex < cellCount; cellIndex++) {
+		const rotatedCellIndex = 7 - cellIndex;
+
+		for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
+			const rotatedRowIndex = 7 - rowIndex;
+
+			// Refactor this some time in the future, this is really ugly
+
+			// Insert player units into 2d indexed array
+			const unit = playerBoardInfos.units.find(
+				(unit) =>
+					unit?.position.x == cellIndex &&
+					unit?.position.y == rowIndex
+			);
+
+			if (unit && unit.unit_id) {
+				const item = playerBoardInfos.itemSlots.find(
+					(itemSlot) =>
+						itemSlot.assigned_unit_entindex == unit.entindex
+				);
+
+				const dota_unit_name =
+					Object.values(currentSeasonUnits).find(
+						({ id }) => id == unit.unit_id
+					)?.dota_unit_name ?? "";
+
+				const boardUnit: BoardUnit = {
+					id: unit.unit_id,
+					rank: unit.rank,
+					dota_unit_name,
+					item: item?.item_id,
+				};
+
+				if (boardUnit.id >= 1000) {
+					boardUnit.underlordID = playerBoardInfos.underlordID;
+					boardUnit.selectedTalents =
+						playerBoardInfos.selectedTalents;
+				}
+
+				if (flip) {
+					indexedUnits[rotatedCellIndex][rowIndex] = boardUnit;
+				} else {
+					indexedUnits[cellIndex][rotatedRowIndex] = boardUnit;
+				}
+			}
+		}
+	}
+
+	return indexedUnits;
+};

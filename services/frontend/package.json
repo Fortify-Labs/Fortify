@@ -1,6 +1,6 @@
 {
   "name": "frontend",
-  "version": "1.5.3",
+  "version": "1.5.4",
   "prodVersion": "1.4.0",
   "author": "Thomas Kosiewski",
   "license": "AGPL-3.0-or-later",
@@ -50,7 +50,8 @@
     "sass": "^1.32.8",
     "subscriptions-transport-ws": "^0.9.18",
     "svg-gauge": "^1.0.6",
-    "tsconfig-paths-webpack-plugin": "^3.3.0"
+    "tsconfig-paths-webpack-plugin": "^3.3.0",
+    "underlords": "^1.0.2"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "1.21.1",

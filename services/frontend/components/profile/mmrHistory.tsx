@@ -153,7 +153,9 @@ export const MmrHistory: FunctionComponent<{
 
 			{!loading && !error && (
 				<>
-					{mmrData ? (
+					{mmrData.datasets?.every(
+						(set) => (set.data ?? []).length > 0
+					) ? (
 						<Line data={mmrData} options={options} />
 					) : (
 						<p>No MMR data points recorded</p>
