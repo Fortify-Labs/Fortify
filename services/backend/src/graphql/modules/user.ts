@@ -228,20 +228,36 @@ export class UserModule implements GQLModule {
 
 					const mmrStatsRepo = postgres.getMmrStatsRepo();
 
-					// TODO: Incorporate duration and time range from args
-
-					return mmrStatsRepo
+					const query = mmrStatsRepo
 						.createQueryBuilder()
 						.select(["mmr", "rank", "time AS date"])
 						.where(
 							"time BETWEEN NOW() - interval '30 days' AND NOW()",
 						)
+						.orderBy("time");
+
+					if (args.startDate && args.endDate) {
+						query.where("time BETWEEN :start AND :end", {
+							start: new Date(args.startDate).toISOString(),
+							end: new Date(args.endDate).toISOString(),
+						});
+					}
+
+					if (args.duration && args.duration > 0) {
+						query.where(
+							`time BETWEEN NOW() - interval '${escape(
+								args.duration.toFixed(0),
+							)} days' AND NOW()`,
+						);
+					}
+
+					query
 						.andWhere('"userSteamid" = :steamid', { steamid })
 						.andWhere("type = :type", {
 							type: leaderboardTypeToNumber(leaderboardType),
-						})
-						.orderBy("time")
-						.getRawMany<MmrHistory>();
+						});
+
+					return query.getRawMany<MmrHistory>();
 				},
 			},
 		};

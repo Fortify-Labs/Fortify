@@ -12,6 +12,10 @@ import styles from "../css/_appStyles.module.css";
 // TODO: migrate this to CSS module
 import "../components/accordion/accordion.css";
 
+// React-date-range style files
+import "react-date-range/dist/styles.css"; // main css file
+import "react-date-range/dist/theme/default.css"; // theme css file
+
 import { Context } from "@shared/definitions/context";
 
 import packageJSON from "../package.json";

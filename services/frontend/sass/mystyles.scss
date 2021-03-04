@@ -44,3 +44,89 @@ $footer-padding: 2rem 1.5rem 1.5rem;
 	font-weight: bold;
 	font-size: 1.2em;
 }
+
+// --- Date range selector styles ---
+.rdrDateDisplayWrapper {
+	background-color: #232527 !important;
+}
+
+.rdrDateDisplayItem {
+	background-color: #000000 !important;
+}
+
+.rdrMonthAndYearPickers select {
+	color: #436e9c !important;
+}
+
+.rdrNextPrevButton {
+	background: #333435 !important;
+}
+
+.rdrNextPrevButton:hover {
+	background: #e1e7f0;
+}
+
+.rdrPprevButton i {
+	border-color: transparent #375a7f transparent transparent !important;
+}
+
+.rdrNextButton i {
+	border-color: transparent transparent transparent #375a7f !important;
+}
+
+.rdrDayToday .rdrDayNumber span:after {
+	background: #375a7f !important;
+}
+
+.rdrDefinedRangesWrapper {
+	border-right: solid 1px #232527 !important;
+	background: #232527 !important;
+}
+
+.rdrStaticRange {
+	border-bottom: 1px solid #232527 !important;
+	background: #232527 !important;
+}
+
+.rdrStaticRange:hover .rdrStaticRangeLabel,
+.rdrStaticRange:focus .rdrStaticRangeLabel {
+	background: #232527 !important;
+}
+
+.rdrStaticRangeLabel {
+	color: white;
+}
+
+.rdrInputRangeInput {
+	border: solid 1px #232527 !important;
+	color: #232527 !important;
+}
+
+.rdrInputRangeInput:focus,
+.rdrInputRangeInput:hover {
+	border-color: #232527 !important;
+	color: #232527 !important;
+}
+.rdrDayPassive .rdrDayNumber span {
+	color: #979696 !important;
+}
+.rdrDayNumber span {
+	color: white !important;
+}
+.rdrDayDisabled {
+	background-color: white !important;
+}
+.rdrDayDisabled .rdrDayNumber span {
+	color: white !important;
+}
+.rdrMonthName {
+	color: white !important;
+}
+
+.rdrMonthAndYearWrapper {
+	background: #232527;
+}
+
+.rdrMonths {
+	background: #232527;
+}

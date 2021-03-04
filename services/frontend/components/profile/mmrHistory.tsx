@@ -1,7 +1,7 @@
 import classNames from "classnames";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import React, { FunctionComponent } from "react";
+import React, { FunctionComponent, useEffect, useState } from "react";
 import { prettyError } from "utils/error";
 
 import {
@@ -10,21 +10,51 @@ import {
 } from "../../gql/ProfileMmrHistory.graphql";
 import { ChartData, Line } from "react-chartjs-2";
 
+import { subDays } from "date-fns";
+import { DateRangePicker, RangeWithKey } from "react-date-range";
+import { dateFormatter } from "../../utils/date";
+
 export const MmrHistory: FunctionComponent<{
 	steamid?: string;
 }> = ({ steamid }) => {
+	// --- URL query args ---
 	const { query } = useRouter();
 	const mode =
 		GameMode[query.mode as keyof typeof GameMode] || GameMode.Normal;
 
+	// --- UI variables ---
+	const [dateRange, setDateRange] = useState<RangeWithKey[]>([
+		{
+			startDate: new Date(0),
+			endDate: new Date(0),
+			key: "selection",
+		},
+	]);
+
+	useEffect(() => {
+		setDateRange([
+			{
+				startDate: subDays(new Date(), 30),
+				endDate: new Date(),
+				key: "selection",
+			},
+		]);
+	}, []);
+
+	const [showModal, setShowModal] = useState(false);
+
+	// --- Data fetching ---
 	const { data, loading, error } = useProfileMmrHistoryQuery({
 		variables: {
 			steamid,
 			mode,
+			startDate: dateRange[0]?.startDate,
+			endDate: dateRange[0]?.endDate,
 		},
 	});
 	const { mmrHistory = [] } = data?.profile ?? {};
 
+	// --- Data processing ---
 	const mmrData: ChartData<Chart.ChartData> = {
 		labels: mmrHistory?.map((entry) => new Date(entry?.date).toUTCString()),
 		datasets: [
@@ -142,16 +172,55 @@ export const MmrHistory: FunctionComponent<{
 
 			{error && prettyError(error)}
 
-			{!loading && !error && (
-				<>
-					{(mmrHistory?.length ?? 0) > 0 ? (
-						<Line data={mmrData} options={options} />
-					) : (
-						<p>No MMR data points recorded</p>
-					)}{" "}
-					<hr />
-				</>
+			{dateRange.length > 0 && (
+				<div style={{ textAlign: "center", marginTop: "-1.5em" }}>
+					<button
+						className="button is-text"
+						onClick={() => setShowModal(true)}
+					>
+						Charts from {dateFormatter(dateRange[0]?.startDate)} to{" "}
+						{dateFormatter(dateRange[0]?.endDate)}
+					</button>
+				</div>
 			)}
+
+			<div
+				className={classNames("modal", {
+					"is-active": showModal,
+				})}
+			>
+				<div
+					className="modal-background"
+					onClick={() => setShowModal(false)}
+				></div>
+				<div className="modal-content">
+					<DateRangePicker
+						onChange={(item) =>
+							setDateRange([
+								(item as { selection: RangeWithKey }).selection,
+							])
+						}
+						showSelectionPreview={true}
+						moveRangeOnFirstSelection={false}
+						months={1}
+						ranges={dateRange}
+						rangeColors={["#436e9c"]}
+					/>
+				</div>
+				<button
+					className="modal-close is-large"
+					aria-label="close"
+					onClick={() => setShowModal(false)}
+				></button>
+			</div>
+
+			{!loading &&
+				!error &&
+				((mmrHistory?.length ?? 0) > 0 ? (
+					<Line data={mmrData} options={options} />
+				) : (
+					<p>No MMR data points recorded</p>
+				))}
 		</div>
 	);
 };

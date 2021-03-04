@@ -92,7 +92,7 @@ const Profile: NextPage<ProfilePageProps> = ({ context }) => {
 			{!loading && (
 				<div style={{ margin: "1rem" }}>
 					<div className="columns">
-						<div className="column is-narrow">
+						<div className="column is-narrow is-2">
 							<div className="box">
 								<VStack>
 									<HStack style={{ alignItems: "center" }}>
