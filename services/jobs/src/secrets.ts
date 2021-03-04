@@ -5,6 +5,9 @@ const requestedSecrets = {
 	postgres: {
 		password: "",
 	},
+	twitchOauth: {
+		clientID: "",
+	},
 };
 
 @injectable()

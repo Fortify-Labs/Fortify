@@ -1,6 +1,6 @@
 {
   "name": "shared",
-  "version": "1.22.0",
+  "version": "1.23.0",
   "description": "Shared library for fortify micro services",
   "main": "build/src/index.js",
   "types": "build/src/index.d.ts",
@@ -34,8 +34,8 @@
     "@godaddy/terminus": "^4.6.0",
     "@influxdata/influxdb-client": "^1.10.0",
     "@influxdata/influxdb-client-apis": "^1.10.0",
-    "@sentry/integrations": "^6.2.0",
-    "@sentry/node": "^6.2.0",
+    "@sentry/integrations": "^6.2.1",
+    "@sentry/node": "^6.2.1",
     "bignumber.js": "^9.0.1",
     "express": "^4.17.1",
     "inversify": "^5.0.5",

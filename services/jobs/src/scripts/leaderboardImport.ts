@@ -12,10 +12,11 @@ import { EventService } from "@shared/services/eventService";
 import { Logger } from "@shared/logger";
 
 import { ImportCompletedEvent } from "@shared/events/systemEvents";
-import { Gauge, Pushgateway, Registry } from "prom-client";
+import { Gauge, Registry } from "prom-client";
 import { servicePrefix } from "@shared/services/metrics";
+import { pushToPrometheusGateway } from "../utils/prometheus";
 
-const { LEADERBOARD_TYPE = "standard", PROMETHEUS_PUSH_GATEWAY } = process.env;
+const { LEADERBOARD_TYPE = "standard" } = process.env;
 
 @injectable()
 export class LeaderboardImportService implements FortifyScript {
@@ -94,47 +95,6 @@ export class LeaderboardImportService implements FortifyScript {
 		end();
 		importCountGauge.labels({ type }).set(leaderboard.leaderboard.length);
 
-		if (PROMETHEUS_PUSH_GATEWAY) {
-			const gateway = new Pushgateway(
-				PROMETHEUS_PUSH_GATEWAY,
-				[],
-				this.register,
-			);
-
-			new Gauge({
-				name: "fortify_jobs_version_info",
-				help: "Version info for jobs service.",
-				labelNames: ["version"],
-				registers: [this.register],
-				aggregator: "first",
-				collect() {
-					this.labels(process.env.npm_package_version ?? "0.0.0").set(
-						1,
-					);
-				},
-			});
-
-			await new Promise<void>((resolve, reject) => {
-				gateway.push(
-					{ jobName: `fortify_import_${type}` },
-					(err, res, body) => {
-						if (err) {
-							this.logger.error(
-								"An error occurred while pushing metrics",
-								{ e: err },
-							);
-							this.logger.error(err);
-							return reject(err);
-						}
-
-						this.logger.info("Push gateway response", {
-							body,
-							statusCode: res.statusCode,
-						});
-						resolve();
-					},
-				);
-			});
-		}
+		pushToPrometheusGateway(this.register, this.logger);
 	}
 }

@@ -569,5 +569,23 @@ export class Fortify extends Chart {
 		ImportCronJob("standard");
 		ImportCronJob("turbo");
 		ImportCronJob("duos");
+
+		new FortifyCronJob(this, "twitch-online-updater", {
+			name: "twitch-online-updater",
+			version: jobsPackage.version,
+
+			schedule: "*/5 * * * *",
+			script: "twitch_online",
+
+			env: [
+				{
+					name: "KAFKA_CLIENT_ID",
+					valueFrom: { fieldRef: { fieldPath: "metadata.name" } },
+				},
+				{ name: "SENTRY_TRACE_SAMPLE_RATE", value: "0" },
+			],
+			secrets: [vaultSecret],
+			configmaps: [redisConfig, kafkaConfig, postgresConfig, vaultConfig],
+		});
 	}
 }

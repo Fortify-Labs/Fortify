@@ -15,7 +15,7 @@ import { LeaderboardImportService } from "./scripts/leaderboardImport";
 import { DBCleanupScript } from "./scripts/dbCleaner";
 import { BroadcastNotificationScript } from "./scripts/broadcastNotifications";
 import { Connector } from "@shared/definitions/connector";
-// import { HealthCheckable } from "@shared/services/healthCheck";
+import { TwitchOnlineScript } from "./scripts/twitchOnline";
 
 const container = new Container({ autoBindInjectable: true });
 
@@ -26,10 +26,6 @@ container.bind(KafkaConnector).toSelf().inSingletonScope();
 container.bind(PostgresConnector).toSelf().inSingletonScope();
 container.bind(RedisConnector).toSelf().inSingletonScope();
 
-// container.bind<HealthCheckable>("healthCheck").toService(KafkaConnector);
-// container.bind<HealthCheckable>("healthCheck").toService(PostgresConnector);
-// container.bind<HealthCheckable>("healthCheck").toService(RedisConnector);
-
 container.bind<Connector>("connector").toService(KafkaConnector);
 container.bind<Connector>("connector").toService(PostgresConnector);
 container.bind<Connector>("connector").toService(RedisConnector);
@@ -39,5 +35,6 @@ container.bind<FortifyScript>("dummy").to(DummyScript);
 container.bind<FortifyScript>("import").to(LeaderboardImportService);
 container.bind<FortifyScript>("clean_db").to(DBCleanupScript);
 container.bind<FortifyScript>("broadcast").to(BroadcastNotificationScript);
+container.bind<FortifyScript>("twitch_online").to(TwitchOnlineScript);
 
 export { container };
