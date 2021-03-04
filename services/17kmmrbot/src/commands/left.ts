@@ -101,24 +101,19 @@ export class LeftCommand implements TwitchCommand {
 			}
 		}
 
-		try {
-			const { left, total } = unitsLeftInPool({
-				mode,
-				pool,
-				unitCodeName: codeName,
-			});
-
-			return client.say(
-				channel,
-				`${unitMappings[codeName].displayName}: ${left}/${total} units left`,
-			);
-		} catch (e) {
-			return client.say(
-				channel,
-				`${unitMappings[codeName].displayName}: ${
-					(e as Error).message
-				}`,
-			);
+		if (!codeName) {
+			await client.say(channel, `No unit called ${unitName} found`);
 		}
+
+		const { left, total } = unitsLeftInPool({
+			mode,
+			pool,
+			unitCodeName: codeName,
+		});
+
+		return client.say(
+			channel,
+			`${unitMappings[codeName].displayName}: ${left}/${total} units left`,
+		);
 	}
 }
