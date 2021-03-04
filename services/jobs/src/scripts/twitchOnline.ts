@@ -6,7 +6,7 @@ import { User } from "@shared/db/entities/user";
 import fetch from "node-fetch";
 import { Secrets } from "../secrets";
 import { TwitchStreamsResponse } from "../definitions/twitchResponse";
-import { Gauge, Registry } from "prom-client";
+import { Gauge, Registry, Summary } from "prom-client";
 import { pushToPrometheusGateway } from "../utils/prometheus";
 import { servicePrefix } from "@shared/services/metrics";
 
@@ -33,9 +33,9 @@ export class TwitchOnlineScript implements FortifyScript {
 		});
 		const end = totalDuration.startTimer();
 
-		const gauge = new Gauge({
+		const summary = new Summary({
 			name: `${servicePrefix}_twitch_api_response_time`,
-			help: "Gauge tracking response time of twitch api",
+			help: "Summary tracking response time of twitch api",
 			registers: [this.register],
 		});
 
@@ -50,7 +50,7 @@ export class TwitchOnlineScript implements FortifyScript {
 				getStreamStatus(
 					streamer,
 					this.secrets.secrets.twitchOauth.clientID,
-					gauge,
+					summary,
 				),
 			),
 		);
@@ -74,15 +74,17 @@ export class TwitchOnlineScript implements FortifyScript {
 		end();
 
 		pushToPrometheusGateway(this.register, this.logger);
+
+		this.logger.info("Completed twitch online updating script");
 	}
 }
 
 const getStreamStatus = (
 	user: User,
 	clientID: string,
-	gauge: Gauge<string>,
+	summary: Summary<string>,
 ) => {
-	const end = gauge.startTimer();
+	const end = summary.startTimer();
 
 	return fetch(`https://api.twitch.tv/kraken/streams/${user.twitchId}`, {
 		method: "GET",
