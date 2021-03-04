@@ -102,7 +102,7 @@ export class LeftCommand implements TwitchCommand {
 		}
 
 		if (!codeName) {
-			await client.say(channel, `No unit called ${unitName} found`);
+			return client.say(channel, `No unit called "${unitName}" found`);
 		}
 
 		const { left, total } = unitsLeftInPool({
