@@ -26,12 +26,18 @@ export class TwitchOnlineScript implements FortifyScript {
 	async handler() {
 		this.logger.info("Started twitch online updating script");
 
-		const gauge = new Gauge({
+		const totalDuration = new Gauge({
 			name: `${servicePrefix}_twitch_online_check`,
 			help: "Gauge tracking duration of twitch online checks",
 			registers: [this.register],
 		});
-		const end = gauge.startTimer();
+		const end = totalDuration.startTimer();
+
+		const gauge = new Gauge({
+			name: `${servicePrefix}_twitch_api_response_time`,
+			help: "Gauge tracking response time of twitch api",
+			registers: [this.register],
+		});
 
 		const userRepo = this.postgres.getUserRepo();
 		const query = userRepo
@@ -44,7 +50,7 @@ export class TwitchOnlineScript implements FortifyScript {
 				getStreamStatus(
 					streamer,
 					this.secrets.secrets.twitchOauth.clientID,
-					this.register,
+					gauge,
 				),
 			),
 		);
@@ -71,12 +77,11 @@ export class TwitchOnlineScript implements FortifyScript {
 	}
 }
 
-const getStreamStatus = (user: User, clientID: string, register: Registry) => {
-	const gauge = new Gauge({
-		name: `${servicePrefix}_twitch_api_response_time`,
-		help: "Gauge tracking response time of twitch api",
-		registers: [register],
-	});
+const getStreamStatus = (
+	user: User,
+	clientID: string,
+	gauge: Gauge<string>,
+) => {
 	const end = gauge.startTimer();
 
 	return fetch(`https://api.twitch.tv/kraken/streams/${user.twitchId}`, {
