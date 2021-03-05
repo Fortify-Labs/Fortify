@@ -11,7 +11,7 @@ import classNames from "classnames";
 import { getCookie } from "utils/cookie";
 import { decode } from "js-base64";
 import { Context, PermissionScope } from "@shared/definitions/context";
-import { mapRankTierToName } from "@shared/ranks";
+import { mapRankTierToAssetName, mapRankTierToName } from "@shared/ranks";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSteam, faTwitch } from "@fortawesome/free-brands-svg-icons";
@@ -25,6 +25,7 @@ import { useUpdateProfileMutation } from "gql/UpdateProfile.graphql";
 import { MmrRating, useProfileQuery } from "gql/Profile.graphql";
 import { useAuthenticatedQuery } from "gql/Authenticated.graphql";
 import { prettyError } from "utils/error";
+import Image from "next/image";
 
 interface ProfilePageProps {
 	context?: Context;
@@ -94,11 +95,16 @@ const Profile: NextPage<ProfilePageProps> = ({ context }) => {
 					<div className="columns">
 						<div className="column is-narrow is-2">
 							<div className="box">
-								<VStack>
-									<HStack style={{ alignItems: "center" }}>
+								<VStack style={{ width: "100%" }}>
+									<VStack
+										style={{
+											alignItems: "center",
+											textAlign: "center",
+										}}
+									>
 										<figure
 											className="image is-96x96"
-											style={{ marginRight: "2rem" }}
+											style={{ margin: "auto" }}
 										>
 											<img
 												className="is-rounded"
@@ -107,14 +113,87 @@ const Profile: NextPage<ProfilePageProps> = ({ context }) => {
 													"https://bulma.io/images/placeholders/128x128.png"
 												}
 											/>
-										</figure>
-										Username: {profile?.name} <br /> <br />
-										Standard: {standardDescription} <br />
-										Turbo: {turboDescription}
+										</figure>{" "}
+										<br />
+										{profile?.name} <br /> <br />
+										<HStack style={{ width: "100%" }}>
+											<VStack
+												style={{
+													textAlign: "center",
+													width: "50%",
+												}}
+											>
+												Standard
+												<br />
+												<Image
+													src={`/underlords/panorama/images/mini_profile/${mapRankTierToAssetName(
+														profile?.standardRating
+															?.rankTier ?? 0
+													)}`}
+													loading="lazy"
+													width="68"
+													height="100"
+													layout="responsive"
+												/>
+												{(profile?.standardRating
+													?.rank ?? 0) > 0 && (
+													<p>
+														Rank:{" "}
+														{
+															profile
+																?.standardRating
+																?.rank
+														}
+													</p>
+												)}
+												{(profile?.standardRating
+													?.mmr ?? 0) > 0 && (
+													<p>
+														MMR:{" "}
+														{
+															profile
+																?.standardRating
+																?.mmr
+														}
+													</p>
+												)}
+											</VStack>
+											<VStack style={{ width: "50%" }}>
+												Turbo
+												<Image
+													src={`/underlords/panorama/images/mini_profile/${mapRankTierToAssetName(
+														profile?.turboRating
+															?.rankTier ?? 0
+													)}`}
+													loading="lazy"
+													width="68"
+													height="100"
+													layout="responsive"
+												/>
+												{(profile?.turboRating?.rank ??
+													0) > 0 && (
+													<p>
+														Rank:{" "}
+														{
+															profile?.turboRating
+																?.rank
+														}
+													</p>
+												)}
+												{(profile?.turboRating?.mmr ??
+													0) > 0 && (
+													<p>
+														MMR:{" "}
+														{
+															profile?.turboRating
+																?.mmr
+														}
+													</p>
+												)}
+											</VStack>
+										</HStack>
 										<hr />
-									</HStack>
-
-									<hr />
+									</VStack>
 
 									<div className="content">
 										{(context?.user.id === steamid ||
@@ -164,6 +243,8 @@ const Profile: NextPage<ProfilePageProps> = ({ context }) => {
 											<FontAwesomeIcon
 												icon={faSteam}
 												size="1x"
+												width="1em"
+												height="1em"
 											/>{" "}
 											Steam
 										</a>{" "}
@@ -181,6 +262,8 @@ const Profile: NextPage<ProfilePageProps> = ({ context }) => {
 													<FontAwesomeIcon
 														icon={faTwitch}
 														size="1x"
+														width="1em"
+														height="1em"
 													/>{" "}
 													Twitch
 												</a>

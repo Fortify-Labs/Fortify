@@ -1,18 +1,24 @@
-query ProfileMatch($steamid: ID) {
+query ProfileMatch($steamid: ID, $limit: Int, $offset: Int) {
 	profile(steamid: $steamid) {
 		steamid
 
-		matches {
-			matchSlotID
+		matches(limit: $limit, offset: $offset) {
+			total
+			limit
+			offset
 
-			finalPlace
+			slots {
+				matchSlotID
 
-			created
-			updated
+				finalPlace
 
-			match {
-				id
-				averageMMR
+				created
+				updated
+
+				match {
+					id
+					averageMMR
+				}
 			}
 		}
 	}

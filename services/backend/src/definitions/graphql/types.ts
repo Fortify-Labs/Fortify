@@ -9,7 +9,7 @@ export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K]
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
 export type RequireFields<T, K extends keyof T> = { [X in Exclude<keyof T, K>]?: T[X] } & { [P in K]-?: NonNullable<T[P]> };
-// Generated on 2021-03-02T13:06:17+01:00
+// Generated on 2021-03-05T15:25:17+01:00
 
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
@@ -259,7 +259,7 @@ export type PublicPlayerState = {
   reroll_cost_modifier: Scalars['Int'];
   win_streak: Scalars['Int'];
   lose_streak: Scalars['Int'];
-  rank_tier: Scalars['Int'];
+  rank_tier?: Maybe<Scalars['Int']>;
   disconnected_time: Scalars['Int'];
   platform: Scalars['Int'];
   event_tier: Scalars['Int'];
@@ -428,7 +428,7 @@ export type UserProfile = {
   standardRating?: Maybe<MmrRating>;
   turboRating?: Maybe<MmrRating>;
   duosRating?: Maybe<MmrRating>;
-  matches?: Maybe<Array<Maybe<MatchSlot>>>;
+  matches?: Maybe<MatchHistory>;
   mmrHistory?: Maybe<Array<Maybe<MmrHistory>>>;
 };
 
@@ -444,6 +444,14 @@ export type UserProfileMmrHistoryArgs = {
   endDate?: Maybe<Scalars['Date']>;
   duration?: Maybe<Scalars['Int']>;
   mode?: Maybe<GameMode>;
+};
+
+export type MatchHistory = {
+  __typename?: 'MatchHistory';
+  total?: Maybe<Scalars['Int']>;
+  limit?: Maybe<Scalars['Int']>;
+  offset?: Maybe<Scalars['Int']>;
+  slots?: Maybe<Array<Maybe<MatchSlot>>>;
 };
 
 export type MmrRating = {
@@ -583,6 +591,7 @@ export type ResolversTypes = ResolversObject<{
   Synergy: ResolverTypeWrapper<Synergy>;
   ItemSlot: ResolverTypeWrapper<ItemSlot>;
   UserProfile: ResolverTypeWrapper<UserProfile>;
+  MatchHistory: ResolverTypeWrapper<MatchHistory>;
   MMRRating: ResolverTypeWrapper<MmrRating>;
   MMRHistory: ResolverTypeWrapper<MmrHistory>;
   ProfileInput: ProfileInput;
@@ -625,6 +634,7 @@ export type ResolversParentTypes = ResolversObject<{
   Synergy: Synergy;
   ItemSlot: ItemSlot;
   UserProfile: UserProfile;
+  MatchHistory: MatchHistory;
   MMRRating: MmrRating;
   MMRHistory: MmrHistory;
   ProfileInput: ProfileInput;
@@ -766,7 +776,7 @@ export type PublicPlayerStateResolvers<ContextType = Context, ParentType extends
   reroll_cost_modifier?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   win_streak?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   lose_streak?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  rank_tier?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  rank_tier?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   disconnected_time?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   platform?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   event_tier?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -930,8 +940,16 @@ export type UserProfileResolvers<ContextType = Context, ParentType extends Resol
   standardRating?: Resolver<Maybe<ResolversTypes['MMRRating']>, ParentType, ContextType>;
   turboRating?: Resolver<Maybe<ResolversTypes['MMRRating']>, ParentType, ContextType>;
   duosRating?: Resolver<Maybe<ResolversTypes['MMRRating']>, ParentType, ContextType>;
-  matches?: Resolver<Maybe<Array<Maybe<ResolversTypes['MatchSlot']>>>, ParentType, ContextType, RequireFields<UserProfileMatchesArgs, never>>;
+  matches?: Resolver<Maybe<ResolversTypes['MatchHistory']>, ParentType, ContextType, RequireFields<UserProfileMatchesArgs, never>>;
   mmrHistory?: Resolver<Maybe<Array<Maybe<ResolversTypes['MMRHistory']>>>, ParentType, ContextType, RequireFields<UserProfileMmrHistoryArgs, never>>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+}>;
+
+export type MatchHistoryResolvers<ContextType = Context, ParentType extends ResolversParentTypes['MatchHistory'] = ResolversParentTypes['MatchHistory']> = ResolversObject<{
+  total?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  limit?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  offset?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  slots?: Resolver<Maybe<Array<Maybe<ResolversTypes['MatchSlot']>>>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -979,6 +997,7 @@ export type Resolvers<ContextType = Context> = ResolversObject<{
   Synergy?: SynergyResolvers<ContextType>;
   ItemSlot?: ItemSlotResolvers<ContextType>;
   UserProfile?: UserProfileResolvers<ContextType>;
+  MatchHistory?: MatchHistoryResolvers<ContextType>;
   MMRRating?: MmrRatingResolvers<ContextType>;
   MMRHistory?: MmrHistoryResolvers<ContextType>;
 }>;

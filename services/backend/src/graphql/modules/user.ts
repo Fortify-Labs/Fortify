@@ -69,7 +69,7 @@ export class UserModule implements GQLModule {
 				"""
 				limit: Int
 				offset: Int
-			): [MatchSlot]
+			): MatchHistory
 			mmrHistory(
 				startDate: Date
 				endDate: Date
@@ -79,6 +79,14 @@ export class UserModule implements GQLModule {
 				duration: Int
 				mode: GameMode = STANDARD
 			): [MMRHistory]
+		}
+
+		type MatchHistory {
+			total: Int
+			limit: Int
+			offset: Int
+
+			slots: [MatchSlot]
 		}
 
 		type MMRRating {
@@ -178,12 +186,13 @@ export class UserModule implements GQLModule {
 						);
 					}
 
+					// If limit is below 51, use the supplied limit otherwise use a limit of 50
 					const limit =
 						(args.limit ?? 0) <= 50 ? args.limit ?? 25 : 50;
 					const offset = args.offset ?? 0;
 
 					const matchSlotRepo = await postgres.getMatchSlotRepo();
-					const slots = await matchSlotRepo.find({
+					const [slots, count] = await matchSlotRepo.findAndCount({
 						where: { user: { steamid: parent.steamid } },
 						take: limit,
 						skip: offset,
@@ -193,16 +202,27 @@ export class UserModule implements GQLModule {
 						relations: ["match"],
 					});
 
-					return slots.map(
-						({ match, slot, finalPlace, created, updated }) => ({
-							matchSlotID: match.id + "#" + slot,
-							slot,
-							finalPlace,
-							user: parent,
-							created,
-							updated,
-						}),
-					);
+					return {
+						total: count,
+						limit,
+						offset,
+						slots: slots.map(
+							({
+								match,
+								slot,
+								finalPlace,
+								created,
+								updated,
+							}) => ({
+								matchSlotID: match.id + "#" + slot,
+								slot,
+								finalPlace,
+								user: parent,
+								created,
+								updated,
+							}),
+						),
+					};
 				},
 				async mmrHistory({ steamid, publicProfile }, args, context) {
 					const allowed =
