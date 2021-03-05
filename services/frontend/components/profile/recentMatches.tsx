@@ -1,63 +1,42 @@
-import { FunctionComponent, useState } from "react";
+import { FunctionComponent } from "react";
 import { dateFormatter } from "utils/date";
 import { prettyError } from "utils/error";
-import {
-	ProfileMatchQuery,
-	useProfileMatchQuery,
-} from "../../gql/ProfileMatch.graphql";
+import { useProfileMatchQuery } from "../../gql/ProfileMatch.graphql";
 import Link from "next/link";
 import classNames from "classnames";
-import { ApolloQueryResult } from "@apollo/client";
+import { useRouter } from "next/router";
 
 export const RecentMatchesTable: FunctionComponent<{
 	steamid?: string;
 }> = ({ steamid }) => {
-	// TODO: Get current page from URL
+	const router = useRouter();
+	const { page, id: queryID } = router.query;
+	const id = queryID?.toString();
+	const pageString = page?.toString();
 
 	// --- Hooks ---
-	// const [limit, setLimit] = useState(50);
 	const limit = 50;
-	const [offset, setOffset] = useState(0);
+	let offset = 0;
+	let currentPage = 1;
+	try {
+		const parsedPage = parseInt(pageString);
+
+		if (!isNaN(parsedPage) && parsedPage > 0) {
+			currentPage = parsedPage;
+			offset = (currentPage - 1) * limit;
+		}
+	} catch (e) {}
 
 	// --- Data fetching ---
-	const initialQueryResult = useProfileMatchQuery({
-		variables: { steamid, limit, offset: 0 },
+	const { data, loading, error, previousData } = useProfileMatchQuery({
+		variables: { steamid, limit, offset },
 		errorPolicy: "all",
 	});
-	const { fetchMore } = initialQueryResult;
-	const [{ data, loading, error, networkStatus }, setQueryResult] = useState<
-		ApolloQueryResult<ProfileMatchQuery | undefined>
-	>(initialQueryResult);
 
-	const loadOffset = async (newOffset: number) => {
-		setOffset(newOffset);
-		setQueryResult({
-			loading: true,
-			data: {
-				profile: {
-					steamid: data?.profile?.steamid ?? "",
-					matches: {
-						total: data?.profile?.matches?.total ?? 0,
-					},
-				},
-			},
-			networkStatus,
-		});
-		const result = await fetchMore({
-			variables: {
-				steamid,
-				limit,
-				offset: newOffset,
-			},
-		});
-		setQueryResult(result);
-	};
-
-	const { profile } = data ?? {};
+	const { profile } = data ?? previousData ?? {};
 	const { matches } = profile ?? {};
 
 	// --- UI variables ---
-	const currentPage = Math.ceil((limit + (offset ?? 0)) / limit);
 	const totalPages = Math.ceil((matches?.total ?? 0) / limit);
 
 	return (
@@ -128,37 +107,57 @@ export const RecentMatchesTable: FunctionComponent<{
 				role="navigation"
 				aria-label="pagination"
 			>
-				<a
-					className="pagination-previous"
-					onClick={async () => {
-						if (currentPage > 1) {
-							await loadOffset(offset - limit);
-						}
+				<Link
+					href={{
+						pathname: "/profile/[[...id]]",
+						query: {
+							id,
+							tab: "matches",
+							page: currentPage - 1 >= 1 ? currentPage - 1 : 1,
+						},
 					}}
+					passHref
 				>
-					Previous
-				</a>
-				<a
-					className="pagination-next"
-					onClick={async () => {
-						if (currentPage < totalPages) {
-							await loadOffset(offset + limit);
-						}
+					<a className="pagination-previous">Previous</a>
+				</Link>
+				<Link
+					href={{
+						pathname: "/profile/[[...id]]",
+						query: {
+							id,
+							tab: "matches",
+							page:
+								currentPage + 1 <= totalPages
+									? currentPage + 1
+									: totalPages,
+						},
 					}}
+					passHref
 				>
-					Next page
-				</a>
+					<a className="pagination-next">Next page</a>
+				</Link>
 				<ul className="pagination-list">
 					<li>
-						<a
-							className={classNames("pagination-link", {
-								"is-current": currentPage == 1,
-							})}
-							aria-label="Goto page 1"
-							onClick={async () => await loadOffset(0)}
+						<Link
+							href={{
+								pathname: "/profile/[[...id]]",
+								query: {
+									id,
+									tab: "matches",
+									page: 1,
+								},
+							}}
+							passHref
 						>
-							1
-						</a>
+							<a
+								className={classNames("pagination-link", {
+									"is-current": currentPage == 1,
+								})}
+								aria-label="Goto page 1"
+							>
+								1
+							</a>
+						</Link>
 					</li>
 					{
 						// Only show pagination ellipsis if currentPage is above 3
@@ -172,42 +171,72 @@ export const RecentMatchesTable: FunctionComponent<{
 					)}
 					{currentPage - 1 > 1 && (
 						<li>
-							<a
-								className="pagination-link"
-								aria-label={`Goto page ${currentPage - 1}`}
-								onClick={async () =>
-									await loadOffset((currentPage - 2) * limit)
-								}
+							<Link
+								href={{
+									pathname: "/profile/[[...id]]",
+									query: {
+										id,
+										tab: "matches",
+										page: currentPage - 1,
+									},
+								}}
+								passHref
 							>
-								{currentPage - 1}
-							</a>
+								<a
+									className="pagination-link"
+									aria-label={`Goto page ${currentPage - 1}`}
+								>
+									{currentPage - 1}
+								</a>
+							</Link>
 						</li>
 					)}
 					{currentPage > 1 && currentPage < totalPages && (
 						<li>
-							<a
-								className="pagination-link is-current"
-								aria-label={`Page ${currentPage}`}
-								aria-current="page"
+							<Link
+								href={{
+									pathname: "/profile/[[...id]]",
+									query: {
+										id,
+										tab: "matches",
+										page: currentPage,
+									},
+								}}
+								passHref
 							>
-								{currentPage}
-							</a>
+								<a
+									className="pagination-link is-current"
+									aria-label={`Page ${currentPage}`}
+									aria-current="page"
+								>
+									{currentPage}
+								</a>
+							</Link>
 						</li>
 					)}
 					{currentPage + 1 < totalPages && (
 						<li>
-							<a
-								className="pagination-link"
-								aria-label={`Goto page ${currentPage + 1}`}
-								onClick={async () =>
-									await loadOffset(currentPage * limit)
-								}
+							<Link
+								href={{
+									pathname: "/profile/[[...id]]",
+									query: {
+										id,
+										tab: "matches",
+										page: currentPage + 1,
+									},
+								}}
+								passHref
 							>
-								{currentPage + 1}
-							</a>
+								<a
+									className="pagination-link"
+									aria-label={`Goto page ${currentPage + 1}`}
+								>
+									{currentPage + 1}
+								</a>
+							</Link>
 						</li>
 					)}
-					{currentPage + 1 < totalPages && (
+					{currentPage + 2 < totalPages && (
 						<li>
 							<span className="pagination-ellipsis">
 								&hellip;
@@ -216,17 +245,26 @@ export const RecentMatchesTable: FunctionComponent<{
 					)}
 					{totalPages > 1 && (
 						<li>
-							<a
-								className={classNames("pagination-link", {
-									"is-current": currentPage == totalPages,
-								})}
-								aria-label={`Goto page ${totalPages}`}
-								onClick={async () =>
-									await loadOffset((totalPages - 1) * limit)
-								}
+							<Link
+								href={{
+									pathname: "/profile/[[...id]]",
+									query: {
+										id,
+										tab: "matches",
+										page: totalPages,
+									},
+								}}
+								passHref
 							>
-								{totalPages}
-							</a>
+								<a
+									className={classNames("pagination-link", {
+										"is-current": currentPage == totalPages,
+									})}
+									aria-label={`Goto page ${totalPages}`}
+								>
+									{totalPages}
+								</a>
+							</Link>
 						</li>
 					)}
 				</ul>
