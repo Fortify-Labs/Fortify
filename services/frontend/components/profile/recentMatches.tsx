@@ -1,9 +1,13 @@
 import { FunctionComponent, useState } from "react";
 import { dateFormatter } from "utils/date";
 import { prettyError } from "utils/error";
-import { useProfileMatchQuery } from "../../gql/ProfileMatch.graphql";
+import {
+	ProfileMatchQuery,
+	useProfileMatchQuery,
+} from "../../gql/ProfileMatch.graphql";
 import Link from "next/link";
 import classNames from "classnames";
+import { ApolloQueryResult } from "@apollo/client";
 
 export const RecentMatchesTable: FunctionComponent<{
 	steamid?: string;
@@ -16,38 +20,69 @@ export const RecentMatchesTable: FunctionComponent<{
 	const [offset, setOffset] = useState(0);
 
 	// --- Data fetching ---
-	const { data, loading, error } = useProfileMatchQuery({
-		variables: { steamid, limit, offset },
+	const initialQueryResult = useProfileMatchQuery({
+		variables: { steamid, limit, offset: 0 },
 		errorPolicy: "all",
 	});
+	const { fetchMore } = initialQueryResult;
+	const [{ data, loading, error, networkStatus }, setQueryResult] = useState<
+		ApolloQueryResult<ProfileMatchQuery | undefined>
+	>(initialQueryResult);
+
+	const loadOffset = async (newOffset: number) => {
+		setOffset(newOffset);
+		setQueryResult({
+			loading: true,
+			data: {
+				profile: {
+					steamid: data?.profile?.steamid ?? "",
+					matches: {
+						total: data?.profile?.matches?.total ?? 0,
+					},
+				},
+			},
+			networkStatus,
+		});
+		const result = await fetchMore({
+			variables: {
+				steamid,
+				limit,
+				offset: newOffset,
+			},
+		});
+		setQueryResult(result);
+	};
+
 	const { profile } = data ?? {};
 	const { matches } = profile ?? {};
 
 	// --- UI variables ---
-	const currentPage = Math.ceil(
-		((matches?.limit ?? 0) + (matches?.offset ?? 0)) / limit
-	);
+	const currentPage = Math.ceil((limit + (offset ?? 0)) / limit);
 	const totalPages = Math.ceil((matches?.total ?? 0) / limit);
 
 	return (
 		<>
-			{loading && <p>Loading...</p>}
 			{error && prettyError(error)}
 
-			<table className="table is-fullwidth is-hoverable">
-				<thead>
-					<tr>
-						<th>Placement</th>
-						<th>Duration</th>
-						<th>Average MMR</th>
-						<th>Date</th>
-						<th></th>
-					</tr>
-				</thead>
-				<tbody>
-					{!loading &&
-						!error &&
-						matches?.slots?.map((match) => {
+			{loading && (
+				<div className="loader-wrapper is-active">
+					<div className="loader is-loading"></div>
+				</div>
+			)}
+
+			{!loading && !error && matches != null && (
+				<table className="table is-fullwidth is-hoverable">
+					<thead>
+						<tr>
+							<th>Placement</th>
+							<th>Duration</th>
+							<th>Average MMR</th>
+							<th>Date</th>
+							<th></th>
+						</tr>
+					</thead>
+					<tbody>
+						{matches.slots?.map((match) => {
 							const updated = new Date(match?.updated ?? 0);
 							const created = new Date(match?.created ?? 0);
 
@@ -82,15 +117,11 @@ export const RecentMatchesTable: FunctionComponent<{
 								</tr>
 							);
 						})}
-				</tbody>
-			</table>
+					</tbody>
+				</table>
+			)}
 
-			<p>
-				Page{" "}
-				<b>
-					{currentPage} of {totalPages}
-				</b>
-			</p>
+			<br />
 
 			<nav
 				className="pagination"
@@ -99,9 +130,9 @@ export const RecentMatchesTable: FunctionComponent<{
 			>
 				<a
 					className="pagination-previous"
-					onClick={() => {
+					onClick={async () => {
 						if (currentPage > 1) {
-							setOffset(offset - limit);
+							await loadOffset(offset - limit);
 						}
 					}}
 				>
@@ -109,9 +140,9 @@ export const RecentMatchesTable: FunctionComponent<{
 				</a>
 				<a
 					className="pagination-next"
-					onClick={() => {
+					onClick={async () => {
 						if (currentPage < totalPages) {
-							setOffset(offset + limit);
+							await loadOffset(offset + limit);
 						}
 					}}
 				>
@@ -124,14 +155,15 @@ export const RecentMatchesTable: FunctionComponent<{
 								"is-current": currentPage == 1,
 							})}
 							aria-label="Goto page 1"
+							onClick={async () => await loadOffset(0)}
 						>
 							1
 						</a>
 					</li>
 					{
-						// Only show pagination ellipsis if currentPage is above 2
+						// Only show pagination ellipsis if currentPage is above 3
 					}
-					{currentPage > 2 && (
+					{currentPage > 3 && (
 						<li>
 							<span className="pagination-ellipsis">
 								&hellip;
@@ -143,6 +175,9 @@ export const RecentMatchesTable: FunctionComponent<{
 							<a
 								className="pagination-link"
 								aria-label={`Goto page ${currentPage - 1}`}
+								onClick={async () =>
+									await loadOffset((currentPage - 2) * limit)
+								}
 							>
 								{currentPage - 1}
 							</a>
@@ -164,6 +199,9 @@ export const RecentMatchesTable: FunctionComponent<{
 							<a
 								className="pagination-link"
 								aria-label={`Goto page ${currentPage + 1}`}
+								onClick={async () =>
+									await loadOffset(currentPage * limit)
+								}
 							>
 								{currentPage + 1}
 							</a>
@@ -183,6 +221,9 @@ export const RecentMatchesTable: FunctionComponent<{
 									"is-current": currentPage == totalPages,
 								})}
 								aria-label={`Goto page ${totalPages}`}
+								onClick={async () =>
+									await loadOffset((totalPages - 1) * limit)
+								}
 							>
 								{totalPages}
 							</a>
