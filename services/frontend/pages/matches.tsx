@@ -15,6 +15,7 @@ const Matches = () => {
 			limit: 50,
 			offset: 0,
 		},
+		errorPolicy: "all",
 	});
 
 	return (
