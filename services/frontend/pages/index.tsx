@@ -15,8 +15,6 @@ import { useLiveStreamsQuery } from "gql/LiveStreams.graphql";
 import { useCurrentMatchesQuery } from "gql/CurrentMatches.graphql";
 import { RecentMatchesTable } from "components/profile/recentMatches";
 
-const { NEXT_PUBLIC_URL, NEXT_PUBLIC_COOKIE_DOMAIN } = process.env;
-
 const Index = () => {
 	const { data } = useAuthenticatedQuery();
 	const { authenticated, user } = data?.authenticated ?? {};
@@ -104,8 +102,10 @@ const Index = () => {
 							>
 								<iframe
 									src={encodeURI(
-										`https://embed.twitch.tv?channel=${selectedStream}&height=100%&layout=video&parent=${NEXT_PUBLIC_COOKIE_DOMAIN}&referrer=${encodeURI(
-											NEXT_PUBLIC_URL ?? ""
+										`https://embed.twitch.tv?channel=${selectedStream}&height=100%&layout=video&parent=${
+											document.location.host
+										}&referrer=${encodeURI(
+											document.location.origin
 										)}&width=100%`
 									)}
 									scrolling="no"

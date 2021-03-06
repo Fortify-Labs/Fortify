@@ -8,13 +8,6 @@ import { captureTwitchException } from "../lib/sentryUtils";
 import { Logger } from "@shared/logger";
 import { StateService } from "@shared/services/state";
 
-const {
-	FEATURE_NEW_MATCH = "false",
-	FEATURE_NEW_MATCH_CHANNELS = "",
-} = process.env;
-
-const CHANNEL_LIST = FEATURE_NEW_MATCH_CHANNELS.split(",");
-
 @injectable()
 export class MatchCommand implements TwitchCommand {
 	constructor(
@@ -34,41 +27,29 @@ export class MatchCommand implements TwitchCommand {
 		message: string,
 	): Promise<unknown> {
 		try {
-			if (
-				FEATURE_NEW_MATCH === "true" &&
-				CHANNEL_LIST.includes(channel)
-			) {
-				const user = await this.extractorService.getUser(channel);
-				const matchID = await this.stateService.getUserMatchID(
+			const user = await this.extractorService.getUser(channel);
+			const matchID = await this.stateService.getUserMatchID(
+				user.steamid,
+			);
+
+			if (matchID) {
+				await client.say(
+					channel,
+					`https://fortify.gg/match/${matchID}`,
+				);
+			} else {
+				const userCache = await this.stateService.getUserCache(
 					user.steamid,
 				);
 
-				if (matchID) {
+				if (Object.values(userCache.players).length > 0) {
 					await client.say(
 						channel,
-						`https://fortify.gg/match/${matchID}`,
+						"Collecting game data, please try again in a little bit",
 					);
 				} else {
-					const userCache = await this.stateService.getUserCache(
-						user.steamid,
-					);
-
-					if (Object.values(userCache.players).length > 0) {
-						await client.say(
-							channel,
-							"Collecting game data, please try again in a little bit",
-						);
-					} else {
-						await client.say(channel, "No match detected yet");
-					}
+					await client.say(channel, "No match detected yet");
 				}
-			} else {
-				const user = await this.extractorService.getUser(channel);
-
-				await client.say(
-					channel,
-					`https://fortify.gg/lobby/${user.steamid}`,
-				);
 			}
 		} catch (e) {
 			const exceptionID = captureTwitchException(
