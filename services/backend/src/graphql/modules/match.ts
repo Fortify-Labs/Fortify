@@ -466,7 +466,7 @@ export class MatchModule implements GQLModule {
 					const [matchID, slot] = parent.matchSlotID.split("#");
 
 					const matchSlotRepo = await postgres.getMatchSlotRepo();
-					const matchSlot = await matchSlotRepo.findOneOrFail({
+					const matchSlot = await matchSlotRepo.findOne({
 						where: {
 							match: { id: matchID },
 							slot,
@@ -474,7 +474,7 @@ export class MatchModule implements GQLModule {
 						relations: ["user"],
 					});
 
-					return matchSlot.user ?? null;
+					return matchSlot?.user ?? null;
 				},
 			},
 			MatchPlayerSnapshot: {
