@@ -158,6 +158,7 @@ const Index = () => {
 							// background: "#343c3d",
 							textAlign: "center",
 							height: "100%",
+							overflowX: "auto",
 						}}
 					>
 						<h1 className="title">Your recent matches</h1>
@@ -212,7 +213,7 @@ const Index = () => {
 
 					<div
 						className="column is-6"
-						style={{ textAlign: "center" }}
+						style={{ textAlign: "center", overflowX: "auto" }}
 					>
 						<h1 className="title">Current live matches</h1>
 						<table className="table is-fullwidth is-hoverable">

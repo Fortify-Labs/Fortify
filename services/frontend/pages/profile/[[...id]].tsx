@@ -369,7 +369,10 @@ const Profile: NextPage<ProfilePageProps> = ({ context }) => {
 									</ul>
 								</div>
 
-								<div className="content">
+								<div
+									className="content"
+									style={{ overflowX: "auto" }}
+								>
 									{tabContents[tab]}
 								</div>
 							</div>
