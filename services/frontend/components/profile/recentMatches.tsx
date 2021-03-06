@@ -5,6 +5,7 @@ import { useProfileMatchQuery } from "../../gql/ProfileMatch.graphql";
 import Link from "next/link";
 import classNames from "classnames";
 import { useRouter } from "next/router";
+import { LoadingSpinner } from "components/loader";
 
 export const RecentMatchesTable: FunctionComponent<{
 	steamid?: string;
@@ -43,19 +44,16 @@ export const RecentMatchesTable: FunctionComponent<{
 		<>
 			{error && prettyError(error)}
 
-			{loading && (
-				<div className="loader-wrapper is-active">
-					<div className="loader is-loading"></div>
-				</div>
-			)}
+			{loading && <LoadingSpinner />}
 
 			{!loading && !error && matches != null && (
 				<table className="table is-fullwidth is-hoverable">
 					<thead>
 						<tr>
 							<th>Placement</th>
-							<th>Duration</th>
 							<th>Average MMR</th>
+							<th>Duration</th>
+							<th>Game Mode</th>
 							<th>Date</th>
 							<th></th>
 						</tr>
@@ -71,6 +69,7 @@ export const RecentMatchesTable: FunctionComponent<{
 							return (
 								<tr key={match?.matchSlotID}>
 									<th>{match?.finalPlace}</th>
+									<td>{match?.match?.averageMMR}</td>
 									<td>
 										{!isNaN(duration) &&
 											new Date(duration)
@@ -78,7 +77,10 @@ export const RecentMatchesTable: FunctionComponent<{
 												.substr(11, 8)}{" "}
 										min
 									</td>
-									<td>{match?.match?.averageMMR}</td>
+									<td>
+										{match?.match?.mode?.toString() ??
+											"No game mode"}
+									</td>
 									<td>{dateFormatter(match?.created)}</td>
 									<td>
 										{match && match.match && (

@@ -34,6 +34,7 @@ export class GraphQL {
 		const server = new ApolloServer({
 			tracing: true,
 			playground: true,
+			introspection: true,
 			schema,
 			async context({ req, connection }) {
 				try {

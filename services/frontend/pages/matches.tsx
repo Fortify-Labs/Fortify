@@ -50,6 +50,7 @@ const Matches = () => {
 						<thead>
 							<tr>
 								<th>Average MMR</th>
+								<th>Game Mode</th>
 								<th>Duration</th>
 								<th>Notable Players</th>
 								<th></th>
@@ -85,6 +86,7 @@ const Matches = () => {
 									return (
 										<tr key={match.id}>
 											<th>{match.averageMMR}</th>
+											<th>{match.mode}</th>
 											<th>
 												{!isNaN(duration) &&
 													new Date(duration)

@@ -16,6 +16,7 @@ import {
 	LeaderboardType,
 	leaderboardTypeToNumber,
 } from "@shared/definitions/leaderboard";
+import { getQueryParams } from "../../util/params";
 
 export interface InfluxMMRQueryRow {
 	result: string;
@@ -186,10 +187,7 @@ export class UserModule implements GQLModule {
 						);
 					}
 
-					// If limit is below 51, use the supplied limit otherwise use a limit of 50
-					const limit =
-						(args.limit ?? 0) <= 50 ? args.limit ?? 25 : 50;
-					const offset = args.offset ?? 0;
+					const { limit, offset } = getQueryParams(args);
 
 					const matchSlotRepo = await postgres.getMatchSlotRepo();
 					const [slots, count] = await matchSlotRepo.findAndCount({

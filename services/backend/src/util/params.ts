@@ -15,6 +15,9 @@ export const getQueryParams = ({
 		offset = 0;
 	}
 
+	limit = Math.abs(limit);
+	offset = Math.abs(offset);
+
 	return {
 		limit,
 		offset,

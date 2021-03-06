@@ -18,6 +18,7 @@ query ProfileMatch($steamid: ID, $limit: Int, $offset: Int) {
 				match {
 					id
 					averageMMR
+					mode
 				}
 			}
 		}

@@ -12,9 +12,6 @@ const requestedSecrets = {
 	steamWebApi: {
 		apiKey: "",
 	},
-	influxdb: {
-		historizationToken: "",
-	},
 	postgres: {
 		password: "",
 	},

@@ -300,7 +300,29 @@ export class MatchModule implements GQLModule {
 
 					const currentMatches = await query.getMany();
 
-					return currentMatches.map(convertDbMatchToGqlMatch);
+					// Check for each match, wether a match state is stored in redis
+					// if that's the case, return the redis state
+					// otherwise map the rest of db matches
+
+					const cachedMatches: MatchState[] = [];
+					const nonCachedMatches: DbMatch[] = [];
+
+					for (const match of currentMatches) {
+						const matchState = await matchService.getMatchFromRedis(
+							match.id,
+						);
+
+						if (matchState) {
+							cachedMatches.push(matchState);
+						} else {
+							nonCachedMatches.push(match);
+						}
+					}
+
+					return [
+						...cachedMatches.map(convertMatchStateToGqlMatch),
+						...nonCachedMatches.map(convertDbMatchToGqlMatch),
+					];
 				},
 				async match(parent, { id }, context) {
 					let match: Match | undefined = undefined;
@@ -423,6 +445,9 @@ export class MatchModule implements GQLModule {
 
 					return {
 						...match,
+						mode: FortifyGameMode[
+							match.gameMode
+						].toUpperCase() as GameMode,
 						slots: match.slots.map(
 							({ slot, finalPlace, created, updated }) => ({
 								matchSlotID: matchID + "#" + slot,
@@ -483,6 +508,13 @@ const convertMatchStateToGqlMatch = (matchState: MatchState) => {
 		...matchState,
 		mode: FortifyGameMode[matchState.mode ?? 0].toUpperCase() as GameMode,
 		players: Object.values(matchState.players),
+		slots: Object.values(matchState.players).map<MatchSlot>((player) => ({
+			matchSlotID: `${matchState.id}#${player.public_player_state.player_slot}`,
+			created: matchState.created,
+			updated: matchState.updated,
+			finalPlace: player.public_player_state.final_place,
+			slot: player.public_player_state.player_slot,
+		})),
 		pool: Object.entries(matchState.pool ?? {}).reduce<PoolEntry[]>(
 			(acc, [key, value]) => {
 				const index = parseInt(key);
@@ -504,6 +536,8 @@ const convertMatchStateToGqlMatch = (matchState: MatchState) => {
 const convertDbMatchToGqlMatch = (dbMatch: DbMatch) => {
 	const match: Match = {
 		...dbMatch,
+		created: dbMatch.created,
+		updated: dbMatch.updated,
 		slots: dbMatch.slots.map<MatchSlot>((slot) => ({
 			matchSlotID: `${dbMatch.id}#${slot.slot}`,
 			created: slot.created,
