@@ -31,9 +31,10 @@ const Index = () => {
 		?.slice()
 		.sort(
 			(a, b) =>
-				(a?.standardRating?.rank ?? 0) -
-					(b?.standardRating?.rank ?? 0) ||
-				(a?.turboRating?.rank ?? 0) - (b?.turboRating?.rank ?? 0)
+				((a?.standardRating?.rank ?? 0) || 10000) -
+					((b?.standardRating?.rank ?? 0) || 1000) ||
+				((a?.turboRating?.rank ?? 0) || 1000) -
+					((b?.turboRating?.rank ?? 0) || 10000)
 		);
 	const [selectedStream, setSelectedStream] = useState("");
 
@@ -43,7 +44,7 @@ const Index = () => {
 				setSelectedStream(streams[0].twitchName.slice(1));
 			}
 		}
-	}, [streams]);
+	}, []);
 
 	const [gsiModalVisible, setGsiModalVisible] = useState(false);
 
