@@ -9,7 +9,7 @@ export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K]
 export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
 export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
 export type RequireFields<T, K extends keyof T> = { [X in Exclude<keyof T, K>]?: T[X] } & { [P in K]-?: NonNullable<T[P]> };
-// Generated on 2021-03-05T15:25:17+01:00
+// Generated on 2021-03-06T15:18:27+01:00
 
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
@@ -48,6 +48,7 @@ export type Query = {
   match?: Maybe<Match>;
   profile?: Maybe<UserProfile>;
   status?: Maybe<SystemStatus>;
+  streams?: Maybe<Array<Maybe<UserProfile>>>;
   /** Returns the current package.json version */
   version: Scalars['String'];
 };
@@ -654,6 +655,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
   match?: Resolver<Maybe<ResolversTypes['Match']>, ParentType, ContextType, RequireFields<QueryMatchArgs, 'id'>>;
   profile?: Resolver<Maybe<ResolversTypes['UserProfile']>, ParentType, ContextType, RequireFields<QueryProfileArgs, never>>;
   status?: Resolver<Maybe<ResolversTypes['SystemStatus']>, ParentType, ContextType>;
+  streams?: Resolver<Maybe<Array<Maybe<ResolversTypes['UserProfile']>>>, ParentType, ContextType>;
   version?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 }>;
 

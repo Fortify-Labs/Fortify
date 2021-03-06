@@ -12,9 +12,21 @@ query CurrentMatches($limit: Int, $offset: Int) {
 		slots {
 			matchSlotID
 			slot
+
 			user {
 				steamid
 				name
+
+				profilePicture
+
+				standardRating {
+					rankTier
+					rank
+				}
+				turboRating {
+					rankTier
+					rank
+				}
 			}
 		}
 	}

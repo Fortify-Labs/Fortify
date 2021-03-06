@@ -91,6 +91,11 @@ export class LeftCommand implements TwitchCommand {
 			}
 		}
 
+		// Easter egg
+		if (unitName.startsWith("hope")) {
+			return client.say(channel, "There's always hope");
+		}
+
 		// Change aliases to their actual names in code
 
 		let codeName = "";

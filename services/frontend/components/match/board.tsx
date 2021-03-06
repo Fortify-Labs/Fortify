@@ -62,6 +62,7 @@ export const BoardViewer: FunctionComponent<MatchComponentProps> = ({ id }) => {
 					const opponentID = opponent?.id;
 					const opponentUnitCount =
 						opponent?.public_player_state?.units?.length ?? 0;
+					const opponentHealth = opponent.public_player_state?.health;
 
 					if (opponent?.id == player?.id) {
 						opponent = undefined;
@@ -78,6 +79,7 @@ export const BoardViewer: FunctionComponent<MatchComponentProps> = ({ id }) => {
 								personaName={personaName}
 								flip={isFlipped}
 								renderUnits={opponentUnitCount > 0}
+								opponentHealth={opponentHealth}
 							/>
 						</div>
 					);

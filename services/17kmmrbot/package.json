@@ -1,6 +1,6 @@
 {
   "name": "17kmmrbot",
-  "version": "1.6.10",
+  "version": "1.6.11",
   "description": "Fortify twitch bot",
   "private": "true",
   "engines": {
@@ -25,7 +25,7 @@
     "nodemon": "^2.0.7",
     "sync-dotenv": "^2.6.2",
     "ts-node": "^9.1.1",
-    "typescript": "^4.2.2"
+    "typescript": "^4.2.3"
   },
   "scripts": {
     "check": "gts check",

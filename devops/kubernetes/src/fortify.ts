@@ -196,6 +196,10 @@ export class Fortify extends Chart {
 					value: `https://${DOMAIN}`,
 				},
 				{
+					name: "NEXT_PUBLIC_COOKIE_DOMAIN",
+					value: DOMAIN,
+				},
+				{
 					name: "NEXT_PUBLIC_GA_TRACKING_ID",
 					value: GA_TRACKING_ID,
 				},
@@ -253,7 +257,11 @@ export class Fortify extends Chart {
 				},
 				{
 					name: "NEXT_PUBLIC_URL",
-					value: "https://fortify.dev",
+					value: `https://${DOMAIN}`,
+				},
+				{
+					name: "NEXT_PUBLIC_COOKIE_DOMAIN",
+					value: DOMAIN,
 				},
 				{
 					name: "NEXT_PUBLIC_GA_TRACKING_ID",

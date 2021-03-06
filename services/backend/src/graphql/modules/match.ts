@@ -291,7 +291,8 @@ export class MatchModule implements GQLModule {
 						.createQueryBuilder()
 						.where("ended IS NULL")
 						.andWhere("created > NOW() - interval '1h'")
-						.orderBy("created", "DESC")
+						.orderBy('"averageMMR"', "DESC")
+						.addOrderBy("created", "DESC")
 						.loadAllRelationIds({
 							relations: ["slots", "slots.user"],
 						})

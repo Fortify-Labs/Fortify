@@ -5,6 +5,8 @@ import { currentSeason } from "@shared/season";
 import Image from "next/image";
 import { EquippedItemV8, ShareCodeV8 } from "underlords";
 import { ItemSlot, Maybe, Unit } from "gql/Match.graphql";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faHeart } from "@fortawesome/free-solid-svg-icons";
 
 const cellCount = 8;
 const rowCount = 8;
@@ -27,8 +29,16 @@ export const BoardComponent: FunctionComponent<{
 	opponent?: MatchPlayer;
 	flip?: boolean;
 	renderUnits?: boolean;
+	opponentHealth?: number;
 }> = React.memo(
-	({ player, personaName, opponent, flip = false, renderUnits = true }) => {
+	({
+		player,
+		personaName,
+		opponent,
+		flip = false,
+		renderUnits = true,
+		opponentHealth = 0,
+	}) => {
 		// --- Hooks ---
 		const [buttonText, setButtonText] = useState("Copy share code");
 
@@ -105,7 +115,13 @@ export const BoardComponent: FunctionComponent<{
 		return (
 			<>
 				<div style={{ marginLeft: "1em", paddingBottom: "1em" }}>
-					{personaName}
+					{personaName} - {opponentHealth}{" "}
+					<FontAwesomeIcon
+						icon={faHeart}
+						width="1em"
+						height="1em"
+						size="1x"
+					/>
 					{renderUnits && (
 						<div style={{ float: "right", marginRight: "1em" }}>
 							<button

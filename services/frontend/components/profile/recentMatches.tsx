@@ -9,14 +9,18 @@ import { LoadingSpinner } from "components/loader";
 
 export const RecentMatchesTable: FunctionComponent<{
 	steamid?: string;
-}> = ({ steamid }) => {
+	limit?: number;
+	showPagination?: boolean;
+	appendViewMoreRow?: {
+		steamID: string;
+	};
+}> = ({ steamid, limit = 50, showPagination = true, appendViewMoreRow }) => {
 	const router = useRouter();
 	const { page, id: queryID } = router.query;
 	const id = queryID?.toString();
 	const pageString = page?.toString();
 
 	// --- Hooks ---
-	const limit = 50;
 	let offset = 0;
 	let currentPage = 1;
 	try {
@@ -47,7 +51,15 @@ export const RecentMatchesTable: FunctionComponent<{
 			{loading && <LoadingSpinner />}
 
 			{!loading && !error && matches != null && (
-				<table className="table is-fullwidth is-hoverable">
+				<table
+					className="table is-fullwidth is-hoverable"
+					style={{
+						width: "100%",
+						height: "100%",
+						overflowY: "scroll",
+						overflowX: "scroll",
+					}}
+				>
 					<thead>
 						<tr>
 							<th>Placement</th>
@@ -98,80 +110,65 @@ export const RecentMatchesTable: FunctionComponent<{
 								</tr>
 							);
 						})}
+						{appendViewMoreRow && (
+							<tr>
+								<td colSpan={6}>
+									<Link
+										href={{
+											pathname: "/profile/[[...id]]",
+											query: {
+												id: appendViewMoreRow.steamID,
+											},
+										}}
+									>
+										<a>View More</a>
+									</Link>
+								</td>
+							</tr>
+						)}
 					</tbody>
 				</table>
 			)}
 
 			<br />
 
-			<nav
-				className="pagination"
-				role="navigation"
-				aria-label="pagination"
-			>
-				<Link
-					href={{
-						pathname: "/profile/[[...id]]",
-						query: {
-							id,
-							tab: "matches",
-							page: currentPage - 1 >= 1 ? currentPage - 1 : 1,
-						},
-					}}
-					passHref
+			{showPagination && (
+				<nav
+					className="pagination"
+					role="navigation"
+					aria-label="pagination"
 				>
-					<a className="pagination-previous">Previous</a>
-				</Link>
-				<Link
-					href={{
-						pathname: "/profile/[[...id]]",
-						query: {
-							id,
-							tab: "matches",
-							page:
-								currentPage + 1 <= totalPages
-									? currentPage + 1
-									: totalPages,
-						},
-					}}
-					passHref
-				>
-					<a className="pagination-next">Next page</a>
-				</Link>
-				<ul className="pagination-list">
-					<li>
-						<Link
-							href={{
-								pathname: "/profile/[[...id]]",
-								query: {
-									id,
-									tab: "matches",
-									page: 1,
-								},
-							}}
-							passHref
-						>
-							<a
-								className={classNames("pagination-link", {
-									"is-current": currentPage == 1,
-								})}
-								aria-label="Goto page 1"
-							>
-								1
-							</a>
-						</Link>
-					</li>
-					{
-						// Only show pagination ellipsis if currentPage is above 3
-					}
-					{currentPage > 3 && (
-						<li>
-							<span className="pagination-ellipsis">
-								&hellip;
-							</span>
-						</li>
-					)}
-					{currentPage - 1 > 1 && (
+					<Link
+						href={{
+							pathname: "/profile/[[...id]]",
+							query: {
+								id,
+								tab: "matches",
+								page:
+									currentPage - 1 >= 1 ? currentPage - 1 : 1,
+							},
+						}}
+						passHref
+					>
+						<a className="pagination-previous">Previous</a>
+					</Link>
+					<Link
+						href={{
+							pathname: "/profile/[[...id]]",
+							query: {
+								id,
+								tab: "matches",
+								page:
+									currentPage + 1 <= totalPages
+										? currentPage + 1
+										: totalPages,
+							},
+						}}
+						passHref
+					>
+						<a className="pagination-next">Next page</a>
+					</Link>
+					<ul className="pagination-list">
 						<li>
 							<Link
 								href={{
@@ -179,98 +176,140 @@ export const RecentMatchesTable: FunctionComponent<{
 									query: {
 										id,
 										tab: "matches",
-										page: currentPage - 1,
-									},
-								}}
-								passHref
-							>
-								<a
-									className="pagination-link"
-									aria-label={`Goto page ${currentPage - 1}`}
-								>
-									{currentPage - 1}
-								</a>
-							</Link>
-						</li>
-					)}
-					{currentPage > 1 && currentPage < totalPages && (
-						<li>
-							<Link
-								href={{
-									pathname: "/profile/[[...id]]",
-									query: {
-										id,
-										tab: "matches",
-										page: currentPage,
-									},
-								}}
-								passHref
-							>
-								<a
-									className="pagination-link is-current"
-									aria-label={`Page ${currentPage}`}
-									aria-current="page"
-								>
-									{currentPage}
-								</a>
-							</Link>
-						</li>
-					)}
-					{currentPage + 1 < totalPages && (
-						<li>
-							<Link
-								href={{
-									pathname: "/profile/[[...id]]",
-									query: {
-										id,
-										tab: "matches",
-										page: currentPage + 1,
-									},
-								}}
-								passHref
-							>
-								<a
-									className="pagination-link"
-									aria-label={`Goto page ${currentPage + 1}`}
-								>
-									{currentPage + 1}
-								</a>
-							</Link>
-						</li>
-					)}
-					{currentPage + 2 < totalPages && (
-						<li>
-							<span className="pagination-ellipsis">
-								&hellip;
-							</span>
-						</li>
-					)}
-					{totalPages > 1 && (
-						<li>
-							<Link
-								href={{
-									pathname: "/profile/[[...id]]",
-									query: {
-										id,
-										tab: "matches",
-										page: totalPages,
+										page: 1,
 									},
 								}}
 								passHref
 							>
 								<a
 									className={classNames("pagination-link", {
-										"is-current": currentPage == totalPages,
+										"is-current": currentPage == 1,
 									})}
-									aria-label={`Goto page ${totalPages}`}
+									aria-label="Goto page 1"
 								>
-									{totalPages}
+									1
 								</a>
 							</Link>
 						</li>
-					)}
-				</ul>
-			</nav>
+						{
+							// Only show pagination ellipsis if currentPage is above 3
+						}
+						{currentPage > 3 && (
+							<li>
+								<span className="pagination-ellipsis">
+									&hellip;
+								</span>
+							</li>
+						)}
+						{currentPage - 1 > 1 && (
+							<li>
+								<Link
+									href={{
+										pathname: "/profile/[[...id]]",
+										query: {
+											id,
+											tab: "matches",
+											page: currentPage - 1,
+										},
+									}}
+									passHref
+								>
+									<a
+										className="pagination-link"
+										aria-label={`Goto page ${
+											currentPage - 1
+										}`}
+									>
+										{currentPage - 1}
+									</a>
+								</Link>
+							</li>
+						)}
+						{currentPage > 1 && currentPage < totalPages && (
+							<li>
+								<Link
+									href={{
+										pathname: "/profile/[[...id]]",
+										query: {
+											id,
+											tab: "matches",
+											page: currentPage,
+										},
+									}}
+									passHref
+								>
+									<a
+										className="pagination-link is-current"
+										aria-label={`Page ${currentPage}`}
+										aria-current="page"
+									>
+										{currentPage}
+									</a>
+								</Link>
+							</li>
+						)}
+						{currentPage + 1 < totalPages && (
+							<li>
+								<Link
+									href={{
+										pathname: "/profile/[[...id]]",
+										query: {
+											id,
+											tab: "matches",
+											page: currentPage + 1,
+										},
+									}}
+									passHref
+								>
+									<a
+										className="pagination-link"
+										aria-label={`Goto page ${
+											currentPage + 1
+										}`}
+									>
+										{currentPage + 1}
+									</a>
+								</Link>
+							</li>
+						)}
+						{currentPage + 2 < totalPages && (
+							<li>
+								<span className="pagination-ellipsis">
+									&hellip;
+								</span>
+							</li>
+						)}
+						{totalPages > 1 && (
+							<li>
+								<Link
+									href={{
+										pathname: "/profile/[[...id]]",
+										query: {
+											id,
+											tab: "matches",
+											page: totalPages,
+										},
+									}}
+									passHref
+								>
+									<a
+										className={classNames(
+											"pagination-link",
+											{
+												"is-current":
+													currentPage == totalPages,
+											}
+										)}
+										aria-label={`Goto page ${totalPages}`}
+									>
+										{totalPages}
+									</a>
+								</Link>
+							</li>
+						)}
+					</ul>
+				</nav>
+			)}
 		</>
 	);
 };

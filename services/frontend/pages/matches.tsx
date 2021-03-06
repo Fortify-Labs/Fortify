@@ -4,6 +4,10 @@ import { useCurrentMatchesQuery } from "../gql/CurrentMatches.graphql";
 import { NextSeo } from "next-seo";
 import { prettyError } from "utils/error";
 import Link from "next/link";
+import { HStack } from "components/hstack";
+import { VStack } from "components/vstack";
+import Image from "next/image";
+import { mapRankTierToAssetName } from "@shared/ranks";
 
 const Matches = () => {
 	const { loading, data, error } = useCurrentMatchesQuery({
@@ -46,7 +50,7 @@ const Matches = () => {
 				</div>
 
 				<div style={{ overflowX: "auto" }}>
-					<table className="table is-fullwidth is-hoverable is-striped">
+					<table className="table is-fullwidth is-hoverable">
 						<thead>
 							<tr>
 								<th>Average MMR</th>
@@ -85,25 +89,66 @@ const Matches = () => {
 
 									return (
 										<tr key={match.id}>
-											<th>{match.averageMMR}</th>
-											<th>{match.mode}</th>
-											<th>
+											<td>{match.averageMMR}</td>
+											<td>{match.mode}</td>
+											<td>
 												{!isNaN(duration) &&
 													new Date(duration)
 														.toISOString()
 														.substr(11, 8)}{" "}
 												min
-											</th>
-											<th>
-												{match.slots?.map((slot) => {
-													const name =
-														slot?.user?.name ?? "";
-													return `${name ?? ""}${
-														name ? "; " : ""
-													}`;
-												})}
-											</th>
-											<th>
+											</td>
+											<td>
+												<HStack>
+													{match.slots?.map(
+														(slot) => {
+															const name =
+																slot?.user
+																	?.name ??
+																"";
+
+															const rating =
+																match.mode?.toLowerCase() ==
+																"normal"
+																	? slot.user
+																			?.standardRating
+																	: slot.user
+																			?.turboRating;
+
+															return (
+																<VStack
+																	key={`user_${slot.user?.steamid}`}
+																	style={{
+																		textAlign:
+																			"start",
+
+																		marginRight:
+																			"2em",
+																	}}
+																>
+																	{name}{" "}
+																	<br />
+																	<Image
+																		src={`/underlords/panorama/images/mini_profile/${mapRankTierToAssetName(
+																			rating?.rankTier ??
+																				0
+																		)}`}
+																		loading="lazy"
+																		width="68"
+																		height="100"
+																		layout="fixed"
+																	/>
+																	Rank:{" "}
+																	{
+																		rating?.rank
+																	}
+																</VStack>
+															);
+														}
+													)}
+												</HStack>
+											</td>
+											<td>
 												{match && (
 													<Link
 														href="/match/[[...id]]"
@@ -115,7 +160,7 @@ const Matches = () => {
 														<a>View Match</a>
 													</Link>
 												)}
-											</th>
+											</td>
 										</tr>
 									);
 								})}

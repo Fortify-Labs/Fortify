@@ -1,0 +1,14 @@
+query LiveStreams {
+	streams {
+		steamid
+		twitchName
+
+		standardRating {
+			rank
+		}
+
+		turboRating {
+			rank
+		}
+	}
+}

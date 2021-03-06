@@ -43,6 +43,8 @@ export class UserModule implements GQLModule {
 	typeDef = gql`
 		extend type Query {
 			profile(steamid: ID): UserProfile
+
+			streams: [UserProfile]
 		}
 
 		extend type Mutation {
@@ -126,6 +128,14 @@ export class UserModule implements GQLModule {
 					const user = await userRepo.findOneOrFail(userID);
 
 					return user;
+				},
+				streams() {
+					const userRepo = postgres.getUserRepo();
+					return userRepo.find({
+						where: {
+							twitchLive: true,
+						},
+					});
 				},
 			},
 			Mutation: {
