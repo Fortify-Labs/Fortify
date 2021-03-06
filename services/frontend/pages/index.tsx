@@ -92,21 +92,27 @@ const Index = () => {
 					</div>
 					<div
 						className="column is-6"
-						style={{ textAlign: "center", height: "100%" }}
+						style={{
+							textAlign: "center",
+							height: "100%",
+							minHeight: "30em",
+							display: "flex",
+							flexDirection: "column",
+						}}
 					>
 						<h1 className="title">Live streams:</h1>
 						{selectedStream && (
 							<div
 								id="twitch-embed"
-								style={{ width: "100%", height: "85%" }}
+								style={{
+									width: "100%",
+									height: "85%",
+									minHeight: "25em",
+								}}
 							>
 								<iframe
 									src={encodeURI(
-										`https://embed.twitch.tv?channel=${selectedStream}&height=100%&layout=video&parent=${
-											document.location.host
-										}&referrer=${encodeURI(
-											document.location.origin
-										)}&width=100%`
+										`https://embed.twitch.tv?channel=${selectedStream}&layout=video&parent=${document.location.hostname}&parent=localhost`
 									)}
 									scrolling="no"
 									allow="autoplay; fullscreen"
@@ -114,6 +120,9 @@ const Index = () => {
 									sandbox="allow-modals allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox"
 									width="100%"
 									height="100%"
+									style={{
+										minHeight: "25em",
+									}}
 								/>
 							</div>
 						)}
