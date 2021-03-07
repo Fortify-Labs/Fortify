@@ -127,7 +127,7 @@ const Index = () => {
 								/>
 							</div>
 						)}
-						{streams && streams.length && (
+						{streams && streams.length > 0 && (
 							<HStack fullWidth style={{ overflowX: "scroll" }}>
 								<p style={{ margin: "auto" }}>Live streams:</p>
 								{streams.map((stream) => (
