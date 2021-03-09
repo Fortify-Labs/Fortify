@@ -98,9 +98,9 @@ export const RecentMatchesTable: FunctionComponent<{
 										{match && match.match && (
 											<Link
 												href="/match/[[...id]]"
-												as={`/match/${
+												as={`/match/${encodeURIComponent(
 													match.match?.id ?? 0
-												}`}
+												)}`}
 												passHref
 											>
 												<a>View Match</a>

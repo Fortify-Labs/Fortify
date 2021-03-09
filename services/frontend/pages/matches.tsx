@@ -153,9 +153,9 @@ const Matches = () => {
 												{match && (
 													<Link
 														href="/match/[[...id]]"
-														as={`/match/${
+														as={`/match/${encodeURIComponent(
 															match.id ?? 0
-														}`}
+														)}`}
 														passHref
 													>
 														<a>View Match</a>
