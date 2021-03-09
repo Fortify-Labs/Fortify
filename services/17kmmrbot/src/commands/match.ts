@@ -35,7 +35,7 @@ export class MatchCommand implements TwitchCommand {
 			if (matchID) {
 				await client.say(
 					channel,
-					`https://fortify.gg/match/${matchID}`,
+					`https://fortify.gg/match/${encodeURIComponent(matchID)}`,
 				);
 			} else {
 				const userCache = await this.stateService.getUserCache(

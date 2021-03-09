@@ -78,10 +78,11 @@ export const Navbar = () => {
 								myMatchDate?.currentMatch?.id) && (
 								<NavbarLink
 									href="/match/[[...id]]"
-									as={`/match/${
+									as={`/match/${encodeURIComponent(
 										myMatchID?.currentMatchID ||
-										myMatchDate?.currentMatch?.id
-									}`}
+											myMatchDate?.currentMatch?.id ||
+											""
+									)}`}
 									value="My Lobby"
 								/>
 							)}
