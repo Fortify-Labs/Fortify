@@ -46,10 +46,8 @@ export class LeaderboardImportService implements FortifyScript {
 			labelNames: ["type"],
 			registers: [this.register],
 		});
-		this.register.registerMetric(gauge);
-		this.register.registerMetric(importCountGauge);
 
-		const end = gauge.startTimer();
+		const end = gauge.labels({ type }).startTimer();
 
 		const leaderboard: ULLeaderboard = await fetch(
 			"https://underlords.com/leaderboarddata?type=" + type,

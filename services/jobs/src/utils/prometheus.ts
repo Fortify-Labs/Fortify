@@ -6,6 +6,7 @@ const { PROMETHEUS_PUSH_GATEWAY } = process.env;
 export const pushToPrometheusGateway = async (
 	register: Registry,
 	logger: Logger,
+	jobName = "fortify_jobs",
 ) => {
 	if (PROMETHEUS_PUSH_GATEWAY) {
 		const gateway = new Pushgateway(PROMETHEUS_PUSH_GATEWAY, [], register);
@@ -22,7 +23,7 @@ export const pushToPrometheusGateway = async (
 		});
 
 		await new Promise<void>((resolve, reject) => {
-			gateway.push({ jobName: "fortify_jobs" }, (err, res, body) => {
+			gateway.push({ jobName }, (err, res, body) => {
 				if (err) {
 					logger.error("An error occurred while pushing metrics", {
 						e: err,
