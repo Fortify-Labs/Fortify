@@ -35,7 +35,7 @@ export const RecentMatchesTable: FunctionComponent<{
 	// --- Data fetching ---
 	const { data, loading, error, previousData } = useProfileMatchQuery({
 		variables: { steamid, limit, offset },
-		errorPolicy: "all",
+		errorPolicy: "none",
 	});
 
 	const { profile } = data ?? previousData ?? {};

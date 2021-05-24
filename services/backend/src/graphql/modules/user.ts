@@ -199,7 +199,7 @@ export class UserModule implements GQLModule {
 
 					const { limit, offset } = getQueryParams(args);
 
-					const matchSlotRepo = await postgres.getMatchSlotRepo();
+					const matchSlotRepo = postgres.getMatchSlotRepo();
 					const [slots, count] = await matchSlotRepo.findAndCount({
 						where: { user: { steamid: parent.steamid } },
 						take: limit,

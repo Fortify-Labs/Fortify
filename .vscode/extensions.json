@@ -2,7 +2,6 @@
 	"recommendations": [
 		"formulahendry.auto-close-tag",
 		"formulahendry.auto-rename-tag",
-		"coenraads.bracket-pair-colorizer",
 		"streetsidesoftware.code-spell-checker",
 		"ms-azuretools.vscode-docker",
 		"mikestead.dotenv",
@@ -21,6 +20,7 @@
 		"gruntfuggly.todo-tree",
 		"geekidos.vdf",
 		"vscode-icons-team.vscode-icons",
-		"visualstudioexptteam.vscodeintellicode"
+		"visualstudioexptteam.vscodeintellicode",
+		"coenraads.bracket-pair-colorizer-2"
 	]
 }

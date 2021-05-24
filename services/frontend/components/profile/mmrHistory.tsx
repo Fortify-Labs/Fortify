@@ -123,7 +123,7 @@ export const MmrHistory: FunctionComponent<{
 		<div>
 			<div
 				className="tabs"
-				style={{ marginLeft: "-2rem", marginTop: "-2rem" }}
+				style={{ marginLeft: "-2rem", marginTop: "-1.5rem" }}
 			>
 				<ul>
 					<li
