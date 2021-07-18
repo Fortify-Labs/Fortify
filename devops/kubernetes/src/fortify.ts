@@ -138,8 +138,7 @@ export class Fortify extends Chart {
 				{ name: "SENTRY_TRACE_SAMPLE_RATE", value: "0" },
 				{
 					name: "IGNORE_ERROR_CODES",
-					value:
-						"NOT_AUTHENTICATED;QUERY_PROFILE_NOT_ALLOWED;QUERY_LOBBY_FPS_LOBBY_ID;QUERY_LOBBY_FPS_NOT_FOUND;QUERY_LOBBY_MATCH_ID;QUERY_LOBBY_ID",
+					value: "NOT_AUTHENTICATED;QUERY_PROFILE_NOT_ALLOWED;QUERY_LOBBY_FPS_LOBBY_ID;QUERY_LOBBY_FPS_NOT_FOUND;QUERY_LOBBY_MATCH_ID;QUERY_LOBBY_ID",
 				},
 			],
 			secrets: [vaultSecret],
@@ -224,6 +223,17 @@ export class Fortify extends Chart {
 				entryPoints: ["web", "websecure"],
 				namespace: "fortify",
 				match: `Host(\`${DOMAIN}\`)`,
+			},
+
+			resources: {
+				limits: {
+					cpu: "1",
+					memory: "512Mi",
+				},
+				requests: {
+					cpu: "0.1",
+					memory: "256Mi",
+				},
 			},
 
 			// TODO: Implement
