@@ -282,10 +282,10 @@ export class Cluster extends Chart {
 						"zookeeper.connection.timeout.ms": 30000,
 
 						"delivery.timeout.ms": 15 * 60 * 1000, // 15 minutes
-						"session.timeout.ms": 30 * 1000, // 30 seconds
-						"heartbeat.interval.ms": 10 * 1000, // 10 seconds
+						"session.timeout.ms": 10 * 1000, // 10 seconds
+						"heartbeat.interval.ms": 3 * 1000, // 3 seconds
 						"max.poll.interval.ms": 15 * 60 * 1000, // 15 minutes
-						"max.poll.records": 10,
+						"max.poll.records": 100,
 						"auto.offset.reset": "earliest",
 					},
 					storage: {

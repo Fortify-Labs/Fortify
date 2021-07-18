@@ -93,7 +93,6 @@ export class PostgresConnector implements HealthCheckable, Connector {
 			entities: ["../shared/build/src/db/entities/**/*.js"],
 			migrations: ["../shared/build/src/db/migrations/**/*.js"],
 			migrationsRun: true,
-			// synchronize: NODE_ENV === "development",
 			synchronize: false,
 			logging: DB_LOG === "true",
 			ssl:

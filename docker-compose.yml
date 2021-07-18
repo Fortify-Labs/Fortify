@@ -1,7 +1,7 @@
 version: "3.7"
 services:
   vault:
-    image: vault:1.6.1
+    image: vault:1.7.3
     command: ["vault", "server", "-config=/vault/config"]
     ports:
       - "8200:8200"

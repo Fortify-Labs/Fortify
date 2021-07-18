@@ -8,7 +8,8 @@ import {
 	GameMode,
 	useProfileMmrHistoryQuery,
 } from "../../gql/ProfileMmrHistory.graphql";
-import { ChartData, Line } from "react-chartjs-2";
+import { Line } from "react-chartjs-2";
+import { ChartData, ChartType, DefaultDataPoint } from "chart.js";
 
 import { subDays } from "date-fns";
 import { DateRangePicker, RangeWithKey } from "react-date-range";
@@ -55,13 +56,17 @@ export const MmrHistory: FunctionComponent<{
 	const { mmrHistory = [] } = data?.profile ?? {};
 
 	// --- Data processing ---
-	const mmrData: ChartData<Chart.ChartData> = {
+	const mmrData: ChartData<
+		ChartType,
+		DefaultDataPoint<ChartType>,
+		string
+	> = {
 		labels: mmrHistory?.map((entry) => new Date(entry?.date).toUTCString()),
 		datasets: [
 			{
 				label: "MMR",
 				type: "line",
-				data: mmrHistory?.map((entry) => entry?.mmr),
+				data: mmrHistory?.map((entry) => entry?.mmr ?? 0) ?? [],
 				borderColor: "#375a7f",
 				backgroundColor: "#375a7f",
 				pointBorderColor: "#375a7f",
@@ -73,7 +78,7 @@ export const MmrHistory: FunctionComponent<{
 			{
 				label: "Rank",
 				type: "line",
-				data: mmrHistory?.map((entry) => entry?.rank),
+				data: mmrHistory?.map((entry) => entry?.rank ?? 0) ?? [],
 				borderColor: "#1abc9c",
 				backgroundColor: "#1abc9c",
 				pointBorderColor: "#1abc9c",
@@ -217,7 +222,8 @@ export const MmrHistory: FunctionComponent<{
 			{!loading &&
 				!error &&
 				((mmrHistory?.length ?? 0) > 0 ? (
-					<Line data={mmrData} options={options} />
+					// FIXME: Some type issues exist here
+					<Line data={mmrData as any} options={options} type={"line"} />
 				) : (
 					<p>No MMR data points recorded</p>
 				))}

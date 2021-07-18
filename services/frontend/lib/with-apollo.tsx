@@ -3,7 +3,6 @@ import { NextPage, NextPageContext } from "next";
 import { ContextFunction } from "apollo-server-core";
 
 import React from "react";
-import Head from "next/head";
 
 import {
 	ApolloProvider,
@@ -145,10 +144,6 @@ export default function withApollo(
 							error
 						);
 					}
-
-					// getDataFromTree does not call componentWillUnmount
-					// head side effect therefore need to be cleared manually
-					Head.rewind();
 				}
 			}
 

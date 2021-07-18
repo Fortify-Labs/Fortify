@@ -24,12 +24,15 @@ export const RecentMatchesTable: FunctionComponent<{
 	let offset = 0;
 	let currentPage = 1;
 	try {
-		const parsedPage = parseInt(pageString);
-
-		if (!isNaN(parsedPage) && parsedPage > 0) {
-			currentPage = parsedPage;
-			offset = (currentPage - 1) * limit;
+		if (pageString) {
+			const parsedPage = parseInt(pageString);
+	
+			if (!isNaN(parsedPage) && parsedPage > 0) {
+				currentPage = parsedPage;
+				offset = (currentPage - 1) * limit;
+			}
 		}
+
 	} catch (e) {}
 
 	// --- Data fetching ---
