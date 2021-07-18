@@ -35,14 +35,14 @@ export class LeaderboardImportService implements FortifyScript {
 		const type = LEADERBOARD_TYPE;
 
 		const gauge = new Gauge({
-			name: `${servicePrefix}_imports`,
-			help: "Gauge tracking duration of imports",
+			name: `${servicePrefix}_${type}_imports`,
+			help: `Gauge tracking duration of ${type} imports`,
 			labelNames: ["type"],
 			registers: [this.register],
 		});
 		const importCountGauge = new Gauge({
-			name: `${servicePrefix}_leaderboard_entries`,
-			help: "Gauge tracking amount of leaderboard entries",
+			name: `${servicePrefix}_${type}_leaderboard_entries`,
+			help: `Gauge tracking amount of ${type} leaderboard entries`,
 			labelNames: ["type"],
 			registers: [this.register],
 		});

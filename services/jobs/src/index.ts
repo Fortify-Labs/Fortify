@@ -2,7 +2,7 @@ import { config } from "dotenv";
 config();
 
 import { sharedSetup } from "@shared/index";
-global.__rootdir__ = __dirname || process.cwd();
+(global as any).__rootdir__ = __dirname || process.cwd();
 sharedSetup();
 
 import { captureException, flush } from "@sentry/node";
