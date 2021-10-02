@@ -51,6 +51,8 @@ And shared libraries:
 
 ## Production deployment
 
+[See Terraform docs](./docs/terraform.md)
+
 [See Kubernetes docs](./docs/kubernetes.md)
 
 [See Vault docs](./docs/vault.md)
