@@ -16,7 +16,7 @@ export class GrafanaChart extends Chart {
 			releaseName: "grafana",
 			values: {
 				image: {
-					tag: "7.4.0",
+					tag: "8.0.6",
 				},
 				replicas: 1,
 				persistence: {
