@@ -1,0 +1,13 @@
+{
+  "language": "typescript",
+  "app": "npm run dev",
+  "projectId": "d532a079-df6a-44a0-9bf7-3fc1e22af7fe",
+  "terraformProviders": [
+    "scaleway/scaleway@~>2.1.0"
+  ],
+  "terraformModules": [],
+  "context": {
+    "excludeStackIdFromLogicalIds": "true",
+    "allowSepCharsInLogicalIds": "true"
+  }
+}
